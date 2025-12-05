@@ -31,7 +31,7 @@ export default function Sidebar({ currentPageName }) {
       <div className="p-6 border-b border-slate-800/50">
         <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
           <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/2b4256145_ChatGPTImageNov28202505_31_49PM.png" 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/063298d30_OADSolutionsRebrand500x200px.png" 
             alt="MarTech Mastery" 
             className="h-10 w-auto"
           />
