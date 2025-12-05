@@ -31,10 +31,10 @@ export default function Sidebar({ currentPageName, onNavigate }) {
       <div className="p-4 border-b border-slate-300">
         <Link to={createPageUrl('Dashboard')}>
           <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/3e91aab4e_OADSolutionsRebrand500x200px4.png" 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/a1bca10c8_OADSolutionsRebrand500x200px4.png" 
             alt="MarTech Mastery" 
-            className="w-full h-auto"
-            style={{ imageRendering: '-webkit-optimize-contrast' }}
+            className="w-full h-auto max-w-full"
+            style={{ imageRendering: 'crisp-edges' }}
             loading="eager"
           />
         </Link>
