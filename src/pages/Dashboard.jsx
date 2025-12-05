@@ -45,38 +45,7 @@ export default function Dashboard() {
     { rank: 15, name: 'Lucas Martin', points: 1290, trend: 'same' },
   ];
 
-  const courses = [
-    {
-      id: 1,
-      title: 'Marketo Fundamentals',
-      description: 'Master the basics of marketing automation',
-      progress: 65,
-      lessons: 12,
-      duration: '4h 30m',
-      category: 'Foundation',
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop'
-    },
-    {
-      id: 2,
-      title: 'Advanced Email Campaigns',
-      description: 'Create high-converting email sequences',
-      progress: 30,
-      lessons: 8,
-      duration: '3h 15m',
-      category: 'Intermediate',
-      image: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=400&h=250&fit=crop'
-    },
-    {
-      id: 3,
-      title: 'Lead Scoring & Nurturing',
-      description: 'Build intelligent lead management systems',
-      progress: 0,
-      lessons: 10,
-      duration: '5h 00m',
-      category: 'Advanced',
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=250&fit=crop'
-    }
-  ];
+
 
   const stats = [
     { label: 'Courses Completed', value: '3', icon: BookOpen, color: 'from-blue-500 to-cyan-500' },
@@ -131,73 +100,50 @@ export default function Dashboard() {
         transition={{ delay: 0.2 }}
         className="mb-8"
       >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-slate-900">Continue Learning</h2>
-          <Link 
-            to={createPageUrl('Courses')}
-            className="text-sm text-blue-600 font-medium hover:text-blue-700 flex items-center gap-1"
-          >
-            View all <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
+        <a
+          href="https://www.the-growth-academy.co/library"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block group"
+        >
+          <div className="bg-gradient-to-br from-purple-600 to-violet-500 rounded-3xl p-12 text-white hover:shadow-2xl hover:shadow-purple-500/30 transition-all duration-300 relative overflow-hidden">
+            {/* Background pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+              <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2"></div>
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course, index) => (
-            <motion.div
-              key={course.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * index }}
-              className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200/50 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300"
-            >
-              <div className="relative h-40 overflow-hidden">
-                <img 
-                  src={course.image} 
-                  alt={course.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <span className="absolute top-3 left-3 px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold text-slate-700">
-                  {course.category}
-                </span>
-                {course.progress > 0 && (
-                  <button className="absolute bottom-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                    <Play className="w-4 h-4 text-slate-900 ml-0.5" />
-                  </button>
-                )}
-              </div>
-              <div className="p-5">
-                <h3 className="font-bold text-slate-900 mb-1 group-hover:text-blue-600 transition-colors">
-                  {course.title}
-                </h3>
-                <p className="text-sm text-slate-500 mb-4 line-clamp-2">
-                  {course.description}
+            <div className="relative flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex-1 text-center md:text-left">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold mb-4">
+                  <GraduationCap className="w-4 h-4" />
+                  Learning Platform
+                </div>
+                <h2 className="text-4xl font-bold mb-3">Continue Your Learning</h2>
+                <p className="text-white/90 text-lg mb-6">
+                  Access all course materials, videos, and resources on the Growth Academy platform
                 </p>
-                <div className="flex items-center gap-4 text-xs text-slate-400 mb-4">
-                  <span className="flex items-center gap-1">
-                    <BookOpen className="w-3.5 h-3.5" /> {course.lessons} lessons
+                <div className="flex flex-wrap items-center gap-4 text-sm">
+                  <span className="flex items-center gap-2">
+                    <Play className="w-4 h-4" /> Video lessons
                   </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5" /> {course.duration}
+                  <span className="flex items-center gap-2">
+                    <BookOpen className="w-4 h-4" /> Course materials
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <Target className="w-4 h-4" /> Live sessions
                   </span>
                 </div>
-                {course.progress > 0 ? (
-                  <div>
-                    <div className="flex items-center justify-between text-xs mb-2">
-                      <span className="text-slate-500">Progress</span>
-                      <span className="font-semibold text-slate-700">{course.progress}%</span>
-                    </div>
-                    <Progress value={course.progress} className="h-1.5" />
-                  </div>
-                ) : (
-                  <button className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-semibold text-slate-700 transition-colors">
-                    Start Course
-                  </button>
-                )}
               </div>
-            </motion.div>
-          ))}
-        </div>
+
+              <div className="flex-shrink-0">
+                <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                  <Play className="w-10 h-10 text-purple-600 ml-1" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
       </motion.div>
 
       {/* Cohort Leaderboard & Current Tutor */}
