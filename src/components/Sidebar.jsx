@@ -30,13 +30,11 @@ export default function Sidebar({ currentPageName }) {
       {/* Logo */}
       <div className="p-6 border-b border-slate-800/50">
         <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/25">
-            <Zap className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-white tracking-tight">MarTech</h1>
-            <p className="text-xs text-slate-400 font-medium">Mastery Program</p>
-          </div>
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/2b4256145_ChatGPTImageNov28202505_31_49PM.png" 
+            alt="MarTech Mastery" 
+            className="h-10 w-auto"
+          />
         </Link>
       </div>
 
@@ -53,7 +51,7 @@ export default function Sidebar({ currentPageName }) {
           rel="noopener noreferrer"
           className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-slate-800/30 hover:bg-slate-800/60 border border-transparent"
         >
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-emerald-600 to-teal-500">
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-purple-600 to-violet-500">
             <GraduationCap className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1">
@@ -72,7 +70,7 @@ export default function Sidebar({ currentPageName }) {
           rel="noopener noreferrer"
           className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-slate-800/30 hover:bg-slate-800/60 border border-transparent"
         >
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-red-600 to-orange-500">
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-orange-500 to-amber-500">
             <ExternalLink className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1">
@@ -99,17 +97,17 @@ export default function Sidebar({ currentPageName }) {
               className={`
                 flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
                 ${isActive 
-                  ? 'bg-blue-500/10 text-blue-400' 
+                  ? 'bg-orange-500/10 text-orange-400' 
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
                 }
               `}
             >
-              <item.icon className={`w-5 h-5 ${isActive ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'}`} />
+              <item.icon className={`w-5 h-5 ${isActive ? 'text-orange-400' : 'text-slate-500 group-hover:text-slate-300'}`} />
               <span className="font-medium text-sm">{item.name}</span>
               {isActive && (
                 <motion.div 
                   layoutId="activeIndicator"
-                  className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400"
+                  className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-400"
                 />
               )}
             </Link>
