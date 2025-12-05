@@ -73,33 +73,23 @@ export default function Sidebar({ currentPageName }) {
         </p>
         
         {/* Begin Learning - Kajabi */}
-        <Link
-          to={createPageUrl('KajabiBrowser')}
-          className={`
-            flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2
-            ${currentPageName === 'KajabiBrowser'
-              ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30'
-              : 'bg-slate-800/30 hover:bg-slate-800/60 border border-transparent'
-            }
-          `}
+        <a
+          href="https://www.the-growth-academy.co/library"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-slate-800/30 hover:bg-slate-800/60 border border-transparent"
         >
-          <div className={`
-            w-9 h-9 rounded-lg flex items-center justify-center
-            ${currentPageName === 'KajabiBrowser'
-              ? 'bg-gradient-to-br from-emerald-500 to-teal-500'
-              : 'bg-gradient-to-br from-emerald-600 to-teal-500'
-            }
-          `}>
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-emerald-600 to-teal-500">
             <GraduationCap className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1">
-            <p className={`text-sm font-semibold ${currentPageName === 'KajabiBrowser' ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
+            <p className="text-sm font-semibold text-slate-300 group-hover:text-white">
               Begin Learning
             </p>
-            <p className="text-[10px] text-slate-500">Growth Academy</p>
+            <p className="text-[10px] text-slate-500">Opens in new tab</p>
           </div>
-          <ChevronRight className={`w-4 h-4 ${currentPageName === 'KajabiBrowser' ? 'text-emerald-400' : 'text-slate-600 group-hover:text-slate-400'}`} />
-        </Link>
+          <ExternalLink className="w-4 h-4 text-slate-600 group-hover:text-slate-400" />
+        </a>
 
         {/* Visit Marketo - Opens in new tab */}
         <a
