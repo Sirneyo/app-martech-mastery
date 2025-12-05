@@ -34,6 +34,8 @@ export default function Sidebar({ currentPageName, onNavigate }) {
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/3e91aab4e_OADSolutionsRebrand500x200px4.png" 
             alt="MarTech Mastery" 
             className="w-full h-auto"
+            style={{ imageRendering: '-webkit-optimize-contrast' }}
+            loading="eager"
           />
         </Link>
       </div>
