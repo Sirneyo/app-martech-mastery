@@ -28,12 +28,12 @@ export default function Sidebar({ currentPageName }) {
   return (
     <aside className="w-72 bg-gradient-to-b from-slate-950 to-slate-900 min-h-screen flex flex-col border-r border-slate-800/50">
       {/* Logo */}
-      <div className="p-6 border-b border-slate-800/50">
-        <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
+      <div className="p-4 border-b border-slate-800/50">
+        <Link to={createPageUrl('Dashboard')}>
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/063298d30_OADSolutionsRebrand500x200px.png" 
             alt="MarTech Mastery" 
-            className="h-10 w-auto"
+            className="w-full h-auto"
           />
         </Link>
       </div>
