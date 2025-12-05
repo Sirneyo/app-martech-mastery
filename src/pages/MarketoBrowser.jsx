@@ -22,7 +22,7 @@ import {
 export default function MarketoBrowser() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const marketoUrl = 'https://experience.adobe.com/#/@oadsolutionsltd/so:074-HGM-257/marketo-engage/classic/MM0A1';
+  const marketoUrl = 'https://experience.adobe.com/#/@oadsolutionsltd/';
 
   const handleRefresh = () => {
     setIsLoading(true);
