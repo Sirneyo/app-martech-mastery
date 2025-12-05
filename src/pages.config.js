@@ -4,6 +4,7 @@ import Certifications from './pages/Certifications';
 import Assignments from './pages/Assignments';
 import MyProjects from './pages/MyProjects';
 import MyPortfolio from './pages/MyPortfolio';
+import AITools from './pages/AITools';
 import __Layout from './Layout.jsx';
 
 
@@ -14,6 +15,7 @@ export const PAGES = {
     "Assignments": Assignments,
     "MyProjects": MyProjects,
     "MyPortfolio": MyPortfolio,
+    "AITools": AITools,
 }
 
 export const pagesConfig = {
