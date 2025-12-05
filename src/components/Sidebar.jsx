@@ -31,7 +31,7 @@ export default function Sidebar({ currentPageName }) {
       <div className="p-4 border-b border-slate-800/50">
         <Link to={createPageUrl('Dashboard')}>
           <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/063298d30_OADSolutionsRebrand500x200px.png" 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/3446db32b_OADSolutionsRebrand500x200px2.png" 
             alt="MarTech Mastery" 
             className="w-full h-auto"
           />
