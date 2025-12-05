@@ -10,12 +10,41 @@ import {
   ChevronRight,
   Zap,
   Target,
-  BarChart3
+  BarChart3,
+  Trophy,
+  User,
+  Mail,
+  Calendar
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
 
 export default function Dashboard() {
+  const currentTutor = {
+    name: 'Sarah Mitchell',
+    role: 'Senior MarTech Consultant',
+    email: 'sarah.mitchell@martech-mastery.com',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face'
+  };
+
+  const leaderboard = [
+    { rank: 1, name: 'Alex Johnson', points: 2450, trend: 'up' },
+    { rank: 2, name: 'Maria Garcia', points: 2380, trend: 'up' },
+    { rank: 3, name: 'James Chen', points: 2290, trend: 'down' },
+    { rank: 4, name: 'Emma Wilson', points: 2150, trend: 'up' },
+    { rank: 5, name: 'David Kim', points: 2080, trend: 'same' },
+    { rank: 6, name: 'Sophie Brown', points: 1950, trend: 'up' },
+    { rank: 7, name: 'Michael Lee', points: 1890, trend: 'down' },
+    { rank: 8, name: 'Olivia Taylor', points: 1820, trend: 'up' },
+    { rank: 9, name: 'Daniel Martinez', points: 1750, trend: 'same' },
+    { rank: 10, name: 'Isabella Anderson', points: 1680, trend: 'down' },
+    { rank: 11, name: 'William Thomas', points: 1590, trend: 'up' },
+    { rank: 12, name: 'Ava Jackson', points: 1520, trend: 'same' },
+    { rank: 13, name: 'Ethan White', points: 1450, trend: 'down' },
+    { rank: 14, name: 'Mia Harris', points: 1380, trend: 'up' },
+    { rank: 15, name: 'Lucas Martin', points: 1290, trend: 'same' },
+  ];
+
   const courses = [
     {
       id: 1,
@@ -171,15 +200,99 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
-      {/* Quick Actions */}
+      {/* Cohort Leaderboard & Current Tutor */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
+      >
+        {/* Cohort Leaderboard */}
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200/50 overflow-hidden">
+          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                <Trophy className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="font-bold text-slate-900">Cohort Leaderboard</h2>
+                <p className="text-xs text-slate-500">Weekly points ranking</p>
+              </div>
+            </div>
+          </div>
+          <div className="max-h-[400px] overflow-y-auto">
+            {leaderboard.map((student, index) => (
+              <div 
+                key={student.rank}
+                className={`flex items-center gap-4 px-5 py-3 border-b border-slate-50 last:border-0 ${
+                  index < 3 ? 'bg-gradient-to-r from-amber-50/50 to-transparent' : ''
+                }`}
+              >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                  index === 0 ? 'bg-amber-400 text-white' :
+                  index === 1 ? 'bg-slate-300 text-white' :
+                  index === 2 ? 'bg-amber-600 text-white' :
+                  'bg-slate-100 text-slate-500'
+                }`}>
+                  {student.rank}
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-slate-900 text-sm">{student.name}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-slate-700">{student.points.toLocaleString()}</span>
+                  <span className="text-xs text-slate-400">pts</span>
+                  {student.trend === 'up' && <TrendingUp className="w-4 h-4 text-green-500" />}
+                  {student.trend === 'down' && <TrendingUp className="w-4 h-4 text-red-500 rotate-180" />}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Current Tutor */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/50 p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+              <User className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="font-bold text-slate-900">Current Tutor</h2>
+              <p className="text-xs text-slate-500">Your assigned mentor</p>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <img 
+              src={currentTutor.avatar} 
+              alt={currentTutor.name}
+              className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-4 border-slate-100"
+            />
+            <h3 className="font-bold text-lg text-slate-900">{currentTutor.name}</h3>
+            <p className="text-sm text-slate-500 mb-4">{currentTutor.role}</p>
+
+            <a 
+              href={`mailto:${currentTutor.email}`}
+              className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+            >
+              <Mail className="w-4 h-4" />
+              Contact Tutor
+            </a>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Quick Actions */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
         className="grid grid-cols-1 md:grid-cols-2 gap-4"
       >
-        <Link 
-          to={createPageUrl('MarketoBrowser')}
+        <a 
+          href="https://experience.adobe.com/#/@oadsolutionsltd/"
+          target="_blank"
+          rel="noopener noreferrer"
           className="group bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl p-6 text-white hover:shadow-xl hover:shadow-red-500/25 transition-all duration-300"
         >
           <div className="flex items-center gap-4">
@@ -192,7 +305,7 @@ export default function Dashboard() {
             </div>
             <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </div>
-        </Link>
+        </a>
 
         <Link 
           to={createPageUrl('Certifications')}
@@ -210,6 +323,6 @@ export default function Dashboard() {
           </div>
         </Link>
       </motion.div>
-    </div>
-  );
-}
+      </div>
+      );
+      }
