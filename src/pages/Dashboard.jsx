@@ -14,7 +14,8 @@ import {
   Trophy,
   User,
   Mail,
-  Calendar
+  Calendar,
+  GraduationCap
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
