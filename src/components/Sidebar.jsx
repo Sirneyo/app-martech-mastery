@@ -26,7 +26,7 @@ export default function Sidebar({ currentPageName }) {
   ];
 
   return (
-    <aside className="w-72 bg-gradient-to-b from-slate-950 to-slate-900 min-h-screen flex flex-col border-r border-slate-800/50">
+    <aside className="w-72 bg-gradient-to-b from-slate-100 to-slate-200 min-h-screen flex flex-col border-r border-slate-300">
       {/* Logo */}
       <div className="p-4 border-b border-slate-800/50">
         <Link to={createPageUrl('Dashboard')}>
