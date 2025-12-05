@@ -34,40 +34,8 @@ export default function Sidebar({ currentPageName }) {
         </Link>
       </div>
 
-      {/* Main Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
-        <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
-          Learning
-        </p>
-        {navItems.map((item) => {
-          const isActive = currentPageName === item.page;
-          return (
-            <Link
-              key={item.name}
-              to={createPageUrl(item.page)}
-              className={`
-                flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
-                ${isActive 
-                  ? 'bg-blue-500/10 text-blue-400' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-                }
-              `}
-            >
-              <item.icon className={`w-5 h-5 ${isActive ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'}`} />
-              <span className="font-medium text-sm">{item.name}</span>
-              {isActive && (
-                <motion.div 
-                  layoutId="activeIndicator"
-                  className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400"
-                />
-              )}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Tools Section */}
-      <div className="p-4 border-t border-slate-800/50">
+      {/* Tools - Primary Navigation */}
+      <div className="p-4">
         <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
           Tools
         </p>
@@ -110,6 +78,38 @@ export default function Sidebar({ currentPageName }) {
           <ExternalLink className="w-4 h-4 text-slate-600 group-hover:text-slate-400" />
         </a>
       </div>
+
+      {/* Secondary Navigation */}
+      <nav className="flex-1 p-4 space-y-1 border-t border-slate-800/50">
+        <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
+          Learning
+        </p>
+        {navItems.map((item) => {
+          const isActive = currentPageName === item.page;
+          return (
+            <Link
+              key={item.name}
+              to={createPageUrl(item.page)}
+              className={`
+                flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
+                ${isActive 
+                  ? 'bg-blue-500/10 text-blue-400' 
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                }
+              `}
+            >
+              <item.icon className={`w-5 h-5 ${isActive ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'}`} />
+              <span className="font-medium text-sm">{item.name}</span>
+              {isActive && (
+                <motion.div 
+                  layoutId="activeIndicator"
+                  className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400"
+                />
+              )}
+            </Link>
+          );
+        })}
+      </nav>
 
       {/* User Section */}
       <div className="p-4 border-t border-slate-800/50">
