@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function Sidebar({ currentPageName }) {
+export default function Sidebar({ currentPageName, onNavigate }) {
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
     { name: 'Assignments', icon: ClipboardList, page: 'Assignments' },
