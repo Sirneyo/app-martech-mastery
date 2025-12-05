@@ -83,8 +83,8 @@ export default function Assignments() {
         <Progress value={progressPercentage} className="h-2" />
       </motion.div>
 
-      {/* Weeks Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Weeks List */}
+      <div className="space-y-4">
         {weeks.map((week, index) => (
           <motion.div
             key={week.week}
