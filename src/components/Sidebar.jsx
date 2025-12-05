@@ -66,38 +66,59 @@ export default function Sidebar({ currentPageName }) {
         })}
       </nav>
 
-      {/* Marketo Section */}
+      {/* Tools Section */}
       <div className="p-4 border-t border-slate-800/50">
         <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
           Tools
         </p>
+        
+        {/* Begin Learning - Kajabi */}
         <Link
-          to={createPageUrl('MarketoBrowser')}
+          to={createPageUrl('KajabiBrowser')}
           className={`
-            flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group
-            ${currentPageName === 'MarketoBrowser'
-              ? 'bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/30'
+            flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2
+            ${currentPageName === 'KajabiBrowser'
+              ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30'
               : 'bg-slate-800/30 hover:bg-slate-800/60 border border-transparent'
             }
           `}
         >
           <div className={`
             w-9 h-9 rounded-lg flex items-center justify-center
-            ${currentPageName === 'MarketoBrowser'
-              ? 'bg-gradient-to-br from-red-500 to-orange-500'
-              : 'bg-gradient-to-br from-red-600 to-orange-500'
+            ${currentPageName === 'KajabiBrowser'
+              ? 'bg-gradient-to-br from-emerald-500 to-teal-500'
+              : 'bg-gradient-to-br from-emerald-600 to-teal-500'
             }
           `}>
+            <GraduationCap className="w-4 h-4 text-white" />
+          </div>
+          <div className="flex-1">
+            <p className={`text-sm font-semibold ${currentPageName === 'KajabiBrowser' ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
+              Begin Learning
+            </p>
+            <p className="text-[10px] text-slate-500">Growth Academy</p>
+          </div>
+          <ChevronRight className={`w-4 h-4 ${currentPageName === 'KajabiBrowser' ? 'text-emerald-400' : 'text-slate-600 group-hover:text-slate-400'}`} />
+        </Link>
+
+        {/* Visit Marketo - Opens in new tab */}
+        <a
+          href="https://experience.adobe.com/#/@oadsolutionsltd/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-slate-800/30 hover:bg-slate-800/60 border border-transparent"
+        >
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-red-600 to-orange-500">
             <ExternalLink className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1">
-            <p className={`text-sm font-semibold ${currentPageName === 'MarketoBrowser' ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
+            <p className="text-sm font-semibold text-slate-300 group-hover:text-white">
               Visit Marketo
             </p>
-            <p className="text-[10px] text-slate-500">Open platform</p>
+            <p className="text-[10px] text-slate-500">Opens in new tab</p>
           </div>
-          <ChevronRight className={`w-4 h-4 ${currentPageName === 'MarketoBrowser' ? 'text-red-400' : 'text-slate-600 group-hover:text-slate-400'}`} />
-        </Link>
+          <ExternalLink className="w-4 h-4 text-slate-600 group-hover:text-slate-400" />
+        </a>
       </div>
 
       {/* User Section */}

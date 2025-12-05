@@ -1,15 +1,15 @@
 import Dashboard from './pages/Dashboard';
-import MarketoBrowser from './pages/MarketoBrowser';
 import Courses from './pages/Courses';
 import Certifications from './pages/Certifications';
+import KajabiBrowser from './pages/KajabiBrowser';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Dashboard": Dashboard,
-    "MarketoBrowser": MarketoBrowser,
     "Courses": Courses,
     "Certifications": Certifications,
+    "KajabiBrowser": KajabiBrowser,
 }
 
 export const pagesConfig = {
