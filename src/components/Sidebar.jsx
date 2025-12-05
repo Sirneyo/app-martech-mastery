@@ -28,7 +28,7 @@ export default function Sidebar({ currentPageName }) {
   return (
     <aside className="w-72 bg-gradient-to-b from-slate-100 to-slate-200 min-h-screen flex flex-col border-r border-slate-300">
       {/* Logo */}
-      <div className="p-4 border-b border-slate-800/50">
+      <div className="p-4 border-b border-slate-300">
         <Link to={createPageUrl('Dashboard')}>
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/3446db32b_OADSolutionsRebrand500x200px2.png" 
@@ -49,18 +49,18 @@ export default function Sidebar({ currentPageName }) {
           href="https://www.the-growth-academy.co/library"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-slate-800/30 hover:bg-slate-800/60 border border-transparent"
+          className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300"
         >
           <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-purple-600 to-violet-500">
             <GraduationCap className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-slate-300 group-hover:text-white">
+            <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
               Begin Learning
             </p>
             <p className="text-[10px] text-slate-500">Opens in new tab</p>
           </div>
-          <ExternalLink className="w-4 h-4 text-slate-600 group-hover:text-slate-400" />
+          <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
         </a>
 
         {/* Visit Marketo - Opens in new tab */}
@@ -68,23 +68,23 @@ export default function Sidebar({ currentPageName }) {
           href="https://experience.adobe.com/#/@oadsolutionsltd/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-slate-800/30 hover:bg-slate-800/60 border border-transparent"
+          className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300"
         >
           <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-orange-500 to-amber-500">
             <ExternalLink className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-slate-300 group-hover:text-white">
+            <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
               Visit Marketo
             </p>
             <p className="text-[10px] text-slate-500">Opens in new tab</p>
           </div>
-          <ExternalLink className="w-4 h-4 text-slate-600 group-hover:text-slate-400" />
+          <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
         </a>
       </div>
 
       {/* Secondary Navigation */}
-      <nav className="flex-1 p-4 space-y-1 border-t border-slate-800/50">
+      <nav className="flex-1 p-4 space-y-1 border-t border-slate-300">
         <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
           Learning
         </p>
@@ -97,17 +97,17 @@ export default function Sidebar({ currentPageName }) {
               className={`
                 flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
                 ${isActive 
-                  ? 'bg-orange-500/10 text-orange-400' 
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                  ? 'bg-orange-500/10 text-orange-600' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
                 }
               `}
             >
-              <item.icon className={`w-5 h-5 ${isActive ? 'text-orange-400' : 'text-slate-500 group-hover:text-slate-300'}`} />
+              <item.icon className={`w-5 h-5 ${isActive ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
               <span className="font-medium text-sm">{item.name}</span>
               {isActive && (
                 <motion.div 
                   layoutId="activeIndicator"
-                  className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-400"
+                  className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-600"
                 />
               )}
             </Link>
@@ -116,13 +116,13 @@ export default function Sidebar({ currentPageName }) {
       </nav>
 
       {/* User Section */}
-      <div className="p-4 border-t border-slate-800/50">
+      <div className="p-4 border-t border-slate-300">
         <div className="flex items-center gap-3 px-2">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-700 to-slate-600 flex items-center justify-center">
-            <GraduationCap className="w-4 h-4 text-slate-300" />
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-600 to-slate-500 flex items-center justify-center">
+            <GraduationCap className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-slate-200 truncate">Student</p>
+            <p className="text-sm font-medium text-slate-700 truncate">Student</p>
             <p className="text-[10px] text-slate-500">Pro Member</p>
           </div>
         </div>
