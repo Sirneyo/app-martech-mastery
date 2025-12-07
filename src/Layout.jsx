@@ -39,7 +39,7 @@ export default function Layout({ children, currentPageName }) {
         </div>
       </div>
 
-      <main className="flex-1 overflow-auto lg:ml-0">
+      <main className="flex-1 h-screen overflow-y-auto lg:ml-0">
         {children}
       </main>
     </div>
