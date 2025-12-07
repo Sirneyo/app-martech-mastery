@@ -71,8 +71,12 @@ export default function Sidebar({ currentPageName, onNavigate }) {
           rel="noopener noreferrer"
           className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300"
         >
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-orange-500 to-amber-500">
-            <ExternalLink className="w-4 h-4 text-white" />
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/81e4b8812_AdobeIcon.png" 
+              alt="Adobe" 
+              className="w-6 h-6"
+            />
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
