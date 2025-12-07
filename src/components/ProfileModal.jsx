@@ -9,14 +9,16 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User, Loader2 } from 'lucide-react';
+import { User, Loader2, Upload, Camera } from 'lucide-react';
 
 export default function ProfileModal({ open, onOpenChange }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     full_name: '',
+    profile_picture: '',
   });
 
   useEffect(() => {
@@ -31,11 +33,27 @@ export default function ProfileModal({ open, onOpenChange }) {
       setUser(userData);
       setFormData({
         full_name: userData.full_name || '',
+        profile_picture: userData.profile_picture || '',
       });
       setLoading(false);
     } catch (error) {
       console.error('Error loading user:', error);
       setLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setFormData({ ...formData, profile_picture: file_url });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -68,6 +86,41 @@ export default function ProfileModal({ open, onOpenChange }) {
           </div>
         ) : (
           <div className="space-y-4 py-4">
+            <div className="flex flex-col items-center gap-4 pb-4">
+              <div className="relative">
+                {formData.profile_picture ? (
+                  <img
+                    src={formData.profile_picture}
+                    alt="Profile"
+                    className="w-24 h-24 rounded-full object-cover border-4 border-slate-100"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-slate-600 to-slate-500 flex items-center justify-center">
+                    <User className="w-12 h-12 text-white" />
+                  </div>
+                )}
+                <label
+                  htmlFor="profile-upload"
+                  className="absolute bottom-0 right-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-600 transition-colors shadow-lg"
+                >
+                  {uploading ? (
+                    <Loader2 className="w-4 h-4 text-white animate-spin" />
+                  ) : (
+                    <Camera className="w-4 h-4 text-white" />
+                  )}
+                </label>
+                <input
+                  id="profile-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  disabled={uploading}
+                />
+              </div>
+              <p className="text-xs text-slate-500">Click the camera icon to upload a photo</p>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="full_name">Full Name</Label>
               <Input

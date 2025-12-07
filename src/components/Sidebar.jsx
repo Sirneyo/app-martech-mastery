@@ -163,9 +163,17 @@ export default function Sidebar({ currentPageName, onNavigate }) {
           onClick={() => setProfileModalOpen(true)}
           className="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/70 transition-all group"
         >
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-600 to-slate-500 flex items-center justify-center">
-            <GraduationCap className="w-4 h-4 text-white" />
-          </div>
+          {user?.profile_picture ? (
+            <img
+              src={user.profile_picture}
+              alt={user.full_name}
+              className="w-9 h-9 rounded-full object-cover border-2 border-slate-200"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-600 to-slate-500 flex items-center justify-center">
+              <GraduationCap className="w-4 h-4 text-white" />
+            </div>
+          )}
           <div className="flex-1 min-w-0 text-left">
             <p className="text-sm font-medium text-slate-700 truncate">
               {user?.full_name || 'Loading...'}
