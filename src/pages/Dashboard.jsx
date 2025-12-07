@@ -229,11 +229,73 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
-      {/* Quick Actions */}
+      {/* Achievements Section */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
+        className="mb-8"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">Achievements</h2>
+            <p className="text-sm text-slate-500">Track your milestones and unlock rewards</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Earned Achievement 1 */}
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-5 shadow-sm">
+            <div className="text-4xl mb-3">⚡</div>
+            <h3 className="font-bold text-slate-900 mb-1">Fast Learner</h3>
+            <p className="text-xs text-slate-600 mb-3">Complete 3 lessons in one day</p>
+            <Badge className="bg-amber-500 text-white hover:bg-amber-600">
+              <Trophy className="w-3 h-3 mr-1" /> Unlocked
+            </Badge>
+          </div>
+
+          {/* Earned Achievement 2 */}
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-5 shadow-sm">
+            <div className="text-4xl mb-3">🔥</div>
+            <h3 className="font-bold text-slate-900 mb-1">7-Day Streak</h3>
+            <p className="text-xs text-slate-600 mb-3">Learn for 7 consecutive days</p>
+            <Badge className="bg-amber-500 text-white hover:bg-amber-600">
+              <Trophy className="w-3 h-3 mr-1" /> Unlocked
+            </Badge>
+          </div>
+
+          {/* Earned Achievement 3 */}
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-5 shadow-sm">
+            <div className="text-4xl mb-3">🎯</div>
+            <h3 className="font-bold text-slate-900 mb-1">First Course</h3>
+            <p className="text-xs text-slate-600 mb-3">Complete your first course</p>
+            <Badge className="bg-amber-500 text-white hover:bg-amber-600">
+              <Trophy className="w-3 h-3 mr-1" /> Unlocked
+            </Badge>
+          </div>
+
+          {/* Next Achievement to Unlock */}
+          <div className="bg-white border-2 border-blue-300 rounded-xl p-5 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 bg-blue-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg">
+              NEXT
+            </div>
+            <div className="text-4xl mb-3 opacity-40">🧠</div>
+            <h3 className="font-bold text-slate-900 mb-1">Quiz Master</h3>
+            <p className="text-xs text-slate-600 mb-3">Score 100% on any quiz</p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mt-3">
+              <p className="text-[10px] text-blue-700 font-medium">
+                📝 Complete Week 3 quiz with perfect score
+              </p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Quick Actions */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
         className="grid grid-cols-1 md:grid-cols-2 gap-4"
       >
         <a 
