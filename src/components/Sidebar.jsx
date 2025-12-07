@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { base44 } from '@/api/base44Client';
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -12,29 +11,11 @@ import {
   Zap,
   ClipboardList,
   FolderOpen,
-  Briefcase,
-  Settings
+  Briefcase
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import ProfileModal from '@/components/ProfileModal';
 
 export default function Sidebar({ currentPageName, onNavigate }) {
-  const [user, setUser] = useState(null);
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
-
-  useEffect(() => {
-    loadUser();
-  }, []);
-
-  const loadUser = async () => {
-    try {
-      const userData = await base44.auth.me();
-      setUser(userData);
-    } catch (error) {
-      console.error('Error loading user:', error);
-    }
-  };
-
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
     { name: 'Assignments', icon: ClipboardList, page: 'Assignments' },
@@ -157,36 +138,7 @@ export default function Sidebar({ currentPageName, onNavigate }) {
         })}
       </nav>
 
-      {/* User Section */}
-      <div className="p-4 border-t border-slate-300">
-        <button
-          onClick={() => setProfileModalOpen(true)}
-          className="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/70 transition-all group"
-        >
-          {user?.profile_picture ? (
-            <img
-              src={user.profile_picture}
-              alt={user.full_name}
-              className="w-9 h-9 rounded-full object-cover border-2 border-slate-200"
-            />
-          ) : (
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-600 to-slate-500 flex items-center justify-center">
-              <GraduationCap className="w-4 h-4 text-white" />
-            </div>
-          )}
-          <div className="flex-1 min-w-0 text-left">
-            <p className="text-sm font-medium text-slate-700 truncate">
-              {user?.full_name || 'Loading...'}
-            </p>
-            <p className="text-[10px] text-slate-500 capitalize">
-              {user?.role || 'user'} • Edit Profile
-            </p>
-          </div>
-          <Settings className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
-        </button>
-      </div>
 
-      <ProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
     </aside>
   );
 }
