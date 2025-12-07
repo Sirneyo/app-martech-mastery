@@ -80,7 +80,7 @@ export default function Sidebar({ currentPageName, onNavigate }) {
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
-              Visit Marketo
+              Launch Marketo
             </p>
             <p className="text-[10px] text-slate-500">Opens in new tab</p>
           </div>
