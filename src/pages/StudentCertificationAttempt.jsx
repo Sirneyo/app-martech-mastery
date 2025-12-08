@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Clock, AlertCircle } from 'lucide-react';
+import { Clock, ChevronLeft, ChevronRight, AlertCircle, List } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export default function StudentCertificationAttempt() {
-  const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
   const attemptId = urlParams.get('id');
+  const queryClient = useQueryClient();
 
-  const [answers, setAnswers] = useState({});
+  const [currentAnswer, setCurrentAnswer] = useState(null);
+  const [showWarning, setShowWarning] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(null);
 
   const { data: attempt } = useQuery({
@@ -58,25 +59,37 @@ export default function StudentCertificationAttempt() {
     enabled: attemptQuestions.length > 0,
   });
 
-  // Group questions by section
-  const questionsBySection = sections.map(section => {
-    const sectionAttemptQs = attemptQuestions
-      .filter(aq => aq.exam_section_id === section.id)
-      .sort((a, b) => a.order_index - b.order_index);
-    
-    const sectionQuestions = sectionAttemptQs.map(aq => {
-      const question = allQuestions.find(q => q.id === aq.question_id);
-      return { ...question, order_index: aq.order_index };
-    }).filter(q => q.id);
-    
-    return { section, questions: sectionQuestions };
+  const { data: existingAnswers = [] } = useQuery({
+    queryKey: ['exam-answers', attemptId],
+    queryFn: () => base44.entities.ExamAnswer.filter({ attempt_id: attemptId }),
+    enabled: !!attemptId,
   });
 
+  // Get current question based on attempt's current_question_index
+  const currentQuestionIndex = attempt?.current_question_index || 1;
+  const currentAttemptQuestion = attemptQuestions.find(aq => aq.global_order === currentQuestionIndex);
+  const currentQuestion = allQuestions.find(q => q.id === currentAttemptQuestion?.question_id);
+  const currentSection = sections.find(s => s.id === currentAttemptQuestion?.exam_section_id);
+
+  // Load existing answer for current question
   useEffect(() => {
-    if (!attempt || !examConfig) return;
+    if (!currentQuestion?.id) return;
+    const existingAnswer = existingAnswers.find(a => a.question_id === currentQuestion.id);
+    if (existingAnswer) {
+      const parsed = JSON.parse(existingAnswer.answer_json);
+      setCurrentAnswer(parsed.keys.length === 1 ? parsed.keys[0] : parsed.keys);
+    } else {
+      setCurrentAnswer(null);
+    }
+    setShowWarning(false);
+  }, [currentQuestion?.id, existingAnswers]);
+
+  // Timer
+  useEffect(() => {
+    if (!attempt || !examConfig?.duration_minutes) return;
     
     const startTime = new Date(attempt.started_at);
-    const durationMs = (examConfig.duration_minutes || 60) * 60 * 1000;
+    const durationMs = examConfig.duration_minutes * 60 * 1000;
     const endTime = startTime.getTime() + durationMs;
 
     const interval = setInterval(() => {
@@ -85,149 +98,203 @@ export default function StudentCertificationAttempt() {
       setTimeRemaining(remaining);
 
       if (remaining === 0) {
-        handleSubmit();
+        handleFinalSubmit();
       }
     }, 1000);
 
     return () => clearInterval(interval);
   }, [attempt, examConfig]);
 
-  const submitMutation = useMutation({
-    mutationFn: async () => {
-      // Calculate score
-      const answerRecords = [];
-      let correctCount = 0;
-      const totalCount = examConfig.total_questions || 80;
-
-      for (const question of allQuestions) {
-        const studentAnswer = answers[question.id];
-        const correctAnswer = JSON.parse(question.correct_answer_json);
-        
-        let isCorrect = false;
-        if (studentAnswer) {
-          const studentKeys = Array.isArray(studentAnswer) 
-            ? studentAnswer.sort() 
-            : [studentAnswer];
-          const correctKeys = correctAnswer.keys.sort();
-          
-          isCorrect = JSON.stringify(studentKeys) === JSON.stringify(correctKeys);
-        }
-
-        if (isCorrect) correctCount++;
-
-        answerRecords.push({
-          attempt_id: attemptId,
-          question_id: question.id,
-          answer_json: JSON.stringify({ keys: Array.isArray(studentAnswer) ? studentAnswer : [studentAnswer] }),
-          is_correct: isCorrect,
-          points_earned: isCorrect ? 1 : 0,
-        });
-      }
-
-      // Create answer records
-      await base44.entities.ExamAnswer.bulkCreate(answerRecords);
-
-      // Calculate final score
-      const scorePercent = Math.round((correctCount / totalCount) * 100);
-      const passCorrectRequired = examConfig.pass_correct_required || 65;
-      const passFlag = correctCount >= passCorrectRequired;
-
-      // Update attempt
-      await base44.entities.ExamAttempt.update(attemptId, {
-        submitted_at: new Date().toISOString(),
-        score_percent: scorePercent,
-        pass_flag: passFlag,
+  const saveAnswerMutation = useMutation({
+    mutationFn: async ({ questionId, answer }) => {
+      const answerJson = JSON.stringify({ 
+        keys: Array.isArray(answer) ? answer : [answer] 
       });
 
-      // If passed, handle certificate, portfolio, and points
-      if (passFlag) {
-        const user = await base44.auth.me();
-        
-        // Create certificate
-        const existingCerts = await base44.entities.Certificate.filter({
-          student_user_id: attempt.student_user_id,
-          cohort_id: attempt.cohort_id,
+      const existing = existingAnswers.find(a => a.question_id === questionId);
+      if (existing) {
+        await base44.entities.ExamAnswer.update(existing.id, { answer_json: answerJson });
+      } else {
+        await base44.entities.ExamAnswer.create({
+          attempt_id: attemptId,
+          question_id: questionId,
+          answer_json: answerJson,
+          is_correct: false,
+          points_earned: 0,
         });
-
-        if (existingCerts.length === 0) {
-          await base44.entities.Certificate.create({
-            cohort_id: attempt.cohort_id,
-            student_user_id: attempt.student_user_id,
-            issued_at: new Date().toISOString(),
-            certificate_id_code: `MM-${attempt.cohort_id.slice(-6)}-${attemptId.slice(-6)}`,
-          });
-        }
-
-        // Auto-approve portfolio item
-        const templates = await base44.entities.PortfolioItemTemplate.filter({ key: 'mm_cert_exam' });
-        if (templates.length > 0) {
-          const template = templates[0];
-          const existingStatus = await base44.entities.PortfolioItemStatus.filter({
-            user_id: attempt.student_user_id,
-            cohort_id: attempt.cohort_id,
-            portfolio_item_id: template.id,
-          });
-
-          if (existingStatus.length > 0) {
-            await base44.entities.PortfolioItemStatus.update(existingStatus[0].id, {
-              status: 'approved',
-            });
-          } else {
-            await base44.entities.PortfolioItemStatus.create({
-              user_id: attempt.student_user_id,
-              cohort_id: attempt.cohort_id,
-              portfolio_item_id: template.id,
-              status: 'approved',
-            });
-          }
-        }
-
-        // Award points
-        const today = new Date().toISOString().split('T')[0];
-        const existingPoints = await base44.entities.PointsLedger.filter({
-          user_id: attempt.student_user_id,
-          source_type: 'exam',
-          source_id: attemptId,
-        });
-
-        if (existingPoints.length === 0) {
-          await base44.entities.PointsLedger.create({
-            user_id: attempt.student_user_id,
-            points: 100,
-            reason: 'exam_passed',
-            source_type: 'exam',
-            source_id: attemptId,
-          });
-        }
       }
-
-      return { attemptId };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['exam-answers', attemptId] });
     },
   });
 
-  const handleSubmit = async () => {
+  const updateQuestionIndexMutation = useMutation({
+    mutationFn: (newIndex) => 
+      base44.entities.ExamAttempt.update(attemptId, { current_question_index: newIndex }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['exam-attempt', attemptId] });
+    },
+  });
+
+  const handleNext = async () => {
+    if (!currentAnswer) {
+      setShowWarning(true);
+      return;
+    }
+
+    // Save current answer
+    await saveAnswerMutation.mutateAsync({ 
+      questionId: currentQuestion.id, 
+      answer: currentAnswer 
+    });
+
+    // Move to next question
+    const nextIndex = currentQuestionIndex + 1;
+    if (nextIndex <= (examConfig?.total_questions || 80)) {
+      await updateQuestionIndexMutation.mutateAsync(nextIndex);
+    }
+  };
+
+  const handlePrevious = async () => {
+    // Save current answer if exists
+    if (currentAnswer) {
+      await saveAnswerMutation.mutateAsync({ 
+        questionId: currentQuestion.id, 
+        answer: currentAnswer 
+      });
+    }
+
+    // Move to previous question
+    const prevIndex = currentQuestionIndex - 1;
+    if (prevIndex >= 1) {
+      await updateQuestionIndexMutation.mutateAsync(prevIndex);
+    }
+  };
+
+  const handleFinalSubmit = async () => {
     // Check all questions answered
-    const unansweredCount = allQuestions.filter(q => !answers[q.id]).length;
-    if (unansweredCount > 0) {
-      if (!confirm(`${unansweredCount} question(s) not answered. Submit anyway?`)) {
-        return;
+    const totalQuestions = examConfig?.total_questions || 80;
+    const answeredCount = existingAnswers.length;
+    
+    if (answeredCount < totalQuestions) {
+      window.location.href = createPageUrl(`StudentCertificationReview?id=${attemptId}`);
+      return;
+    }
+
+    // Calculate score
+    let correctCount = 0;
+
+    for (const attemptQ of attemptQuestions) {
+      const question = allQuestions.find(q => q.id === attemptQ.question_id);
+      const answer = existingAnswers.find(a => a.question_id === attemptQ.question_id);
+      
+      if (!question || !answer) continue;
+
+      const correctAnswer = JSON.parse(question.correct_answer_json);
+      const studentAnswer = JSON.parse(answer.answer_json);
+      
+      const studentKeys = studentAnswer.keys.sort();
+      const correctKeys = correctAnswer.keys.sort();
+      
+      const isCorrect = JSON.stringify(studentKeys) === JSON.stringify(correctKeys);
+      
+      if (isCorrect) correctCount++;
+
+      // Update answer with is_correct
+      await base44.entities.ExamAnswer.update(answer.id, {
+        is_correct: isCorrect,
+        points_earned: isCorrect ? 1 : 0,
+      });
+    }
+
+    // Calculate final score
+    const scorePercent = Math.round((correctCount / totalQuestions) * 100);
+    const passCorrectRequired = examConfig.pass_correct_required || 65;
+    const passFlag = correctCount >= passCorrectRequired;
+
+    // Update attempt
+    await base44.entities.ExamAttempt.update(attemptId, {
+      submitted_at: new Date().toISOString(),
+      score_percent: scorePercent,
+      pass_flag: passFlag,
+    });
+
+    // If passed, handle certificate, portfolio, and points
+    if (passFlag) {
+      const user = await base44.auth.me();
+      
+      // Create certificate
+      const existingCerts = await base44.entities.Certificate.filter({
+        student_user_id: attempt.student_user_id,
+        cohort_id: attempt.cohort_id,
+      });
+
+      if (existingCerts.length === 0) {
+        await base44.entities.Certificate.create({
+          cohort_id: attempt.cohort_id,
+          student_user_id: attempt.student_user_id,
+          issued_at: new Date().toISOString(),
+          certificate_id_code: `MM-${attempt.cohort_id.slice(-6)}-${attemptId.slice(-6)}`,
+        });
+      }
+
+      // Auto-approve portfolio item
+      const templates = await base44.entities.PortfolioItemTemplate.filter({ key: 'mm_cert_exam' });
+      if (templates.length > 0) {
+        const template = templates[0];
+        const existingStatus = await base44.entities.PortfolioItemStatus.filter({
+          user_id: attempt.student_user_id,
+          cohort_id: attempt.cohort_id,
+          portfolio_item_id: template.id,
+        });
+
+        if (existingStatus.length > 0) {
+          await base44.entities.PortfolioItemStatus.update(existingStatus[0].id, {
+            status: 'approved',
+          });
+        } else {
+          await base44.entities.PortfolioItemStatus.create({
+            user_id: attempt.student_user_id,
+            cohort_id: attempt.cohort_id,
+            portfolio_item_id: template.id,
+            status: 'approved',
+          });
+        }
+      }
+
+      // Award points
+      const existingPoints = await base44.entities.PointsLedger.filter({
+        user_id: attempt.student_user_id,
+        source_type: 'exam',
+        source_id: attemptId,
+      });
+
+      if (existingPoints.length === 0) {
+        await base44.entities.PointsLedger.create({
+          user_id: attempt.student_user_id,
+          points: 100,
+          reason: 'exam_passed',
+          source_type: 'exam',
+          source_id: attemptId,
+        });
       }
     }
 
-    await submitMutation.mutateAsync();
-    navigate(createPageUrl(`StudentCertificationResults?id=${attemptId}`));
+    window.location.href = createPageUrl(`StudentCertificationResults?id=${attemptId}`);
   };
 
-  const handleAnswerChange = (questionId, value, isMulti = false) => {
+  const handleAnswerChange = (value, isMulti = false) => {
     if (isMulti) {
-      const current = answers[questionId] || [];
+      const current = Array.isArray(currentAnswer) ? currentAnswer : [];
       const updated = current.includes(value)
         ? current.filter(v => v !== value)
         : [...current, value];
-      setAnswers({ ...answers, [questionId]: updated });
+      setCurrentAnswer(updated);
     } else {
-      setAnswers({ ...answers, [questionId]: value });
+      setCurrentAnswer(value);
     }
+    setShowWarning(false);
   };
 
   const formatTime = (ms) => {
@@ -236,7 +303,7 @@ export default function StudentCertificationAttempt() {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  if (!attempt || !examConfig || allQuestions.length === 0) {
+  if (!attempt || !examConfig || !currentQuestion) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <p className="text-slate-500">Loading exam...</p>
@@ -244,160 +311,160 @@ export default function StudentCertificationAttempt() {
     );
   }
 
-  const answeredCount = Object.keys(answers).filter(k => answers[k]).length;
-  const progress = (answeredCount / allQuestions.length) * 100;
+  const totalQuestions = examConfig.total_questions || 80;
+  const answeredCount = existingAnswers.length;
+  const progress = (answeredCount / totalQuestions) * 100;
+  const isLastQuestion = currentQuestionIndex === totalQuestions;
+
+  const options = JSON.parse(currentQuestion.options_json);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
-        <div className="bg-white rounded-2xl p-6 mb-6 shadow-sm border border-slate-200 sticky top-4 z-10">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Top Status Bar */}
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between mb-3">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">{examConfig.title}</h1>
-              <p className="text-sm text-slate-500 mt-1">
-                Question {answeredCount} of {allQuestions.length} answered
+              <h1 className="text-xl font-bold text-slate-900">{examConfig.title}</h1>
+              <p className="text-sm text-slate-500">
+                Question {currentQuestionIndex} of {totalQuestions}
               </p>
             </div>
             <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className="flex items-center gap-2 text-lg font-bold text-slate-900">
+              {timeRemaining !== null && (
+                <div className="flex items-center gap-2 text-slate-900">
                   <Clock className="w-5 h-5" />
-                  {timeRemaining !== null && formatTime(timeRemaining)}
+                  <span className="font-mono font-bold">{formatTime(timeRemaining)}</span>
                 </div>
-                <p className="text-xs text-slate-500">Time remaining</p>
-              </div>
-              <Button 
-                onClick={handleSubmit}
-                disabled={submitMutation.isPending}
-                className="bg-violet-600 hover:bg-violet-700"
+              )}
+              <Link 
+                to={createPageUrl(`StudentCertificationReview?id=${attemptId}`)}
+                className="text-violet-600 hover:text-violet-700 flex items-center gap-2 text-sm font-medium"
               >
-                {submitMutation.isPending ? 'Submitting...' : 'Submit Exam'}
-              </Button>
+                <List className="w-4 h-4" />
+                Review
+              </Link>
             </div>
           </div>
-          <div className="mt-4 bg-slate-100 rounded-full h-2 overflow-hidden">
-            <motion.div 
-              className="h-full bg-violet-600"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.3 }}
-            />
+          <div className="relative">
+            <div className="w-full bg-slate-200 rounded-full h-2">
+              <motion.div 
+                className="h-full bg-violet-600 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+            {currentSection && (
+              <p className="text-xs text-slate-500 mt-2">
+                Section: {currentSection.name}
+              </p>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Questions */}
-        <div className="space-y-8">
-          {questionsBySection.map((sectionData, sIdx) => {
-            if (sectionData.questions.length === 0) return null;
-            
-            return (
-              <div key={sectionData.section.id}>
-                <div className="bg-violet-100 rounded-xl p-4 mb-4 sticky top-24 z-10">
-                  <h2 className="text-lg font-bold text-violet-900">{sectionData.section.name}</h2>
-                  <p className="text-sm text-violet-700">{sectionData.questions.length} questions</p>
-                </div>
-                
-                <div className="space-y-6">
-                  {sectionData.questions.map((question, qIdx) => {
-                    const options = JSON.parse(question.options_json);
-                    const isAnswered = !!answers[question.id];
-                    const globalIndex = questionsBySection
-                      .slice(0, sIdx)
-                      .reduce((sum, s) => sum + s.questions.length, 0) + qIdx + 1;
+      {/* Main Question Panel */}
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <motion.div
+          key={currentQuestionIndex}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 mb-6"
+        >
+          <h2 className="text-2xl font-semibold text-slate-900 mb-6">
+            {currentQuestion.question_text}
+          </h2>
 
-                    return (
-                      <motion.div
-                        key={question.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: qIdx * 0.02 }}
-                        className={`bg-white rounded-2xl p-6 shadow-sm border ${
-                          isAnswered ? 'border-violet-200' : 'border-slate-200'
-                        }`}
-                      >
-                        <div className="flex items-start gap-4">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            isAnswered ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-600'
-                          }`}>
-                            {globalIndex}
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                              {question.question_text}
-                            </h3>
-
-                            {question.question_type === 'single_choice' || question.question_type === 'true_false' ? (
-                              <RadioGroup
-                                value={answers[question.id] || ''}
-                                onValueChange={(value) => handleAnswerChange(question.id, value)}
-                              >
-                                <div className="space-y-3">
-                                  {options.map((option) => (
-                                    <div
-                                      key={option.key}
-                                      className="flex items-center space-x-3 p-4 rounded-lg border border-slate-200 hover:border-violet-300 hover:bg-violet-50 transition-all cursor-pointer"
-                                    >
-                                      <RadioGroupItem value={option.key} id={`${question.id}-${option.key}`} />
-                                      <Label
-                                        htmlFor={`${question.id}-${option.key}`}
-                                        className="flex-1 cursor-pointer font-medium text-slate-700"
-                                      >
-                                        {option.label}
-                                      </Label>
-                                    </div>
-                                  ))}
-                                </div>
-                              </RadioGroup>
-                            ) : (
-                              <div className="space-y-3">
-                                {options.map((option) => (
-                                  <div
-                                    key={option.key}
-                                    className="flex items-center space-x-3 p-4 rounded-lg border border-slate-200 hover:border-violet-300 hover:bg-violet-50 transition-all"
-                                  >
-                                    <Checkbox
-                                      id={`${question.id}-${option.key}`}
-                                      checked={(answers[question.id] || []).includes(option.key)}
-                                      onCheckedChange={() => handleAnswerChange(question.id, option.key, true)}
-                                    />
-                                    <Label
-                                      htmlFor={`${question.id}-${option.key}`}
-                                      className="flex-1 cursor-pointer font-medium text-slate-700"
-                                    >
-                                      {option.label}
-                                    </Label>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Submit Button */}
-        <div className="mt-8 bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 text-slate-600">
-              <AlertCircle className="w-5 h-5" />
-              <span>Make sure you've answered all questions before submitting</span>
-            </div>
-            <Button 
-              onClick={handleSubmit}
-              disabled={submitMutation.isPending}
-              size="lg"
-              className="bg-violet-600 hover:bg-violet-700"
+          {currentQuestion.question_type === 'single_choice' || currentQuestion.question_type === 'true_false' ? (
+            <RadioGroup
+              value={currentAnswer || ''}
+              onValueChange={(value) => handleAnswerChange(value)}
             >
-              {submitMutation.isPending ? 'Submitting...' : 'Submit Exam'}
+              <div className="space-y-3">
+                {options.map((option) => (
+                  <div
+                    key={option.key}
+                    className="flex items-center space-x-4 p-4 rounded-lg border border-slate-200 hover:border-violet-300 hover:bg-violet-50 transition-all cursor-pointer"
+                  >
+                    <RadioGroupItem value={option.key} id={`option-${option.key}`} />
+                    <Label
+                      htmlFor={`option-${option.key}`}
+                      className="flex-1 cursor-pointer font-medium text-slate-700 text-lg"
+                    >
+                      {option.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </RadioGroup>
+          ) : (
+            <div className="space-y-3">
+              {options.map((option) => (
+                <div
+                  key={option.key}
+                  className="flex items-center space-x-4 p-4 rounded-lg border border-slate-200 hover:border-violet-300 hover:bg-violet-50 transition-all"
+                >
+                  <Checkbox
+                    id={`option-${option.key}`}
+                    checked={(Array.isArray(currentAnswer) ? currentAnswer : []).includes(option.key)}
+                    onCheckedChange={() => handleAnswerChange(option.key, true)}
+                  />
+                  <Label
+                    htmlFor={`option-${option.key}`}
+                    className="flex-1 cursor-pointer font-medium text-slate-700 text-lg"
+                  >
+                    {option.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {showWarning && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 flex items-center gap-2 text-amber-700 bg-amber-50 p-3 rounded-lg border border-amber-200"
+            >
+              <AlertCircle className="w-5 h-5" />
+              <span className="text-sm font-medium">Please select an answer to continue</span>
+            </motion.div>
+          )}
+        </motion.div>
+
+        {/* Bottom Navigation */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex items-center justify-between">
+          <Button
+            onClick={handlePrevious}
+            disabled={currentQuestionIndex === 1}
+            variant="outline"
+            size="lg"
+            className="gap-2"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Previous
+          </Button>
+
+          {isLastQuestion ? (
+            <Button
+              onClick={handleFinalSubmit}
+              size="lg"
+              className="bg-green-600 hover:bg-green-700 gap-2"
+            >
+              Submit Exam
             </Button>
-          </div>
+          ) : (
+            <Button
+              onClick={handleNext}
+              size="lg"
+              className="bg-violet-600 hover:bg-violet-700 gap-2"
+            >
+              Next
+              <ChevronRight className="w-5 h-5" />
+            </Button>
+          )}
         </div>
       </div>
     </div>

@@ -30,6 +30,8 @@ import TutorPortfolioReview from './pages/TutorPortfolioReview';
 import StudentCertificationAttempt from './pages/StudentCertificationAttempt';
 import StudentCertificationResults from './pages/StudentCertificationResults';
 import AdminExamBankImport from './pages/AdminExamBankImport';
+import StudentCertificationLoading from './pages/StudentCertificationLoading';
+import StudentCertificationReview from './pages/StudentCertificationReview';
 import __Layout from './Layout.jsx';
 
 
@@ -66,6 +68,8 @@ export const PAGES = {
     "StudentCertificationAttempt": StudentCertificationAttempt,
     "StudentCertificationResults": StudentCertificationResults,
     "AdminExamBankImport": AdminExamBankImport,
+    "StudentCertificationLoading": StudentCertificationLoading,
+    "StudentCertificationReview": StudentCertificationReview,
 }
 
 export const pagesConfig = {
