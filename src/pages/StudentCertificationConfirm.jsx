@@ -83,13 +83,10 @@ export default function StudentCertificationConfirm() {
         return;
       }
 
-      // Validate attempts remaining
-      const preparedAttempts = attempts.filter(a => a.prepared_at);
-      const attemptsUsed = preparedAttempts.length;
-      const attemptsAllowed = examConfig?.attempts_allowed || 2;
-
-      if (attemptsUsed >= attemptsAllowed) {
-        setError('No attempts remaining.');
+      // Validate passed
+      const hasPassed = attempts.some(a => a.pass_flag);
+      if (hasPassed) {
+        setError('You have already passed the exam.');
         setCreating(false);
         return;
       }
@@ -103,6 +100,66 @@ export default function StudentCertificationConfirm() {
         setError('You already have an active attempt. Please complete or submit it first.');
         setCreating(false);
         return;
+      }
+
+      // Validate attempts remaining and calculate next attempt number
+      const preparedAttempts = attempts.filter(a => a.prepared_at);
+      const attemptsUsed = preparedAttempts.length;
+      const attemptsAllowed = examConfig?.attempts_allowed || 4;
+      const nextAttemptNumber = attemptsUsed + 1;
+
+      if (nextAttemptNumber > attemptsAllowed) {
+        setError('No attempts remaining.');
+        setCreating(false);
+        return;
+      }
+
+      // Cooldown validation for attempt 3
+      if (nextAttemptNumber === 3) {
+        const attempt2 = attempts.find(a => a.attempt_number === 2);
+        if (!attempt2 || !attempt2.submitted_at) {
+          setError('You must complete your previous attempts before starting the next one.');
+          setCreating(false);
+          return;
+        }
+
+        const submittedAt = new Date(attempt2.submitted_at);
+        const cooldownHours = examConfig.cooldown_after_attempt_2_hours || 24;
+        const eligibleAt = new Date(submittedAt.getTime() + cooldownHours * 60 * 60 * 1000);
+        const now = new Date();
+
+        if (now < eligibleAt) {
+          setError(`Your next attempt will be available on ${eligibleAt.toLocaleString()}.`);
+          setCreating(false);
+          return;
+        }
+      }
+
+      // Cooldown validation for attempt 4
+      if (nextAttemptNumber === 4) {
+        const attempt3 = attempts.find(a => a.attempt_number === 3);
+        if (!attempt3 || !attempt3.submitted_at) {
+          setError('You must complete your previous attempts before starting the next one.');
+          setCreating(false);
+          return;
+        }
+
+        if (attempt3.pass_flag === true) {
+          setError('Attempt 3 was passed. No further attempts allowed.');
+          setCreating(false);
+          return;
+        }
+
+        const submittedAt = new Date(attempt3.submitted_at);
+        const cooldownHours = examConfig.cooldown_after_attempt_3_fail_hours || 48;
+        const eligibleAt = new Date(submittedAt.getTime() + cooldownHours * 60 * 60 * 1000);
+        const now = new Date();
+
+        if (now < eligibleAt) {
+          setError(`Your next attempt will be available on ${eligibleAt.toLocaleString()}.`);
+          setCreating(false);
+          return;
+        }
       }
 
       // Validate bank coverage
@@ -122,11 +179,12 @@ export default function StudentCertificationConfirm() {
         }
       }
 
-      // Create attempt
+      // Create attempt with attempt_number
       const attempt = await base44.entities.ExamAttempt.create({
         student_user_id: user.id,
         cohort_id: membership.cohort_id,
         exam_id: examConfig.id,
+        attempt_number: nextAttemptNumber,
         attempt_status: 'prepared',
         prepared_at: new Date().toISOString(),
         current_question_index: 1,
@@ -197,7 +255,7 @@ export default function StudentCertificationConfirm() {
                 <li>Starting the certification exam will use <strong>1 attempt immediately</strong></li>
                 <li>Once your questions are generated, <strong>this cannot be undone</strong></li>
                 <li>If you leave, you can return to the same attempt, <strong>but it still counts</strong></li>
-                <li>You have <strong>{examConfig?.attempts_allowed || 2} total attempts</strong> available</li>
+                <li>You have <strong>{examConfig?.attempts_allowed || 4} total attempts</strong> available</li>
               </ul>
             </div>
           </AlertDescription>

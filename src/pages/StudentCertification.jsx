@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Trophy, CheckCircle, Clock, Award } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Lock, Trophy, CheckCircle, Clock, Award, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function StudentCertification() {
@@ -86,9 +87,123 @@ export default function StudentCertification() {
   
   const preparedAttempts = attempts.filter(a => a.prepared_at);
   const attemptsUsed = preparedAttempts.length;
-  const attemptsAllowed = examConfig?.attempts_allowed || 2;
+  const attemptsAllowed = examConfig?.attempts_allowed || 4;
   const hasPassed = attempts.some(a => a.pass_flag);
-  const canStartAttempt = isUnlocked && !hasPassed && attemptsUsed < attemptsAllowed && !activeAttempt;
+  
+  // Calculate cooldown eligibility
+  const [cooldownStatus, setCooldownStatus] = useState(null);
+  const [timeUntilEligible, setTimeUntilEligible] = useState(null);
+
+  useEffect(() => {
+    if (!examConfig || hasPassed || activeAttempt) {
+      setCooldownStatus(null);
+      return;
+    }
+
+    const nextAttemptNumber = attemptsUsed + 1;
+
+    // Attempt 2: no cooldown
+    if (nextAttemptNumber === 2) {
+      setCooldownStatus(null);
+      return;
+    }
+
+    // Attempt 3: requires 24 hours after attempt 2
+    if (nextAttemptNumber === 3) {
+      const attempt2 = attempts.find(a => a.attempt_number === 2);
+      if (!attempt2 || !attempt2.submitted_at) {
+        setCooldownStatus({
+          blocked: true,
+          message: 'You must complete your previous attempts before starting the next one.'
+        });
+        return;
+      }
+
+      const submittedAt = new Date(attempt2.submitted_at);
+      const cooldownHours = examConfig.cooldown_after_attempt_2_hours || 24;
+      const eligibleAt = new Date(submittedAt.getTime() + cooldownHours * 60 * 60 * 1000);
+      const now = new Date();
+
+      if (now < eligibleAt) {
+        setCooldownStatus({
+          blocked: true,
+          eligibleAt: eligibleAt,
+          message: `Your next attempt will be available on ${eligibleAt.toLocaleString()}.`
+        });
+        setTimeUntilEligible(eligibleAt.getTime() - now.getTime());
+      } else {
+        setCooldownStatus(null);
+      }
+      return;
+    }
+
+    // Attempt 4: requires 48 hours after attempt 3 AND attempt 3 must have failed
+    if (nextAttemptNumber === 4) {
+      const attempt3 = attempts.find(a => a.attempt_number === 3);
+      if (!attempt3 || !attempt3.submitted_at) {
+        setCooldownStatus({
+          blocked: true,
+          message: 'You must complete your previous attempts before starting the next one.'
+        });
+        return;
+      }
+
+      if (attempt3.pass_flag === true) {
+        setCooldownStatus({
+          blocked: true,
+          message: 'Attempt 3 was passed. No further attempts allowed.'
+        });
+        return;
+      }
+
+      const submittedAt = new Date(attempt3.submitted_at);
+      const cooldownHours = examConfig.cooldown_after_attempt_3_fail_hours || 48;
+      const eligibleAt = new Date(submittedAt.getTime() + cooldownHours * 60 * 60 * 1000);
+      const now = new Date();
+
+      if (now < eligibleAt) {
+        setCooldownStatus({
+          blocked: true,
+          eligibleAt: eligibleAt,
+          message: `Your next attempt will be available on ${eligibleAt.toLocaleString()}.`
+        });
+        setTimeUntilEligible(eligibleAt.getTime() - now.getTime());
+      } else {
+        setCooldownStatus(null);
+      }
+      return;
+    }
+
+    setCooldownStatus(null);
+  }, [attempts, examConfig, hasPassed, activeAttempt, attemptsUsed]);
+
+  // Update countdown timer
+  useEffect(() => {
+    if (!cooldownStatus?.eligibleAt) return;
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const remaining = cooldownStatus.eligibleAt.getTime() - now.getTime();
+      
+      if (remaining <= 0) {
+        setCooldownStatus(null);
+        setTimeUntilEligible(null);
+      } else {
+        setTimeUntilEligible(remaining);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [cooldownStatus?.eligibleAt]);
+
+  const formatTimeRemaining = (ms) => {
+    if (!ms || ms <= 0) return '';
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}h ${minutes}m`;
+  };
+
+  const canStartAttempt = isUnlocked && !hasPassed && attemptsUsed < attemptsAllowed && !activeAttempt && !cooldownStatus?.blocked;
 
   const handleStartExam = () => {
     if (activeAttempt) {
@@ -251,6 +366,20 @@ export default function StudentCertification() {
             </div>
           )}
 
+          {cooldownStatus?.blocked && (
+            <Alert className="mb-6 border-amber-200 bg-amber-50">
+              <AlertTriangle className="h-5 w-5 text-amber-600" />
+              <AlertDescription className="text-amber-800">
+                <p className="font-semibold mb-2">{cooldownStatus.message}</p>
+                {timeUntilEligible && (
+                  <p className="text-sm">
+                    Time remaining: <span className="font-mono font-bold">{formatTimeRemaining(timeUntilEligible)}</span>
+                  </p>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
+
           {activeAttempt && (
             <div className="text-center p-6 bg-violet-50 rounded-xl border border-violet-200">
               <p className="text-violet-700 font-medium mb-4">
@@ -266,7 +395,7 @@ export default function StudentCertification() {
             </div>
           )}
 
-          {canStartAttempt && !activeAttempt && (
+          {canStartAttempt && !activeAttempt && !cooldownStatus?.blocked && (
             <div className="text-center">
               <Button 
                 onClick={handleStartExam}
@@ -282,7 +411,7 @@ export default function StudentCertification() {
             </div>
           )}
 
-          {!canStartAttempt && !hasPassed && (
+          {!canStartAttempt && !hasPassed && !activeAttempt && !cooldownStatus?.blocked && attemptsUsed >= attemptsAllowed && (
             <div className="text-center p-6 bg-red-50 rounded-xl">
               <p className="text-red-700 font-medium">
                 No attempts remaining
