@@ -20,6 +20,7 @@ export default function Sidebar({ currentPageName, onNavigate }) {
     { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
     { name: 'Assignments', icon: ClipboardList, page: 'Assignments' },
     { name: 'My Projects', icon: FolderOpen, page: 'MyProjects' },
+    { name: 'My Certification', icon: Award, page: 'MyCertification' },
     { name: 'My Portfolio', icon: Briefcase, page: 'MyPortfolio' },
     { name: 'Courses', icon: BookOpen, page: 'Courses' },
   ];
