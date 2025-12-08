@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Menu, X, Settings, User } from 'lucide-react';
+import { Menu, X, Settings, User, LogOut } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import ProfileModal from '@/components/ProfileModal';
 import StudentSidebar from '@/components/StudentSidebar';
 import TutorSidebar from '@/components/TutorSidebar';
@@ -95,31 +96,42 @@ export default function RoleBasedLayout({ children, currentPageName }) {
       <main className="flex-1 h-screen overflow-y-auto lg:ml-0">
         <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-6 py-3">
           <div className="flex items-center justify-end">
-            <button
-              onClick={() => setProfileModalOpen(true)}
-              className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 transition-all group"
-            >
-              {user?.profile_picture ? (
-                <img
-                  src={user.profile_picture}
-                  alt={user.full_name}
-                  className="w-9 h-9 rounded-full object-cover border-2 border-slate-200"
-                />
-              ) : (
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-600 to-slate-500 flex items-center justify-center">
-                  <User className="w-4 h-4 text-white" />
-                </div>
-              )}
-              <div className="text-left hidden sm:block">
-                <p className="text-sm font-medium text-slate-700">
-                  {user?.full_name || 'Loading...'}
-                </p>
-                <p className="text-[10px] text-slate-500 capitalize">
-                  {user?.role || 'user'}
-                </p>
-              </div>
-              <Settings className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors hidden sm:block" />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 transition-all group">
+                  {user?.profile_picture ? (
+                    <img
+                      src={user.profile_picture}
+                      alt={user.full_name}
+                      className="w-9 h-9 rounded-full object-cover border-2 border-slate-200"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-600 to-slate-500 flex items-center justify-center">
+                      <User className="w-4 h-4 text-white" />
+                    </div>
+                  )}
+                  <div className="text-left hidden sm:block">
+                    <p className="text-sm font-medium text-slate-700">
+                      {user?.full_name || 'Loading...'}
+                    </p>
+                    <p className="text-[10px] text-slate-500 capitalize">
+                      {user?.role || 'user'}
+                    </p>
+                  </div>
+                  <Settings className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors hidden sm:block" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => setProfileModalOpen(true)}>
+                  <User className="w-4 h-4 mr-2" />
+                  Profile Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => base44.auth.logout()}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
