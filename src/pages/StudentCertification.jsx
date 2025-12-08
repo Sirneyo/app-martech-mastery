@@ -194,7 +194,7 @@ export default function StudentCertification() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-3 gap-4 mb-8">
             <div className="bg-slate-50 rounded-xl p-6 text-center">
               <p className="text-sm text-slate-500 mb-2">Attempts Used</p>
               <p className="text-3xl font-bold text-slate-900">
@@ -207,6 +207,14 @@ export default function StudentCertification() {
                 {examConfig?.pass_correct_required || 65} / {examConfig?.total_questions || 80}
               </p>
             </div>
+            {examConfig?.time_limit_minutes && (
+              <div className="bg-slate-50 rounded-xl p-6 text-center">
+                <p className="text-sm text-slate-500 mb-2">Time Limit</p>
+                <p className="text-3xl font-bold text-slate-900">
+                  {examConfig.time_limit_minutes} min
+                </p>
+              </div>
+            )}
           </div>
 
           {preparedAttempts.filter(a => a.submitted_at).length > 0 && (
