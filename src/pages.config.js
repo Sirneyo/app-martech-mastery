@@ -6,6 +6,9 @@ import MyProjects from './pages/MyProjects';
 import MyPortfolio from './pages/MyPortfolio';
 import AITools from './pages/AITools';
 import MyCertification from './pages/MyCertification';
+import AdminUsers from './pages/AdminUsers';
+import AdminCohorts from './pages/AdminCohorts';
+import AdminTemplates from './pages/AdminTemplates';
 import __Layout from './Layout.jsx';
 
 
@@ -18,6 +21,9 @@ export const PAGES = {
     "MyPortfolio": MyPortfolio,
     "AITools": AITools,
     "MyCertification": MyCertification,
+    "AdminUsers": AdminUsers,
+    "AdminCohorts": AdminCohorts,
+    "AdminTemplates": AdminTemplates,
 }
 
 export const pagesConfig = {
