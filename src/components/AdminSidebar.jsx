@@ -9,6 +9,7 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
     { name: 'Users', icon: Users, page: 'AdminUsers' },
     { name: 'Cohorts', icon: Calendar, page: 'AdminCohorts' },
     { name: 'Templates', icon: FileText, page: 'AdminTemplates' },
+    { name: 'Exam Bank Import', icon: FileText, page: 'AdminExamBankImport' },
   ];
 
   return (
