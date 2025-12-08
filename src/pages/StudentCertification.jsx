@@ -89,6 +89,24 @@ export default function StudentCertification() {
     if (!user?.id || !membership?.cohort_id || !examConfig?.id) return;
     
     try {
+      // Validate unlock week
+      if (!isUnlocked) {
+        alert(`Exam unlocks in week ${unlockWeek}. You are currently in week ${currentWeek}.`);
+        return;
+      }
+
+      // Validate not already passed
+      if (hasPassed) {
+        alert('You have already passed this exam.');
+        return;
+      }
+
+      // Validate attempts remaining
+      if (attemptsUsed >= attemptsAllowed) {
+        alert('No attempts remaining.');
+        return;
+      }
+
       // Validate bank coverage for each section
       const sections = await base44.entities.ExamSection.list('sort_order');
       const questionsPerSection = examConfig.questions_per_section || 20;
@@ -243,9 +261,9 @@ export default function StudentCertification() {
               </p>
             </div>
             <div className="bg-slate-50 rounded-xl p-6 text-center">
-              <p className="text-sm text-slate-500 mb-2">Pass Mark</p>
+              <p className="text-sm text-slate-500 mb-2">Required to Pass</p>
               <p className="text-3xl font-bold text-slate-900">
-                {examConfig?.pass_mark || 80}%
+                {examConfig?.pass_correct_required || 65} / {examConfig?.total_questions || 80}
               </p>
             </div>
           </div>
