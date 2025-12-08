@@ -19,6 +19,11 @@ export default function StudentCertificationAttempt() {
   const [showWarning, setShowWarning] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(null);
 
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: attempt } = useQuery({
     queryKey: ['exam-attempt', attemptId],
     queryFn: async () => {
