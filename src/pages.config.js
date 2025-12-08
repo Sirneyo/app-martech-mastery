@@ -25,6 +25,8 @@ import RoleRedirect from './pages/RoleRedirect';
 import StudentAssignmentDetail from './pages/StudentAssignmentDetail';
 import StudentProjectDetail from './pages/StudentProjectDetail';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
+import StudentPortfolioItemDetail from './pages/StudentPortfolioItemDetail';
+import TutorPortfolioReview from './pages/TutorPortfolioReview';
 import __Layout from './Layout.jsx';
 
 
@@ -56,6 +58,8 @@ export const PAGES = {
     "StudentAssignmentDetail": StudentAssignmentDetail,
     "StudentProjectDetail": StudentProjectDetail,
     "TutorSubmissionReview": TutorSubmissionReview,
+    "StudentPortfolioItemDetail": StudentPortfolioItemDetail,
+    "TutorPortfolioReview": TutorPortfolioReview,
 }
 
 export const pagesConfig = {
