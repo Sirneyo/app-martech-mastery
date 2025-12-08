@@ -17,7 +17,6 @@ import {
   Calendar,
   GraduationCap
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -29,10 +28,6 @@ export default function Dashboard() {
     email: 'sarah.mitchell@martech-mastery.com',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face'
   };
-
-  // Mock data - change to track actual progress
-  const currentWeek = 9; // Change this based on actual user progress
-  const certificationPassed = true; // Change based on actual exam result
 
   const leaderboard = [
     { rank: 1, name: 'Alex Johnson', points: 2450, trend: 'up' },
