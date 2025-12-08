@@ -34,6 +34,7 @@ import StudentCertificationLoading from './pages/StudentCertificationLoading';
 import StudentCertificationReview from './pages/StudentCertificationReview';
 import StudentCertificationConfirm from './pages/StudentCertificationConfirm';
 import StudentCertificationReady from './pages/StudentCertificationReady';
+import AdminOverview from './pages/AdminOverview';
 import __Layout from './Layout.jsx';
 
 
@@ -74,6 +75,7 @@ export const PAGES = {
     "StudentCertificationReview": StudentCertificationReview,
     "StudentCertificationConfirm": StudentCertificationConfirm,
     "StudentCertificationReady": StudentCertificationReady,
+    "AdminOverview": AdminOverview,
 }
 
 export const pagesConfig = {
