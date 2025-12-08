@@ -355,6 +355,7 @@ export default function AdminUsers() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="user">Student</SelectItem>
+                    <SelectItem value="tutor">Tutor</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
