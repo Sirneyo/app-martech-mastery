@@ -22,7 +22,6 @@ export default function Sidebar({ currentPageName, onNavigate }) {
     { name: 'My Projects', icon: FolderOpen, page: 'MyProjects' },
     { name: 'My Portfolio', icon: Briefcase, page: 'MyPortfolio' },
     { name: 'Courses', icon: BookOpen, page: 'Courses' },
-    { name: 'Certifications', icon: Award, page: 'Certifications' },
   ];
 
   return (
