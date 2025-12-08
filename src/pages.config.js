@@ -22,6 +22,9 @@ import TutorAssignmentSubmissions from './pages/TutorAssignmentSubmissions';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import RoleRedirect from './pages/RoleRedirect';
+import StudentAssignmentDetail from './pages/StudentAssignmentDetail';
+import StudentProjectDetail from './pages/StudentProjectDetail';
+import TutorSubmissionReview from './pages/TutorSubmissionReview';
 import __Layout from './Layout.jsx';
 
 
@@ -50,6 +53,9 @@ export const PAGES = {
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorPortfolioReviews": TutorPortfolioReviews,
     "RoleRedirect": RoleRedirect,
+    "StudentAssignmentDetail": StudentAssignmentDetail,
+    "StudentProjectDetail": StudentProjectDetail,
+    "TutorSubmissionReview": TutorSubmissionReview,
 }
 
 export const pagesConfig = {
