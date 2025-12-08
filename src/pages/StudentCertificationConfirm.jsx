@@ -227,8 +227,8 @@ export default function StudentCertificationConfirm() {
           <Alert className="mb-6 border-red-200 bg-red-50">
             <AlertDescription className="text-red-800">
               {error}
-            </Alert>
-          </div>
+            </AlertDescription>
+          </Alert>
         )}
 
         <div className="mb-6">
