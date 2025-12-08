@@ -88,14 +88,61 @@ export default function StudentCertification() {
   const handleStartExam = async () => {
     if (!user?.id || !membership?.cohort_id || !examConfig?.id) return;
     
-    const attempt = await base44.entities.ExamAttempt.create({
-      student_user_id: user.id,
-      cohort_id: membership.cohort_id,
-      exam_id: examConfig.id,
-      started_at: new Date().toISOString(),
-    });
-
-    window.location.href = createPageUrl(`StudentCertificationAttempt?id=${attempt.id}`);
+    try {
+      // Validate bank coverage for each section
+      const sections = await base44.entities.ExamSection.list('sort_order');
+      const questionsPerSection = examConfig.questions_per_section || 20;
+      
+      for (const section of sections) {
+        const sectionQuestions = await base44.entities.ExamQuestion.filter({
+          exam_section_id: section.id,
+          published_flag: true
+        });
+        
+        if (sectionQuestions.length < questionsPerSection) {
+          alert(`Exam not available yet, missing questions in ${section.name}. Need ${questionsPerSection}, have ${sectionQuestions.length}.`);
+          return;
+        }
+      }
+      
+      // Create attempt
+      const attempt = await base44.entities.ExamAttempt.create({
+        student_user_id: user.id,
+        cohort_id: membership.cohort_id,
+        exam_id: examConfig.id,
+        started_at: new Date().toISOString(),
+      });
+      
+      // Randomly select questions for each section
+      const attemptQuestions = [];
+      for (const section of sections) {
+        const sectionQuestions = await base44.entities.ExamQuestion.filter({
+          exam_section_id: section.id,
+          published_flag: true
+        });
+        
+        // Shuffle and select questionsPerSection
+        const shuffled = sectionQuestions.sort(() => Math.random() - 0.5);
+        const selected = shuffled.slice(0, questionsPerSection);
+        
+        selected.forEach((q, idx) => {
+          attemptQuestions.push({
+            attempt_id: attempt.id,
+            exam_section_id: section.id,
+            question_id: q.id,
+            order_index: idx + 1
+          });
+        });
+      }
+      
+      // Save selected questions
+      await base44.entities.ExamAttemptQuestion.bulkCreate(attemptQuestions);
+      
+      window.location.href = createPageUrl(`StudentCertificationAttempt?id=${attempt.id}`);
+    } catch (error) {
+      console.error('Error starting exam:', error);
+      alert('Failed to start exam. Please try again.');
+    }
   };
 
   if (!isUnlocked) {

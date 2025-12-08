@@ -36,10 +36,40 @@ export default function StudentCertificationAttempt() {
     enabled: !!attempt?.exam_id,
   });
 
-  const { data: questions = [] } = useQuery({
-    queryKey: ['exam-questions', attempt?.exam_id],
-    queryFn: () => base44.entities.ExamQuestion.filter({ exam_id: attempt.exam_id }),
-    enabled: !!attempt?.exam_id,
+  const { data: attemptQuestions = [] } = useQuery({
+    queryKey: ['exam-attempt-questions', attemptId],
+    queryFn: () => base44.entities.ExamAttemptQuestion.filter({ attempt_id: attemptId }),
+    enabled: !!attemptId,
+  });
+
+  const { data: sections = [] } = useQuery({
+    queryKey: ['exam-sections'],
+    queryFn: () => base44.entities.ExamSection.list('sort_order'),
+  });
+
+  const { data: allQuestions = [] } = useQuery({
+    queryKey: ['all-questions', attemptQuestions],
+    queryFn: async () => {
+      if (attemptQuestions.length === 0) return [];
+      const questionIds = attemptQuestions.map(aq => aq.question_id);
+      const questions = await base44.entities.ExamQuestion.list();
+      return questions.filter(q => questionIds.includes(q.id));
+    },
+    enabled: attemptQuestions.length > 0,
+  });
+
+  // Group questions by section
+  const questionsBySection = sections.map(section => {
+    const sectionAttemptQs = attemptQuestions
+      .filter(aq => aq.exam_section_id === section.id)
+      .sort((a, b) => a.order_index - b.order_index);
+    
+    const sectionQuestions = sectionAttemptQs.map(aq => {
+      const question = allQuestions.find(q => q.id === aq.question_id);
+      return { ...question, order_index: aq.order_index };
+    }).filter(q => q.id);
+    
+    return { section, questions: sectionQuestions };
   });
 
   useEffect(() => {
@@ -66,12 +96,10 @@ export default function StudentCertificationAttempt() {
     mutationFn: async () => {
       // Calculate score
       const answerRecords = [];
-      let totalPoints = 0;
-      let earnedPoints = 0;
+      let correctCount = 0;
+      const totalCount = examConfig.total_questions || 80;
 
-      for (const question of questions) {
-        totalPoints += question.points;
-        
+      for (const question of allQuestions) {
         const studentAnswer = answers[question.id];
         const correctAnswer = JSON.parse(question.correct_answer_json);
         
@@ -85,15 +113,14 @@ export default function StudentCertificationAttempt() {
           isCorrect = JSON.stringify(studentKeys) === JSON.stringify(correctKeys);
         }
 
-        const pointsEarned = isCorrect ? question.points : 0;
-        earnedPoints += pointsEarned;
+        if (isCorrect) correctCount++;
 
         answerRecords.push({
           attempt_id: attemptId,
           question_id: question.id,
           answer_json: JSON.stringify({ keys: Array.isArray(studentAnswer) ? studentAnswer : [studentAnswer] }),
           is_correct: isCorrect,
-          points_earned: pointsEarned,
+          points_earned: isCorrect ? 1 : 0,
         });
       }
 
@@ -101,8 +128,9 @@ export default function StudentCertificationAttempt() {
       await base44.entities.ExamAnswer.bulkCreate(answerRecords);
 
       // Calculate final score
-      const scorePercent = Math.round((earnedPoints / totalPoints) * 100);
-      const passFlag = scorePercent >= (examConfig.pass_mark || 80);
+      const scorePercent = Math.round((correctCount / totalCount) * 100);
+      const passCorrectRequired = examConfig.pass_correct_required || 65;
+      const passFlag = correctCount >= passCorrectRequired;
 
       // Update attempt
       await base44.entities.ExamAttempt.update(attemptId, {
@@ -179,7 +207,7 @@ export default function StudentCertificationAttempt() {
 
   const handleSubmit = async () => {
     // Check all questions answered
-    const unansweredCount = questions.filter(q => !answers[q.id]).length;
+    const unansweredCount = allQuestions.filter(q => !answers[q.id]).length;
     if (unansweredCount > 0) {
       if (!confirm(`${unansweredCount} question(s) not answered. Submit anyway?`)) {
         return;
@@ -208,7 +236,7 @@ export default function StudentCertificationAttempt() {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  if (!attempt || !examConfig || questions.length === 0) {
+  if (!attempt || !examConfig || allQuestions.length === 0) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <p className="text-slate-500">Loading exam...</p>
@@ -217,7 +245,7 @@ export default function StudentCertificationAttempt() {
   }
 
   const answeredCount = Object.keys(answers).filter(k => answers[k]).length;
-  const progress = (answeredCount / questions.length) * 100;
+  const progress = (answeredCount / allQuestions.length) * 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8">
@@ -228,7 +256,7 @@ export default function StudentCertificationAttempt() {
             <div>
               <h1 className="text-2xl font-bold text-slate-900">{examConfig.title}</h1>
               <p className="text-sm text-slate-500 mt-1">
-                Question {answeredCount} of {questions.length} answered
+                Question {answeredCount} of {allQuestions.length} answered
               </p>
             </div>
             <div className="flex items-center gap-4">
@@ -259,79 +287,97 @@ export default function StudentCertificationAttempt() {
         </div>
 
         {/* Questions */}
-        <div className="space-y-6">
-          {questions.map((question, index) => {
-            const options = JSON.parse(question.options_json);
-            const isAnswered = !!answers[question.id];
-
+        <div className="space-y-8">
+          {questionsBySection.map((sectionData, sIdx) => {
+            if (sectionData.questions.length === 0) return null;
+            
             return (
-              <motion.div
-                key={question.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className={`bg-white rounded-2xl p-6 shadow-sm border ${
-                  isAnswered ? 'border-violet-200' : 'border-slate-200'
-                }`}
-              >
-                <div className="flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    isAnswered ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-600'
-                  }`}>
-                    {index + 1}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                      {question.question_text}
-                    </h3>
-
-                    {question.question_type === 'single_choice' || question.question_type === 'true_false' ? (
-                      <RadioGroup
-                        value={answers[question.id] || ''}
-                        onValueChange={(value) => handleAnswerChange(question.id, value)}
-                      >
-                        <div className="space-y-3">
-                          {options.map((option) => (
-                            <div
-                              key={option.key}
-                              className="flex items-center space-x-3 p-4 rounded-lg border border-slate-200 hover:border-violet-300 hover:bg-violet-50 transition-all cursor-pointer"
-                            >
-                              <RadioGroupItem value={option.key} id={`${question.id}-${option.key}`} />
-                              <Label
-                                htmlFor={`${question.id}-${option.key}`}
-                                className="flex-1 cursor-pointer font-medium text-slate-700"
-                              >
-                                {option.label}
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                      </RadioGroup>
-                    ) : (
-                      <div className="space-y-3">
-                        {options.map((option) => (
-                          <div
-                            key={option.key}
-                            className="flex items-center space-x-3 p-4 rounded-lg border border-slate-200 hover:border-violet-300 hover:bg-violet-50 transition-all"
-                          >
-                            <Checkbox
-                              id={`${question.id}-${option.key}`}
-                              checked={(answers[question.id] || []).includes(option.key)}
-                              onCheckedChange={() => handleAnswerChange(question.id, option.key, true)}
-                            />
-                            <Label
-                              htmlFor={`${question.id}-${option.key}`}
-                              className="flex-1 cursor-pointer font-medium text-slate-700"
-                            >
-                              {option.label}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+              <div key={sectionData.section.id}>
+                <div className="bg-violet-100 rounded-xl p-4 mb-4 sticky top-24 z-10">
+                  <h2 className="text-lg font-bold text-violet-900">{sectionData.section.name}</h2>
+                  <p className="text-sm text-violet-700">{sectionData.questions.length} questions</p>
                 </div>
-              </motion.div>
+                
+                <div className="space-y-6">
+                  {sectionData.questions.map((question, qIdx) => {
+                    const options = JSON.parse(question.options_json);
+                    const isAnswered = !!answers[question.id];
+                    const globalIndex = questionsBySection
+                      .slice(0, sIdx)
+                      .reduce((sum, s) => sum + s.questions.length, 0) + qIdx + 1;
+
+                    return (
+                      <motion.div
+                        key={question.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: qIdx * 0.02 }}
+                        className={`bg-white rounded-2xl p-6 shadow-sm border ${
+                          isAnswered ? 'border-violet-200' : 'border-slate-200'
+                        }`}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            isAnswered ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-600'
+                          }`}>
+                            {globalIndex}
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                              {question.question_text}
+                            </h3>
+
+                            {question.question_type === 'single_choice' || question.question_type === 'true_false' ? (
+                              <RadioGroup
+                                value={answers[question.id] || ''}
+                                onValueChange={(value) => handleAnswerChange(question.id, value)}
+                              >
+                                <div className="space-y-3">
+                                  {options.map((option) => (
+                                    <div
+                                      key={option.key}
+                                      className="flex items-center space-x-3 p-4 rounded-lg border border-slate-200 hover:border-violet-300 hover:bg-violet-50 transition-all cursor-pointer"
+                                    >
+                                      <RadioGroupItem value={option.key} id={`${question.id}-${option.key}`} />
+                                      <Label
+                                        htmlFor={`${question.id}-${option.key}`}
+                                        className="flex-1 cursor-pointer font-medium text-slate-700"
+                                      >
+                                        {option.label}
+                                      </Label>
+                                    </div>
+                                  ))}
+                                </div>
+                              </RadioGroup>
+                            ) : (
+                              <div className="space-y-3">
+                                {options.map((option) => (
+                                  <div
+                                    key={option.key}
+                                    className="flex items-center space-x-3 p-4 rounded-lg border border-slate-200 hover:border-violet-300 hover:bg-violet-50 transition-all"
+                                  >
+                                    <Checkbox
+                                      id={`${question.id}-${option.key}`}
+                                      checked={(answers[question.id] || []).includes(option.key)}
+                                      onCheckedChange={() => handleAnswerChange(question.id, option.key, true)}
+                                    />
+                                    <Label
+                                      htmlFor={`${question.id}-${option.key}`}
+                                      className="flex-1 cursor-pointer font-medium text-slate-700"
+                                    >
+                                      {option.label}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </div>

@@ -69,7 +69,8 @@ export default function StudentCertificationResults() {
   const canRetry = !passed && attemptsUsed < attemptsAllowed;
 
   const correctAnswers = answers.filter(a => a.is_correct).length;
-  const totalQuestions = questions.length;
+  const totalQuestions = examConfig?.total_questions || 80;
+  const passCorrectRequired = examConfig?.pass_correct_required || 65;
 
   return (
     <div className={`min-h-screen ${passed ? 'bg-gradient-to-br from-green-50 to-emerald-50' : 'bg-gradient-to-br from-red-50 to-orange-50'} p-8`}>
@@ -102,21 +103,21 @@ export default function StudentCertificationResults() {
           <div className="grid grid-cols-3 gap-6 mb-8">
             <div className="bg-slate-50 rounded-xl p-6">
               <p className="text-3xl font-bold text-slate-900 mb-2">
-                {attempt.score_percent}%
-              </p>
-              <p className="text-sm text-slate-500">Your Score</p>
-            </div>
-            <div className="bg-slate-50 rounded-xl p-6">
-              <p className="text-3xl font-bold text-slate-900 mb-2">
-                {examConfig.pass_mark}%
-              </p>
-              <p className="text-sm text-slate-500">Pass Mark</p>
-            </div>
-            <div className="bg-slate-50 rounded-xl p-6">
-              <p className="text-3xl font-bold text-slate-900 mb-2">
                 {correctAnswers}/{totalQuestions}
               </p>
-              <p className="text-sm text-slate-500">Correct</p>
+              <p className="text-sm text-slate-500">Correct Answers</p>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-6">
+              <p className="text-3xl font-bold text-slate-900 mb-2">
+                {passCorrectRequired}/{totalQuestions}
+              </p>
+              <p className="text-sm text-slate-500">Required to Pass</p>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-6">
+              <p className="text-3xl font-bold text-slate-900 mb-2">
+                {attempt.score_percent}%
+              </p>
+              <p className="text-sm text-slate-500">Score Percentage</p>
             </div>
           </div>
 
@@ -154,35 +155,14 @@ export default function StudentCertificationResults() {
           )}
 
           <div className="border-t border-slate-200 pt-6">
-            <h3 className="font-bold text-slate-900 mb-4">Answer Breakdown</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {questions.map((question, idx) => {
-                const answer = answers.find(a => a.question_id === question.id);
-                return (
-                  <div
-                    key={question.id}
-                    className={`p-4 rounded-lg border ${
-                      answer?.is_correct
-                        ? 'bg-green-50 border-green-200'
-                        : 'bg-red-50 border-red-200'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      {answer?.is_correct ? (
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-red-600" />
-                      )}
-                      <span className="text-sm font-medium text-slate-700">
-                        Question {idx + 1}
-                      </span>
-                      <span className="ml-auto text-xs text-slate-500">
-                        {answer?.points_earned || 0} / {question.points} pts
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+            <h3 className="font-bold text-slate-900 mb-4">Summary</h3>
+            <div className="bg-slate-50 rounded-xl p-6 text-center">
+              <p className="text-lg text-slate-700 mb-2">
+                You answered <span className="font-bold text-slate-900">{correctAnswers}</span> out of <span className="font-bold text-slate-900">{totalQuestions}</span> questions correctly
+              </p>
+              <p className="text-sm text-slate-500">
+                {passed ? `You exceeded the requirement of ${passCorrectRequired} correct answers` : `You needed ${passCorrectRequired} correct answers to pass`}
+              </p>
             </div>
           </div>
         </motion.div>
