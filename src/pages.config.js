@@ -35,6 +35,7 @@ import StudentCertificationReview from './pages/StudentCertificationReview';
 import StudentCertificationConfirm from './pages/StudentCertificationConfirm';
 import StudentCertificationReady from './pages/StudentCertificationReady';
 import AdminOverview from './pages/AdminOverview';
+import AdminCohortOverview from './pages/AdminCohortOverview';
 import __Layout from './Layout.jsx';
 
 
@@ -76,6 +77,7 @@ export const PAGES = {
     "StudentCertificationConfirm": StudentCertificationConfirm,
     "StudentCertificationReady": StudentCertificationReady,
     "AdminOverview": AdminOverview,
+    "AdminCohortOverview": AdminCohortOverview,
 }
 
 export const pagesConfig = {
