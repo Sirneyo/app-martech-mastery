@@ -22,6 +22,21 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 
 export default function Dashboard() {
+  const [user, setUser] = React.useState(null);
+
+  React.useEffect(() => {
+    loadUser();
+  }, []);
+
+  const loadUser = async () => {
+    try {
+      const userData = await base44.auth.me();
+      setUser(userData);
+    } catch (error) {
+      console.error('Error loading user:', error);
+    }
+  };
+
   const currentTutor = {
     name: 'Sarah Mitchell',
     role: 'Senior MarTech Consultant',
@@ -65,7 +80,7 @@ export default function Dashboard() {
         className="mb-8"
       >
         <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-          Welcome back! 👋
+          Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}! 👋
         </h1>
         <p className="text-slate-500 mt-1">Continue your MarTech journey</p>
       </motion.div>
