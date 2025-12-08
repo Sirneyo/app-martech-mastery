@@ -533,46 +533,45 @@ export default function StudentCertificationAttempt() {
             </Button>
           )}
         </div>
-        </div>
-        </div>
+      </div>
 
-        {/* End Exam Confirmation Dialog */}
-        <Dialog open={showEndExamDialog} onOpenChange={setShowEndExamDialog}>
+      {/* End Exam Confirmation Dialog */}
+      <Dialog open={showEndExamDialog} onOpenChange={setShowEndExamDialog}>
         <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Submit exam now?</DialogTitle>
-          <DialogDescription className="space-y-3 pt-4">
-            <p className="font-semibold text-slate-900">
-              This will submit your exam immediately.
-            </p>
-            <ul className="list-disc list-inside space-y-2 text-sm text-slate-700">
-              <li>Any unanswered questions will be marked incorrect.</li>
-              <li>This counts as a completed attempt and cannot be undone.</li>
-              <li>You will not be able to resume this attempt.</li>
-            </ul>
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => setShowEndExamDialog(false)}
-            disabled={submittingEarly}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              setShowEndExamDialog(false);
-              handleEarlySubmit();
-            }}
-            disabled={submittingEarly}
-            className="bg-red-600 hover:bg-red-700"
-          >
-            {submittingEarly ? 'Submitting...' : 'Submit Now'}
-          </Button>
-        </DialogFooter>
+          <DialogHeader>
+            <DialogTitle>Submit exam now?</DialogTitle>
+            <DialogDescription className="space-y-3 pt-4">
+              <p className="font-semibold text-slate-900">
+                This will submit your exam immediately.
+              </p>
+              <ul className="list-disc list-inside space-y-2 text-sm text-slate-700">
+                <li>Any unanswered questions will be marked incorrect.</li>
+                <li>This counts as a completed attempt and cannot be undone.</li>
+                <li>You will not be able to resume this attempt.</li>
+              </ul>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowEndExamDialog(false)}
+              disabled={submittingEarly}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setShowEndExamDialog(false);
+                handleEarlySubmit();
+              }}
+              disabled={submittingEarly}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {submittingEarly ? 'Submitting...' : 'Submit Now'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
-        </Dialog>
-        </div>
-        );
-        }
+      </Dialog>
+    </div>
+  );
+}
