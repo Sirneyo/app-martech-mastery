@@ -21,14 +21,27 @@ export default function AdminExamBankImport() {
     setResults(null);
 
     try {
-      // Fetch exam config to get exam_id
-      const examConfigs = await base44.entities.ExamConfig.filter({ is_active: true });
+      // Fetch or create exam config
+      let examConfigs = await base44.entities.ExamConfig.filter({ is_active: true });
+      let examConfig;
+      
       if (examConfigs.length === 0) {
-        alert('No active exam config found. Please create an exam config first.');
-        setImporting(false);
-        return;
+        // Auto-create default ExamConfig
+        examConfig = await base44.entities.ExamConfig.create({
+          title: 'MarTech Mastery Certification Exam',
+          description: 'Complete the certification exam to earn your certificate',
+          unlock_week: 8,
+          attempts_allowed: 2,
+          questions_per_section: 20,
+          total_questions: 80,
+          pass_correct_required: 65,
+          pass_mark: 70,
+          duration_minutes: 60,
+          is_active: true,
+        });
+      } else {
+        examConfig = examConfigs[0];
       }
-      const examConfig = examConfigs[0];
 
       // Fetch all sections
       const sections = await base44.entities.ExamSection.list();
