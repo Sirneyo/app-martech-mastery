@@ -269,7 +269,7 @@ export default function StudentCertification() {
                 Start Exam
               </Button>
               <p className="text-sm text-slate-500 mt-4">
-                Duration: {examConfig?.duration_minutes || 60} minutes
+                Duration: {examConfig?.time_limit_minutes || 100} minutes • Timer cannot be paused
               </p>
             </div>
           )}

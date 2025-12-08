@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Circle, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useExamExpiryGuard } from '@/components/ExamExpiryGuard';
 
 export default function StudentCertificationReview() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -19,6 +20,20 @@ export default function StudentCertificationReview() {
     },
     enabled: !!attemptId,
   });
+
+  const { data: allQuestions = [] } = useQuery({
+    queryKey: ['all-questions', attemptQuestions],
+    queryFn: async () => {
+      if (attemptQuestions.length === 0) return [];
+      const questionIds = attemptQuestions.map(aq => aq.question_id);
+      const questions = await base44.entities.ExamQuestion.list();
+      return questions.filter(q => questionIds.includes(q.id));
+    },
+    enabled: attemptQuestions.length > 0,
+  });
+
+  // Expiry guard
+  useExamExpiryGuard(attempt, examConfig, attemptQuestions, allQuestions);
 
   const { data: examConfig } = useQuery({
     queryKey: ['exam-config', attempt?.exam_id],

@@ -47,9 +47,14 @@ export default function StudentCertificationReady() {
 
   const startExamMutation = useMutation({
     mutationFn: async () => {
+      const startedAt = new Date();
+      const timeLimitMinutes = examConfig?.time_limit_minutes || 100;
+      const expiresAt = new Date(startedAt.getTime() + timeLimitMinutes * 60000);
+      
       await base44.entities.ExamAttempt.update(attemptId, {
         attempt_status: 'in_progress',
-        started_at: new Date().toISOString(),
+        started_at: startedAt.toISOString(),
+        expires_at: expiresAt.toISOString(),
       });
     },
     onSuccess: () => {
@@ -142,23 +147,22 @@ export default function StudentCertificationReady() {
             </p>
           </div>
 
-          {examConfig.duration_minutes && (
-            <div className="bg-slate-50 rounded-xl p-6 text-center col-span-2">
-              <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Clock className="w-6 h-6 text-amber-600" />
-              </div>
-              <p className="text-sm text-slate-500 mb-1">Time Limit</p>
-              <p className="text-3xl font-bold text-slate-900">{examConfig.duration_minutes} minutes</p>
+          <div className="bg-slate-50 rounded-xl p-6 text-center col-span-2">
+            <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Clock className="w-6 h-6 text-amber-600" />
             </div>
-          )}
+            <p className="text-sm text-slate-500 mb-1">Time Limit</p>
+            <p className="text-3xl font-bold text-slate-900">{examConfig?.time_limit_minutes || 100} minutes</p>
+          </div>
         </div>
 
-        <div className="bg-violet-50 rounded-xl p-6 mb-6 border border-violet-200">
-          <p className="text-sm text-violet-900 mb-2">
-            <strong>Attempt Status:</strong> Using attempt {attemptsUsed} of {attemptsAllowed}
+        <div className="bg-amber-50 rounded-xl p-6 mb-6 border border-amber-200">
+          <p className="text-sm text-amber-900 mb-2">
+            <strong>⚠️ Important:</strong> Using attempt {attemptsUsed} of {attemptsAllowed}
           </p>
-          <p className="text-xs text-violet-700">
-            Once you begin, the timer will start. You can pause and return later, but the timer continues.
+          <p className="text-xs text-amber-800 font-medium">
+            Once you begin, the {examConfig?.time_limit_minutes || 100}-minute timer will start and CANNOT be paused. 
+            If you leave, the timer continues running. The exam will auto-submit when time expires.
           </p>
         </div>
 

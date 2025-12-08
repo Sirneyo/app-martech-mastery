@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Clock, ChevronLeft, ChevronRight, AlertCircle, List } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Clock, ChevronLeft, ChevronRight, AlertCircle, List, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useExamExpiryGuard } from '@/components/ExamExpiryGuard';
 
 export default function StudentCertificationAttempt() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -76,6 +78,9 @@ export default function StudentCertificationAttempt() {
   const currentQuestion = allQuestions.find(q => q.id === currentAttemptQuestion?.question_id);
   const currentSection = sections.find(s => s.id === currentAttemptQuestion?.exam_section_id);
 
+  // Expiry guard
+  useExamExpiryGuard(attempt, examConfig, attemptQuestions, allQuestions);
+
   // Load existing answer for current question
   useEffect(() => {
     if (!currentQuestion?.id) return;
@@ -91,15 +96,13 @@ export default function StudentCertificationAttempt() {
 
   // Timer
   useEffect(() => {
-    if (!attempt || !examConfig?.duration_minutes) return;
+    if (!attempt?.expires_at) return;
     
-    const startTime = new Date(attempt.started_at);
-    const durationMs = examConfig.duration_minutes * 60 * 1000;
-    const endTime = startTime.getTime() + durationMs;
+    const expiresAt = new Date(attempt.expires_at).getTime();
 
     const interval = setInterval(() => {
       const now = Date.now();
-      const remaining = Math.max(0, endTime - now);
+      const remaining = Math.max(0, expiresAt - now);
       setTimeRemaining(remaining);
 
       if (remaining === 0) {
@@ -107,8 +110,11 @@ export default function StudentCertificationAttempt() {
       }
     }, 1000);
 
+    // Set initial time
+    setTimeRemaining(Math.max(0, expiresAt - Date.now()));
+
     return () => clearInterval(interval);
-  }, [attempt, examConfig]);
+  }, [attempt?.expires_at]);
 
   const saveAnswerMutation = useMutation({
     mutationFn: async ({ questionId, answer }) => {
@@ -345,6 +351,13 @@ export default function StudentCertificationAttempt() {
       {/* Top Status Bar */}
       <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-4xl mx-auto px-6 py-4">
+          <Alert className="mb-3 border-amber-200 bg-amber-50">
+            <AlertTriangle className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-amber-800 text-sm">
+              <strong>Timer is running.</strong> Leaving the exam will not pause time.
+            </AlertDescription>
+          </Alert>
+          
           <div className="flex items-center justify-between mb-3">
             <div>
               <h1 className="text-xl font-bold text-slate-900">{examConfig.title}</h1>
@@ -354,9 +367,11 @@ export default function StudentCertificationAttempt() {
             </div>
             <div className="flex items-center gap-4">
               {timeRemaining !== null && (
-                <div className="flex items-center gap-2 text-slate-900">
+                <div className={`flex items-center gap-2 font-bold ${
+                  timeRemaining < 600000 ? 'text-red-600' : 'text-slate-900'
+                }`}>
                   <Clock className="w-5 h-5" />
-                  <span className="font-mono font-bold">{formatTime(timeRemaining)}</span>
+                  <span className="font-mono text-lg">{formatTime(timeRemaining)}</span>
                 </div>
               )}
               <Link 

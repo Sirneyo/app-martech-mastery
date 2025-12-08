@@ -36,7 +36,7 @@ export default function AdminExamBankImport() {
           total_questions: 80,
           pass_correct_required: 65,
           pass_mark: 70,
-          duration_minutes: 60,
+          time_limit_minutes: 100,
           is_active: true,
         });
       } else {
