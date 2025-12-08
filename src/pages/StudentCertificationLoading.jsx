@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
 export default function StudentCertificationLoading() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const attemptId = urlParams.get('id');
+
   const [stage, setStage] = useState(0);
   const [error, setError] = useState(null);
 
@@ -15,117 +18,67 @@ export default function StudentCertificationLoading() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: membership } = useQuery({
-    queryKey: ['my-cohort-membership'],
+  const { data: attempt } = useQuery({
+    queryKey: ['exam-attempt', attemptId],
     queryFn: async () => {
-      if (!user?.id) return null;
-      const memberships = await base44.entities.CohortMembership.filter({ 
-        user_id: user.id, 
-        status: 'active' 
-      });
-      return memberships[0];
+      const attempts = await base44.entities.ExamAttempt.filter({ id: attemptId });
+      return attempts[0];
     },
-    enabled: !!user?.id,
-  });
-
-  const { data: examConfig } = useQuery({
-    queryKey: ['exam-config'],
-    queryFn: async () => {
-      const configs = await base44.entities.ExamConfig.filter({ is_active: true });
-      return configs[0];
-    },
+    enabled: !!attemptId,
   });
 
   const stages = [
     'Gathering your questions...',
-    'Preparing exam environment...',
     'Randomising your sections...',
-    'Loading your attempt...',
-    "Let's get you certified"
+    'Preparing exam environment...',
+    'Securing your attempt...',
+    'Almost there...'
   ];
 
   useEffect(() => {
-    if (!user?.id || !membership?.cohort_id || !examConfig?.id) return;
+    if (!user?.id || !attempt?.id) return;
+
+    // Validate access
+    if (attempt.student_user_id !== user.id) {
+      setError('Access denied: This attempt belongs to another student.');
+      return;
+    }
+
+    if (!['prepared'].includes(attempt.attempt_status)) {
+      setError('This attempt has already been started or submitted.');
+      return;
+    }
 
     let stageInterval;
 
-    const createAttempt = async () => {
+    const loadAttempt = async () => {
       try {
         // Progress through stages
         stageInterval = setInterval(() => {
           setStage(prev => Math.min(prev + 1, stages.length - 1));
-        }, 800);
+        }, 600);
 
-        // Validate bank coverage for each section
-        const sections = await base44.entities.ExamSection.list('sort_order');
-        const questionsPerSection = examConfig.questions_per_section || 20;
+        // Simulate loading delay
+        await new Promise(resolve => setTimeout(resolve, 3000));
         
-        for (const section of sections) {
-          const sectionQuestions = await base44.entities.ExamQuestion.filter({
-            exam_section_id: section.id,
-            published_flag: true
-          });
-          
-          if (sectionQuestions.length < questionsPerSection) {
-            throw new Error(`Exam not available yet, missing questions in ${section.name}. Need ${questionsPerSection}, have ${sectionQuestions.length}.`);
-          }
-        }
-        
-        // Create attempt
-        const attempt = await base44.entities.ExamAttempt.create({
-          student_user_id: user.id,
-          cohort_id: membership.cohort_id,
-          exam_id: examConfig.id,
-          started_at: new Date().toISOString(),
-          current_question_index: 1,
-        });
-        
-        // Randomly select questions for each section
-        const attemptQuestions = [];
-        let globalOrder = 1;
-        
-        for (const section of sections) {
-          const sectionQuestions = await base44.entities.ExamQuestion.filter({
-            exam_section_id: section.id,
-            published_flag: true
-          });
-          
-          // Shuffle and select questionsPerSection
-          const shuffled = sectionQuestions.sort(() => Math.random() - 0.5);
-          const selected = shuffled.slice(0, questionsPerSection);
-          
-          selected.forEach((q, idx) => {
-            attemptQuestions.push({
-              attempt_id: attempt.id,
-              exam_section_id: section.id,
-              question_id: q.id,
-              order_index: idx + 1,
-              global_order: globalOrder++
-            });
-          });
-        }
-        
-        // Save selected questions
-        await base44.entities.ExamAttemptQuestion.bulkCreate(attemptQuestions);
-        
-        // Clear interval and redirect
+        // Clear interval and redirect to ready screen
         clearInterval(stageInterval);
         setTimeout(() => {
-          window.location.href = createPageUrl(`StudentCertificationAttempt?id=${attempt.id}`);
-        }, 1000);
+          window.location.href = createPageUrl(`StudentCertificationReady?id=${attempt.id}`);
+        }, 500);
       } catch (error) {
         clearInterval(stageInterval);
-        console.error('Error creating exam attempt:', error);
+        console.error('Error loading exam attempt:', error);
         setError(error.message);
       }
     };
 
-    createAttempt();
+    loadAttempt();
 
     return () => {
       if (stageInterval) clearInterval(stageInterval);
     };
-  }, [user?.id, membership?.cohort_id, examConfig?.id]);
+  }, [user?.id, attempt?.id, attempt?.student_user_id, attempt?.attempt_status]);
 
   if (error) {
     return (
@@ -145,10 +98,10 @@ export default function StudentCertificationLoading() {
             {error}
           </p>
           <Button
-            onClick={() => window.location.href = createPageUrl('StudentCertification')}
+            onClick={() => window.location.href = createPageUrl('StudentCertificationConfirm')}
             className="w-full bg-violet-600 hover:bg-violet-700"
           >
-            Back to Certification
+            Back to Confirm
           </Button>
         </motion.div>
       </div>

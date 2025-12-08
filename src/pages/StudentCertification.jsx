@@ -53,6 +53,11 @@ export default function StudentCertification() {
     enabled: !!user?.id && !!membership?.cohort_id,
   });
 
+  // Check for existing active attempt
+  const activeAttempt = attempts.find(a => 
+    ['prepared', 'in_progress'].includes(a.attempt_status) && !a.submitted_at
+  );
+
   const { data: certificate } = useQuery({
     queryKey: ['my-certificate', membership?.cohort_id],
     queryFn: async () => {
@@ -79,15 +84,24 @@ export default function StudentCertification() {
   const unlockWeek = examConfig?.unlock_week || 8;
   const isUnlocked = currentWeek >= unlockWeek;
   
-  const submittedAttempts = attempts.filter(a => a.submitted_at);
-  const attemptsUsed = submittedAttempts.length;
+  const preparedAttempts = attempts.filter(a => a.prepared_at);
+  const attemptsUsed = preparedAttempts.length;
   const attemptsAllowed = examConfig?.attempts_allowed || 2;
-  const hasPassed = submittedAttempts.some(a => a.pass_flag);
-  const canStartAttempt = isUnlocked && !hasPassed && attemptsUsed < attemptsAllowed;
+  const hasPassed = attempts.some(a => a.pass_flag);
+  const canStartAttempt = isUnlocked && !hasPassed && attemptsUsed < attemptsAllowed && !activeAttempt;
 
   const handleStartExam = () => {
-    // Navigate to loading page which will handle attempt creation
-    window.location.href = createPageUrl('StudentCertificationLoading');
+    if (activeAttempt) {
+      // Resume existing attempt
+      if (activeAttempt.attempt_status === 'prepared') {
+        window.location.href = createPageUrl(`StudentCertificationReady?id=${activeAttempt.id}`);
+      } else {
+        window.location.href = createPageUrl(`StudentCertificationAttempt?id=${activeAttempt.id}`);
+      }
+    } else {
+      // Start new attempt
+      window.location.href = createPageUrl('StudentCertificationConfirm');
+    }
   };
 
   if (!isUnlocked) {
@@ -195,11 +209,11 @@ export default function StudentCertification() {
             </div>
           </div>
 
-          {submittedAttempts.length > 0 && (
+          {preparedAttempts.filter(a => a.submitted_at).length > 0 && (
             <div className="mb-8">
               <h3 className="font-bold text-slate-900 mb-4">Previous Attempts</h3>
               <div className="space-y-3">
-                {submittedAttempts.map((attempt, idx) => (
+                {preparedAttempts.filter(a => a.submitted_at).map((attempt, idx) => (
                   <Link
                     key={attempt.id}
                     to={createPageUrl(`StudentCertificationResults?id=${attempt.id}`)}
@@ -229,7 +243,22 @@ export default function StudentCertification() {
             </div>
           )}
 
-          {canStartAttempt && (
+          {activeAttempt && (
+            <div className="text-center p-6 bg-violet-50 rounded-xl border border-violet-200">
+              <p className="text-violet-700 font-medium mb-4">
+                You have an active attempt in progress
+              </p>
+              <Button 
+                onClick={handleStartExam}
+                size="lg"
+                className="bg-violet-600 hover:bg-violet-700"
+              >
+                {activeAttempt.attempt_status === 'prepared' ? 'Continue to Ready Screen' : 'Resume Exam'}
+              </Button>
+            </div>
+          )}
+
+          {canStartAttempt && !activeAttempt && (
             <div className="text-center">
               <Button 
                 onClick={handleStartExam}

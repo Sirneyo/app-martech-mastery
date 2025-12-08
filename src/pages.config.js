@@ -32,6 +32,8 @@ import StudentCertificationResults from './pages/StudentCertificationResults';
 import AdminExamBankImport from './pages/AdminExamBankImport';
 import StudentCertificationLoading from './pages/StudentCertificationLoading';
 import StudentCertificationReview from './pages/StudentCertificationReview';
+import StudentCertificationConfirm from './pages/StudentCertificationConfirm';
+import StudentCertificationReady from './pages/StudentCertificationReady';
 import __Layout from './Layout.jsx';
 
 
@@ -70,6 +72,8 @@ export const PAGES = {
     "AdminExamBankImport": AdminExamBankImport,
     "StudentCertificationLoading": StudentCertificationLoading,
     "StudentCertificationReview": StudentCertificationReview,
+    "StudentCertificationConfirm": StudentCertificationConfirm,
+    "StudentCertificationReady": StudentCertificationReady,
 }
 
 export const pagesConfig = {

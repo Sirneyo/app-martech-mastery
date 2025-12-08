@@ -215,6 +215,7 @@ export default function StudentCertificationAttempt() {
 
     // Update attempt
     await base44.entities.ExamAttempt.update(attemptId, {
+      attempt_status: 'submitted',
       submitted_at: new Date().toISOString(),
       score_percent: scorePercent,
       pass_flag: passFlag,
@@ -302,6 +303,22 @@ export default function StudentCertificationAttempt() {
     const seconds = Math.floor((ms % 60000) / 1000);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
+
+  // Access control and status guards
+  if (attempt && user && attempt.student_user_id !== user.id) {
+    window.location.href = createPageUrl('StudentCertification');
+    return null;
+  }
+
+  if (attempt?.attempt_status === 'prepared' && !attempt.started_at) {
+    window.location.href = createPageUrl(`StudentCertificationReady?id=${attemptId}`);
+    return null;
+  }
+
+  if (attempt?.attempt_status === 'submitted') {
+    window.location.href = createPageUrl(`StudentCertificationResults?id=${attemptId}`);
+    return null;
+  }
 
   if (!attempt || !examConfig || !currentQuestion) {
     return (
