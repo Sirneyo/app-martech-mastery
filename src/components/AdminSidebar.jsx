@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 
 export default function AdminSidebar({ currentPageName, onNavigate }) {
   const navItems = [
+    { name: 'Overview', icon: Users, page: 'AdminOverview' },
     { name: 'Users', icon: Users, page: 'AdminUsers' },
     { name: 'Cohorts', icon: Calendar, page: 'AdminCohorts' },
     { name: 'Templates', icon: FileText, page: 'AdminTemplates' },
