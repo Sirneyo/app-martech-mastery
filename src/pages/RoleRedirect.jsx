@@ -15,17 +15,12 @@ export default function RoleRedirect() {
     try {
       const user = await base44.auth.me();
       
-      if (user.role === 'admin') {
+      if (user.app_role === 'admin') {
         navigate(createPageUrl('AdminUsers'));
+      } else if (user.app_role === 'tutor') {
+        navigate(createPageUrl('TutorDashboard'));
       } else {
-        // Check if user is a tutor
-        const tutorAssignments = await base44.entities.TutorCohortAssignment.filter({ tutor_id: user.id });
-        
-        if (tutorAssignments.length > 0) {
-          navigate(createPageUrl('TutorDashboard'));
-        } else {
-          navigate(createPageUrl('StudentDashboard'));
-        }
+        navigate(createPageUrl('StudentDashboard'));
       }
     } catch (error) {
       console.error('Error redirecting:', error);
