@@ -28,7 +28,7 @@ export default function AdminUsers() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [newUser, setNewUser] = useState({ full_name: '', email: '', role: 'user' });
   const [assignmentData, setAssignmentData] = useState({ cohort_id: '', tutor_id: '' });
-  const [editData, setEditData] = useState({ full_name: '', email: '', role: '', status: '' });
+  const [editData, setEditData] = useState({ full_name: '', email: '', user_type: '', status: '' });
 
   const queryClient = useQueryClient();
 
@@ -138,7 +138,7 @@ export default function AdminUsers() {
     setEditData({
       full_name: user.full_name || '',
       email: user.email || '',
-      role: user.role || 'user',
+      user_type: user.user_type || 'student',
       status: user.status || 'active'
     });
     setEditDialogOpen(true);
@@ -147,12 +147,12 @@ export default function AdminUsers() {
   const handleSaveEdit = () => {
     if (!selectedUser) return;
 
-    // Check if trying to remove last admin's admin role
-    const adminUsers = users.filter(u => u.role === 'admin');
+    // Check if trying to remove last admin's admin type
+    const adminUsers = users.filter(u => u.user_type === 'admin');
     const isLastAdmin = adminUsers.length === 1 && adminUsers[0].id === selectedUser.id;
-    const isRemovingAdminRole = selectedUser.role === 'admin' && editData.role !== 'admin';
+    const isRemovingAdminType = selectedUser.user_type === 'admin' && editData.user_type !== 'admin';
 
-    if (isLastAdmin && isRemovingAdminRole && currentUser?.id === selectedUser.id) {
+    if (isLastAdmin && isRemovingAdminType && currentUser?.id === selectedUser.id) {
       alert('Cannot remove admin role from the last admin user');
       return;
     }
@@ -238,8 +238,8 @@ export default function AdminUsers() {
                     <td className="p-4 font-medium text-slate-900">{user.full_name}</td>
                     <td className="p-4 text-slate-600">{user.email}</td>
                     <td className="p-4">
-                      <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                        {user.role}
+                      <Badge variant={user.user_type === 'admin' ? 'default' : 'secondary'}>
+                        {user.user_type || 'student'}
                       </Badge>
                     </td>
                     <td className="p-4 text-slate-600">
@@ -348,13 +348,13 @@ export default function AdminUsers() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Role</Label>
-                <Select value={editData.role} onValueChange={(value) => setEditData({ ...editData, role: value })}>
+                <Label>User Type</Label>
+                <Select value={editData.user_type} onValueChange={(value) => setEditData({ ...editData, user_type: value })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="user">Student</SelectItem>
+                    <SelectItem value="student">Student</SelectItem>
                     <SelectItem value="tutor">Tutor</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
