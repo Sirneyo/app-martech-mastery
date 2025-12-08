@@ -94,6 +94,10 @@ export default function AdminUsers() {
       setEditDialogOpen(false);
       setSelectedUser(null);
     },
+    onError: (error) => {
+      console.error('Update error:', error);
+      alert('Failed to update user: ' + (error.message || 'Unknown error'));
+    },
   });
 
   const handleCreateUser = () => {
@@ -369,8 +373,8 @@ export default function AdminUsers() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleSaveEdit} className="w-full">
-                Save Changes
+              <Button onClick={handleSaveEdit} className="w-full" disabled={updateUserMutation.isPending}>
+                {updateUserMutation.isPending ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           </DialogContent>
