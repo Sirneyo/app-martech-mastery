@@ -7,7 +7,15 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Clock, ChevronLeft, ChevronRight, AlertCircle, List, AlertTriangle } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Clock, ChevronLeft, ChevronRight, AlertCircle, List, AlertTriangle, Flag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useExamExpiryGuard } from '@/components/ExamExpiryGuard';
@@ -20,6 +28,8 @@ export default function StudentCertificationAttempt() {
   const [currentAnswer, setCurrentAnswer] = useState(null);
   const [showWarning, setShowWarning] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(null);
+  const [showEndExamDialog, setShowEndExamDialog] = useState(false);
+  const [submittingEarly, setSubmittingEarly] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -183,15 +193,13 @@ export default function StudentCertificationAttempt() {
     }
   };
 
-  const handleFinalSubmit = async () => {
-    // Check all questions answered
+  const handleEarlySubmit = async () => {
+    setSubmittingEarly(true);
+    await performSubmit();
+  };
+
+  const performSubmit = async () => {
     const totalQuestions = examConfig?.total_questions || 80;
-    const answeredCount = existingAnswers.length;
-    
-    if (answeredCount < totalQuestions) {
-      window.location.href = createPageUrl(`StudentCertificationReview?id=${attemptId}`);
-      return;
-    }
 
     // Calculate score
     let correctCount = 0;
@@ -296,6 +304,19 @@ export default function StudentCertificationAttempt() {
     window.location.href = createPageUrl(`StudentCertificationResults?id=${attemptId}`);
   };
 
+  const handleFinalSubmit = async () => {
+    // Check all questions answered
+    const totalQuestions = examConfig?.total_questions || 80;
+    const answeredCount = existingAnswers.length;
+    
+    if (answeredCount < totalQuestions) {
+      window.location.href = createPageUrl(`StudentCertificationReview?id=${attemptId}`);
+      return;
+    }
+
+    await performSubmit();
+  };
+
   const handleAnswerChange = (value, isMulti = false) => {
     if (isMulti) {
       const current = Array.isArray(currentAnswer) ? currentAnswer : [];
@@ -381,6 +402,15 @@ export default function StudentCertificationAttempt() {
                 <List className="w-4 h-4" />
                 Review
               </Link>
+              <Button
+                onClick={() => setShowEndExamDialog(true)}
+                variant="outline"
+                size="sm"
+                className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+              >
+                <Flag className="w-4 h-4 mr-2" />
+                End Exam
+              </Button>
             </div>
           </div>
           <div className="relative">
@@ -503,7 +533,46 @@ export default function StudentCertificationAttempt() {
             </Button>
           )}
         </div>
-      </div>
-    </div>
-  );
-}
+        </div>
+        </div>
+
+        {/* End Exam Confirmation Dialog */}
+        <Dialog open={showEndExamDialog} onOpenChange={setShowEndExamDialog}>
+        <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Submit exam now?</DialogTitle>
+          <DialogDescription className="space-y-3 pt-4">
+            <p className="font-semibold text-slate-900">
+              This will submit your exam immediately.
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-sm text-slate-700">
+              <li>Any unanswered questions will be marked incorrect.</li>
+              <li>This counts as a completed attempt and cannot be undone.</li>
+              <li>You will not be able to resume this attempt.</li>
+            </ul>
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => setShowEndExamDialog(false)}
+            disabled={submittingEarly}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              setShowEndExamDialog(false);
+              handleEarlySubmit();
+            }}
+            disabled={submittingEarly}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            {submittingEarly ? 'Submitting...' : 'Submit Now'}
+          </Button>
+        </DialogFooter>
+        </DialogContent>
+        </Dialog>
+        </div>
+        );
+        }
