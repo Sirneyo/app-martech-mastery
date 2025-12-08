@@ -1,10 +1,267 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Lock, Trophy, CheckCircle, Clock, Award } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function StudentCertification() {
+  const { data: user } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const { data: membership } = useQuery({
+    queryKey: ['my-cohort-membership'],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const memberships = await base44.entities.CohortMembership.filter({ 
+        user_id: user.id, 
+        status: 'active' 
+      });
+      return memberships[0];
+    },
+    enabled: !!user?.id,
+  });
+
+  const { data: cohort } = useQuery({
+    queryKey: ['my-cohort', membership?.cohort_id],
+    queryFn: () => base44.entities.Cohort.filter({ id: membership.cohort_id }).then(r => r[0]),
+    enabled: !!membership?.cohort_id,
+  });
+
+  const { data: examConfig } = useQuery({
+    queryKey: ['exam-config'],
+    queryFn: async () => {
+      const configs = await base44.entities.ExamConfig.filter({ is_active: true });
+      return configs[0];
+    },
+  });
+
+  const { data: attempts = [] } = useQuery({
+    queryKey: ['my-exam-attempts', membership?.cohort_id],
+    queryFn: async () => {
+      if (!user?.id || !membership?.cohort_id) return [];
+      return base44.entities.ExamAttempt.filter({
+        student_user_id: user.id,
+        cohort_id: membership.cohort_id
+      });
+    },
+    enabled: !!user?.id && !!membership?.cohort_id,
+  });
+
+  const { data: certificate } = useQuery({
+    queryKey: ['my-certificate', membership?.cohort_id],
+    queryFn: async () => {
+      if (!user?.id || !membership?.cohort_id) return null;
+      const certs = await base44.entities.Certificate.filter({
+        student_user_id: user.id,
+        cohort_id: membership.cohort_id
+      });
+      return certs[0];
+    },
+    enabled: !!user?.id && !!membership?.cohort_id,
+  });
+
+  const getCurrentWeek = () => {
+    if (!cohort?.start_date) return 0;
+    const startDate = new Date(cohort.start_date);
+    const today = new Date();
+    const diffTime = today - startDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return Math.floor(diffDays / 7) + 1;
+  };
+
+  const currentWeek = getCurrentWeek();
+  const unlockWeek = examConfig?.unlock_week || 8;
+  const isUnlocked = currentWeek >= unlockWeek;
+  
+  const submittedAttempts = attempts.filter(a => a.submitted_at);
+  const attemptsUsed = submittedAttempts.length;
+  const attemptsAllowed = examConfig?.attempts_allowed || 2;
+  const hasPassed = submittedAttempts.some(a => a.pass_flag);
+  const canStartAttempt = isUnlocked && !hasPassed && attemptsUsed < attemptsAllowed;
+
+  const handleStartExam = async () => {
+    if (!user?.id || !membership?.cohort_id || !examConfig?.id) return;
+    
+    const attempt = await base44.entities.ExamAttempt.create({
+      student_user_id: user.id,
+      cohort_id: membership.cohort_id,
+      exam_id: examConfig.id,
+      started_at: new Date().toISOString(),
+    });
+
+    window.location.href = createPageUrl(`StudentCertificationAttempt?id=${attempt.id}`);
+  };
+
+  if (!isUnlocked) {
+    const weeksRemaining = unlockWeek - currentWeek;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+        <div className="max-w-3xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl p-12 text-center shadow-lg border border-slate-200"
+          >
+            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Lock className="w-10 h-10 text-slate-400" />
+            </div>
+            <h1 className="text-3xl font-bold text-slate-900 mb-4">
+              MarTech Mastery Certification
+            </h1>
+            <p className="text-lg text-slate-600 mb-6">
+              Exam unlocks in week {unlockWeek}
+            </p>
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-slate-100 rounded-lg">
+              <Clock className="w-5 h-5 text-slate-600" />
+              <span className="font-semibold text-slate-900">
+                {weeksRemaining} {weeksRemaining === 1 ? 'week' : 'weeks'} remaining
+              </span>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasPassed) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 p-8">
+        <div className="max-w-3xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl p-12 text-center shadow-xl border border-green-200"
+          >
+            <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Trophy className="w-12 h-12 text-white" />
+            </div>
+            <h1 className="text-4xl font-bold text-slate-900 mb-4">
+              Congratulations!
+            </h1>
+            <p className="text-xl text-slate-600 mb-8">
+              You have passed the MarTech Mastery Certification
+            </p>
+            {certificate && (
+              <div className="bg-slate-50 rounded-xl p-6 mb-6">
+                <p className="text-sm text-slate-500 mb-2">Certificate ID</p>
+                <p className="text-2xl font-mono font-bold text-slate-900">
+                  {certificate.certificate_id_code}
+                </p>
+              </div>
+            )}
+            <div className="flex items-center justify-center gap-6 text-slate-600">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-500" />
+                <span>Exam Passed</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Award className="w-5 h-5 text-violet-500" />
+                <span>Portfolio Approved</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-      <h1 className="text-3xl font-bold text-slate-900">My Certification</h1>
-      <p className="text-slate-500 mt-2">Coming soon - Take your certification exam</p>
+      <div className="max-w-3xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl p-8 shadow-lg border border-slate-200"
+        >
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+              MarTech Mastery Certification
+            </h1>
+            <p className="text-slate-600">
+              {examConfig?.description || 'Complete the certification exam to earn your certificate'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <div className="bg-slate-50 rounded-xl p-6 text-center">
+              <p className="text-sm text-slate-500 mb-2">Attempts Used</p>
+              <p className="text-3xl font-bold text-slate-900">
+                {attemptsUsed} / {attemptsAllowed}
+              </p>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-6 text-center">
+              <p className="text-sm text-slate-500 mb-2">Pass Mark</p>
+              <p className="text-3xl font-bold text-slate-900">
+                {examConfig?.pass_mark || 80}%
+              </p>
+            </div>
+          </div>
+
+          {submittedAttempts.length > 0 && (
+            <div className="mb-8">
+              <h3 className="font-bold text-slate-900 mb-4">Previous Attempts</h3>
+              <div className="space-y-3">
+                {submittedAttempts.map((attempt, idx) => (
+                  <Link
+                    key={attempt.id}
+                    to={createPageUrl(`StudentCertificationResults?id=${attempt.id}`)}
+                    className="block bg-slate-50 rounded-xl p-4 hover:bg-slate-100 transition-all"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-slate-900">
+                          Attempt {idx + 1}
+                        </p>
+                        <p className="text-sm text-slate-500">
+                          {new Date(attempt.submitted_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge className={attempt.pass_flag ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+                          {attempt.score_percent}%
+                        </Badge>
+                        <Badge variant={attempt.pass_flag ? 'default' : 'secondary'}>
+                          {attempt.pass_flag ? 'Passed' : 'Failed'}
+                        </Badge>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {canStartAttempt && (
+            <div className="text-center">
+              <Button 
+                onClick={handleStartExam}
+                size="lg"
+                className="bg-violet-600 hover:bg-violet-700 text-lg px-8 py-6"
+              >
+                <Trophy className="w-5 h-5 mr-2" />
+                Start Exam
+              </Button>
+              <p className="text-sm text-slate-500 mt-4">
+                Duration: {examConfig?.duration_minutes || 60} minutes
+              </p>
+            </div>
+          )}
+
+          {!canStartAttempt && !hasPassed && (
+            <div className="text-center p-6 bg-red-50 rounded-xl">
+              <p className="text-red-700 font-medium">
+                No attempts remaining
+              </p>
+            </div>
+          )}
+        </motion.div>
+      </div>
     </div>
   );
 }

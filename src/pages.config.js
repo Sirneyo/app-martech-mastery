@@ -27,6 +27,8 @@ import StudentProjectDetail from './pages/StudentProjectDetail';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
 import StudentPortfolioItemDetail from './pages/StudentPortfolioItemDetail';
 import TutorPortfolioReview from './pages/TutorPortfolioReview';
+import StudentCertificationAttempt from './pages/StudentCertificationAttempt';
+import StudentCertificationResults from './pages/StudentCertificationResults';
 import __Layout from './Layout.jsx';
 
 
@@ -60,6 +62,8 @@ export const PAGES = {
     "TutorSubmissionReview": TutorSubmissionReview,
     "StudentPortfolioItemDetail": StudentPortfolioItemDetail,
     "TutorPortfolioReview": TutorPortfolioReview,
+    "StudentCertificationAttempt": StudentCertificationAttempt,
+    "StudentCertificationResults": StudentCertificationResults,
 }
 
 export const pagesConfig = {
