@@ -58,9 +58,9 @@ export default function RoleBasedLayout({ children, currentPageName }) {
     }
   };
 
-  const SidebarComponent = user?.role === 'admin' ? AdminSidebar : 
-                          currentPageName?.startsWith('Tutor') ? TutorSidebar : 
-                          StudentSidebar;
+  const SidebarComponent = user?.app_role === 'admin' ? AdminSidebar : 
+                            user?.app_role === 'tutor' ? TutorSidebar : 
+                            StudentSidebar;
 
   return (
     <div className="flex min-h-screen bg-slate-100">
@@ -115,7 +115,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
                       {user?.full_name || 'Loading...'}
                     </p>
                     <p className="text-[10px] text-slate-500 capitalize">
-                      {user?.role || 'user'}
+                      {user?.app_role || 'student'}
                     </p>
                   </div>
                   <Settings className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors hidden sm:block" />
