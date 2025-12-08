@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Users, Calendar, FileText } from 'lucide-react';
+import { Users, Calendar, FileText, LayoutDashboard } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function AdminSidebar({ currentPageName, onNavigate }) {
   const navItems = [
-    { name: 'Overview', icon: Users, page: 'AdminOverview' },
+    { name: 'Overview', icon: LayoutDashboard, page: 'AdminOverview' },
     { name: 'Users', icon: Users, page: 'AdminUsers' },
     { name: 'Cohorts', icon: Calendar, page: 'AdminCohorts' },
     { name: 'Templates', icon: FileText, page: 'AdminTemplates' },
