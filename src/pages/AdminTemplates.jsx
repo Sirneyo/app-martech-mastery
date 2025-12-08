@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Plus, ClipboardList, FolderOpen, Award, Trash2, Edit } from 'lucide-react';
+import { Plus, ClipboardList, FolderOpen, Award, Trash2, Edit, Settings } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export default function AdminTemplates() {
@@ -23,6 +23,7 @@ export default function AdminTemplates() {
   const [editingItem, setEditingItem] = useState(null);
 
   const [assignmentForm, setAssignmentForm] = useState({
+    key: '',
     title: '',
     description: '',
     week_number: 1,
@@ -31,6 +32,7 @@ export default function AdminTemplates() {
   });
 
   const [projectForm, setProjectForm] = useState({
+    key: '',
     title: '',
     description: '',
     week_number: 1,
@@ -39,11 +41,20 @@ export default function AdminTemplates() {
   });
 
   const [portfolioForm, setPortfolioForm] = useState({
+    key: '',
     title: '',
     description: '',
     category: 'assignment',
     unlock_week: 1,
     requirements: '',
+  });
+
+  const [settingsForm, setSettingsForm] = useState({
+    kajabi_url: '',
+    marketo_url: '',
+    whatsapp_community_url: '',
+    ai_tools_url: '',
+    exit_interview_booking_url: '',
   });
 
   const queryClient = useQueryClient();
@@ -61,6 +72,17 @@ export default function AdminTemplates() {
   const { data: portfolioItems = [] } = useQuery({
     queryKey: ['portfolio-templates'],
     queryFn: () => base44.entities.PortfolioItemTemplate.list(),
+  });
+
+  const { data: appSettings = [] } = useQuery({
+    queryKey: ['app-settings'],
+    queryFn: async () => {
+      const settings = await base44.entities.AppSettings.list();
+      if (settings.length > 0) {
+        setSettingsForm(settings[0]);
+      }
+      return settings;
+    },
   });
 
   const createAssignmentMutation = useMutation({
@@ -113,7 +135,21 @@ export default function AdminTemplates() {
       queryClient.invalidateQueries({ queryKey: ['portfolio-templates'] });
       setPortfolioDialog(false);
       setEditingItem(null);
-      setPortfolioForm({ title: '', description: '', category: 'assignment', unlock_week: 1, requirements: '' });
+      setPortfolioForm({ key: '', title: '', description: '', category: 'assignment', unlock_week: 1, requirements: '' });
+    },
+  });
+
+  const saveSettingsMutation = useMutation({
+    mutationFn: async (data) => {
+      const existing = appSettings[0];
+      if (existing) {
+        return base44.entities.AppSettings.update(existing.id, data);
+      } else {
+        return base44.entities.AppSettings.create(data);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['app-settings'] });
     },
   });
 
@@ -139,6 +175,10 @@ export default function AdminTemplates() {
               <Award className="w-4 h-4 mr-2" />
               Portfolio Items
             </TabsTrigger>
+            <TabsTrigger value="settings">
+              <Settings className="w-4 h-4 mr-2" />
+              App Settings
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="assignments">
@@ -156,6 +196,14 @@ export default function AdminTemplates() {
                     <DialogTitle>{editingItem ? 'Edit Assignment' : 'Create Assignment Template'}</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label>Key (unique identifier)</Label>
+                      <Input
+                        value={assignmentForm.key}
+                        onChange={(e) => setAssignmentForm({ ...assignmentForm, key: e.target.value })}
+                        placeholder="e.g., week1_assignment"
+                      />
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Title</Label>
@@ -217,6 +265,7 @@ export default function AdminTemplates() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <h3 className="font-bold text-slate-900">{assignment.title}</h3>
+                      <p className="text-xs text-slate-400 font-mono mt-1">{assignment.key}</p>
                       <div className="flex gap-2 mt-2">
                         <Badge variant="outline">Week {assignment.week_number}</Badge>
                         <Badge className="bg-violet-100 text-violet-700">{assignment.points} pts</Badge>
@@ -251,6 +300,14 @@ export default function AdminTemplates() {
                     <DialogTitle>Create Project Template</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label>Key (unique identifier)</Label>
+                      <Input
+                        value={projectForm.key}
+                        onChange={(e) => setProjectForm({ ...projectForm, key: e.target.value })}
+                        placeholder="e.g., week4_project"
+                      />
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Title</Label>
@@ -312,6 +369,7 @@ export default function AdminTemplates() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <h3 className="font-bold text-slate-900">{project.title}</h3>
+                      <p className="text-xs text-slate-400 font-mono mt-1">{project.key}</p>
                       <div className="flex gap-2 mt-2">
                         <Badge variant="outline">Week {project.week_number}</Badge>
                         <Badge className="bg-blue-100 text-blue-700">{project.points} pts</Badge>
@@ -346,6 +404,14 @@ export default function AdminTemplates() {
                     <DialogTitle>Create Portfolio Item Template</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label>Key (unique identifier)</Label>
+                      <Input
+                        value={portfolioForm.key}
+                        onChange={(e) => setPortfolioForm({ ...portfolioForm, key: e.target.value })}
+                        placeholder="e.g., approved_cv, marketo_cert"
+                      />
+                    </div>
                     <div className="space-y-2">
                       <Label>Title</Label>
                       <Input
@@ -402,6 +468,7 @@ export default function AdminTemplates() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <h3 className="font-bold text-slate-900">{item.title}</h3>
+                      <p className="text-xs text-slate-400 font-mono mt-1">{item.key}</p>
                       <Badge variant="outline" className="mt-2">Week {item.unlock_week}</Badge>
                     </div>
                     <Button
@@ -415,6 +482,57 @@ export default function AdminTemplates() {
                   <p className="text-sm text-slate-600">{item.description}</p>
                 </div>
               ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <div className="max-w-3xl">
+              <h2 className="text-xl font-semibold text-slate-900 mb-4">App Settings</h2>
+              <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                <div className="space-y-2">
+                  <Label>Kajabi URL</Label>
+                  <Input
+                    value={settingsForm.kajabi_url}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, kajabi_url: e.target.value })}
+                    placeholder="https://www.the-growth-academy.co/library"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Marketo URL</Label>
+                  <Input
+                    value={settingsForm.marketo_url}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, marketo_url: e.target.value })}
+                    placeholder="https://experience.adobe.com/#/@oadsolutionsltd/"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>WhatsApp Community URL</Label>
+                  <Input
+                    value={settingsForm.whatsapp_community_url}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, whatsapp_community_url: e.target.value })}
+                    placeholder="https://chat.whatsapp.com/..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>AI Tools URL</Label>
+                  <Input
+                    value={settingsForm.ai_tools_url}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, ai_tools_url: e.target.value })}
+                    placeholder="https://ai.martech-mastery.com/"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Exit Interview Booking URL</Label>
+                  <Input
+                    value={settingsForm.exit_interview_booking_url}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, exit_interview_booking_url: e.target.value })}
+                    placeholder="https://calendly.com/..."
+                  />
+                </div>
+                <Button onClick={() => saveSettingsMutation.mutate(settingsForm)} className="w-full">
+                  Save Settings
+                </Button>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
