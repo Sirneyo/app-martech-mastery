@@ -18,17 +18,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, UserPlus, Users, GraduationCap, Trash2 } from 'lucide-react';
+import { Plus, UserPlus, Users, GraduationCap, Trash2, Edit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export default function AdminUsers() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [newUser, setNewUser] = useState({ full_name: '', email: '', role: 'user' });
   const [assignmentData, setAssignmentData] = useState({ cohort_id: '', tutor_id: '' });
+  const [editData, setEditData] = useState({ full_name: '', email: '', role: '', status: '' });
 
   const queryClient = useQueryClient();
+
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
 
   const { data: users = [] } = useQuery({
     queryKey: ['users'],
@@ -79,6 +86,15 @@ export default function AdminUsers() {
     },
   });
 
+  const updateUserMutation = useMutation({
+    mutationFn: ({ userId, data }) => base44.entities.User.update(userId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      setEditDialogOpen(false);
+      setSelectedUser(null);
+    },
+  });
+
   const handleCreateUser = () => {
     createUserMutation.mutate(newUser);
   };
@@ -110,6 +126,36 @@ export default function AdminUsers() {
       return cohort?.name;
     }
     return null;
+  };
+
+  const handleEditUser = (user) => {
+    setSelectedUser(user);
+    setEditData({
+      full_name: user.full_name || '',
+      email: user.email || '',
+      role: user.role || 'user',
+      status: user.status || 'active'
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (!selectedUser) return;
+
+    // Check if trying to remove last admin's admin role
+    const adminUsers = users.filter(u => u.role === 'admin');
+    const isLastAdmin = adminUsers.length === 1 && adminUsers[0].id === selectedUser.id;
+    const isRemovingAdminRole = selectedUser.role === 'admin' && editData.role !== 'admin';
+
+    if (isLastAdmin && isRemovingAdminRole && currentUser?.id === selectedUser.id) {
+      alert('Cannot remove admin role from the last admin user');
+      return;
+    }
+
+    updateUserMutation.mutate({
+      userId: selectedUser.id,
+      data: editData
+    });
   };
 
   return (
@@ -199,6 +245,14 @@ export default function AdminUsers() {
                         <Button
                           size="sm"
                           variant="outline"
+                          onClick={() => handleEditUser(user)}
+                        >
+                          <Edit className="w-4 h-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
                           onClick={() => {
                             setSelectedUser(user);
                             setAssignDialogOpen(true);
@@ -261,6 +315,62 @@ export default function AdminUsers() {
                   Assign as Tutor
                 </Button>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit User</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Full Name</Label>
+                <Input
+                  value={editData.full_name}
+                  onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
+                  placeholder="John Doe"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input
+                  type="email"
+                  value={editData.email}
+                  onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                  placeholder="john@example.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Role</Label>
+                <Select value={editData.role} onValueChange={(value) => setEditData({ ...editData, role: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">Student</SelectItem>
+                    <SelectItem value="tutor">Tutor</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select value={editData.status} onValueChange={(value) => setEditData({ ...editData, status: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="paused">Paused</SelectItem>
+                    <SelectItem value="archived">Archived</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={handleSaveEdit} className="w-full">
+                Save Changes
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
