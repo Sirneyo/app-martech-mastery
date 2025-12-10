@@ -107,7 +107,7 @@ export default function StudentCertificationReady() {
 
   const preparedAttempts = allAttempts.filter(a => a.prepared_at);
   const attemptsUsed = preparedAttempts.length;
-  const attemptsAllowed = examConfig.attempts_allowed || 2;
+  const attemptsAllowed = examConfig.attempts_allowed || 4;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-50 to-purple-50 flex items-center justify-center p-8">
