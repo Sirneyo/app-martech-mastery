@@ -91,8 +91,8 @@ export default function AdminOverview() {
   // Access control
   if (currentUser && currentUser.app_role !== 'admin' && currentUser.role !== 'admin') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-100 via-blue-50 to-cyan-100 flex items-center justify-center p-8">
-        <div className="bg-white/60 backdrop-blur-lg rounded-2xl p-12 text-center shadow-lg border border-white/60">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-8">
+        <div className="bg-white rounded-2xl p-12 text-center shadow-lg border border-slate-200">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-900 mb-2">No Access</h1>
           <p className="text-slate-600">You do not have permission to view this page.</p>
@@ -207,16 +207,16 @@ export default function AdminOverview() {
   const uniqueUsers = new Set(recentLogins.map(le => le.user_id)).size;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-100 via-blue-50 to-cyan-100 p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">Admin Overview</h1>
             <p className="text-slate-500 mt-1">Operational control and monitoring</p>
           </div>
           <div className="flex gap-3">
             <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-32 bg-white/30 backdrop-blur-lg border-white/60">
+              <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -226,7 +226,7 @@ export default function AdminOverview() {
               </SelectContent>
             </Select>
             <Select value={selectedCohort} onValueChange={setSelectedCohort}>
-              <SelectTrigger className="w-48 bg-white/30 backdrop-blur-lg border-white/60">
+              <SelectTrigger className="w-48">
                 <SelectValue placeholder="All cohorts" />
               </SelectTrigger>
               <SelectContent>
@@ -240,9 +240,9 @@ export default function AdminOverview() {
         </div>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-4 mb-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
+            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">Active Cohorts</CardTitle>
               </CardHeader>
@@ -256,7 +256,7 @@ export default function AdminOverview() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
+            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">Active Students</CardTitle>
               </CardHeader>
@@ -270,7 +270,7 @@ export default function AdminOverview() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
+            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">Pending Submissions</CardTitle>
               </CardHeader>
@@ -284,7 +284,7 @@ export default function AdminOverview() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
+            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">Exam Pass Rate</CardTitle>
               </CardHeader>
@@ -298,7 +298,7 @@ export default function AdminOverview() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
+            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">Active Tutors</CardTitle>
               </CardHeader>
@@ -312,7 +312,7 @@ export default function AdminOverview() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
+            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">Pending Portfolio</CardTitle>
               </CardHeader>
@@ -326,7 +326,7 @@ export default function AdminOverview() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
+            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">Exams In Progress</CardTitle>
               </CardHeader>
@@ -340,7 +340,7 @@ export default function AdminOverview() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
-            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
+            <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">7-Day Active Users</CardTitle>
               </CardHeader>
@@ -355,7 +355,7 @@ export default function AdminOverview() {
         </div>
 
         {/* Cohort Health Table */}
-        <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
+        <Card className="mb-8">
           <CardHeader>
             <CardTitle>Cohort Health</CardTitle>
           </CardHeader>
@@ -377,7 +377,7 @@ export default function AdminOverview() {
                 </thead>
                 <tbody>
                   {cohortHealthData.map((data) => (
-                    <tr key={data.cohort.id} className="border-b border-slate-100 hover:bg-white/50">
+                    <tr key={data.cohort.id} className="border-b border-slate-100 hover:bg-slate-50">
                       <td className="p-3">
                         <Link 
                           to={createPageUrl(`AdminCohortOverview?id=${data.cohort.id}`)} 
@@ -426,9 +426,9 @@ export default function AdminOverview() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-2 gap-8 mb-8">
           {/* Oldest Ungraded Submissions */}
-          <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-amber-600" />
@@ -438,7 +438,7 @@ export default function AdminOverview() {
             <CardContent>
               <div className="space-y-3">
                 {oldestSubmissions.map((sub) => (
-                  <div key={sub.id} className="border border-white/30 bg-white/40 rounded-lg p-3 hover:bg-white/60 backdrop-blur-sm">
+                  <div key={sub.id} className="border border-slate-200 rounded-lg p-3 hover:bg-slate-50">
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <p className="font-medium text-slate-900">{sub.student?.full_name}</p>
@@ -459,7 +459,7 @@ export default function AdminOverview() {
           </Card>
 
           {/* Oldest Pending Portfolio */}
-          <Card className="bg-white/70 backdrop-blur-md border-white/20 shadow-lg">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-cyan-600" />
@@ -469,7 +469,7 @@ export default function AdminOverview() {
             <CardContent>
               <div className="space-y-3">
                 {oldestPortfolio.map((ps) => (
-                  <div key={ps.id} className="border border-white/30 bg-white/40 rounded-lg p-3 hover:bg-white/60 backdrop-blur-sm">
+                  <div key={ps.id} className="border border-slate-200 rounded-lg p-3 hover:bg-slate-50">
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <p className="font-medium text-slate-900">{ps.student?.full_name}</p>
@@ -491,7 +491,7 @@ export default function AdminOverview() {
         </div>
 
         {/* Tutor Workload */}
-        <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
+        <Card className="mb-8">
           <CardHeader>
             <CardTitle>Tutor Workload Snapshot</CardTitle>
           </CardHeader>
@@ -509,7 +509,7 @@ export default function AdminOverview() {
                 </thead>
                 <tbody>
                   {tutorWorkload.map((tw) => (
-                    <tr key={tw.tutor.id} className="border-b border-slate-100 hover:bg-white/50">
+                    <tr key={tw.tutor.id} className="border-b border-slate-100 hover:bg-slate-50">
                       <td className="p-3 font-medium text-slate-900">{tw.tutor.full_name}</td>
                       <td className="text-center p-3">
                         <Badge variant="secondary">{tw.assignedCount}</Badge>
@@ -538,17 +538,17 @@ export default function AdminOverview() {
         </Card>
 
         {/* Engagement Snapshot */}
-        <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
+        <Card>
           <CardHeader>
             <CardTitle>Engagement Snapshot</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-6">
-              <div className="bg-white/30 backdrop-blur-md rounded-xl p-6 border border-white/50">
+              <div className="bg-slate-50 rounded-xl p-6">
                 <p className="text-sm text-slate-600 mb-2">Logins Today</p>
                 <p className="text-4xl font-bold text-slate-900">{loginsToday}</p>
               </div>
-              <div className="bg-white/30 backdrop-blur-md rounded-xl p-6 border border-white/50">
+              <div className="bg-slate-50 rounded-xl p-6">
                 <p className="text-sm text-slate-600 mb-2">7-Day Active Users</p>
                 <p className="text-4xl font-bold text-slate-900">{uniqueUsers}</p>
               </div>
