@@ -544,11 +544,11 @@ export default function AdminOverview() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-6">
-              <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6 border border-white/30">
+              <div className="bg-white/30 backdrop-blur-md rounded-xl p-6 border border-white/50">
                 <p className="text-sm text-slate-600 mb-2">Logins Today</p>
                 <p className="text-4xl font-bold text-slate-900">{loginsToday}</p>
               </div>
-              <div className="bg-white/50 backdrop-blur-sm rounded-xl p-6 border border-white/30">
+              <div className="bg-white/30 backdrop-blur-md rounded-xl p-6 border border-white/50">
                 <p className="text-sm text-slate-600 mb-2">7-Day Active Users</p>
                 <p className="text-4xl font-bold text-slate-900">{uniqueUsers}</p>
               </div>
