@@ -91,8 +91,8 @@ export default function AdminOverview() {
   // Access control
   if (currentUser && currentUser.app_role !== 'admin' && currentUser.role !== 'admin') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-8">
-        <div className="bg-white/80 backdrop-blur-md rounded-2xl p-12 text-center shadow-lg border border-white/30">
+      <div className="min-h-screen bg-gradient-to-br from-violet-100 via-blue-50 to-cyan-100 flex items-center justify-center p-8">
+        <div className="bg-white/60 backdrop-blur-lg rounded-2xl p-12 text-center shadow-lg border border-white/60">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-900 mb-2">No Access</h1>
           <p className="text-slate-600">You do not have permission to view this page.</p>
@@ -207,7 +207,7 @@ export default function AdminOverview() {
   const uniqueUsers = new Set(recentLogins.map(le => le.user_id)).size;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-violet-100 via-blue-50 to-cyan-100 p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <div>
@@ -216,7 +216,7 @@ export default function AdminOverview() {
           </div>
           <div className="flex gap-3">
             <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-32 bg-white/70 backdrop-blur-md border-white/20">
+              <SelectTrigger className="w-32 bg-white/30 backdrop-blur-lg border-white/60">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -226,7 +226,7 @@ export default function AdminOverview() {
               </SelectContent>
             </Select>
             <Select value={selectedCohort} onValueChange={setSelectedCohort}>
-              <SelectTrigger className="w-48 bg-white/70 backdrop-blur-md border-white/20">
+              <SelectTrigger className="w-48 bg-white/30 backdrop-blur-lg border-white/60">
                 <SelectValue placeholder="All cohorts" />
               </SelectTrigger>
               <SelectContent>
@@ -242,7 +242,7 @@ export default function AdminOverview() {
         {/* KPI Cards */}
         <div className="grid grid-cols-4 gap-4">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <Card className="bg-white/70 backdrop-blur-md border-white/20 shadow-lg">
+            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">Active Cohorts</CardTitle>
               </CardHeader>
@@ -256,7 +256,7 @@ export default function AdminOverview() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="bg-white/70 backdrop-blur-md border-white/20 shadow-lg">
+            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">Active Students</CardTitle>
               </CardHeader>
@@ -270,7 +270,7 @@ export default function AdminOverview() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="bg-white/70 backdrop-blur-md border-white/20 shadow-lg">
+            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">Pending Submissions</CardTitle>
               </CardHeader>
@@ -284,7 +284,7 @@ export default function AdminOverview() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card className="bg-white/70 backdrop-blur-md border-white/20 shadow-lg">
+            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">Exam Pass Rate</CardTitle>
               </CardHeader>
@@ -298,7 +298,7 @@ export default function AdminOverview() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <Card className="bg-white/70 backdrop-blur-md border-white/20 shadow-lg">
+            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">Active Tutors</CardTitle>
               </CardHeader>
@@ -312,7 +312,7 @@ export default function AdminOverview() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-            <Card className="bg-white/70 backdrop-blur-md border-white/20 shadow-lg">
+            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">Pending Portfolio</CardTitle>
               </CardHeader>
@@ -326,7 +326,7 @@ export default function AdminOverview() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-            <Card className="bg-white/70 backdrop-blur-md border-white/20 shadow-lg">
+            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">Exams In Progress</CardTitle>
               </CardHeader>
@@ -340,7 +340,7 @@ export default function AdminOverview() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
-            <Card className="bg-white/70 backdrop-blur-md border-white/20 shadow-lg">
+            <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-slate-600">7-Day Active Users</CardTitle>
               </CardHeader>
@@ -355,7 +355,7 @@ export default function AdminOverview() {
         </div>
 
         {/* Cohort Health Table */}
-        <Card className="bg-white/70 backdrop-blur-md border-white/20 shadow-lg">
+        <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
           <CardHeader>
             <CardTitle>Cohort Health</CardTitle>
           </CardHeader>
@@ -428,7 +428,7 @@ export default function AdminOverview() {
 
         <div className="grid grid-cols-2 gap-8">
           {/* Oldest Ungraded Submissions */}
-          <Card className="bg-white/70 backdrop-blur-md border-white/20 shadow-lg">
+          <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-amber-600" />
@@ -491,7 +491,7 @@ export default function AdminOverview() {
         </div>
 
         {/* Tutor Workload */}
-        <Card className="bg-white/70 backdrop-blur-md border-white/20 shadow-lg">
+        <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
           <CardHeader>
             <CardTitle>Tutor Workload Snapshot</CardTitle>
           </CardHeader>
@@ -538,7 +538,7 @@ export default function AdminOverview() {
         </Card>
 
         {/* Engagement Snapshot */}
-        <Card className="bg-white/70 backdrop-blur-md border-white/20 shadow-lg">
+        <Card className="bg-white/40 backdrop-blur-lg border-white/60 shadow-xl">
           <CardHeader>
             <CardTitle>Engagement Snapshot</CardTitle>
           </CardHeader>
