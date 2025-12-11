@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer components {
+  /* Glassmorphism base styles */
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-xl;
+  }
+  
+  .glass-card {
+    @apply bg-white/60 backdrop-blur-lg border border-slate-200/50 shadow-lg;
+  }
+  
+  .glass-dialog {
+    @apply bg-white/80 backdrop-blur-2xl border border-white/30;
+  }
+  
+  .glass-sidebar {
+    @apply bg-white/70 backdrop-blur-xl border-r border-white/20;
+  }
+  
+  .glass-header {
+    @apply bg-white/60 backdrop-blur-lg border-b border-slate-200/50;
+  }
+
+  /* Apply glass effect to common UI components */
+  [class*="bg-white"]:not(.no-glass) {
+    @apply bg-white/70 backdrop-blur-lg;
+  }
+  
+  [class*="bg-slate-50"]:not(.no-glass) {
+    @apply bg-slate-50/70 backdrop-blur-md;
+  }
+  
+  [class*="bg-green-50"]:not(.no-glass) {
+    @apply bg-green-50/70 backdrop-blur-md;
+  }
+  
+  [class*="bg-violet-50"]:not(.no-glass) {
+    @apply bg-violet-50/70 backdrop-blur-md;
+  }
+  
+  [class*="bg-amber-50"]:not(.no-glass) {
+    @apply bg-amber-50/70 backdrop-blur-md;
+  }
+  
+  [class*="bg-red-50"]:not(.no-glass) {
+    @apply bg-red-50/70 backdrop-blur-md;
+  }
+
+  /* Enhanced shadows for depth */
+  .rounded-xl, .rounded-2xl {
+    @apply shadow-lg;
+  }
+}
+
+@layer utilities {
+  .backdrop-blur-glass {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
