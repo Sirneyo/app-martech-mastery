@@ -54,6 +54,19 @@ export default function StudentCertificationResults() {
     enabled: !!attempt,
   });
 
+  const { data: certificate } = useQuery({
+    queryKey: ['my-certificate', attempt?.cohort_id],
+    queryFn: async () => {
+      if (!attempt) return null;
+      const certs = await base44.entities.Certificate.filter({
+        student_user_id: attempt.student_user_id,
+        cohort_id: attempt.cohort_id
+      });
+      return certs[0];
+    },
+    enabled: !!attempt,
+  });
+
   if (!attempt || !examConfig) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -122,17 +135,36 @@ export default function StudentCertificationResults() {
           </div>
 
           {passed && (
-            <div className="bg-green-50 rounded-xl p-6 mb-6 border border-green-200">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-                <p className="font-bold text-green-900">What happens next?</p>
+            <>
+              {certificate && (
+                <div className="bg-slate-50 rounded-xl p-6 mb-6">
+                  <p className="text-sm text-slate-500 mb-2">Certificate ID</p>
+                  <p className="text-2xl font-mono font-bold text-slate-900 mb-4">
+                    {certificate.certificate_id_code}
+                  </p>
+                  {certificate.certificate_url && (
+                    <Button
+                      onClick={() => window.open(certificate.certificate_url, '_blank')}
+                      className="w-full bg-violet-600 hover:bg-violet-700"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Certificate
+                    </Button>
+                  )}
+                </div>
+              )}
+              <div className="bg-green-50 rounded-xl p-6 mb-6 border border-green-200">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                  <p className="font-bold text-green-900">What happens next?</p>
+                </div>
+                <div className="text-left space-y-2 text-sm text-green-800">
+                  <p>✓ Your certificate has been generated</p>
+                  <p>✓ Portfolio item "mm_cert_exam" has been approved</p>
+                  <p>✓ You've earned 100 points</p>
+                </div>
               </div>
-              <div className="text-left space-y-2 text-sm text-green-800">
-                <p>✓ Your certificate has been generated</p>
-                <p>✓ Portfolio item "mm_cert_exam" has been approved</p>
-                <p>✓ You've earned 100 points</p>
-              </div>
-            </div>
+            </>
           )}
 
           {!passed && (
