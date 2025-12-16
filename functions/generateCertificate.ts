@@ -38,6 +38,34 @@ Deno.serve(async (req) => {
     doc.setFillColor(249, 250, 251);
     doc.rect(0, 0, pageWidth, pageHeight, 'F');
 
+    // Load and add company logo
+    try {
+      const logoResponse = await fetch('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/7e47be94a_OADSolutionsRebrand500x200px4.png');
+      const logoBlob = await logoResponse.blob();
+      const logoBase64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(logoBlob);
+      });
+      doc.addImage(logoBase64, 'PNG', 20, 15, 50, 20);
+    } catch (error) {
+      console.error('Failed to add logo:', error);
+    }
+
+    // Load and add CPD badge
+    try {
+      const cpdResponse = await fetch('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/2ad0e5e09_cpd-certified-logo-circle.png');
+      const cpdBlob = await cpdResponse.blob();
+      const cpdBase64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(cpdBlob);
+      });
+      doc.addImage(cpdBase64, 'PNG', pageWidth - 45, 15, 25, 25);
+    } catch (error) {
+      console.error('Failed to add CPD badge:', error);
+    }
+
     // Border
     doc.setDrawColor(99, 102, 241);
     doc.setLineWidth(2);
