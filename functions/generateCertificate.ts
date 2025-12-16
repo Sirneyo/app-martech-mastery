@@ -144,14 +144,13 @@ Deno.serve(async (req) => {
 
     // Generate PDF as buffer
     const pdfBytes = doc.output('arraybuffer');
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const fileName = `certificate_${certificate.certificate_id_code}.pdf`;
+    
+    // Create a File object from the buffer
+    const file = new File([pdfBytes], fileName, { type: 'application/pdf' });
     
     // Upload to storage
-    const fileName = `certificate_${certificate.certificate_id_code}.pdf`;
-    const formData = new FormData();
-    formData.append('file', blob, fileName);
-    
-    const uploadResult = await base44.asServiceRole.integrations.Core.UploadFile({ file: blob });
+    const uploadResult = await base44.asServiceRole.integrations.Core.UploadFile({ file: file });
     const certificateUrl = uploadResult.file_url;
 
     // Update certificate record with URL
