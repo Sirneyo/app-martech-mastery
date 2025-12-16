@@ -32,11 +32,17 @@ export default function CertificatePreviewModal({ isOpen, onClose, certificateUr
         
         <div className="flex-1 flex flex-col gap-4 h-full">
           <div className="flex-1 bg-slate-100 rounded-lg overflow-hidden">
-            <iframe
-              src={certificateUrl}
-              className="w-full h-full border-0"
-              title="Certificate Preview"
-            />
+            <object
+              data={certificateUrl}
+              type="application/pdf"
+              className="w-full h-full"
+            >
+              <embed
+                src={certificateUrl}
+                type="application/pdf"
+                className="w-full h-full"
+              />
+            </object>
           </div>
           
           <div className="flex justify-end gap-3">

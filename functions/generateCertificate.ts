@@ -177,9 +177,14 @@ Deno.serve(async (req) => {
     // Create a File object from the buffer
     const file = new File([pdfBytes], fileName, { type: 'application/pdf' });
     
-    // Upload to storage
+    // Upload to public storage with inline disposition
     const uploadResult = await base44.asServiceRole.integrations.Core.UploadFile({ file: file });
-    const certificateUrl = uploadResult.file_url;
+    
+    // Modify URL to force inline display
+    const baseUrl = uploadResult.file_url;
+    const certificateUrl = baseUrl.includes('?') 
+      ? `${baseUrl}&response-content-disposition=inline`
+      : `${baseUrl}?response-content-disposition=inline`;
 
     // Update certificate record with URL
     await base44.asServiceRole.entities.Certificate.update(certificate.id, {
