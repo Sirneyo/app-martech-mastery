@@ -8,10 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lock, Trophy, CheckCircle, Clock, Award, AlertTriangle, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
+import CertificatePreviewModal from '@/components/CertificatePreviewModal';
 
 export default function StudentCertification() {
   const queryClient = useQueryClient();
   const [generatingCert, setGeneratingCert] = React.useState(false);
+  const [showPreview, setShowPreview] = React.useState(false);
   
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -306,7 +308,7 @@ export default function StudentCertification() {
                   {certificate.certificate_id_code}
                 </p>
                 <Button
-                  onClick={() => certificate.certificate_url && window.open(certificate.certificate_url, '_blank')}
+                  onClick={() => setShowPreview(true)}
                   disabled={!certificate.certificate_url || generatingCert}
                   size="lg"
                   className="w-full bg-violet-600 hover:bg-violet-700 text-lg py-6 disabled:opacity-50"
@@ -314,6 +316,14 @@ export default function StudentCertification() {
                   <FileText className="w-5 h-5 mr-2" />
                   {certificate.certificate_url ? 'View Credential' : 'Generating Certificate...'}
                 </Button>
+                {certificate && (
+                  <CertificatePreviewModal
+                    isOpen={showPreview}
+                    onClose={() => setShowPreview(false)}
+                    certificateUrl={certificate.certificate_url}
+                    certificateId={certificate.certificate_id_code}
+                  />
+                )}
               </div>
             )}
             <div className="flex items-center justify-center gap-6 text-slate-600">
