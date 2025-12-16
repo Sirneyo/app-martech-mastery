@@ -62,7 +62,19 @@ export default function StudentCertificationResults() {
         student_user_id: attempt.student_user_id,
         cohort_id: attempt.cohort_id
       });
-      return certs[0];
+      const cert = certs[0];
+      
+      // Generate PDF if certificate exists but has no URL
+      if (cert && !cert.certificate_url) {
+        await base44.functions.invoke('generateCertificate', {
+          certificate_id: cert.id
+        });
+        // Fetch updated certificate
+        const updatedCerts = await base44.entities.Certificate.filter({ id: cert.id });
+        return updatedCerts[0];
+      }
+      
+      return cert;
     },
     enabled: !!attempt,
   });
