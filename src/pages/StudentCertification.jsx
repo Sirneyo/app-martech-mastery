@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Lock, Trophy, CheckCircle, Clock, Award, AlertTriangle } from 'lucide-react';
+import { Lock, Trophy, CheckCircle, Clock, Award, AlertTriangle, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function StudentCertification() {
@@ -277,10 +277,11 @@ export default function StudentCertification() {
                 {certificate.certificate_url && (
                   <Button
                     onClick={() => window.open(certificate.certificate_url, '_blank')}
-                    className="w-full bg-violet-600 hover:bg-violet-700"
+                    size="lg"
+                    className="w-full bg-violet-600 hover:bg-violet-700 text-lg py-6"
                   >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Certificate
+                    <FileText className="w-5 h-5 mr-2" />
+                    View Credential
                   </Button>
                 )}
               </div>
