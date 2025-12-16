@@ -170,30 +170,17 @@ Deno.serve(async (req) => {
     doc.setFont(undefined, 'normal');
     doc.text(certificate.certificate_id_code, pageWidth - 80, yPos + 5, { align: 'left' });
 
-    // Generate PDF as buffer
-    const pdfBytes = doc.output('arraybuffer');
-    const fileName = `certificate_${certificate.certificate_id_code}.pdf`;
-    
-    // Create a File object from the buffer
-    const file = new File([pdfBytes], fileName, { type: 'application/pdf' });
-    
-    // Upload to public storage with inline disposition
-    const uploadResult = await base44.asServiceRole.integrations.Core.UploadFile({ file: file });
-    
-    // Modify URL to force inline display
-    const baseUrl = uploadResult.file_url;
-    const certificateUrl = baseUrl.includes('?') 
-      ? `${baseUrl}&response-content-disposition=inline`
-      : `${baseUrl}?response-content-disposition=inline`;
+    // Generate PDF as base64 data URL for direct embedding
+    const pdfBase64 = doc.output('dataurlstring');
 
-    // Update certificate record with URL
+    // Update certificate record with base64 data URL
     await base44.asServiceRole.entities.Certificate.update(certificate.id, {
-      certificate_url: certificateUrl
+      certificate_url: pdfBase64
     });
 
     return Response.json({ 
       success: true,
-      certificate_url: certificateUrl 
+      certificate_url: pdfBase64 
     });
 
   } catch (error) {
