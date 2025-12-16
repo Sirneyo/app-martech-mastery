@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, XCircle, CheckCircle, ArrowLeft, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
+import CertificatePreviewModal from '@/components/CertificatePreviewModal';
 
 export default function StudentCertificationResults() {
+  const [showPreview, setShowPreview] = React.useState(false);
   const urlParams = new URLSearchParams(window.location.search);
   const attemptId = urlParams.get('id');
 
@@ -155,13 +157,21 @@ export default function StudentCertificationResults() {
                     {certificate.certificate_id_code}
                   </p>
                   {certificate.certificate_url && (
-                    <Button
-                      onClick={() => window.open(certificate.certificate_url, '_blank')}
-                      className="w-full bg-violet-600 hover:bg-violet-700"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download Certificate
-                    </Button>
+                    <>
+                      <Button
+                        onClick={() => setShowPreview(true)}
+                        className="w-full bg-violet-600 hover:bg-violet-700"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        View Certificate
+                      </Button>
+                      <CertificatePreviewModal
+                        isOpen={showPreview}
+                        onClose={() => setShowPreview(false)}
+                        certificateUrl={certificate.certificate_url}
+                        certificateId={certificate.certificate_id_code}
+                      />
+                    </>
                   )}
                 </div>
               )}
