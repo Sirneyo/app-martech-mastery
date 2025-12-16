@@ -280,24 +280,27 @@ export default function StudentCertification() {
             <p className="text-xl text-slate-600 mb-8">
               You have passed the MarTech Mastery Certification
             </p>
-            {certificate && (
-              <div className="bg-slate-50 rounded-xl p-6 mb-6">
-                <p className="text-sm text-slate-500 mb-2">Certificate ID</p>
-                <p className="text-2xl font-mono font-bold text-slate-900 mb-4">
-                  {certificate.certificate_id_code}
-                </p>
-                {certificate.certificate_url && (
+            <div className="bg-slate-50 rounded-xl p-6 mb-6">
+              {certificate ? (
+                <>
+                  <p className="text-sm text-slate-500 mb-2">Certificate ID</p>
+                  <p className="text-2xl font-mono font-bold text-slate-900 mb-4">
+                    {certificate.certificate_id_code}
+                  </p>
                   <Button
-                    onClick={() => window.open(certificate.certificate_url, '_blank')}
+                    onClick={() => certificate.certificate_url && window.open(certificate.certificate_url, '_blank')}
+                    disabled={!certificate.certificate_url}
                     size="lg"
                     className="w-full bg-violet-600 hover:bg-violet-700 text-lg py-6"
                   >
                     <FileText className="w-5 h-5 mr-2" />
-                    View Credential
+                    {certificate.certificate_url ? 'View Credential' : 'Generating Certificate...'}
                   </Button>
-                )}
-              </div>
-            )}
+                </>
+              ) : (
+                <p className="text-slate-500">Loading certificate...</p>
+              )}
+            </div>
             <div className="flex items-center justify-center gap-6 text-slate-600">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-green-500" />
