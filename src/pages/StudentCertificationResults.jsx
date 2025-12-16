@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, XCircle, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Trophy, XCircle, CheckCircle, ArrowLeft, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function StudentCertificationResults() {

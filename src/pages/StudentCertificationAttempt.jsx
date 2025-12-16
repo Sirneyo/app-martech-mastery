@@ -251,11 +251,16 @@ export default function StudentCertificationAttempt() {
       });
 
       if (existingCerts.length === 0) {
-        await base44.entities.Certificate.create({
+        const cert = await base44.entities.Certificate.create({
           cohort_id: attempt.cohort_id,
           student_user_id: attempt.student_user_id,
           issued_at: new Date().toISOString(),
           certificate_id_code: `MM-${attempt.cohort_id.slice(-6)}-${attemptId.slice(-6)}`,
+        });
+
+        // Generate certificate PDF
+        await base44.functions.invoke('generateCertificate', {
+          certificate_id: cert.id
         });
       }
 

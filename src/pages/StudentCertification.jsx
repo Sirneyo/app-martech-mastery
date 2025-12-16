@@ -271,9 +271,18 @@ export default function StudentCertification() {
             {certificate && (
               <div className="bg-slate-50 rounded-xl p-6 mb-6">
                 <p className="text-sm text-slate-500 mb-2">Certificate ID</p>
-                <p className="text-2xl font-mono font-bold text-slate-900">
+                <p className="text-2xl font-mono font-bold text-slate-900 mb-4">
                   {certificate.certificate_id_code}
                 </p>
+                {certificate.certificate_url && (
+                  <Button
+                    onClick={() => window.open(certificate.certificate_url, '_blank')}
+                    className="w-full bg-violet-600 hover:bg-violet-700"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download Certificate
+                  </Button>
+                )}
               </div>
             )}
             <div className="flex items-center justify-center gap-6 text-slate-600">
