@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -10,6 +10,9 @@ import { Lock, Trophy, CheckCircle, Clock, Award, AlertTriangle, FileText } from
 import { motion } from 'framer-motion';
 
 export default function StudentCertification() {
+  const queryClient = useQueryClient();
+  const [generatingCert, setGeneratingCert] = React.useState(false);
+  
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
@@ -59,7 +62,7 @@ export default function StudentCertification() {
     ['prepared', 'in_progress'].includes(a.attempt_status) && !a.submitted_at
   );
 
-  const { data: certificate } = useQuery({
+  const { data: certificate, refetch: refetchCertificate } = useQuery({
     queryKey: ['my-certificate', membership?.cohort_id],
     queryFn: async () => {
       if (!user?.id || !membership?.cohort_id) return null;
@@ -67,22 +70,38 @@ export default function StudentCertification() {
         student_user_id: user.id,
         cohort_id: membership.cohort_id
       });
-      const cert = certs[0];
-      
-      // Generate PDF if certificate exists but has no URL
-      if (cert && !cert.certificate_url) {
-        await base44.functions.invoke('generateCertificate', {
-          certificate_id: cert.id
-        });
-        // Fetch updated certificate
-        const updatedCerts = await base44.entities.Certificate.filter({ id: cert.id });
-        return updatedCerts[0];
-      }
-      
-      return cert;
+      return certs[0];
     },
     enabled: !!user?.id && !!membership?.cohort_id,
+    refetchInterval: (data) => {
+      // Keep refetching every 2 seconds if certificate exists but has no URL
+      if (data && !data.certificate_url) {
+        return 2000;
+      }
+      return false;
+    },
   });
+
+  const generateCertMutation = useMutation({
+    mutationFn: async (certificateId) => {
+      return await base44.functions.invoke('generateCertificate', {
+        certificate_id: certificateId
+      });
+    },
+    onSuccess: () => {
+      refetchCertificate();
+    },
+  });
+
+  React.useEffect(() => {
+    if (certificate && !certificate.certificate_url && !generatingCert && !generateCertMutation.isPending) {
+      setGeneratingCert(true);
+      generateCertMutation.mutate(certificate.id);
+    }
+    if (certificate?.certificate_url) {
+      setGeneratingCert(false);
+    }
+  }, [certificate?.id, certificate?.certificate_url]);
 
   const getCurrentWeek = () => {
     if (!cohort?.start_date) return 0;
@@ -280,27 +299,23 @@ export default function StudentCertification() {
             <p className="text-xl text-slate-600 mb-8">
               You have passed the MarTech Mastery Certification
             </p>
-            <div className="bg-slate-50 rounded-xl p-6 mb-6">
-              {certificate ? (
-                <>
-                  <p className="text-sm text-slate-500 mb-2">Certificate ID</p>
-                  <p className="text-2xl font-mono font-bold text-slate-900 mb-4">
-                    {certificate.certificate_id_code}
-                  </p>
-                  <Button
-                    onClick={() => certificate.certificate_url && window.open(certificate.certificate_url, '_blank')}
-                    disabled={!certificate.certificate_url}
-                    size="lg"
-                    className="w-full bg-violet-600 hover:bg-violet-700 text-lg py-6"
-                  >
-                    <FileText className="w-5 h-5 mr-2" />
-                    {certificate.certificate_url ? 'View Credential' : 'Generating Certificate...'}
-                  </Button>
-                </>
-              ) : (
-                <p className="text-slate-500">Loading certificate...</p>
-              )}
-            </div>
+            {certificate && (
+              <div className="bg-slate-50 rounded-xl p-6 mb-6">
+                <p className="text-sm text-slate-500 mb-2">Certificate ID</p>
+                <p className="text-2xl font-mono font-bold text-slate-900 mb-4">
+                  {certificate.certificate_id_code}
+                </p>
+                <Button
+                  onClick={() => certificate.certificate_url && window.open(certificate.certificate_url, '_blank')}
+                  disabled={!certificate.certificate_url || generatingCert}
+                  size="lg"
+                  className="w-full bg-violet-600 hover:bg-violet-700 text-lg py-6 disabled:opacity-50"
+                >
+                  <FileText className="w-5 h-5 mr-2" />
+                  {certificate.certificate_url ? 'View Credential' : 'Generating Certificate...'}
+                </Button>
+              </div>
+            )}
             <div className="flex items-center justify-center gap-6 text-slate-600">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-green-500" />
