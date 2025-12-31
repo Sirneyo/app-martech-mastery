@@ -409,7 +409,18 @@ export default function StudentAssignmentDetail() {
                             </span>
                           </div>
                           {grade.feedback_text && (
-                            <p className="text-slate-700 text-sm whitespace-pre-wrap">{grade.feedback_text}</p>
+                            <p className="text-slate-700 text-sm whitespace-pre-wrap mb-3">{grade.feedback_text}</p>
+                          )}
+                          {grade.feedback_url && (
+                            <a
+                              href={grade.feedback_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 text-violet-600 hover:text-violet-700 text-sm font-medium hover:underline"
+                            >
+                              <FileText className="w-4 h-4" />
+                              Watch Video Feedback
+                            </a>
                           )}
                           {idx === 0 && grades.length > 1 && (
                             <p className="text-xs text-slate-500 mt-2 italic">Latest feedback</p>

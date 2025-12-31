@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, User, Calendar, FileText, Link as LinkIcon, Download } from 'lucide-react';
@@ -19,6 +20,7 @@ export default function TutorSubmissionReview() {
 
   const [rubricGrade, setRubricGrade] = useState('');
   const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackUrl, setFeedbackUrl] = useState('');
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -64,6 +66,7 @@ export default function TutorSubmissionReview() {
         graded_by: user.id,
         rubric_grade: rubricGrade,
         feedback_text: feedbackText,
+        feedback_url: feedbackUrl,
         graded_date: new Date().toISOString(),
       };
 
@@ -234,6 +237,18 @@ export default function TutorSubmissionReview() {
                       rows={6}
                       className="mt-2"
                     />
+                  </div>
+
+                  <div>
+                    <Label>Feedback Video URL (Optional)</Label>
+                    <Input
+                      type="url"
+                      value={feedbackUrl}
+                      onChange={(e) => setFeedbackUrl(e.target.value)}
+                      placeholder="https://www.loom.com/share/..."
+                      className="mt-2"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Add a link to your Loom video review</p>
                   </div>
 
                   <Button
