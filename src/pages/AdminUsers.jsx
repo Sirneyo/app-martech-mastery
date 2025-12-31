@@ -26,7 +26,7 @@ export default function AdminUsers() {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [newUser, setNewUser] = useState({ full_name: '', email: '', role: 'user' });
+  const [newUser, setNewUser] = useState({ first_name: '', last_name: '', email: '', role: 'user', cohort_id: '' });
   const [assignmentData, setAssignmentData] = useState({ cohort_id: '', tutor_id: '' });
   const [editData, setEditData] = useState({ full_name: '', email: '', app_role: '', status: '' });
 
@@ -57,18 +57,7 @@ export default function AdminUsers() {
     queryFn: () => base44.entities.TutorCohortAssignment.list(),
   });
 
-  const createUserMutation = useMutation({
-    mutationFn: ({ email, role }) => base44.users.inviteUser(email, role),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      setCreateDialogOpen(false);
-      setNewUser({ full_name: '', email: '', role: 'user' });
-      alert('Invitation sent! User will appear after accepting the invite.');
-    },
-    onError: (error) => {
-      alert('Failed to send invitation: ' + (error.message || 'Unknown error'));
-    },
-  });
+
 
   const assignCohortMutation = useMutation({
     mutationFn: (data) => base44.entities.CohortMembership.create(data),
@@ -111,8 +100,20 @@ export default function AdminUsers() {
     },
   });
 
-  const handleCreateUser = () => {
-    createUserMutation.mutate({ email: newUser.email, role: newUser.role });
+  const handleCreateUser = async () => {
+    try {
+      // First, invite the user
+      await base44.users.inviteUser(newUser.email, newUser.role);
+      
+      // Note: We can't assign cohort or set names until user accepts invitation
+      // This is a limitation of the Base44 invitation system
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      setCreateDialogOpen(false);
+      setNewUser({ first_name: '', last_name: '', email: '', role: 'user', cohort_id: '' });
+      alert('Invitation sent! After the user accepts, you can assign them to a cohort using the Assign button.');
+    } catch (error) {
+      alert('Failed to send invitation: ' + (error.message || 'Unknown error'));
+    }
   };
 
   const handleAssignCohort = () => {
@@ -203,8 +204,26 @@ export default function AdminUsers() {
                 <DialogTitle>Create New User</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>First Name</Label>
+                    <Input
+                      value={newUser.first_name}
+                      onChange={(e) => setNewUser({ ...newUser, first_name: e.target.value })}
+                      placeholder="John"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Last Name</Label>
+                    <Input
+                      value={newUser.last_name}
+                      onChange={(e) => setNewUser({ ...newUser, last_name: e.target.value })}
+                      placeholder="Doe"
+                    />
+                  </div>
+                </div>
                 <div className="space-y-2">
-                  <Label>Email</Label>
+                  <Label>Email *</Label>
                   <Input
                     type="email"
                     value={newUser.email}
@@ -213,7 +232,7 @@ export default function AdminUsers() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Role</Label>
+                  <Label>Role *</Label>
                   <Select value={newUser.role} onValueChange={(value) => setNewUser({ ...newUser, role: value })}>
                     <SelectTrigger>
                       <SelectValue />
@@ -225,8 +244,25 @@ export default function AdminUsers() {
                   </Select>
                   <p className="text-xs text-slate-500">Tutors need admin role to view student lists</p>
                 </div>
-                <Button onClick={handleCreateUser} className="w-full">
-                  Create User
+                <div className="space-y-2">
+                  <Label>Assigned Cohort</Label>
+                  <Select value={newUser.cohort_id} onValueChange={(value) => setNewUser({ ...newUser, cohort_id: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select cohort (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={null}>None</SelectItem>
+                      {cohorts.map((cohort) => (
+                        <SelectItem key={cohort.id} value={cohort.id}>
+                          {cohort.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-slate-500">Note: Cohort will need to be assigned manually after user accepts invite</p>
+                </div>
+                <Button onClick={handleCreateUser} className="w-full" disabled={!newUser.email}>
+                  Send Invitation
                 </Button>
               </div>
             </DialogContent>
