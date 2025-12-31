@@ -215,7 +215,7 @@ export default function StudentAssignmentDetail() {
                     <CollapsibleContent>
                       <div className="p-6">
                         {assignment.content_html && (
-                          <div className="prose max-w-none mb-6" dangerouslySetInnerHTML={{ __html: assignment.content_html }} />
+                          <div className="prose prose-slate max-w-none prose-headings:font-bold prose-p:text-slate-700 prose-ul:list-disc prose-ol:list-decimal prose-li:text-slate-700 prose-a:text-violet-600 prose-a:underline hover:prose-a:text-violet-700 prose-strong:text-slate-900 mb-6" dangerouslySetInnerHTML={{ __html: assignment.content_html }} />
                         )}
 
                         {/* Legacy tasks fallback */}
