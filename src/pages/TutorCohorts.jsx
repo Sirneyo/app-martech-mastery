@@ -44,20 +44,15 @@ export default function TutorCohorts() {
     enabled: cohortIds.length > 0,
   });
 
-  const { data: students = [] } = useQuery({
-    queryKey: ['students', memberships],
-    queryFn: async () => {
-      if (memberships.length === 0) return [];
-      const studentIds = memberships.map(m => m.user_id);
-      const allUsers = await base44.entities.User.list();
-      return allUsers.filter(u => studentIds.includes(u.id));
-    },
-    enabled: memberships.length > 0,
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['all-users'],
+    queryFn: () => base44.entities.User.list(),
   });
 
   const getStudentsByCohort = (cohortId) => {
     const cohortMemberships = memberships.filter(m => m.cohort_id === cohortId && m.status === 'active');
-    return students.filter(s => cohortMemberships.some(m => m.user_id === s.id));
+    const studentIds = cohortMemberships.map(m => m.user_id);
+    return allUsers.filter(u => studentIds.includes(u.id));
   };
 
   return (
