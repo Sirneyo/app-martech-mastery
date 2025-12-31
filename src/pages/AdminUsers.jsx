@@ -102,8 +102,11 @@ export default function AdminUsers() {
 
   const handleCreateUser = async () => {
     try {
+      // Map role to base44 role: tutor and admin both need 'admin' base role
+      const baseRole = (newUser.role === 'tutor' || newUser.role === 'admin') ? 'admin' : 'user';
+      
       // First, invite the user
-      await base44.users.inviteUser(newUser.email, newUser.role);
+      await base44.users.inviteUser(newUser.email, baseRole);
       
       // Note: We can't assign cohort or set names until user accepts invitation
       // This is a limitation of the Base44 invitation system
@@ -239,10 +242,11 @@ export default function AdminUsers() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="user">Student</SelectItem>
-                      <SelectItem value="admin">Tutor</SelectItem>
+                      <SelectItem value="tutor">Tutor</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-slate-500">Tutors need admin role to view student lists</p>
+                  <p className="text-xs text-slate-500">Tutors and Admins need elevated permissions</p>
                 </div>
                 <div className="space-y-2">
                   <Label>Assigned Cohort</Label>
