@@ -193,6 +193,14 @@ export default function StudentAssignmentDetail() {
             <div className="grid grid-cols-3 gap-6">
               {/* Main Content */}
               <div className="col-span-2 space-y-6">
+                {/* Assignment Title */}
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                  <h1 className="text-3xl font-bold text-slate-900 mb-3">{assignment.title}</h1>
+                  {assignment.short_description && (
+                    <p className="text-lg text-slate-600">{assignment.short_description}</p>
+                  )}
+                </div>
+
                 {/* Assignment Brief */}
                 <Collapsible open={briefOpen} onOpenChange={setBriefOpen}>
                   <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -206,11 +214,6 @@ export default function StudentAssignmentDetail() {
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <div className="p-6">
-                        <h1 className="text-3xl font-bold text-slate-900 mb-3">{assignment.title}</h1>
-                        {assignment.short_description && (
-                          <p className="text-lg text-slate-600 mb-6">{assignment.short_description}</p>
-                        )}
-                        
                         {assignment.content_html && (
                           <div className="prose max-w-none mb-6" dangerouslySetInnerHTML={{ __html: assignment.content_html }} />
                         )}
