@@ -58,11 +58,15 @@ export default function AdminUsers() {
   });
 
   const createUserMutation = useMutation({
-    mutationFn: (userData) => base44.entities.User.create(userData),
+    mutationFn: ({ email, role }) => base44.users.inviteUser(email, role),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       setCreateDialogOpen(false);
       setNewUser({ full_name: '', email: '', role: 'user' });
+      alert('Invitation sent! User will appear after accepting the invite.');
+    },
+    onError: (error) => {
+      alert('Failed to send invitation: ' + (error.message || 'Unknown error'));
     },
   });
 
@@ -108,12 +112,7 @@ export default function AdminUsers() {
   });
 
   const handleCreateUser = () => {
-    const userData = {
-      ...newUser,
-      role: newUser.role === 'admin' ? 'admin' : 'user',
-      app_role: newUser.role === 'admin' ? (newUser.app_role || 'tutor') : 'student'
-    };
-    createUserMutation.mutate(userData);
+    createUserMutation.mutate({ email: newUser.email, role: newUser.role });
   };
 
   const handleAssignCohort = () => {
@@ -204,14 +203,6 @@ export default function AdminUsers() {
                 <DialogTitle>Create New User</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label>Full Name</Label>
-                  <Input
-                    value={newUser.full_name}
-                    onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
-                    placeholder="John Doe"
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label>Email</Label>
                   <Input
