@@ -39,6 +39,8 @@ import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
 import AdminTemplatesStudio from './pages/AdminTemplatesStudio';
 import AdminTemplatesStudioEdit from './pages/AdminTemplatesStudioEdit';
+import AdminTemplatesStudioPreview from './pages/AdminTemplatesStudioPreview';
+import AdminTemplatesStudioDuplicate from './pages/AdminTemplatesStudioDuplicate';
 import __Layout from './Layout.jsx';
 
 
@@ -84,6 +86,8 @@ export const PAGES = {
     "TutorSubmissionReview": TutorSubmissionReview,
     "AdminTemplatesStudio": AdminTemplatesStudio,
     "AdminTemplatesStudioEdit": AdminTemplatesStudioEdit,
+    "AdminTemplatesStudioPreview": AdminTemplatesStudioPreview,
+    "AdminTemplatesStudioDuplicate": AdminTemplatesStudioDuplicate,
 }
 
 export const pagesConfig = {
