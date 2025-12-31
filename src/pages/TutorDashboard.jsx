@@ -81,7 +81,7 @@ export default function TutorDashboard() {
   });
 
   const stats = [
-    { label: 'Assigned Cohorts', value: assignments?.length || 0, icon: Users, color: 'from-blue-500 to-cyan-500', page: 'TutorCohorts' },
+    { label: 'Assigned Cohorts', value: cohortIds.length, icon: Users, color: 'from-blue-500 to-cyan-500', page: 'TutorCohorts' },
     { label: 'Assignment Submissions', value: assignmentSubmissions?.length || 0, icon: ClipboardCheck, color: 'from-violet-500 to-purple-500', page: 'TutorAssignmentSubmissions' },
     { label: 'Project Submissions', value: projectSubmissions?.length || 0, icon: ClipboardCheck, color: 'from-amber-500 to-orange-500', page: 'TutorProjectSubmissions' },
     { label: 'Portfolio Reviews', value: portfolioReviews?.length || 0, icon: Award, color: 'from-emerald-500 to-teal-500', page: 'TutorPortfolioReviews' },
