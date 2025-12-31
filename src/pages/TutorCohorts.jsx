@@ -32,14 +32,18 @@ export default function TutorCohorts() {
     enabled: assignments.length > 0,
   });
 
-  const cohortIds = React.useMemo(() => assignments.map(a => a.cohort_id), [assignments]);
+  const cohortIds = React.useMemo(() => assignments.map(a => a.data?.cohort_id || a.cohort_id), [assignments]);
 
   const { data: memberships = [] } = useQuery({
     queryKey: ['cohort-memberships', JSON.stringify(cohortIds)],
     queryFn: async () => {
       if (cohortIds.length === 0) return [];
       const allMemberships = await base44.entities.CohortMembership.list();
-      return allMemberships.filter(m => cohortIds.includes(m.data.cohort_id) && m.data.status === 'active');
+      console.log('All memberships:', allMemberships.length);
+      console.log('Cohort IDs:', cohortIds);
+      const filtered = allMemberships.filter(m => cohortIds.includes(m.data.cohort_id) && m.data.status === 'active');
+      console.log('Filtered memberships:', filtered.length, filtered);
+      return filtered;
     },
     enabled: cohortIds.length > 0,
   });
@@ -50,9 +54,15 @@ export default function TutorCohorts() {
   });
 
   const getStudentsByCohort = (cohortId) => {
+    console.log('Getting students for cohort:', cohortId);
+    console.log('Total memberships:', memberships.length);
     const cohortMemberships = memberships.filter(m => m.data.cohort_id === cohortId);
+    console.log('Cohort memberships:', cohortMemberships.length, cohortMemberships);
     const studentIds = cohortMemberships.map(m => m.data.user_id);
-    return allUsers.filter(u => studentIds.includes(u.id));
+    console.log('Student IDs:', studentIds);
+    const students = allUsers.filter(u => studentIds.includes(u.id));
+    console.log('Students found:', students.length, students);
+    return students;
   };
 
   if (!user || assignments.length === 0 || cohorts.length === 0) {
