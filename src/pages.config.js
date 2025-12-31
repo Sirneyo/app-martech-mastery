@@ -4,6 +4,10 @@ import AdminCohorts from './pages/AdminCohorts';
 import AdminExamBankImport from './pages/AdminExamBankImport';
 import AdminOverview from './pages/AdminOverview';
 import AdminTemplates from './pages/AdminTemplates';
+import AdminTemplatesStudio from './pages/AdminTemplatesStudio';
+import AdminTemplatesStudioDuplicate from './pages/AdminTemplatesStudioDuplicate';
+import AdminTemplatesStudioEdit from './pages/AdminTemplatesStudioEdit';
+import AdminTemplatesStudioPreview from './pages/AdminTemplatesStudioPreview';
 import AdminUsers from './pages/AdminUsers';
 import Assignments from './pages/Assignments';
 import Certifications from './pages/Certifications';
@@ -37,10 +41,6 @@ import TutorPortfolioReview from './pages/TutorPortfolioReview';
 import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import AdminTemplatesStudio from './pages/AdminTemplatesStudio';
-import AdminTemplatesStudioEdit from './pages/AdminTemplatesStudioEdit';
-import AdminTemplatesStudioPreview from './pages/AdminTemplatesStudioPreview';
-import AdminTemplatesStudioDuplicate from './pages/AdminTemplatesStudioDuplicate';
 import __Layout from './Layout.jsx';
 
 
@@ -51,6 +51,10 @@ export const PAGES = {
     "AdminExamBankImport": AdminExamBankImport,
     "AdminOverview": AdminOverview,
     "AdminTemplates": AdminTemplates,
+    "AdminTemplatesStudio": AdminTemplatesStudio,
+    "AdminTemplatesStudioDuplicate": AdminTemplatesStudioDuplicate,
+    "AdminTemplatesStudioEdit": AdminTemplatesStudioEdit,
+    "AdminTemplatesStudioPreview": AdminTemplatesStudioPreview,
     "AdminUsers": AdminUsers,
     "Assignments": Assignments,
     "Certifications": Certifications,
@@ -84,10 +88,6 @@ export const PAGES = {
     "TutorPortfolioReviews": TutorPortfolioReviews,
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorSubmissionReview": TutorSubmissionReview,
-    "AdminTemplatesStudio": AdminTemplatesStudio,
-    "AdminTemplatesStudioEdit": AdminTemplatesStudioEdit,
-    "AdminTemplatesStudioPreview": AdminTemplatesStudioPreview,
-    "AdminTemplatesStudioDuplicate": AdminTemplatesStudioDuplicate,
 }
 
 export const pagesConfig = {
