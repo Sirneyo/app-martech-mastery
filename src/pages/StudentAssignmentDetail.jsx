@@ -163,7 +163,7 @@ export default function StudentAssignmentDetail() {
     },
   });
 
-  const [briefOpen, setBriefOpen] = React.useState(true);
+  const [briefOpen, setBriefOpen] = React.useState(false);
 
   const isSubmitted = submission?.status === 'submitted' || submission?.status === 'in_review' || submission?.status === 'graded';
   const needsRevision = submission?.status === 'needs_revision';
