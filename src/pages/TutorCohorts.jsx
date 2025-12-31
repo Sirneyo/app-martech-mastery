@@ -32,16 +32,28 @@ export default function TutorCohorts() {
     enabled: assignments.length > 0,
   });
 
-  const cohortIds = React.useMemo(() => assignments.map(a => a.data?.cohort_id || a.cohort_id), [assignments]);
+  const cohortIds = React.useMemo(() => {
+    const ids = assignments.map(a => a.data?.cohort_id || a.cohort_id);
+    console.log('Tutor cohort IDs from assignments:', ids);
+    return ids;
+  }, [assignments]);
 
   const { data: memberships = [] } = useQuery({
     queryKey: ['cohort-memberships', JSON.stringify(cohortIds)],
     queryFn: async () => {
       if (cohortIds.length === 0) return [];
       const allMemberships = await base44.entities.CohortMembership.list();
-      return allMemberships.filter(m => 
-        cohortIds.includes(m.data?.cohort_id) && m.data?.status === 'active'
-      );
+      console.log('All memberships from DB:', allMemberships);
+      console.log('Filtering by cohort IDs:', cohortIds);
+      const filtered = allMemberships.filter(m => {
+        const membershipCohortId = m.data?.cohort_id;
+        const membershipStatus = m.data?.status;
+        const isMatch = cohortIds.includes(membershipCohortId) && membershipStatus === 'active';
+        console.log(`Membership ${m.id}: cohort_id=${membershipCohortId}, status=${membershipStatus}, match=${isMatch}`);
+        return isMatch;
+      });
+      console.log('Filtered memberships result:', filtered);
+      return filtered;
     },
     enabled: cohortIds.length > 0,
   });
