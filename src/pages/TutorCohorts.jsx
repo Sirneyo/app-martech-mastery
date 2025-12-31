@@ -60,11 +60,7 @@ export default function TutorCohorts() {
     queryFn: async () => {
       if (studentUserIds.length === 0) return [];
       const allUsers = await base44.entities.User.list();
-      console.log('All users from User.list():', allUsers);
-      console.log('Student IDs we are looking for:', studentUserIds);
-      const filtered = allUsers.filter(u => studentUserIds.includes(u.id));
-      console.log('Filtered users:', filtered);
-      return filtered;
+      return allUsers.filter(u => studentUserIds.includes(u.id));
     },
     enabled: studentUserIds.length > 0,
   });
