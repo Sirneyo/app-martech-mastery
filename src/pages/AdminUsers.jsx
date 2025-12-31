@@ -52,6 +52,11 @@ export default function AdminUsers() {
     queryFn: () => base44.entities.CohortMembership.list(),
   });
 
+  const { data: tutorAssignments = [] } = useQuery({
+    queryKey: ['tutor-assignments'],
+    queryFn: () => base44.entities.TutorCohortAssignment.list(),
+  });
+
   const createUserMutation = useMutation({
     mutationFn: (userData) => base44.entities.User.create(userData),
     onSuccess: () => {
@@ -127,11 +132,20 @@ export default function AdminUsers() {
   };
 
   const getUserCohort = (userId) => {
-    const membership = memberships.find(m => m.user_id === userId);
-    if (membership) {
-      const cohort = cohorts.find(c => c.id === membership.cohort_id);
-      return cohort?.name;
+    // Check for student cohort assignment
+    const studentMembership = memberships.find(m => m.user_id === userId);
+    if (studentMembership) {
+      const cohort = cohorts.find(c => c.id === studentMembership.cohort_id);
+      if (cohort) return cohort.name;
     }
+
+    // Check for tutor cohort assignment
+    const tutorAssignment = tutorAssignments.find(ta => ta.tutor_id === userId);
+    if (tutorAssignment) {
+      const cohort = cohorts.find(c => c.id === tutorAssignment.cohort_id);
+      if (cohort) return cohort.name;
+    }
+
     return null;
   };
 

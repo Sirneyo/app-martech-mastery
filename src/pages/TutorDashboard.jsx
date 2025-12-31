@@ -21,7 +21,7 @@ export default function TutorDashboard() {
     enabled: !!user?.id,
   });
 
-  const cohortIds = assignments?.map(a => a.cohort_id) || [];
+  const cohortIds = [...new Set(assignments?.map(a => a.cohort_id) || [])];
 
   const { data: assignmentSubmissions } = useQuery({
     queryKey: ['pending-assignment-submissions', cohortIds],
