@@ -33,7 +33,7 @@ export default function TutorCohorts() {
   });
 
   const cohortIds = React.useMemo(() => {
-    const ids = assignments.map(a => a.data?.cohort_id || a.cohort_id);
+    const ids = assignments.map(a => a.cohort_id);
     console.log('Tutor cohort IDs from assignments:', ids);
     return ids;
   }, [assignments]);
@@ -43,23 +43,15 @@ export default function TutorCohorts() {
     queryFn: async () => {
       if (cohortIds.length === 0) return [];
       const allMemberships = await base44.entities.CohortMembership.list();
-      console.log('All memberships from DB:', allMemberships);
-      console.log('Filtering by cohort IDs:', cohortIds);
-      const filtered = allMemberships.filter(m => {
-        const membershipCohortId = m.data?.cohort_id;
-        const membershipStatus = m.data?.status;
-        const isMatch = cohortIds.includes(membershipCohortId) && membershipStatus === 'active';
-        console.log(`Membership ${m.id}: cohort_id=${membershipCohortId}, status=${membershipStatus}, match=${isMatch}`);
-        return isMatch;
-      });
-      console.log('Filtered memberships result:', filtered);
-      return filtered;
+      return allMemberships.filter(m => 
+        cohortIds.includes(m.cohort_id) && m.status === 'active'
+      );
     },
     enabled: cohortIds.length > 0,
   });
 
   const studentUserIds = React.useMemo(() => {
-    return [...new Set(memberships.map(m => m.data?.user_id).filter(Boolean))];
+    return [...new Set(memberships.map(m => m.user_id).filter(Boolean))];
   }, [memberships]);
 
   const { data: students = [] } = useQuery({
@@ -74,8 +66,8 @@ export default function TutorCohorts() {
 
   const getStudentsByCohort = (cohortId) => {
     const cohortStudentIds = memberships
-      .filter(m => m.data?.cohort_id === cohortId)
-      .map(m => m.data?.user_id)
+      .filter(m => m.cohort_id === cohortId)
+      .map(m => m.user_id)
       .filter(Boolean);
     return students.filter(s => cohortStudentIds.includes(s.id));
   };
