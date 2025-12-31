@@ -2,7 +2,8 @@ import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
-import { Users, Calendar } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Users, Calendar, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
@@ -59,7 +60,9 @@ export default function TutorCohorts() {
     queryFn: async () => {
       if (studentUserIds.length === 0) return [];
       const allUsers = await base44.entities.User.list();
-      return allUsers.filter(u => studentUserIds.includes(u.id));
+      return allUsers.filter(u => 
+        studentUserIds.includes(u.id) && u.role === 'user'
+      );
     },
     enabled: studentUserIds.length > 0,
   });
@@ -123,7 +126,7 @@ export default function TutorCohorts() {
                 </div>
               </div>
 
-              <div>
+              <div className="mb-4">
                 <h3 className="font-bold text-slate-900 mb-3">Student Roster</h3>
                 {cohortStudents.length === 0 ? (
                   <p className="text-sm text-slate-500 text-center py-4">No students enrolled yet</p>
@@ -143,6 +146,20 @@ export default function TutorCohorts() {
                   </div>
                 )}
               </div>
+
+              <Collapsible>
+                <CollapsibleTrigger className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700">
+                  <ChevronDown className="w-4 h-4" />
+                  <span>Debug Info</span>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-3 p-4 bg-slate-50 rounded-lg text-sm space-y-1">
+                  <p><strong>Cohort ID:</strong> {cohort.id}</p>
+                  <p><strong>Total Memberships:</strong> {memberships.filter(m => m.cohort_id === cohort.id).length}</p>
+                  <p><strong>Active Memberships:</strong> {memberships.filter(m => m.cohort_id === cohort.id && m.status === 'active').length}</p>
+                  <p><strong>Student User IDs:</strong> {memberships.filter(m => m.cohort_id === cohort.id).map(m => m.user_id).join(', ')}</p>
+                  <p><strong>Filtered Students:</strong> {cohortStudents.length}</p>
+                </CollapsibleContent>
+              </Collapsible>
             </motion.div>
           );
         })}
