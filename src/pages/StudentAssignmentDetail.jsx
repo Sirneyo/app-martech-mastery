@@ -215,7 +215,7 @@ export default function StudentAssignmentDetail() {
                     <CollapsibleContent>
                       <div className="p-6">
                         {assignment.content_html && (
-                          <div className="prose prose-slate max-w-none prose-headings:font-bold prose-p:text-slate-700 prose-ul:list-disc prose-ol:list-decimal prose-li:text-slate-700 prose-a:text-violet-600 prose-a:underline hover:prose-a:text-violet-700 prose-strong:text-slate-900 mb-6" dangerouslySetInnerHTML={{ __html: assignment.content_html }} />
+                          <div className="prose prose-slate max-w-none prose-headings:text-slate-900 prose-headings:font-bold prose-p:text-slate-700 prose-p:leading-relaxed prose-a:text-violet-600 prose-a:font-medium prose-a:underline prose-a:decoration-2 prose-a:underline-offset-2 hover:prose-a:text-violet-700 prose-strong:text-slate-900 prose-strong:font-bold prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6 prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6 prose-li:text-slate-700 prose-li:my-2 prose-li:leading-relaxed mb-6" dangerouslySetInnerHTML={{ __html: assignment.content_html }} />
                         )}
 
                         {/* Legacy tasks fallback */}
