@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,9 +14,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Edit, Eye, Copy } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Plus, Edit, Eye, Copy, Trash2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 export default function AdminTemplatesStudio() {
+  const queryClient = useQueryClient();
+  const [deleteDialog, setDeleteDialog] = useState(null);
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
@@ -35,6 +49,38 @@ export default function AdminTemplatesStudio() {
   const { data: portfolio = [] } = useQuery({
     queryKey: ['portfolio-templates'],
     queryFn: () => base44.entities.PortfolioItemTemplate.list('-updated_date'),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async ({ id, type }) => {
+      const entityMap = {
+        assignment: 'AssignmentTemplate',
+        project: 'ProjectTemplate',
+        portfolio: 'PortfolioItemTemplate',
+      };
+      
+      // Delete associated downloads first
+      const downloads = await base44.entities.TemplateDownload.filter({ 
+        template_type: type,
+        template_id: id 
+      });
+      for (const download of downloads) {
+        await base44.entities.TemplateDownload.delete(download.id);
+      }
+      
+      // Delete the template
+      await base44.entities[entityMap[type]].delete(id);
+    },
+    onSuccess: () => {
+      toast.success('Template deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['assignment-templates'] });
+      queryClient.invalidateQueries({ queryKey: ['project-templates'] });
+      queryClient.invalidateQueries({ queryKey: ['portfolio-templates'] });
+      setDeleteDialog(null);
+    },
+    onError: () => {
+      toast.error('Failed to delete template');
+    },
   });
 
   if (user?.app_role !== 'admin') {
@@ -116,6 +162,13 @@ export default function AdminTemplatesStudio() {
                         Duplicate
                       </Button>
                     </Link>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => setDeleteDialog({ id: template.id, type, title: template.title })}
+                    >
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>
@@ -179,6 +232,26 @@ export default function AdminTemplatesStudio() {
             <TemplateTable templates={latestPortfolio} type="portfolio" />
           </TabsContent>
         </Tabs>
+
+        <AlertDialog open={!!deleteDialog} onOpenChange={() => setDeleteDialog(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Template</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete "{deleteDialog?.title}"? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteMutation.mutate({ id: deleteDialog.id, type: deleteDialog.type })}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
