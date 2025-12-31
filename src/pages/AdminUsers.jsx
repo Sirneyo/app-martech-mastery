@@ -67,15 +67,17 @@ export default function AdminUsers() {
       queryClient.invalidateQueries({ queryKey: ['memberships'] });
       setAssignDialogOpen(false);
       setSelectedUser(null);
+      setAssignmentData({ cohort_id: '', tutor_id: '' });
     },
   });
 
   const assignTutorMutation = useMutation({
     mutationFn: (data) => base44.entities.TutorCohortAssignment.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tutor-assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['tutor-cohort-assignments'] });
       setAssignDialogOpen(false);
       setSelectedUser(null);
+      setAssignmentData({ cohort_id: '', tutor_id: '' });
     },
   });
 
