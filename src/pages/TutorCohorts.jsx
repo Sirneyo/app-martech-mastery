@@ -55,6 +55,14 @@ export default function TutorCohorts() {
     return allUsers.filter(u => studentIds.includes(u.id));
   };
 
+  if (!user || assignments.length === 0 || cohorts.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8 flex items-center justify-center">
+        <p className="text-slate-500">Loading cohorts...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
@@ -100,19 +108,23 @@ export default function TutorCohorts() {
 
               <div>
                 <h3 className="font-bold text-slate-900 mb-3">Student Roster</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {cohortStudents.map((student) => (
-                    <div key={student.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
-                        {student.full_name?.charAt(0) || 'S'}
+                {cohortStudents.length === 0 ? (
+                  <p className="text-sm text-slate-500 text-center py-4">No students enrolled yet</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {cohortStudents.map((student) => (
+                      <div key={student.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
+                          {student.full_name?.charAt(0) || 'S'}
+                        </div>
+                        <div>
+                          <p className="font-medium text-slate-900 text-sm">{student.full_name}</p>
+                          <p className="text-xs text-slate-500">{student.email}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-slate-900 text-sm">{student.full_name}</p>
-                        <p className="text-xs text-slate-500">{student.email}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </motion.div>
           );
