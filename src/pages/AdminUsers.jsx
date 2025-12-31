@@ -229,9 +229,10 @@ export default function AdminUsers() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="user">Student</SelectItem>
-                      <SelectItem value="admin">Admin/Tutor</SelectItem>
+                      <SelectItem value="admin">Tutor</SelectItem>
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-slate-500">Tutors need admin role to view student lists</p>
                 </div>
                 <Button onClick={handleCreateUser} className="w-full">
                   Create User
