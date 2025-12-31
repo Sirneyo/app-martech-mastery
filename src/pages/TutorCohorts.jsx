@@ -39,7 +39,7 @@ export default function TutorCohorts() {
     queryFn: async () => {
       if (cohortIds.length === 0) return [];
       const allMemberships = await base44.entities.CohortMembership.list();
-      return allMemberships.filter(m => cohortIds.includes(m.cohort_id) && m.status === 'active');
+      return allMemberships.filter(m => cohortIds.includes(m.data.cohort_id) && m.data.status === 'active');
     },
     enabled: cohortIds.length > 0,
   });
@@ -50,8 +50,8 @@ export default function TutorCohorts() {
   });
 
   const getStudentsByCohort = (cohortId) => {
-    const cohortMemberships = memberships.filter(m => m.cohort_id === cohortId);
-    const studentIds = cohortMemberships.map(m => m.user_id);
+    const cohortMemberships = memberships.filter(m => m.data.cohort_id === cohortId);
+    const studentIds = cohortMemberships.map(m => m.data.user_id);
     return allUsers.filter(u => studentIds.includes(u.id));
   };
 
