@@ -38,6 +38,9 @@ export default function AdminTemplatesStudioEdit() {
     required_flag: false,
     needs_approval: true,
     sort_order: 0,
+    // Legacy fields
+    description: '',
+    tasks: [],
   });
 
   const [evidenceReqs, setEvidenceReqs] = useState({
@@ -74,8 +77,26 @@ export default function AdminTemplatesStudioEdit() {
 
   useEffect(() => {
     if (template) {
+      // Migrate legacy data to content_html if needed
+      let contentHtml = template.content_html || '';
+      if (!contentHtml && (template.description || (template.tasks && template.tasks.length > 0))) {
+        let migrated = '';
+        if (template.description) {
+          migrated += `<p>${template.description}</p>`;
+        }
+        if (template.tasks && template.tasks.length > 0) {
+          migrated += '<ul>';
+          template.tasks.forEach(task => {
+            migrated += `<li>${task}</li>`;
+          });
+          migrated += '</ul>';
+        }
+        contentHtml = migrated;
+      }
+
       setFormData({
         ...template,
+        content_html: contentHtml,
         evidence_requirements_json: template.evidence_requirements_json || '{"allow_file":true,"allow_link":true,"allow_text":true}',
       });
       try {
@@ -263,111 +284,197 @@ export default function AdminTemplatesStudioEdit() {
       </div>
 
       <div className="max-w-7xl mx-auto p-6">
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-4 gap-6">
           {/* Left Panel - Content */}
-          <div className="col-span-2 space-y-6">
+          <div className="col-span-3 space-y-6">
             <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-6">
               <div>
-                <Label>Title *</Label>
+                <Label className="text-base">Assignment Title *</Label>
                 <Input
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Enter template title"
+                  placeholder="Enter assignment title"
+                  className="text-lg mt-2"
                 />
               </div>
 
               <div>
-                <Label>Short Description</Label>
-                <Textarea
-                  value={formData.short_description || ''}
-                  onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-                  placeholder="Brief overview (optional)"
-                  rows={3}
-                />
-              </div>
-
-              <div>
-                <Label>Content</Label>
+                <Label className="text-base">Assignment Brief</Label>
+                <p className="text-sm text-slate-500 mb-3">
+                  Write the full assignment content here. This is what students will see.
+                </p>
                 <div className="border border-slate-200 rounded-lg overflow-hidden">
                   <ReactQuill
                     theme="snow"
                     value={formData.content_html || ''}
                     onChange={(value) => setFormData({ ...formData, content_html: value })}
-                    className="min-h-[300px]"
+                    className="min-h-[500px]"
+                    modules={{
+                      toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline'],
+                        [{'list': 'ordered'}, {'list': 'bullet'}],
+                        ['link'],
+                        ['clean']
+                      ]
+                    }}
                   />
                 </div>
               </div>
 
-              <div className="border-t border-slate-200 pt-6">
-                <h3 className="font-semibold text-slate-900 mb-4">Evidence Requirements</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label>Allow file uploads</Label>
-                    <Switch
-                      checked={evidenceReqs.allow_file}
-                      onCheckedChange={(checked) => setEvidenceReqs({ ...evidenceReqs, allow_file: checked })}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label>Allow link submissions</Label>
-                    <Switch
-                      checked={evidenceReqs.allow_link}
-                      onCheckedChange={(checked) => setEvidenceReqs({ ...evidenceReqs, allow_link: checked })}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label>Allow text submissions</Label>
-                    <Switch
-                      checked={evidenceReqs.allow_text}
-                      onCheckedChange={(checked) => setEvidenceReqs({ ...evidenceReqs, allow_text: checked })}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t border-slate-200 pt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-slate-900">Downloads</h3>
-                  <label htmlFor="file-upload">
-                    <Button variant="outline" size="sm" disabled={uploadingFile} asChild>
-                      <span>
-                        <Plus className="w-4 h-4 mr-2" />
-                        {uploadingFile ? 'Uploading...' : 'Add File'}
-                      </span>
-                    </Button>
-                  </label>
-                  <input
-                    id="file-upload"
-                    type="file"
-                    className="hidden"
-                    onChange={handleAddDownload}
-                  />
-                </div>
-                <div className="space-y-2">
-                  {downloads.map((download, index) => (
-                    <div key={index} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                      <GripVertical className="w-4 h-4 text-slate-400" />
-                      <span className="flex-1 text-sm text-slate-700">{download.file_name}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveDownload(index)}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
+              {templateType !== 'portfolio' && (
+                <>
+                  <div className="border-t border-slate-200 pt-6">
+                    <h3 className="font-semibold text-slate-900 mb-4">Submission Settings</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label>Allow file uploads</Label>
+                        <Switch
+                          checked={evidenceReqs.allow_file}
+                          onCheckedChange={(checked) => setEvidenceReqs({ ...evidenceReqs, allow_file: checked })}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label>Allow link submissions</Label>
+                        <Switch
+                          checked={evidenceReqs.allow_link}
+                          onCheckedChange={(checked) => setEvidenceReqs({ ...evidenceReqs, allow_link: checked })}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label>Allow text submissions</Label>
+                        <Switch
+                          checked={evidenceReqs.allow_text}
+                          onCheckedChange={(checked) => setEvidenceReqs({ ...evidenceReqs, allow_text: checked })}
+                        />
+                      </div>
                     </div>
-                  ))}
-                  {downloads.length === 0 && (
-                    <p className="text-sm text-slate-500 text-center py-4">No downloads added</p>
-                  )}
-                </div>
-              </div>
+                  </div>
+
+                  <div className="border-t border-slate-200 pt-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-slate-900">Downloads</h3>
+                      <label htmlFor="file-upload">
+                        <Button variant="outline" size="sm" disabled={uploadingFile} asChild>
+                          <span>
+                            <Plus className="w-4 h-4 mr-2" />
+                            {uploadingFile ? 'Uploading...' : 'Add File'}
+                          </span>
+                        </Button>
+                      </label>
+                      <input
+                        id="file-upload"
+                        type="file"
+                        className="hidden"
+                        onChange={handleAddDownload}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      {downloads.map((download, index) => (
+                        <div key={index} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                          <GripVertical className="w-4 h-4 text-slate-400" />
+                          <span className="flex-1 text-sm text-slate-700">{download.file_name}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveDownload(index)}
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        </div>
+                      ))}
+                      {downloads.length === 0 && (
+                        <p className="text-sm text-slate-500 text-center py-4">No downloads added</p>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {templateType === 'portfolio' && (
+                <>
+                  <div>
+                    <Label>Short Description</Label>
+                    <Textarea
+                      value={formData.short_description || ''}
+                      onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
+                      placeholder="Brief overview"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="border-t border-slate-200 pt-6">
+                    <h3 className="font-semibold text-slate-900 mb-4">Evidence Requirements</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label>Allow file uploads</Label>
+                        <Switch
+                          checked={evidenceReqs.allow_file}
+                          onCheckedChange={(checked) => setEvidenceReqs({ ...evidenceReqs, allow_file: checked })}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label>Allow link submissions</Label>
+                        <Switch
+                          checked={evidenceReqs.allow_link}
+                          onCheckedChange={(checked) => setEvidenceReqs({ ...evidenceReqs, allow_link: checked })}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label>Allow text submissions</Label>
+                        <Switch
+                          checked={evidenceReqs.allow_text}
+                          onCheckedChange={(checked) => setEvidenceReqs({ ...evidenceReqs, allow_text: checked })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-slate-200 pt-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold text-slate-900">Downloads</h3>
+                      <label htmlFor="file-upload">
+                        <Button variant="outline" size="sm" disabled={uploadingFile} asChild>
+                          <span>
+                            <Plus className="w-4 h-4 mr-2" />
+                            {uploadingFile ? 'Uploading...' : 'Add File'}
+                          </span>
+                        </Button>
+                      </label>
+                      <input
+                        id="file-upload"
+                        type="file"
+                        className="hidden"
+                        onChange={handleAddDownload}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      {downloads.map((download, index) => (
+                        <div key={index} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                          <GripVertical className="w-4 h-4 text-slate-400" />
+                          <span className="flex-1 text-sm text-slate-700">{download.file_name}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveDownload(index)}
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </Button>
+                        </div>
+                      ))}
+                      {downloads.length === 0 && (
+                        <p className="text-sm text-slate-500 text-center py-4">No downloads added</p>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
-          {/* Right Panel - Controls */}
+          {/* Right Panel - Meta */}
           <div className="space-y-6">
-            <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-6">
+            <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-6 sticky top-6">
               <div>
                 <Label>Status</Label>
                 <Select
@@ -383,38 +490,12 @@ export default function AdminTemplatesStudioEdit() {
                   </SelectContent>
                 </Select>
                 {formData.status === 'published' && (
-                  <p className="text-xs text-green-600 mt-2">Students can see this template</p>
+                  <p className="text-xs text-green-600 mt-2">Visible to students</p>
                 )}
               </div>
 
               <div>
-                <Label>Thumbnail</Label>
-                {formData.thumbnail_url && (
-                  <img
-                    src={formData.thumbnail_url}
-                    alt="Thumbnail"
-                    className="w-full h-32 object-cover rounded-lg mb-2"
-                  />
-                )}
-                <label htmlFor="thumb-upload">
-                  <Button variant="outline" size="sm" disabled={uploadingThumb} asChild className="w-full">
-                    <span>
-                      <Upload className="w-4 h-4 mr-2" />
-                      {uploadingThumb ? 'Uploading...' : formData.thumbnail_url ? 'Change' : 'Upload'}
-                    </span>
-                  </Button>
-                </label>
-                <input
-                  id="thumb-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleThumbnailUpload}
-                />
-              </div>
-
-              <div>
-                <Label>Week Number</Label>
+                <Label>Week</Label>
                 <Input
                   type="number"
                   value={formData.week_number || 1}
@@ -433,7 +514,7 @@ export default function AdminTemplatesStudioEdit() {
 
               {templateType === 'portfolio' && (
                 <>
-                  <div>
+                  <div className="border-t border-slate-200 pt-4">
                     <Label>Category</Label>
                     <Select
                       value={formData.category}
@@ -461,7 +542,7 @@ export default function AdminTemplatesStudioEdit() {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <Label>Required Item</Label>
+                    <Label className="text-sm">Required</Label>
                     <Switch
                       checked={formData.required_flag}
                       onCheckedChange={(checked) => setFormData({ ...formData, required_flag: checked })}
@@ -469,19 +550,10 @@ export default function AdminTemplatesStudioEdit() {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <Label>Needs Approval</Label>
+                    <Label className="text-sm">Needs Approval</Label>
                     <Switch
                       checked={formData.needs_approval}
                       onCheckedChange={(checked) => setFormData({ ...formData, needs_approval: checked })}
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Sort Order</Label>
-                    <Input
-                      type="number"
-                      value={formData.sort_order || 0}
-                      onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) })}
                     />
                   </div>
                 </>
