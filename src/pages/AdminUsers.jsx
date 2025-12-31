@@ -102,18 +102,16 @@ export default function AdminUsers() {
 
   const handleCreateUser = async () => {
     try {
-      // Map role to base44 role: tutor and admin both need 'admin' base role
-      const baseRole = (newUser.role === 'tutor' || newUser.role === 'admin') ? 'admin' : 'user';
+      // Base44 only allows inviting users as 'user' role
+      // Role can be updated after they accept the invitation
+      await base44.users.inviteUser(newUser.email, 'user');
       
-      // First, invite the user
-      await base44.users.inviteUser(newUser.email, baseRole);
-      
-      // Note: We can't assign cohort or set names until user accepts invitation
-      // This is a limitation of the Base44 invitation system
       queryClient.invalidateQueries({ queryKey: ['users'] });
       setCreateDialogOpen(false);
       setNewUser({ first_name: '', last_name: '', email: '', role: 'user', cohort_id: '' });
-      alert('Invitation sent! After the user accepts, you can assign them to a cohort using the Assign button.');
+      
+      const roleMsg = newUser.role !== 'user' ? ` After they accept, use the Edit button to set their role to ${newUser.role}.` : '';
+      alert('Invitation sent!' + roleMsg);
     } catch (error) {
       alert('Failed to send invitation: ' + (error.message || 'Unknown error'));
     }
@@ -246,7 +244,7 @@ export default function AdminUsers() {
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-slate-500">Tutors and Admins need elevated permissions</p>
+                  <p className="text-xs text-slate-500">Note: Users are invited as Students, then role can be updated after they accept</p>
                 </div>
                 <div className="space-y-2">
                   <Label>Assigned Cohort</Label>
