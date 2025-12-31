@@ -32,14 +32,14 @@ export default function TutorCohorts() {
     enabled: assignments.length > 0,
   });
 
-  const cohortIds = assignments.map(a => a.cohort_id);
+  const cohortIds = React.useMemo(() => assignments.map(a => a.cohort_id), [assignments]);
 
   const { data: memberships = [] } = useQuery({
-    queryKey: ['cohort-memberships', cohortIds],
+    queryKey: ['cohort-memberships', JSON.stringify(cohortIds)],
     queryFn: async () => {
       if (cohortIds.length === 0) return [];
       const allMemberships = await base44.entities.CohortMembership.list();
-      return allMemberships.filter(m => cohortIds.includes(m.cohort_id));
+      return allMemberships.filter(m => cohortIds.includes(m.cohort_id) && m.status === 'active');
     },
     enabled: cohortIds.length > 0,
   });
@@ -50,7 +50,7 @@ export default function TutorCohorts() {
   });
 
   const getStudentsByCohort = (cohortId) => {
-    const cohortMemberships = memberships.filter(m => m.cohort_id === cohortId && m.status === 'active');
+    const cohortMemberships = memberships.filter(m => m.cohort_id === cohortId);
     const studentIds = cohortMemberships.map(m => m.user_id);
     return allUsers.filter(u => studentIds.includes(u.id));
   };
