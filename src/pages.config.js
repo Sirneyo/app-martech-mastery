@@ -1,83 +1,89 @@
-import Dashboard from './pages/Dashboard';
-import Courses from './pages/Courses';
-import Certifications from './pages/Certifications';
-import Assignments from './pages/Assignments';
-import MyProjects from './pages/MyProjects';
-import MyPortfolio from './pages/MyPortfolio';
 import AITools from './pages/AITools';
-import MyCertification from './pages/MyCertification';
-import AdminUsers from './pages/AdminUsers';
-import AdminCohorts from './pages/AdminCohorts';
-import AdminTemplates from './pages/AdminTemplates';
-import StudentDashboard from './pages/StudentDashboard';
-import TutorDashboard from './pages/TutorDashboard';
-import StudentAITools from './pages/StudentAITools';
-import TutorAITools from './pages/TutorAITools';
-import StudentAssignments from './pages/StudentAssignments';
-import StudentProjects from './pages/StudentProjects';
-import StudentCertification from './pages/StudentCertification';
-import StudentPortfolio from './pages/StudentPortfolio';
-import TutorCohorts from './pages/TutorCohorts';
-import TutorAssignmentSubmissions from './pages/TutorAssignmentSubmissions';
-import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
-import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
-import RoleRedirect from './pages/RoleRedirect';
-import StudentAssignmentDetail from './pages/StudentAssignmentDetail';
-import StudentProjectDetail from './pages/StudentProjectDetail';
-import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import StudentPortfolioItemDetail from './pages/StudentPortfolioItemDetail';
-import TutorPortfolioReview from './pages/TutorPortfolioReview';
-import StudentCertificationAttempt from './pages/StudentCertificationAttempt';
-import StudentCertificationResults from './pages/StudentCertificationResults';
-import AdminExamBankImport from './pages/AdminExamBankImport';
-import StudentCertificationLoading from './pages/StudentCertificationLoading';
-import StudentCertificationReview from './pages/StudentCertificationReview';
-import StudentCertificationConfirm from './pages/StudentCertificationConfirm';
-import StudentCertificationReady from './pages/StudentCertificationReady';
-import AdminOverview from './pages/AdminOverview';
 import AdminCohortOverview from './pages/AdminCohortOverview';
+import AdminCohorts from './pages/AdminCohorts';
+import AdminExamBankImport from './pages/AdminExamBankImport';
+import AdminOverview from './pages/AdminOverview';
+import AdminTemplates from './pages/AdminTemplates';
+import AdminUsers from './pages/AdminUsers';
+import Assignments from './pages/Assignments';
+import Certifications from './pages/Certifications';
+import Courses from './pages/Courses';
+import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
+import MyCertification from './pages/MyCertification';
+import MyPortfolio from './pages/MyPortfolio';
+import MyProjects from './pages/MyProjects';
+import RoleRedirect from './pages/RoleRedirect';
+import StudentAITools from './pages/StudentAITools';
+import StudentAssignmentDetail from './pages/StudentAssignmentDetail';
+import StudentAssignments from './pages/StudentAssignments';
+import StudentCertification from './pages/StudentCertification';
+import StudentCertificationAttempt from './pages/StudentCertificationAttempt';
+import StudentCertificationConfirm from './pages/StudentCertificationConfirm';
+import StudentCertificationLoading from './pages/StudentCertificationLoading';
+import StudentCertificationReady from './pages/StudentCertificationReady';
+import StudentCertificationResults from './pages/StudentCertificationResults';
+import StudentCertificationReview from './pages/StudentCertificationReview';
+import StudentDashboard from './pages/StudentDashboard';
+import StudentPortfolio from './pages/StudentPortfolio';
+import StudentPortfolioItemDetail from './pages/StudentPortfolioItemDetail';
+import StudentProjectDetail from './pages/StudentProjectDetail';
+import StudentProjects from './pages/StudentProjects';
+import TutorAITools from './pages/TutorAITools';
+import TutorAssignmentSubmissions from './pages/TutorAssignmentSubmissions';
+import TutorCohorts from './pages/TutorCohorts';
+import TutorDashboard from './pages/TutorDashboard';
+import TutorPortfolioReview from './pages/TutorPortfolioReview';
+import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
+import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
+import TutorSubmissionReview from './pages/TutorSubmissionReview';
+import AdminTemplatesStudio from './pages/AdminTemplatesStudio';
+import AdminTemplatesStudioEdit from './pages/AdminTemplatesStudioEdit';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Dashboard": Dashboard,
-    "Courses": Courses,
-    "Certifications": Certifications,
-    "Assignments": Assignments,
-    "MyProjects": MyProjects,
-    "MyPortfolio": MyPortfolio,
     "AITools": AITools,
-    "MyCertification": MyCertification,
-    "AdminUsers": AdminUsers,
-    "AdminCohorts": AdminCohorts,
-    "AdminTemplates": AdminTemplates,
-    "StudentDashboard": StudentDashboard,
-    "TutorDashboard": TutorDashboard,
-    "StudentAITools": StudentAITools,
-    "TutorAITools": TutorAITools,
-    "StudentAssignments": StudentAssignments,
-    "StudentProjects": StudentProjects,
-    "StudentCertification": StudentCertification,
-    "StudentPortfolio": StudentPortfolio,
-    "TutorCohorts": TutorCohorts,
-    "TutorAssignmentSubmissions": TutorAssignmentSubmissions,
-    "TutorProjectSubmissions": TutorProjectSubmissions,
-    "TutorPortfolioReviews": TutorPortfolioReviews,
-    "RoleRedirect": RoleRedirect,
-    "StudentAssignmentDetail": StudentAssignmentDetail,
-    "StudentProjectDetail": StudentProjectDetail,
-    "TutorSubmissionReview": TutorSubmissionReview,
-    "StudentPortfolioItemDetail": StudentPortfolioItemDetail,
-    "TutorPortfolioReview": TutorPortfolioReview,
-    "StudentCertificationAttempt": StudentCertificationAttempt,
-    "StudentCertificationResults": StudentCertificationResults,
-    "AdminExamBankImport": AdminExamBankImport,
-    "StudentCertificationLoading": StudentCertificationLoading,
-    "StudentCertificationReview": StudentCertificationReview,
-    "StudentCertificationConfirm": StudentCertificationConfirm,
-    "StudentCertificationReady": StudentCertificationReady,
-    "AdminOverview": AdminOverview,
     "AdminCohortOverview": AdminCohortOverview,
+    "AdminCohorts": AdminCohorts,
+    "AdminExamBankImport": AdminExamBankImport,
+    "AdminOverview": AdminOverview,
+    "AdminTemplates": AdminTemplates,
+    "AdminUsers": AdminUsers,
+    "Assignments": Assignments,
+    "Certifications": Certifications,
+    "Courses": Courses,
+    "Dashboard": Dashboard,
+    "Home": Home,
+    "MyCertification": MyCertification,
+    "MyPortfolio": MyPortfolio,
+    "MyProjects": MyProjects,
+    "RoleRedirect": RoleRedirect,
+    "StudentAITools": StudentAITools,
+    "StudentAssignmentDetail": StudentAssignmentDetail,
+    "StudentAssignments": StudentAssignments,
+    "StudentCertification": StudentCertification,
+    "StudentCertificationAttempt": StudentCertificationAttempt,
+    "StudentCertificationConfirm": StudentCertificationConfirm,
+    "StudentCertificationLoading": StudentCertificationLoading,
+    "StudentCertificationReady": StudentCertificationReady,
+    "StudentCertificationResults": StudentCertificationResults,
+    "StudentCertificationReview": StudentCertificationReview,
+    "StudentDashboard": StudentDashboard,
+    "StudentPortfolio": StudentPortfolio,
+    "StudentPortfolioItemDetail": StudentPortfolioItemDetail,
+    "StudentProjectDetail": StudentProjectDetail,
+    "StudentProjects": StudentProjects,
+    "TutorAITools": TutorAITools,
+    "TutorAssignmentSubmissions": TutorAssignmentSubmissions,
+    "TutorCohorts": TutorCohorts,
+    "TutorDashboard": TutorDashboard,
+    "TutorPortfolioReview": TutorPortfolioReview,
+    "TutorPortfolioReviews": TutorPortfolioReviews,
+    "TutorProjectSubmissions": TutorProjectSubmissions,
+    "TutorSubmissionReview": TutorSubmissionReview,
+    "AdminTemplatesStudio": AdminTemplatesStudio,
+    "AdminTemplatesStudioEdit": AdminTemplatesStudioEdit,
 }
 
 export const pagesConfig = {
