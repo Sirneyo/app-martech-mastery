@@ -108,7 +108,12 @@ export default function AdminUsers() {
   });
 
   const handleCreateUser = () => {
-    createUserMutation.mutate(newUser);
+    const userData = {
+      ...newUser,
+      role: newUser.role === 'admin' ? 'admin' : 'user',
+      app_role: newUser.role === 'admin' ? (newUser.app_role || 'tutor') : 'student'
+    };
+    createUserMutation.mutate(userData);
   };
 
   const handleAssignCohort = () => {
