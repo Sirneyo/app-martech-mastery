@@ -6,6 +6,7 @@ import ProfileModal from '@/components/ProfileModal';
 import StudentSidebar from '@/components/StudentSidebar';
 import TutorSidebar from '@/components/TutorSidebar';
 import AdminSidebar from '@/components/AdminSidebar';
+import LoadingLogo from '@/components/LoadingLogo';
 
 export default function RoleBasedLayout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -61,6 +62,14 @@ export default function RoleBasedLayout({ children, currentPageName }) {
   const SidebarComponent = user?.app_role === 'admin' ? AdminSidebar : 
                             user?.app_role === 'tutor' ? TutorSidebar : 
                             StudentSidebar;
+
+  if (!user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+        <LoadingLogo />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-100">
