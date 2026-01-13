@@ -20,7 +20,7 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
           <img 
             src="https://storage.googleapis.com/msgsndr/DVqsiywKVWkfZ4I0mXQ1/media/693348610439b8283bf88818.svg" 
             alt="MarTech Mastery" 
-            className="w-full h-auto"
+            className="w-1/2 h-auto mx-auto"
           />
         </Link>
       </div>
