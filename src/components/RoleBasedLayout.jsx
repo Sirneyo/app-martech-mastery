@@ -66,7 +66,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
   if (!user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-        <LoadingLogo size={60} />
+        <LoadingLogo />
       </div>
     );
   }
