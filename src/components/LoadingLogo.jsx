@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function LoadingLogo({ size = 120 }) {
+export default function LoadingLogo({ size = 84 }) {
   return (
     <div className="flex items-center justify-center">
       <motion.img
