@@ -1,10 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import LearningSidebar from '@/components/LearningSidebar';
 import { 
   BookOpen, 
   Video, 
@@ -12,7 +13,9 @@ import {
   ExternalLink,
   Play,
   Calendar,
-  Users
+  Users,
+  ArrowLeft,
+  Home
 } from 'lucide-react';
 
 export default function BeginLearning() {
@@ -57,11 +60,29 @@ export default function BeginLearning() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <LearningSidebar />
-      
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Navigation Menu */}
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <img 
+              src="https://storage.googleapis.com/msgsndr/DVqsiywKVWkfZ4I0mXQ1/media/693348610439b8283bf88818.svg" 
+              alt="MarTech Mastery" 
+              className="h-8"
+            />
+            <span className="text-slate-400">|</span>
+            <h2 className="text-lg font-semibold text-slate-900">Begin Learning</h2>
+          </div>
+          <Link to={createPageUrl('StudentDashboard')}>
+            <Button variant="outline" className="gap-2">
+              <Home className="w-4 h-4" />
+              Back to Dashboard
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto p-8">
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -200,8 +221,7 @@ export default function BeginLearning() {
             </CardContent>
           </Card>
         </motion.div>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
