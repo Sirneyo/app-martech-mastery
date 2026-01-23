@@ -10,6 +10,7 @@ import AdminTemplatesStudioEdit from './pages/AdminTemplatesStudioEdit';
 import AdminTemplatesStudioPreview from './pages/AdminTemplatesStudioPreview';
 import AdminUsers from './pages/AdminUsers';
 import Assignments from './pages/Assignments';
+import BeginLearning from './pages/BeginLearning';
 import Certifications from './pages/Certifications';
 import Courses from './pages/Courses';
 import Dashboard from './pages/Dashboard';
@@ -41,7 +42,6 @@ import TutorPortfolioReview from './pages/TutorPortfolioReview';
 import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import BeginLearning from './pages/BeginLearning';
 import __Layout from './Layout.jsx';
 
 
@@ -58,6 +58,7 @@ export const PAGES = {
     "AdminTemplatesStudioPreview": AdminTemplatesStudioPreview,
     "AdminUsers": AdminUsers,
     "Assignments": Assignments,
+    "BeginLearning": BeginLearning,
     "Certifications": Certifications,
     "Courses": Courses,
     "Dashboard": Dashboard,
@@ -89,7 +90,6 @@ export const PAGES = {
     "TutorPortfolioReviews": TutorPortfolioReviews,
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorSubmissionReview": TutorSubmissionReview,
-    "BeginLearning": BeginLearning,
 }
 
 export const pagesConfig = {

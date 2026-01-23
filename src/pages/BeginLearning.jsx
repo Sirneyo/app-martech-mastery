@@ -14,8 +14,8 @@ import {
   Play,
   Calendar,
   Users,
-  ArrowLeft,
-  Home
+  Home,
+  FolderOpen
 } from 'lucide-react';
 
 export default function BeginLearning() {
@@ -60,29 +60,50 @@ export default function BeginLearning() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Navigation Menu */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <img 
-              src="https://storage.googleapis.com/msgsndr/DVqsiywKVWkfZ4I0mXQ1/media/693348610439b8283bf88818.svg" 
-              alt="MarTech Mastery" 
-              className="h-8"
-            />
-            <span className="text-slate-400">|</span>
-            <h2 className="text-lg font-semibold text-slate-900">Begin Learning</h2>
-          </div>
-          <Link to={createPageUrl('StudentDashboard')}>
-            <Button variant="outline" className="gap-2">
-              <Home className="w-4 h-4" />
-              Back to Dashboard
-            </Button>
-          </Link>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex">
+      {/* Sidebar */}
+      <aside className="w-64 bg-gradient-to-b from-slate-100 to-slate-200 min-h-screen border-r border-slate-300 flex flex-col">
+        <div className="p-4 border-b border-slate-300">
+          <img 
+            src="https://storage.googleapis.com/msgsndr/DVqsiywKVWkfZ4I0mXQ1/media/693348610439b8283bf88818.svg" 
+            alt="MarTech Mastery" 
+            className="w-[85%] h-auto"
+          />
         </div>
-      </div>
+        
+        <nav className="flex-1 p-4 space-y-2">
+          <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-4">
+            Learning
+          </p>
+          <Link
+            to={createPageUrl('StudentDashboard')}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-slate-600 hover:text-slate-900 hover:bg-white/70 group"
+          >
+            <Home className="w-5 h-5 text-slate-500 group-hover:text-slate-700" />
+            <span className="font-medium text-sm">Dashboard</span>
+          </Link>
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-orange-500/10 text-orange-600">
+            <BookOpen className="w-5 h-5 text-orange-600" />
+            <span className="font-medium text-sm">Begin Learning</span>
+          </div>
+          <Link
+            to={createPageUrl('StudentAssignments')}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-slate-600 hover:text-slate-900 hover:bg-white/70 group"
+          >
+            <FileText className="w-5 h-5 text-slate-500 group-hover:text-slate-700" />
+            <span className="font-medium text-sm">Assignments</span>
+          </Link>
+          <Link
+            to={createPageUrl('StudentProjects')}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 text-slate-600 hover:text-slate-900 hover:bg-white/70 group"
+          >
+            <FolderOpen className="w-5 h-5 text-slate-500 group-hover:text-slate-700" />
+            <span className="font-medium text-sm">My Projects</span>
+          </Link>
+        </nav>
+      </aside>
 
-      <div className="max-w-7xl mx-auto p-8">
+      <div className="flex-1 p-8">
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
