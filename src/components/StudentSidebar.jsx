@@ -51,10 +51,8 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
           Tools
         </p>
         
-        <a
-          href={settings?.kajabi_url || "https://www.the-growth-academy.co/library"}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          to={createPageUrl('BeginLearning')}
           className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300"
         >
           <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-purple-600 to-violet-500">
@@ -64,10 +62,10 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
             <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
               Begin Learning
             </p>
-            <p className="text-[10px] text-slate-500">Opens in new tab</p>
+            <p className="text-[10px] text-slate-500">Courses & Live Sessions</p>
           </div>
-          <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
-        </a>
+          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+        </Link>
 
         <a
           href={settings?.marketo_url || "https://experience.adobe.com/#/@oadsolutionsltd/"}
