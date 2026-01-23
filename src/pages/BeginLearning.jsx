@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import BeginLearningSidebar from '@/components/BeginLearningSidebar';
+import { Menu, X, Settings, User, LogOut } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import ProfileModal from '@/components/ProfileModal';
 import { 
   BookOpen, 
   Video, 
@@ -15,6 +19,9 @@ import {
 } from 'lucide-react';
 
 export default function BeginLearning() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+
   const { data: settings } = useQuery({
     queryKey: ['app-settings'],
     queryFn: async () => {
@@ -56,8 +63,80 @@ export default function BeginLearning() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="flex min-h-screen bg-slate-100">
+      <button
+        onClick={() => setSidebarOpen(true)}
+        className="lg:hidden fixed top-4 left-4 z-40 p-2 bg-white rounded-lg shadow-md border border-slate-200"
+      >
+        <Menu className="w-6 h-6 text-slate-700" />
+      </button>
+
+      {sidebarOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <div className={`
+        fixed lg:static inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        <div className="relative">
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden absolute top-4 right-4 z-50 p-1 text-slate-500 hover:text-slate-700"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <BeginLearningSidebar currentPageName="BeginLearning" onNavigate={() => setSidebarOpen(false)} />
+        </div>
+      </div>
+
+      <main className="flex-1 h-screen overflow-y-auto lg:ml-0">
+        <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-6 py-3">
+          <div className="flex items-center justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 transition-all group">
+                  {user?.profile_picture ? (
+                    <img
+                      src={user.profile_picture}
+                      alt={user.full_name}
+                      className="w-9 h-9 rounded-full object-cover border-2 border-slate-200"
+                    />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-600 to-slate-500 flex items-center justify-center">
+                      <User className="w-4 h-4 text-white" />
+                    </div>
+                  )}
+                  <div className="text-left hidden sm:block">
+                    <p className="text-sm font-medium text-slate-700">
+                      {user?.full_name || 'Loading...'}
+                    </p>
+                    <p className="text-[10px] text-slate-500 capitalize">
+                      {user?.app_role || 'student'}
+                    </p>
+                  </div>
+                  <Settings className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors hidden sm:block" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => setProfileModalOpen(true)}>
+                  <User className="w-4 h-4 mr-2" />
+                  Profile Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => base44.auth.logout()}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        <div className="p-8">
+          <div className="max-w-7xl mx-auto">
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -196,7 +275,11 @@ export default function BeginLearning() {
             </CardContent>
           </Card>
         </motion.div>
-      </div>
+          </div>
+        </div>
+      </main>
+
+      <ProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
     </div>
   );
 }

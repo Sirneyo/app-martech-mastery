@@ -42,6 +42,7 @@ import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
 import BeginLearning from './pages/BeginLearning';
+import CoursesLMS from './pages/CoursesLMS';
 import __Layout from './Layout.jsx';
 
 
@@ -90,6 +91,7 @@ export const PAGES = {
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorSubmissionReview": TutorSubmissionReview,
     "BeginLearning": BeginLearning,
+    "CoursesLMS": CoursesLMS,
 }
 
 export const pagesConfig = {
