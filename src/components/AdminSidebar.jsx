@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Users, Calendar, FileText, LayoutDashboard } from 'lucide-react';
+import { Users, Calendar, FileText, LayoutDashboard, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 export default function AdminSidebar({ currentPageName, onNavigate }) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const navItems = [
     { name: 'Overview', icon: LayoutDashboard, page: 'AdminOverview' },
     { name: 'Users', icon: Users, page: 'AdminUsers' },
@@ -14,21 +16,43 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
   ];
 
   return (
-    <aside className="w-72 bg-gradient-to-b from-slate-100 to-slate-200 min-h-screen flex flex-col border-r border-slate-300">
-      <div className="p-4 border-b border-slate-300">
-        <Link to={createPageUrl('AdminUsers')}>
-          <img 
-            src="https://storage.googleapis.com/msgsndr/DVqsiywKVWkfZ4I0mXQ1/media/693348610439b8283bf88818.svg" 
-            alt="MarTech Mastery" 
-            className="w-[90%] h-auto"
-          />
-        </Link>
+    <aside className={`${isCollapsed ? 'w-20' : 'w-72'} bg-gradient-to-b from-slate-100 to-slate-200 min-h-screen flex flex-col border-r border-slate-300 transition-all duration-300 relative`}>
+      <div className="p-4 border-b border-slate-300 flex items-center justify-between">
+        {!isCollapsed && (
+          <Link to={createPageUrl('AdminUsers')}>
+            <img 
+              src="https://storage.googleapis.com/msgsndr/DVqsiywKVWkfZ4I0mXQ1/media/693348610439b8283bf88818.svg" 
+              alt="MarTech Mastery" 
+              className="w-[90%] h-auto"
+            />
+          </Link>
+        )}
+        {isCollapsed && (
+          <Link to={createPageUrl('AdminUsers')} className="mx-auto">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/96938fb06_OADSolutionsRebrand1.png" 
+              alt="M" 
+              className="w-10 h-10"
+            />
+          </Link>
+        )}
       </div>
 
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="absolute -right-3 top-20 z-50 h-6 w-6 rounded-full bg-white border border-slate-300 hover:bg-slate-100"
+      >
+        {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+      </Button>
+
       <nav className="flex-1 p-4 space-y-1">
-        <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
-          Administration
-        </p>
+        {!isCollapsed && (
+          <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
+            Administration
+          </p>
+        )}
         {navItems.map((item) => {
           const isActive = currentPageName === item.page;
           return (
@@ -42,11 +66,13 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
                   ? 'bg-orange-500/10 text-orange-600' 
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
                 }
+                ${isCollapsed ? 'justify-center' : ''}
               `}
+              title={isCollapsed ? item.name : ''}
             >
               <item.icon className={`w-5 h-5 ${isActive ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
-              <span className="font-medium text-sm">{item.name}</span>
-              {isActive && (
+              {!isCollapsed && <span className="font-medium text-sm">{item.name}</span>}
+              {isActive && !isCollapsed && (
                 <motion.div 
                   layoutId="activeIndicator"
                   className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-600"

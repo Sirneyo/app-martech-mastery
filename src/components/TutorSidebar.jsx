@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -12,11 +12,14 @@ import {
   Users,
   ClipboardCheck,
   FolderCheck,
-  Award
+  Award,
+  ChevronLeft
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 export default function TutorSidebar({ currentPageName, onNavigate }) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const { data: settings } = useQuery({
     queryKey: ['app-settings'],
     queryFn: async () => {
@@ -34,18 +37,39 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
   ];
 
   return (
-    <aside className="w-72 bg-gradient-to-b from-slate-100 to-slate-200 min-h-screen flex flex-col border-r border-slate-300">
-      <div className="p-4 border-b border-slate-300">
-        <Link to={createPageUrl('TutorDashboard')}>
-          <img 
-            src="https://storage.googleapis.com/msgsndr/DVqsiywKVWkfZ4I0mXQ1/media/693348610439b8283bf88818.svg" 
-            alt="MarTech Mastery" 
-            className="w-[90%] h-auto"
-          />
-        </Link>
+    <aside className={`${isCollapsed ? 'w-20' : 'w-72'} bg-gradient-to-b from-slate-100 to-slate-200 min-h-screen flex flex-col border-r border-slate-300 transition-all duration-300 relative`}>
+      <div className="p-4 border-b border-slate-300 flex items-center justify-between">
+        {!isCollapsed && (
+          <Link to={createPageUrl('TutorDashboard')}>
+            <img 
+              src="https://storage.googleapis.com/msgsndr/DVqsiywKVWkfZ4I0mXQ1/media/693348610439b8283bf88818.svg" 
+              alt="MarTech Mastery" 
+              className="w-[90%] h-auto"
+            />
+          </Link>
+        )}
+        {isCollapsed && (
+          <Link to={createPageUrl('TutorDashboard')} className="mx-auto">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/96938fb06_OADSolutionsRebrand1.png" 
+              alt="M" 
+              className="w-10 h-10"
+            />
+          </Link>
+        )}
       </div>
 
-      <div className="p-4">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="absolute -right-3 top-20 z-50 h-6 w-6 rounded-full bg-white border border-slate-300 hover:bg-slate-100"
+      >
+        {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+      </Button>
+
+      {!isCollapsed && (
+        <div className="p-4">
         <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
           Tools
         </p>
@@ -105,39 +129,44 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
           </div>
           <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
         </Link>
-      </div>
+        </div>
+        )}
 
-      <nav className="flex-1 p-4 space-y-1 border-t border-slate-300">
+        <nav className="flex-1 p-4 space-y-1 border-t border-slate-300">
+        {!isCollapsed && (
         <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
           Teaching
         </p>
+        )}
         {navItems.map((item) => {
-          const isActive = currentPageName === item.page;
-          return (
-            <Link
-              key={item.name}
-              to={createPageUrl(item.page)}
-              onClick={onNavigate}
-              className={`
-                flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
-                ${isActive 
-                  ? 'bg-orange-500/10 text-orange-600' 
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
-                }
-              `}
-            >
-              <item.icon className={`w-5 h-5 ${isActive ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
-              <span className="font-medium text-sm">{item.name}</span>
-              {isActive && (
-                <motion.div 
-                  layoutId="activeIndicator"
-                  className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-600"
-                />
-              )}
-            </Link>
-          );
+        const isActive = currentPageName === item.page;
+        return (
+          <Link
+            key={item.name}
+            to={createPageUrl(item.page)}
+            onClick={onNavigate}
+            className={`
+              flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
+              ${isActive 
+                ? 'bg-orange-500/10 text-orange-600' 
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
+              }
+              ${isCollapsed ? 'justify-center' : ''}
+            `}
+            title={isCollapsed ? item.name : ''}
+          >
+            <item.icon className={`w-5 h-5 ${isActive ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
+            {!isCollapsed && <span className="font-medium text-sm">{item.name}</span>}
+            {isActive && !isCollapsed && (
+              <motion.div 
+                layoutId="activeIndicator"
+                className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-600"
+              />
+            )}
+          </Link>
+        );
         })}
-      </nav>
+        </nav>
     </aside>
   );
 }
