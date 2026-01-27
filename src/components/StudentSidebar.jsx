@@ -69,33 +69,40 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
         {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </Button>
 
-      {!isCollapsed && (
-        <div className="p-4">
-        <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
-          Tools
-        </p>
-        
+      <div className="p-4">
+        {!isCollapsed && (
+          <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
+            Tools
+          </p>
+        )}
+
         <Link
           to={createPageUrl('BeginLearning')}
-          className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300"
+          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
+          title={isCollapsed ? 'Begin Learning' : ''}
         >
           <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-purple-600 to-violet-500">
             <GraduationCap className="w-4 h-4 text-white" />
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
-              Begin Learning
-            </p>
-            <p className="text-[10px] text-slate-500">Courses & Live Sessions</p>
-          </div>
-          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+          {!isCollapsed && (
+            <>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
+                  Begin Learning
+                </p>
+                <p className="text-[10px] text-slate-500">Courses & Live Sessions</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+            </>
+          )}
         </Link>
 
         <a
           href={settings?.marketo_url || "https://experience.adobe.com/#/@oadsolutionsltd/"}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300"
+          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
+          title={isCollapsed ? 'Launch Marketo' : ''}
         >
           <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white">
             <img 
@@ -104,32 +111,40 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
               className="w-6 h-6"
             />
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
-              Launch Marketo
-            </p>
-            <p className="text-[10px] text-slate-500">Opens in new tab</p>
-          </div>
-          <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+          {!isCollapsed && (
+            <>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
+                  Launch Marketo
+                </p>
+                <p className="text-[10px] text-slate-500">Opens in new tab</p>
+              </div>
+              <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+            </>
+          )}
         </a>
 
         <Link
           to={createPageUrl('StudentAITools')}
-          className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mt-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300"
+          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mt-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
+          title={isCollapsed ? 'AI Tools' : ''}
         >
           <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-blue-500 to-cyan-500">
             <Zap className="w-4 h-4 text-white" />
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
-              AI Tools
-            </p>
-            <p className="text-[10px] text-slate-500">MarTech AI Assistant</p>
-          </div>
-          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+          {!isCollapsed && (
+            <>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
+                  AI Tools
+                </p>
+                <p className="text-[10px] text-slate-500">MarTech AI Assistant</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+            </>
+          )}
         </Link>
-        </div>
-        )}
+      </div>
 
         <nav className="flex-1 p-4 space-y-1 border-t border-slate-300">
         {!isCollapsed && (
