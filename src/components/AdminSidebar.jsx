@@ -42,7 +42,7 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
         variant="ghost"
         size="icon"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-20 z-50 h-6 w-6 rounded-full bg-white border border-slate-300 hover:bg-slate-100"
+        className="absolute -right-3 bottom-8 z-50 h-6 w-6 rounded-full bg-white border border-slate-300 hover:bg-slate-100"
       >
         {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </Button>
