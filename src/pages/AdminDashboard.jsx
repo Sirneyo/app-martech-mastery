@@ -3,9 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, TrendingUp, Users, CheckCircle, Clock, Award, BookOpen, ExternalLink, Zap, ChevronRight, GraduationCap } from 'lucide-react';
+import { Trophy, TrendingUp, Users, CheckCircle, Clock, Award, BookOpen, ExternalLink, Zap, ChevronRight, GraduationCap, FileText, FolderCheck, ClipboardList } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { motion } from 'framer-motion';
 
 export default function AdminDashboard() {
   const { data: users = [] } = useQuery({
@@ -44,6 +45,26 @@ export default function AdminDashboard() {
       const result = await base44.entities.AppSettings.list();
       return result[0] || {};
     },
+  });
+
+  const { data: memberships = [] } = useQuery({
+    queryKey: ['memberships'],
+    queryFn: () => base44.entities.CohortMembership.list(),
+  });
+
+  const { data: tutorAssignments = [] } = useQuery({
+    queryKey: ['tutor-assignments'],
+    queryFn: () => base44.entities.TutorCohortAssignment.list(),
+  });
+
+  const { data: loginEvents = [] } = useQuery({
+    queryKey: ['login-events'],
+    queryFn: () => base44.entities.LoginEvent.list('-login_time'),
+  });
+
+  const { data: portfolioTemplates = [] } = useQuery({
+    queryKey: ['portfolio-templates'],
+    queryFn: () => base44.entities.PortfolioItemTemplate.list(),
   });
 
   // Calculate overall leaderboard
@@ -135,6 +156,108 @@ export default function AdminDashboard() {
     };
   }, [users, cohorts, submissions, portfolioStatuses, examAttempts]);
 
+  // Cohort health data
+  const cohortHealthData = useMemo(() => {
+    return cohorts.filter(c => c.status === 'active').map(cohort => {
+      const cohortMembers = memberships.filter(m => m.cohort_id === cohort.id && m.status === 'active');
+      const cohortTutors = tutorAssignments.filter(ta => ta.cohort_id === cohort.id && ta.is_primary);
+      const cohortPendingSubmissions = submissions.filter(s => 
+        s.cohort_id === cohort.id && ['submitted', 'in_review'].includes(s.status)
+      );
+      const cohortNeedsRevision = submissions.filter(s => 
+        s.cohort_id === cohort.id && s.status === 'needs_revision'
+      );
+      const cohortPendingPortfolio = portfolioStatuses.filter(ps => 
+        ps.cohort_id === cohort.id && ['submitted', 'in_review'].includes(ps.status)
+      );
+      const cohortPasses = examAttempts.filter(ea => 
+        ea.cohort_id === cohort.id && ea.pass_flag
+      );
+      const cohortSubmittedAttempts = examAttempts.filter(ea => 
+        ea.cohort_id === cohort.id && ea.submitted_at
+      );
+      const cohortPassRate = cohortSubmittedAttempts.length > 0 
+        ? Math.round((cohortPasses.length / cohortSubmittedAttempts.length) * 100) 
+        : 0;
+
+      return {
+        cohort,
+        activeStudents: cohortMembers.length,
+        tutors: cohortTutors.length,
+        pendingSubmissions: cohortPendingSubmissions.length,
+        needsRevision: cohortNeedsRevision.length,
+        pendingPortfolio: cohortPendingPortfolio.length,
+        certPasses: cohortPasses.length,
+        certPassRate: cohortPassRate,
+      };
+    });
+  }, [cohorts, memberships, tutorAssignments, submissions, portfolioStatuses, examAttempts]);
+
+  // Oldest ungraded submissions
+  const oldestSubmissions = useMemo(() => {
+    return submissions
+      .filter(s => ['submitted', 'in_review'].includes(s.status))
+      .sort((a, b) => new Date(a.submitted_date) - new Date(b.submitted_date))
+      .slice(0, 10)
+      .map(s => {
+        const student = users.find(u => u.id === s.user_id);
+        const cohort = cohorts.find(c => c.id === s.cohort_id);
+        const ageHours = s.submitted_date 
+          ? Math.floor((new Date() - new Date(s.submitted_date)) / (1000 * 60 * 60))
+          : 0;
+        return { ...s, student, cohort, ageHours };
+      });
+  }, [submissions, users, cohorts]);
+
+  // Oldest pending portfolio
+  const oldestPortfolio = useMemo(() => {
+    return portfolioStatuses
+      .filter(ps => ['submitted', 'in_review'].includes(ps.status))
+      .sort((a, b) => new Date(a.updated_date) - new Date(b.updated_date))
+      .slice(0, 10)
+      .map(ps => {
+        const student = users.find(u => u.id === ps.user_id);
+        const cohort = cohorts.find(c => c.id === ps.cohort_id);
+        const template = portfolioTemplates.find(pt => pt.id === ps.portfolio_item_id);
+        const ageHours = ps.updated_date 
+          ? Math.floor((new Date() - new Date(ps.updated_date)) / (1000 * 60 * 60))
+          : 0;
+        return { ...ps, student, cohort, template, ageHours };
+      });
+  }, [portfolioStatuses, users, cohorts, portfolioTemplates]);
+
+  // Tutor workload
+  const tutorWorkload = useMemo(() => {
+    const activeTutors = users.filter(u => u.app_role === 'tutor');
+    return activeTutors.map(tutor => {
+      const assignedCohortIds = tutorAssignments
+        .filter(ta => ta.tutor_id === tutor.id)
+        .map(ta => ta.cohort_id);
+      const assignedCount = assignedCohortIds.length;
+      const submissionsWaiting = submissions.filter(s => 
+        assignedCohortIds.includes(s.cohort_id) && ['submitted', 'in_review'].includes(s.status)
+      ).length;
+      const portfolioWaiting = portfolioStatuses.filter(ps => 
+        assignedCohortIds.includes(ps.cohort_id) && ['submitted', 'in_review'].includes(ps.status)
+      ).length;
+      const totalWaiting = submissionsWaiting + portfolioWaiting;
+      return { tutor, assignedCount, submissionsWaiting, portfolioWaiting, totalWaiting };
+    }).sort((a, b) => b.totalWaiting - a.totalWaiting);
+  }, [users, tutorAssignments, submissions, portfolioStatuses]);
+
+  // Engagement
+  const engagement = useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const loginsToday = loginEvents.filter(le => le.login_time && le.login_time.startsWith(today)).length;
+    
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const recentLogins = loginEvents.filter(le => le.login_time && new Date(le.login_time) >= sevenDaysAgo);
+    const uniqueUsers = new Set(recentLogins.map(le => le.user_id)).size;
+
+    return { loginsToday, uniqueUsers };
+  }, [loginEvents]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -202,66 +325,96 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-              <Users className="w-5 h-5 opacity-80" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats.totalStudents}</div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <Link to={createPageUrl('AdminUsers')}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+              <Card className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-blue-300">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-slate-600">Total Students</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <p className="text-3xl font-bold text-slate-900">{stats.totalStudents}</p>
+                    <Users className="w-8 h-8 text-blue-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </Link>
 
-          <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Tutors</CardTitle>
-              <Award className="w-5 h-5 opacity-80" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats.totalTutors}</div>
-            </CardContent>
-          </Card>
+          <Link to={createPageUrl('AdminUsers')}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Card className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-purple-300">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-slate-600">Total Tutors</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <p className="text-3xl font-bold text-slate-900">{stats.totalTutors}</p>
+                    <Award className="w-8 h-8 text-purple-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </Link>
 
-          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Active Cohorts</CardTitle>
-              <TrendingUp className="w-5 h-5 opacity-80" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats.activeCohorts}</div>
-            </CardContent>
-          </Card>
+          <Link to={createPageUrl('AdminCohorts')}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <Card className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-green-300">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-slate-600">Active Cohorts</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <p className="text-3xl font-bold text-slate-900">{stats.activeCohorts}</p>
+                    <TrendingUp className="w-8 h-8 text-green-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </Link>
 
-          <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Pending Submissions</CardTitle>
-              <Clock className="w-5 h-5 opacity-80" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats.pendingSubmissions}</div>
-            </CardContent>
-          </Card>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <Card className="border-2 border-slate-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-slate-600">Pending Submissions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <p className="text-3xl font-bold text-slate-900">{stats.pendingSubmissions}</p>
+                  <FileText className="w-8 h-8 text-amber-500" />
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card className="bg-gradient-to-br from-pink-500 to-pink-600 text-white border-0">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Pending Portfolio Reviews</CardTitle>
-              <Clock className="w-5 h-5 opacity-80" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats.pendingPortfolioReviews}</div>
-            </CardContent>
-          </Card>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+            <Card className="border-2 border-slate-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-slate-600">Pending Portfolio Reviews</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <p className="text-3xl font-bold text-slate-900">{stats.pendingPortfolioReviews}</p>
+                  <FolderCheck className="w-8 h-8 text-cyan-500" />
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white border-0">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Completed Exams</CardTitle>
-              <CheckCircle className="w-5 h-5 opacity-80" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats.completedExams}</div>
-            </CardContent>
-          </Card>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+            <Card className="border-2 border-slate-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-slate-600">Completed Exams</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <p className="text-3xl font-bold text-slate-900">{stats.completedExams}</p>
+                  <CheckCircle className="w-8 h-8 text-green-500" />
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
 
         {/* Leaderboards Section */}
