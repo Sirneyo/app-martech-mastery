@@ -52,7 +52,12 @@ import AdminCohortOverview from './pages/AdminCohortOverview';
 import AdminCohorts from './pages/AdminCohorts';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminExamBankImport from './pages/AdminExamBankImport';
+import AdminExamDetail from './pages/AdminExamDetail';
+import AdminExams from './pages/AdminExams';
 import AdminOverview from './pages/AdminOverview';
+import AdminPortfolio from './pages/AdminPortfolio';
+import AdminSubmissionDetail from './pages/AdminSubmissionDetail';
+import AdminSubmissions from './pages/AdminSubmissions';
 import AdminTemplates from './pages/AdminTemplates';
 import AdminTemplatesStudio from './pages/AdminTemplatesStudio';
 import AdminTemplatesStudioDuplicate from './pages/AdminTemplatesStudioDuplicate';
@@ -92,11 +97,6 @@ import TutorPortfolioReview from './pages/TutorPortfolioReview';
 import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import AdminSubmissions from './pages/AdminSubmissions';
-import AdminPortfolio from './pages/AdminPortfolio';
-import AdminExams from './pages/AdminExams';
-import AdminSubmissionDetail from './pages/AdminSubmissionDetail';
-import AdminExamDetail from './pages/AdminExamDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -106,7 +106,12 @@ export const PAGES = {
     "AdminCohorts": AdminCohorts,
     "AdminDashboard": AdminDashboard,
     "AdminExamBankImport": AdminExamBankImport,
+    "AdminExamDetail": AdminExamDetail,
+    "AdminExams": AdminExams,
     "AdminOverview": AdminOverview,
+    "AdminPortfolio": AdminPortfolio,
+    "AdminSubmissionDetail": AdminSubmissionDetail,
+    "AdminSubmissions": AdminSubmissions,
     "AdminTemplates": AdminTemplates,
     "AdminTemplatesStudio": AdminTemplatesStudio,
     "AdminTemplatesStudioDuplicate": AdminTemplatesStudioDuplicate,
@@ -146,11 +151,6 @@ export const PAGES = {
     "TutorPortfolioReviews": TutorPortfolioReviews,
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorSubmissionReview": TutorSubmissionReview,
-    "AdminSubmissions": AdminSubmissions,
-    "AdminPortfolio": AdminPortfolio,
-    "AdminExams": AdminExams,
-    "AdminSubmissionDetail": AdminSubmissionDetail,
-    "AdminExamDetail": AdminExamDetail,
 }
 
 export const pagesConfig = {

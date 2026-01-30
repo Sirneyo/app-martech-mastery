@@ -18,20 +18,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, UserPlus, Users, GraduationCap, Trash2, Edit, Search } from 'lucide-react';
+import { Plus, UserPlus, Users, GraduationCap, Trash2, Edit, Search, Mail, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AdminUsers() {
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [newUser, setNewUser] = useState({ first_name: '', last_name: '', email: '', role: 'user', cohort_id: '' });
+  const [newUser, setNewUser] = useState({ full_name: '', email: '', app_role: 'student', cohort_id: '' });
   const [assignmentData, setAssignmentData] = useState({ cohort_id: '', tutor_id: '' });
   const [editData, setEditData] = useState({ full_name: '', email: '', app_role: '', status: '' });
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [cohortFilter, setCohortFilter] = useState('all');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -58,6 +60,11 @@ export default function AdminUsers() {
   const { data: tutorAssignments = [] } = useQuery({
     queryKey: ['tutor-assignments'],
     queryFn: () => base44.entities.TutorCohortAssignment.list(),
+  });
+
+  const { data: invitations = [] } = useQuery({
+    queryKey: ['invitations'],
+    queryFn: () => base44.entities.Invitation.list('-sent_date'),
   });
 
 
@@ -103,20 +110,60 @@ export default function AdminUsers() {
     },
   });
 
+  const createInvitationMutation = useMutation({
+    mutationFn: (data) => base44.entities.Invitation.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invitations'] });
+    },
+  });
+
+  const deleteInvitationMutation = useMutation({
+    mutationFn: (id) => base44.entities.Invitation.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invitations'] });
+    },
+  });
+
   const handleCreateUser = async () => {
+    if (!newUser.email || !newUser.full_name) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
-      // Base44 only allows inviting users as 'user' role
-      // Role can be updated after they accept the invitation
+      const cohort = cohorts.find(c => c.id === newUser.cohort_id);
+      
+      // Send invitation via Base44
       await base44.users.inviteUser(newUser.email, 'user');
       
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      setCreateDialogOpen(false);
-      setNewUser({ first_name: '', last_name: '', email: '', role: 'user', cohort_id: '' });
+      // Create invitation record
+      await createInvitationMutation.mutateAsync({
+        email: newUser.email,
+        full_name: newUser.full_name,
+        intended_app_role: newUser.app_role,
+        cohort_id: newUser.cohort_id || null,
+        status: 'pending',
+        invited_by: currentUser?.email,
+        sent_date: new Date().toISOString(),
+      });
+
+      // Send branded email
+      await base44.functions.invoke('sendInvitationEmail', {
+        email: newUser.email,
+        full_name: newUser.full_name,
+        app_role: newUser.app_role,
+        cohortName: cohort?.name || null,
+      });
       
-      const roleMsg = newUser.role !== 'user' ? ` After they accept, use the Edit button to set their role to ${newUser.role}.` : '';
-      alert('Invitation sent!' + roleMsg);
+      alert('Invitation sent successfully!');
+      setNewUser({ full_name: '', email: '', app_role: 'student', cohort_id: '' });
+      setShowCreateForm(false);
     } catch (error) {
+      console.error('Invitation error:', error);
       alert('Failed to send invitation: ' + (error.message || 'Unknown error'));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -203,6 +250,8 @@ export default function AdminUsers() {
     return matchesSearch && matchesRole && matchesCohort;
   });
 
+  const pendingInvitations = invitations.filter(inv => inv.status === 'pending');
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -211,38 +260,33 @@ export default function AdminUsers() {
             <h1 className="text-3xl font-bold text-slate-900">User Management</h1>
             <p className="text-slate-500 mt-1">Manage users, cohorts, and tutor assignments</p>
           </div>
-          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-violet-600 hover:bg-violet-700">
-                <Plus className="w-4 h-4 mr-2" />
-                Create User
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New User</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>First Name</Label>
-                    <Input
-                      value={newUser.first_name}
-                      onChange={(e) => setNewUser({ ...newUser, first_name: e.target.value })}
-                      placeholder="John"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Last Name</Label>
-                    <Input
-                      value={newUser.last_name}
-                      onChange={(e) => setNewUser({ ...newUser, last_name: e.target.value })}
-                      placeholder="Doe"
-                    />
-                  </div>
+          <Button 
+            onClick={() => setShowCreateForm(!showCreateForm)}
+            className="bg-violet-600 hover:bg-violet-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            {showCreateForm ? 'Cancel' : 'Invite New User'}
+          </Button>
+        </div>
+
+        {/* Create User Form */}
+        {showCreateForm && (
+          <Card className="border-violet-200 bg-violet-50/50">
+            <CardHeader>
+              <CardTitle className="text-violet-900">Invite New User</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Full Name *</Label>
+                  <Input
+                    value={newUser.full_name}
+                    onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })}
+                    placeholder="John Doe"
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>Email *</Label>
+                  <Label>Email Address *</Label>
                   <Input
                     type="email"
                     value={newUser.email}
@@ -252,23 +296,22 @@ export default function AdminUsers() {
                 </div>
                 <div className="space-y-2">
                   <Label>Role *</Label>
-                  <Select value={newUser.role} onValueChange={(value) => setNewUser({ ...newUser, role: value })}>
+                  <Select value={newUser.app_role} onValueChange={(value) => setNewUser({ ...newUser, app_role: value })}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="user">Student</SelectItem>
+                      <SelectItem value="student">Student</SelectItem>
                       <SelectItem value="tutor">Tutor</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-slate-500">Note: Users are invited as Students, then role can be updated after they accept</p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Assigned Cohort</Label>
+                  <Label>Assigned Cohort (Optional)</Label>
                   <Select value={newUser.cohort_id} onValueChange={(value) => setNewUser({ ...newUser, cohort_id: value })}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select cohort (optional)" />
+                      <SelectValue placeholder="Select cohort" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={null}>None</SelectItem>
@@ -279,15 +322,67 @@ export default function AdminUsers() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-slate-500">Note: Cohort will need to be assigned manually after user accepts invite</p>
                 </div>
-                <Button onClick={handleCreateUser} className="w-full" disabled={!newUser.email}>
-                  Send Invitation
+                <Button 
+                  onClick={handleCreateUser} 
+                  className="w-full bg-violet-600 hover:bg-violet-700" 
+                  disabled={!newUser.email || !newUser.full_name || isSubmitting}
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  {isSubmitting ? 'Sending Invitation...' : 'Send Invitation Email'}
                 </Button>
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Pending Invitations */}
+        {pendingInvitations.length > 0 && (
+          <Card className="border-orange-200 bg-orange-50/50">
+            <CardHeader>
+              <CardTitle className="text-orange-900 flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                Pending Invitations ({pendingInvitations.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {pendingInvitations.map(inv => (
+                  <div key={inv.id} className="flex items-center justify-between bg-white p-3 rounded-lg border border-orange-200">
+                    <div className="flex-1">
+                      <p className="font-medium text-slate-900">{inv.full_name}</p>
+                      <p className="text-sm text-slate-600">{inv.email}</p>
+                      <div className="flex gap-2 mt-1">
+                        <Badge variant="secondary">{inv.intended_app_role}</Badge>
+                        {inv.cohort_id && (
+                          <Badge variant="outline">
+                            {cohorts.find(c => c.id === inv.cohort_id)?.name || 'Cohort'}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-500">
+                        {new Date(inv.sent_date).toLocaleDateString()}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          if (confirm('Cancel this invitation?')) {
+                            deleteInvitationMutation.mutate(inv.id);
+                          }
+                        }}
+                      >
+                        <XCircle className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Filters Section */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
