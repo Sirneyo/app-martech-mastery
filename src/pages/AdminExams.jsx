@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ClipboardList, Search, CheckCircle, XCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 export default function AdminExams() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -142,7 +144,11 @@ export default function AdminExams() {
                   const cohort = cohorts.find(c => c.id === attempt.cohort_id);
                   
                   return (
-                    <div key={attempt.id} className="border border-slate-200 rounded-lg p-4 hover:bg-slate-50 transition-colors">
+                    <Link 
+                      key={attempt.id} 
+                      to={createPageUrl(`AdminExamDetail?id=${attempt.id}`)}
+                      className="block border border-slate-200 rounded-lg p-4 hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer"
+                    >
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <p className="font-semibold text-slate-900">{student?.full_name || 'Unknown Student'}</p>
@@ -187,7 +193,7 @@ export default function AdminExams() {
                           <span>Question {attempt.current_question_index}/80</span>
                         )}
                       </div>
-                    </div>
+                    </Link>
                   );
                 })
               )}
