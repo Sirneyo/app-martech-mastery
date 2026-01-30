@@ -10,7 +10,6 @@ import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
 
 export default function AdminDashboard() {
-  const [activeView, setActiveView] = useState(null);
   const { data: users = [] } = useQuery({
     queryKey: ['all-users'],
     queryFn: () => base44.entities.User.list(),
@@ -328,77 +327,89 @@ export default function AdminDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} onClick={() => setActiveView('students')}>
-            <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-                <Users className="w-5 h-5 opacity-80" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.totalStudents}</div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Link to={createPageUrl('AdminUsers')}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+              <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+                  <Users className="w-5 h-5 opacity-80" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{stats.totalStudents}</div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </Link>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} onClick={() => setActiveView('tutors')}>
-            <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Total Tutors</CardTitle>
-                <Award className="w-5 h-5 opacity-80" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.totalTutors}</div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Link to={createPageUrl('AdminUsers')}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Total Tutors</CardTitle>
+                  <Award className="w-5 h-5 opacity-80" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{stats.totalTutors}</div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </Link>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} onClick={() => setActiveView('cohorts')}>
-            <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Active Cohorts</CardTitle>
-                <TrendingUp className="w-5 h-5 opacity-80" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.activeCohorts}</div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Link to={createPageUrl('AdminCohorts')}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+              <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Active Cohorts</CardTitle>
+                  <TrendingUp className="w-5 h-5 opacity-80" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{stats.activeCohorts}</div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </Link>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} onClick={() => setActiveView('submissions')}>
-            <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Pending Submissions</CardTitle>
-                <Clock className="w-5 h-5 opacity-80" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.pendingSubmissions}</div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Link to={createPageUrl('AdminSubmissions')}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Pending Submissions</CardTitle>
+                  <Clock className="w-5 h-5 opacity-80" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{stats.pendingSubmissions}</div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </Link>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} onClick={() => setActiveView('portfolio')}>
-            <Card className="bg-gradient-to-br from-pink-500 to-pink-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Pending Portfolio Reviews</CardTitle>
-                <Clock className="w-5 h-5 opacity-80" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.pendingPortfolioReviews}</div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Link to={createPageUrl('AdminPortfolio')}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+              <Card className="bg-gradient-to-br from-pink-500 to-pink-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Pending Portfolio Reviews</CardTitle>
+                  <Clock className="w-5 h-5 opacity-80" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{stats.pendingPortfolioReviews}</div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </Link>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} onClick={() => setActiveView('exams')}>
-            <Card className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Completed Exams</CardTitle>
-                <CheckCircle className="w-5 h-5 opacity-80" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.completedExams}</div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Link to={createPageUrl('AdminExams')}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+              <Card className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Completed Exams</CardTitle>
+                  <CheckCircle className="w-5 h-5 opacity-80" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{stats.completedExams}</div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </Link>
         </div>
 
         {/* Active View Display */}

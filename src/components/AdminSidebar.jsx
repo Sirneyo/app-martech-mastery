@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Users, Calendar, FileText, LayoutDashboard, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Users, Calendar, FileText, LayoutDashboard, ChevronLeft, ChevronRight, ClipboardList, FolderCheck, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
@@ -11,6 +11,9 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
     { name: 'Dashboard', icon: LayoutDashboard, page: 'AdminDashboard' },
     { name: 'Users', icon: Users, page: 'AdminUsers' },
     { name: 'Cohorts', icon: Calendar, page: 'AdminCohorts' },
+    { name: 'Submissions', icon: ClipboardList, page: 'AdminSubmissions' },
+    { name: 'Portfolio', icon: FolderCheck, page: 'AdminPortfolio' },
+    { name: 'Exams', icon: Award, page: 'AdminExams' },
     { name: 'Templates', icon: FileText, page: 'AdminTemplates' },
     { name: 'Exam Bank Import', icon: FileText, page: 'AdminExamBankImport' },
   ];
