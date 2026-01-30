@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, UserPlus, Users, GraduationCap, Trash2, Edit } from 'lucide-react';
+import { Plus, UserPlus, Users, GraduationCap, Trash2, Edit, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export default function AdminUsers() {
@@ -29,6 +29,9 @@ export default function AdminUsers() {
   const [newUser, setNewUser] = useState({ first_name: '', last_name: '', email: '', role: 'user', cohort_id: '' });
   const [assignmentData, setAssignmentData] = useState({ cohort_id: '', tutor_id: '' });
   const [editData, setEditData] = useState({ full_name: '', email: '', app_role: '', status: '' });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [cohortFilter, setCohortFilter] = useState('all');
 
   const queryClient = useQueryClient();
 
@@ -185,10 +188,25 @@ export default function AdminUsers() {
     });
   };
 
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = !searchTerm || 
+      user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesRole = roleFilter === 'all' || user.app_role === roleFilter;
+    
+    const userCohort = getUserCohort(user.id);
+    const matchesCohort = cohortFilter === 'all' || 
+      (cohortFilter === 'none' && !userCohort) ||
+      (userCohort && cohorts.find(c => c.name === userCohort)?.id === cohortFilter);
+    
+    return matchesSearch && matchesRole && matchesCohort;
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">User Management</h1>
             <p className="text-slate-500 mt-1">Manage users, cohorts, and tutor assignments</p>
@@ -271,6 +289,53 @@ export default function AdminUsers() {
           </Dialog>
         </div>
 
+        {/* Filters Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="Search by name or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Roles</SelectItem>
+                <SelectItem value="student">Student</SelectItem>
+                <SelectItem value="tutor">Tutor</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={cohortFilter} onValueChange={setCohortFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by cohort" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Cohorts</SelectItem>
+                <SelectItem value="none">No Cohort</SelectItem>
+                {cohorts.map((cohort) => (
+                  <SelectItem key={cohort.id} value={cohort.id}>
+                    {cohort.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Results Summary */}
+        <div className="bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-xl p-4">
+          <p className="text-sm text-violet-700">
+            Showing <span className="font-bold">{filteredUsers.length}</span> of <span className="font-bold">{users.length}</span> users
+          </p>
+        </div>
+
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -284,7 +349,14 @@ export default function AdminUsers() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
+                {filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="p-8 text-center text-slate-500">
+                      No users found matching your filters
+                    </td>
+                  </tr>
+                ) : (
+                  filteredUsers.map((user) => (
                   <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50">
                     <td className="p-4 font-medium text-slate-900">{user.full_name}</td>
                     <td className="p-4 text-slate-600">{user.email}</td>
@@ -331,7 +403,8 @@ export default function AdminUsers() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  ))
+                )}
               </tbody>
             </table>
           </div>
