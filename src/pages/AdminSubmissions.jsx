@@ -175,8 +175,38 @@ export default function AdminSubmissions() {
                         )}
                         <span>Attempt #{sub.attempt_number || 1}</span>
                       </div>
-                      {sub.content && (
-                        <p className="text-sm text-slate-600 mt-2 line-clamp-2">{sub.content}</p>
+                      {(sub.content || sub.link_url || (sub.file_urls && sub.file_urls.length > 0)) && (
+                        <div className="mt-3 pt-3 border-t border-slate-100">
+                          <p className="text-xs font-semibold text-slate-700 mb-2">Submitted Content:</p>
+                          {sub.content && (
+                            <p className="text-sm text-slate-600 mb-2">{sub.content}</p>
+                          )}
+                          {sub.link_url && (
+                            <a 
+                              href={sub.link_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-sm text-blue-600 hover:text-blue-700 underline block mb-1"
+                            >
+                              {sub.link_url}
+                            </a>
+                          )}
+                          {sub.file_urls && sub.file_urls.length > 0 && (
+                            <div className="space-y-1">
+                              {sub.file_urls.map((url, idx) => (
+                                <a 
+                                  key={idx}
+                                  href={url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-blue-600 hover:text-blue-700 underline block"
+                                >
+                                  📎 File {idx + 1}
+                                </a>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   );
