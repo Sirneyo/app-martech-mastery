@@ -1,14 +1,16 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, TrendingUp, Users, CheckCircle, Clock, Award, BookOpen, ExternalLink, Zap, ChevronRight, GraduationCap, FileText, FolderCheck, ClipboardList } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Trophy, TrendingUp, Users, CheckCircle, Clock, Award, BookOpen, ExternalLink, Zap, ChevronRight, GraduationCap, FileText, FolderCheck, ClipboardList, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
 
 export default function AdminDashboard() {
+  const [activeView, setActiveView] = useState(null);
   const { data: users = [] } = useQuery({
     queryKey: ['all-users'],
     queryFn: () => base44.entities.User.list(),
@@ -325,97 +327,212 @@ export default function AdminDashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <Link to={createPageUrl('AdminUsers')}>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <Card className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-blue-300">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-slate-600">Total Students</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <p className="text-3xl font-bold text-slate-900">{stats.totalStudents}</p>
-                    <Users className="w-8 h-8 text-blue-500" />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </Link>
-
-          <Link to={createPageUrl('AdminUsers')}>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <Card className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-purple-300">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-slate-600">Total Tutors</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <p className="text-3xl font-bold text-slate-900">{stats.totalTutors}</p>
-                    <Award className="w-8 h-8 text-purple-500" />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </Link>
-
-          <Link to={createPageUrl('AdminCohorts')}>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <Card className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-green-300">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-slate-600">Active Cohorts</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <p className="text-3xl font-bold text-slate-900">{stats.activeCohorts}</p>
-                    <TrendingUp className="w-8 h-8 text-green-500" />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </Link>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <Card className="border-2 border-slate-200">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-slate-600">Pending Submissions</CardTitle>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} onClick={() => setActiveView('students')}>
+            <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+                <Users className="w-5 h-5 opacity-80" />
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
-                  <p className="text-3xl font-bold text-slate-900">{stats.pendingSubmissions}</p>
-                  <FileText className="w-8 h-8 text-amber-500" />
-                </div>
+                <div className="text-3xl font-bold">{stats.totalStudents}</div>
               </CardContent>
             </Card>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <Card className="border-2 border-slate-200">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-slate-600">Pending Portfolio Reviews</CardTitle>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} onClick={() => setActiveView('tutors')}>
+            <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Total Tutors</CardTitle>
+                <Award className="w-5 h-5 opacity-80" />
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
-                  <p className="text-3xl font-bold text-slate-900">{stats.pendingPortfolioReviews}</p>
-                  <FolderCheck className="w-8 h-8 text-cyan-500" />
-                </div>
+                <div className="text-3xl font-bold">{stats.totalTutors}</div>
               </CardContent>
             </Card>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-            <Card className="border-2 border-slate-200">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-slate-600">Completed Exams</CardTitle>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} onClick={() => setActiveView('cohorts')}>
+            <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Active Cohorts</CardTitle>
+                <TrendingUp className="w-5 h-5 opacity-80" />
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
-                  <p className="text-3xl font-bold text-slate-900">{stats.completedExams}</p>
-                  <CheckCircle className="w-8 h-8 text-green-500" />
-                </div>
+                <div className="text-3xl font-bold">{stats.activeCohorts}</div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} onClick={() => setActiveView('submissions')}>
+            <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Pending Submissions</CardTitle>
+                <Clock className="w-5 h-5 opacity-80" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{stats.pendingSubmissions}</div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} onClick={() => setActiveView('portfolio')}>
+            <Card className="bg-gradient-to-br from-pink-500 to-pink-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Pending Portfolio Reviews</CardTitle>
+                <Clock className="w-5 h-5 opacity-80" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{stats.pendingPortfolioReviews}</div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} onClick={() => setActiveView('exams')}>
+            <Card className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Completed Exams</CardTitle>
+                <CheckCircle className="w-5 h-5 opacity-80" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{stats.completedExams}</div>
               </CardContent>
             </Card>
           </motion.div>
         </div>
+
+        {/* Active View Display */}
+        {activeView && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative"
+          >
+            <Card className="border-2 border-slate-300">
+              <CardHeader className="flex flex-row items-center justify-between border-b bg-slate-50">
+                <CardTitle>
+                  {activeView === 'students' && 'All Students'}
+                  {activeView === 'tutors' && 'All Tutors'}
+                  {activeView === 'cohorts' && 'Active Cohorts'}
+                  {activeView === 'submissions' && 'Pending Submissions'}
+                  {activeView === 'portfolio' && 'Pending Portfolio Reviews'}
+                  {activeView === 'exams' && 'Completed Exams'}
+                </CardTitle>
+                <Button variant="ghost" size="icon" onClick={() => setActiveView(null)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </CardHeader>
+              <CardContent className="pt-6">
+                {activeView === 'students' && (
+                  <div className="space-y-2">
+                    {users.filter(u => u.app_role === 'student').map(user => (
+                      <div key={user.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div>
+                          <p className="font-medium">{user.full_name}</p>
+                          <p className="text-sm text-slate-600">{user.email}</p>
+                        </div>
+                        <Badge variant="secondary">{user.status || 'active'}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {activeView === 'tutors' && (
+                  <div className="space-y-2">
+                    {users.filter(u => u.app_role === 'tutor').map(user => (
+                      <div key={user.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div>
+                          <p className="font-medium">{user.full_name}</p>
+                          <p className="text-sm text-slate-600">{user.email}</p>
+                        </div>
+                        <Badge variant="secondary">{user.status || 'active'}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {activeView === 'cohorts' && (
+                  <div className="space-y-2">
+                    {cohorts.filter(c => c.status === 'active').map(cohort => (
+                      <Link key={cohort.id} to={createPageUrl(`AdminCohortOverview?id=${cohort.id}`)}>
+                        <div className="p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                          <p className="font-medium">{cohort.name}</p>
+                          <p className="text-sm text-slate-600">
+                            {cohort.start_date && new Date(cohort.start_date).toLocaleDateString()} - {cohort.end_date && new Date(cohort.end_date).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                
+                {activeView === 'submissions' && (
+                  <div className="space-y-2">
+                    {submissions.filter(s => ['submitted', 'in_review'].includes(s.status)).map(sub => {
+                      const student = users.find(u => u.id === sub.user_id);
+                      const cohort = cohorts.find(c => c.id === sub.cohort_id);
+                      return (
+                        <div key={sub.id} className="p-3 bg-slate-50 rounded-lg">
+                          <div className="flex justify-between items-start mb-1">
+                            <p className="font-medium">{student?.full_name}</p>
+                            <Badge variant="secondary">{sub.submission_kind}</Badge>
+                          </div>
+                          <p className="text-sm text-slate-600">{cohort?.name}</p>
+                          <p className="text-xs text-slate-500 mt-1">
+                            {sub.submitted_date && new Date(sub.submitted_date).toLocaleDateString()}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                
+                {activeView === 'portfolio' && (
+                  <div className="space-y-2">
+                    {portfolioStatuses.filter(ps => ['submitted', 'in_review'].includes(ps.status)).map(ps => {
+                      const student = users.find(u => u.id === ps.user_id);
+                      const cohort = cohorts.find(c => c.id === ps.cohort_id);
+                      const template = portfolioTemplates.find(pt => pt.id === ps.portfolio_item_id);
+                      return (
+                        <div key={ps.id} className="p-3 bg-slate-50 rounded-lg">
+                          <div className="flex justify-between items-start mb-1">
+                            <p className="font-medium">{student?.full_name}</p>
+                            <Badge variant="secondary">{template?.title}</Badge>
+                          </div>
+                          <p className="text-sm text-slate-600">{cohort?.name}</p>
+                          <p className="text-xs text-slate-500 mt-1">
+                            {ps.updated_date && new Date(ps.updated_date).toLocaleDateString()}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                
+                {activeView === 'exams' && (
+                  <div className="space-y-2">
+                    {examAttempts.filter(a => a.attempt_status === 'submitted' && a.pass_flag === true).map(attempt => {
+                      const student = users.find(u => u.id === attempt.student_user_id);
+                      const cohort = cohorts.find(c => c.id === attempt.cohort_id);
+                      return (
+                        <div key={attempt.id} className="p-3 bg-slate-50 rounded-lg">
+                          <div className="flex justify-between items-start mb-1">
+                            <p className="font-medium">{student?.full_name}</p>
+                            <Badge className="bg-green-100 text-green-700">Passed</Badge>
+                          </div>
+                          <p className="text-sm text-slate-600">{cohort?.name}</p>
+                          <p className="text-xs text-slate-500 mt-1">
+                            Score: {attempt.score_percent}% | {attempt.submitted_at && new Date(attempt.submitted_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Leaderboards Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
