@@ -1,3 +1,52 @@
+/**
+ * pages.config.js - Page routing configuration
+ * 
+ * This file is AUTO-GENERATED. Do not add imports or modify PAGES manually.
+ * Pages are auto-registered when you create files in the ./pages/ folder.
+ * 
+ * THE ONLY EDITABLE VALUE: mainPage
+ * This controls which page is the landing page (shown when users visit the app).
+ * 
+ * Example file structure:
+ * 
+ *   import HomePage from './pages/HomePage';
+ *   import Dashboard from './pages/Dashboard';
+ *   import Settings from './pages/Settings';
+ *   
+ *   export const PAGES = {
+ *       "HomePage": HomePage,
+ *       "Dashboard": Dashboard,
+ *       "Settings": Settings,
+ *   }
+ *   
+ *   export const pagesConfig = {
+ *       mainPage: "HomePage",
+ *       Pages: PAGES,
+ *   };
+ * 
+ * Example with Layout (wraps all pages):
+ *
+ *   import Home from './pages/Home';
+ *   import Settings from './pages/Settings';
+ *   import __Layout from './Layout.jsx';
+ *
+ *   export const PAGES = {
+ *       "Home": Home,
+ *       "Settings": Settings,
+ *   }
+ *
+ *   export const pagesConfig = {
+ *       mainPage: "Home",
+ *       Pages: PAGES,
+ *       Layout: __Layout,
+ *   };
+ *
+ * To change the main page from HomePage to Dashboard, use find_replace:
+ *   Old: mainPage: "HomePage",
+ *   New: mainPage: "Dashboard",
+ *
+ * The mainPage value must match a key in the PAGES object exactly.
+ */
 import AITools from './pages/AITools';
 import AdminCohortOverview from './pages/AdminCohortOverview';
 import AdminCohorts from './pages/AdminCohorts';
@@ -10,6 +59,7 @@ import AdminTemplatesStudioEdit from './pages/AdminTemplatesStudioEdit';
 import AdminTemplatesStudioPreview from './pages/AdminTemplatesStudioPreview';
 import AdminUsers from './pages/AdminUsers';
 import Assignments from './pages/Assignments';
+import BeginLearning from './pages/BeginLearning';
 import Certifications from './pages/Certifications';
 import Courses from './pages/Courses';
 import Dashboard from './pages/Dashboard';
@@ -41,7 +91,7 @@ import TutorPortfolioReview from './pages/TutorPortfolioReview';
 import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import BeginLearning from './pages/BeginLearning';
+import AdminDashboard from './pages/AdminDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -58,6 +108,7 @@ export const PAGES = {
     "AdminTemplatesStudioPreview": AdminTemplatesStudioPreview,
     "AdminUsers": AdminUsers,
     "Assignments": Assignments,
+    "BeginLearning": BeginLearning,
     "Certifications": Certifications,
     "Courses": Courses,
     "Dashboard": Dashboard,
@@ -89,7 +140,7 @@ export const PAGES = {
     "TutorPortfolioReviews": TutorPortfolioReviews,
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorSubmissionReview": TutorSubmissionReview,
-    "BeginLearning": BeginLearning,
+    "AdminDashboard": AdminDashboard,
 }
 
 export const pagesConfig = {

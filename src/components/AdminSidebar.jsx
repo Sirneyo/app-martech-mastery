@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 export default function AdminSidebar({ currentPageName, onNavigate }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navItems = [
+    { name: 'Dashboard', icon: LayoutDashboard, page: 'AdminDashboard' },
     { name: 'Overview', icon: LayoutDashboard, page: 'AdminOverview' },
     { name: 'Users', icon: Users, page: 'AdminUsers' },
     { name: 'Cohorts', icon: Calendar, page: 'AdminCohorts' },
