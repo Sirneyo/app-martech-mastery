@@ -95,6 +95,7 @@ import TutorSubmissionReview from './pages/TutorSubmissionReview';
 import AdminSubmissions from './pages/AdminSubmissions';
 import AdminPortfolio from './pages/AdminPortfolio';
 import AdminExams from './pages/AdminExams';
+import AdminSubmissionDetail from './pages/AdminSubmissionDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -147,6 +148,7 @@ export const PAGES = {
     "AdminSubmissions": AdminSubmissions,
     "AdminPortfolio": AdminPortfolio,
     "AdminExams": AdminExams,
+    "AdminSubmissionDetail": AdminSubmissionDetail,
 }
 
 export const pagesConfig = {

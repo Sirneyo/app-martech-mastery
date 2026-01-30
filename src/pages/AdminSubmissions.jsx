@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Clock, FileText, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 export default function AdminSubmissions() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -143,7 +145,11 @@ export default function AdminSubmissions() {
                     : null;
                   
                   return (
-                    <div key={sub.id} className="border border-slate-200 rounded-lg p-4 hover:bg-slate-50 transition-colors">
+                    <Link 
+                      key={sub.id} 
+                      to={createPageUrl(`AdminSubmissionDetail?id=${sub.id}`)}
+                      className="block border border-slate-200 rounded-lg p-4 hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer"
+                    >
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <p className="font-semibold text-slate-900">{student?.full_name || 'Unknown Student'}</p>
@@ -208,7 +214,7 @@ export default function AdminSubmissions() {
                           )}
                         </div>
                       )}
-                    </div>
+                    </Link>
                   );
                 })
               )}
