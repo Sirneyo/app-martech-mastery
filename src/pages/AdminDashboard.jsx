@@ -494,6 +494,208 @@ export default function AdminDashboard() {
             </Card>
           ))}
         </div>
+
+        {/* Cohort Health Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Cohort Health</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200">
+                    <th className="text-left p-3 text-sm font-semibold text-slate-700">Cohort</th>
+                    <th className="text-left p-3 text-sm font-semibold text-slate-700">Dates</th>
+                    <th className="text-center p-3 text-sm font-semibold text-slate-700">Students</th>
+                    <th className="text-center p-3 text-sm font-semibold text-slate-700">Tutors</th>
+                    <th className="text-center p-3 text-sm font-semibold text-slate-700">Pending</th>
+                    <th className="text-center p-3 text-sm font-semibold text-slate-700">Revisions</th>
+                    <th className="text-center p-3 text-sm font-semibold text-slate-700">Portfolio</th>
+                    <th className="text-center p-3 text-sm font-semibold text-slate-700">Cert Passes</th>
+                    <th className="text-center p-3 text-sm font-semibold text-slate-700">Pass Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cohortHealthData.map((data) => (
+                    <tr key={data.cohort.id} className="border-b border-slate-100 hover:bg-slate-50">
+                      <td className="p-3">
+                        <Link 
+                          to={createPageUrl(`AdminCohortOverview?id=${data.cohort.id}`)} 
+                          className="font-medium text-violet-600 hover:text-violet-700"
+                        >
+                          {data.cohort.name}
+                        </Link>
+                      </td>
+                      <td className="p-3 text-sm text-slate-600">
+                        {data.cohort.start_date && new Date(data.cohort.start_date).toLocaleDateString()}
+                        {' - '}
+                        {data.cohort.end_date && new Date(data.cohort.end_date).toLocaleDateString()}
+                      </td>
+                      <td className="text-center p-3">
+                        <Badge variant="secondary">{data.activeStudents}</Badge>
+                      </td>
+                      <td className="text-center p-3">
+                        <Badge variant="secondary">{data.tutors}</Badge>
+                      </td>
+                      <td className="text-center p-3">
+                        <Badge className={data.pendingSubmissions > 0 ? 'bg-amber-100 text-amber-700' : ''}>
+                          {data.pendingSubmissions}
+                        </Badge>
+                      </td>
+                      <td className="text-center p-3">
+                        <Badge className={data.needsRevision > 0 ? 'bg-red-100 text-red-700' : ''}>
+                          {data.needsRevision}
+                        </Badge>
+                      </td>
+                      <td className="text-center p-3">
+                        <Badge className={data.pendingPortfolio > 0 ? 'bg-cyan-100 text-cyan-700' : ''}>
+                          {data.pendingPortfolio}
+                        </Badge>
+                      </td>
+                      <td className="text-center p-3">
+                        <Badge className="bg-green-100 text-green-700">{data.certPasses}</Badge>
+                      </td>
+                      <td className="text-center p-3">
+                        <span className="font-semibold text-slate-900">{data.certPassRate}%</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-2 gap-6">
+          {/* Oldest Ungraded Submissions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-amber-600" />
+                Oldest Ungraded Submissions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {oldestSubmissions.map((sub) => (
+                  <div key={sub.id} className="border border-slate-200 rounded-lg p-3 hover:bg-slate-50">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <p className="font-medium text-slate-900">{sub.student?.full_name}</p>
+                        <p className="text-sm text-slate-600">{sub.cohort?.name}</p>
+                      </div>
+                      <Badge variant="secondary">{sub.submission_kind}</Badge>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-500">
+                        {sub.submitted_date && new Date(sub.submitted_date).toLocaleDateString()}
+                      </span>
+                      <span className="font-semibold text-amber-600">{sub.ageHours}h ago</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Oldest Pending Portfolio */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-cyan-600" />
+                Oldest Pending Portfolio Items
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {oldestPortfolio.map((ps) => (
+                  <div key={ps.id} className="border border-slate-200 rounded-lg p-3 hover:bg-slate-50">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <p className="font-medium text-slate-900">{ps.student?.full_name}</p>
+                        <p className="text-sm text-slate-600">{ps.cohort?.name}</p>
+                      </div>
+                      <Badge variant="secondary">{ps.template?.title}</Badge>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-500">
+                        {ps.updated_date && new Date(ps.updated_date).toLocaleDateString()}
+                      </span>
+                      <span className="font-semibold text-cyan-600">{ps.ageHours}h ago</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Tutor Workload */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Tutor Workload Snapshot</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200">
+                    <th className="text-left p-3 text-sm font-semibold text-slate-700">Tutor</th>
+                    <th className="text-center p-3 text-sm font-semibold text-slate-700">Assigned Cohorts</th>
+                    <th className="text-center p-3 text-sm font-semibold text-slate-700">Submissions Waiting</th>
+                    <th className="text-center p-3 text-sm font-semibold text-slate-700">Portfolio Waiting</th>
+                    <th className="text-center p-3 text-sm font-semibold text-slate-700">Total Waiting</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tutorWorkload.map((tw) => (
+                    <tr key={tw.tutor.id} className="border-b border-slate-100 hover:bg-slate-50">
+                      <td className="p-3 font-medium text-slate-900">{tw.tutor.full_name}</td>
+                      <td className="text-center p-3">
+                        <Badge variant="secondary">{tw.assignedCount}</Badge>
+                      </td>
+                      <td className="text-center p-3">
+                        <Badge className={tw.submissionsWaiting > 0 ? 'bg-amber-100 text-amber-700' : ''}>
+                          {tw.submissionsWaiting}
+                        </Badge>
+                      </td>
+                      <td className="text-center p-3">
+                        <Badge className={tw.portfolioWaiting > 0 ? 'bg-cyan-100 text-cyan-700' : ''}>
+                          {tw.portfolioWaiting}
+                        </Badge>
+                      </td>
+                      <td className="text-center p-3">
+                        <span className={`font-bold ${tw.totalWaiting > 10 ? 'text-red-600' : 'text-slate-900'}`}>
+                          {tw.totalWaiting}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Engagement Snapshot */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Engagement Snapshot</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="bg-slate-50 rounded-xl p-6">
+                <p className="text-sm text-slate-600 mb-2">Logins Today</p>
+                <p className="text-4xl font-bold text-slate-900">{engagement.loginsToday}</p>
+              </div>
+              <div className="bg-slate-50 rounded-xl p-6">
+                <p className="text-sm text-slate-600 mb-2">7-Day Active Users</p>
+                <p className="text-4xl font-bold text-slate-900">{engagement.uniqueUsers}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
