@@ -50,6 +50,7 @@
 import AITools from './pages/AITools';
 import AdminCohortOverview from './pages/AdminCohortOverview';
 import AdminCohorts from './pages/AdminCohorts';
+import AdminDashboard from './pages/AdminDashboard';
 import AdminExamBankImport from './pages/AdminExamBankImport';
 import AdminOverview from './pages/AdminOverview';
 import AdminTemplates from './pages/AdminTemplates';
@@ -91,7 +92,6 @@ import TutorPortfolioReview from './pages/TutorPortfolioReview';
 import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import AdminDashboard from './pages/AdminDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -99,6 +99,7 @@ export const PAGES = {
     "AITools": AITools,
     "AdminCohortOverview": AdminCohortOverview,
     "AdminCohorts": AdminCohorts,
+    "AdminDashboard": AdminDashboard,
     "AdminExamBankImport": AdminExamBankImport,
     "AdminOverview": AdminOverview,
     "AdminTemplates": AdminTemplates,
@@ -140,7 +141,6 @@ export const PAGES = {
     "TutorPortfolioReviews": TutorPortfolioReviews,
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorSubmissionReview": TutorSubmissionReview,
-    "AdminDashboard": AdminDashboard,
 }
 
 export const pagesConfig = {
