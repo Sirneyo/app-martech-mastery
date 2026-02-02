@@ -6,7 +6,7 @@ import { createPageUrl } from '../utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Users, Calendar, ChevronDown, ExternalLink } from 'lucide-react';
+import { Users, Calendar, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
