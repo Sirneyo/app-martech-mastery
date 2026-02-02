@@ -9,10 +9,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const { email, full_name, app_role, cohortName } = await req.json();
+    const { email, full_name, app_role, cohortName, invitationId } = await req.json();
 
     const roleLabel = app_role === 'student' ? 'Student' : 
                       app_role === 'tutor' ? 'Tutor' : 'Admin';
+
+    const signupUrl = `${Deno.env.get('Email_aut')}?invitation=${invitationId}`;
 
     const emailBody = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -29,11 +31,11 @@ Deno.serve(async (req) => {
           </p>
           
           <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
-            Click the button below to accept your invitation and set up your account:
+            Click the button below to accept your invitation and create your account:
           </p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${Deno.env.get('Email_aut')}" 
+            <a href="${signupUrl}" 
                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                       color: white; 
                       padding: 15px 40px; 
@@ -41,7 +43,7 @@ Deno.serve(async (req) => {
                       border-radius: 8px; 
                       font-weight: bold; 
                       display: inline-block;">
-              Accept Invitation
+              Create Your Account
             </a>
           </div>
           
@@ -58,12 +60,25 @@ Deno.serve(async (req) => {
       </div>
     `;
 
-    await base44.integrations.Core.SendEmail({
-      from_name: 'Martech Mastery',
-      to: email,
-      subject: `Welcome to Martech Mastery - ${roleLabel} Invitation`,
-      body: emailBody
+    // Send email via Resend
+    const resendResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Martech Mastery <onboarding@resend.dev>',
+        to: email,
+        subject: `Welcome to Martech Mastery - ${roleLabel} Invitation`,
+        html: emailBody,
+      }),
     });
+
+    if (!resendResponse.ok) {
+      const errorData = await resendResponse.json();
+      throw new Error(`Resend API error: ${JSON.stringify(errorData)}`);
+    }
 
     return Response.json({ success: true });
   } catch (error) {
