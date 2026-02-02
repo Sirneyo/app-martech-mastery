@@ -60,25 +60,13 @@ Deno.serve(async (req) => {
       </div>
     `;
 
-    // Send email via Resend
-    const resendResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Martech Mastery <onboarding@resend.dev>',
-        to: email,
-        subject: `Welcome to Martech Mastery - ${roleLabel} Invitation`,
-        html: emailBody,
-      }),
+    // Send email via Base44
+    await base44.integrations.Core.SendEmail({
+      from_name: 'Martech Mastery',
+      to: email,
+      subject: `Welcome to Martech Mastery - ${roleLabel} Invitation`,
+      body: emailBody,
     });
-
-    if (!resendResponse.ok) {
-      const errorData = await resendResponse.json();
-      throw new Error(`Resend API error: ${JSON.stringify(errorData)}`);
-    }
 
     return Response.json({ success: true });
   } catch (error) {
