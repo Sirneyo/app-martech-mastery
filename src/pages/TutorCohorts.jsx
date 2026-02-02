@@ -76,10 +76,26 @@ export default function TutorCohorts() {
     return students.filter(s => cohortStudentIds.includes(s.id));
   };
 
-  if (!user || assignments.length === 0 || cohorts.length === 0) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8 flex items-center justify-center">
-        <p className="text-slate-500">Loading cohorts...</p>
+        <p className="text-slate-500">Loading...</p>
+      </div>
+    );
+  }
+
+  if (assignments.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900">My Cohorts</h1>
+          <p className="text-slate-500 mt-1">Manage your assigned cohorts and students</p>
+        </motion.div>
+        <div className="bg-white rounded-2xl p-12 border border-slate-200 shadow-sm text-center">
+          <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-slate-700 mb-2">No Cohorts Assigned Yet</h2>
+          <p className="text-slate-500">You don't have any cohorts assigned to you at the moment.</p>
+        </div>
       </div>
     );
   }

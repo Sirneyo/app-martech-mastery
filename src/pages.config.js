@@ -56,6 +56,7 @@ import AdminExamDetail from './pages/AdminExamDetail';
 import AdminExams from './pages/AdminExams';
 import AdminOverview from './pages/AdminOverview';
 import AdminPortfolio from './pages/AdminPortfolio';
+import AdminStudents from './pages/AdminStudents';
 import AdminSubmissionDetail from './pages/AdminSubmissionDetail';
 import AdminSubmissions from './pages/AdminSubmissions';
 import AdminTemplates from './pages/AdminTemplates';
@@ -63,10 +64,10 @@ import AdminTemplatesStudio from './pages/AdminTemplatesStudio';
 import AdminTemplatesStudioDuplicate from './pages/AdminTemplatesStudioDuplicate';
 import AdminTemplatesStudioEdit from './pages/AdminTemplatesStudioEdit';
 import AdminTemplatesStudioPreview from './pages/AdminTemplatesStudioPreview';
-import AdminUsers from './pages/AdminUsers';
 import Assignments from './pages/Assignments';
 import BeginLearning from './pages/BeginLearning';
 import Certifications from './pages/Certifications';
+import CohortDetail from './pages/CohortDetail';
 import Courses from './pages/Courses';
 import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
@@ -97,8 +98,7 @@ import TutorPortfolioReview from './pages/TutorPortfolioReview';
 import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import CohortDetail from './pages/CohortDetail';
-import AdminStudents from './pages/AdminStudents';
+import AdminUsers from './pages/AdminUsers';
 import __Layout from './Layout.jsx';
 
 
@@ -112,6 +112,7 @@ export const PAGES = {
     "AdminExams": AdminExams,
     "AdminOverview": AdminOverview,
     "AdminPortfolio": AdminPortfolio,
+    "AdminStudents": AdminStudents,
     "AdminSubmissionDetail": AdminSubmissionDetail,
     "AdminSubmissions": AdminSubmissions,
     "AdminTemplates": AdminTemplates,
@@ -119,10 +120,10 @@ export const PAGES = {
     "AdminTemplatesStudioDuplicate": AdminTemplatesStudioDuplicate,
     "AdminTemplatesStudioEdit": AdminTemplatesStudioEdit,
     "AdminTemplatesStudioPreview": AdminTemplatesStudioPreview,
-    "AdminUsers": AdminUsers,
     "Assignments": Assignments,
     "BeginLearning": BeginLearning,
     "Certifications": Certifications,
+    "CohortDetail": CohortDetail,
     "Courses": Courses,
     "Dashboard": Dashboard,
     "Home": Home,
@@ -153,8 +154,7 @@ export const PAGES = {
     "TutorPortfolioReviews": TutorPortfolioReviews,
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorSubmissionReview": TutorSubmissionReview,
-    "CohortDetail": CohortDetail,
-    "AdminStudents": AdminStudents,
+    "AdminUsers": AdminUsers,
 }
 
 export const pagesConfig = {
