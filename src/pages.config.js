@@ -64,6 +64,7 @@ import AdminTemplatesStudio from './pages/AdminTemplatesStudio';
 import AdminTemplatesStudioDuplicate from './pages/AdminTemplatesStudioDuplicate';
 import AdminTemplatesStudioEdit from './pages/AdminTemplatesStudioEdit';
 import AdminTemplatesStudioPreview from './pages/AdminTemplatesStudioPreview';
+import AdminUsers from './pages/AdminUsers';
 import Assignments from './pages/Assignments';
 import BeginLearning from './pages/BeginLearning';
 import Certifications from './pages/Certifications';
@@ -92,13 +93,13 @@ import StudentProjectDetail from './pages/StudentProjectDetail';
 import StudentProjects from './pages/StudentProjects';
 import TutorAITools from './pages/TutorAITools';
 import TutorAssignmentSubmissions from './pages/TutorAssignmentSubmissions';
+import TutorCohorts from './pages/TutorCohorts';
 import TutorDashboard from './pages/TutorDashboard';
 import TutorPortfolioReview from './pages/TutorPortfolioReview';
 import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import AdminUsers from './pages/AdminUsers';
-import TutorCohorts from './pages/TutorCohorts';
+import TutorAttendance from './pages/TutorAttendance';
 import __Layout from './Layout.jsx';
 
 
@@ -120,6 +121,7 @@ export const PAGES = {
     "AdminTemplatesStudioDuplicate": AdminTemplatesStudioDuplicate,
     "AdminTemplatesStudioEdit": AdminTemplatesStudioEdit,
     "AdminTemplatesStudioPreview": AdminTemplatesStudioPreview,
+    "AdminUsers": AdminUsers,
     "Assignments": Assignments,
     "BeginLearning": BeginLearning,
     "Certifications": Certifications,
@@ -148,13 +150,13 @@ export const PAGES = {
     "StudentProjects": StudentProjects,
     "TutorAITools": TutorAITools,
     "TutorAssignmentSubmissions": TutorAssignmentSubmissions,
+    "TutorCohorts": TutorCohorts,
     "TutorDashboard": TutorDashboard,
     "TutorPortfolioReview": TutorPortfolioReview,
     "TutorPortfolioReviews": TutorPortfolioReviews,
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorSubmissionReview": TutorSubmissionReview,
-    "AdminUsers": AdminUsers,
-    "TutorCohorts": TutorCohorts,
+    "TutorAttendance": TutorAttendance,
 }
 
 export const pagesConfig = {
