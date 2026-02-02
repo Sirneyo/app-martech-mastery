@@ -305,48 +305,112 @@ export default function TutorAttendance() {
               ) : (
                 <div className="space-y-4">
                   {groupedHistory.map(([date, records]) => {
+                    const cohortStudentsForDate = getStudentsByCohort(selectedCohortId);
                     const presentCount = records.filter(r => r.status === 'present').length;
                     const lateCount = records.filter(r => r.status === 'late').length;
                     const absentCount = records.filter(r => r.status === 'absent').length;
+                    const totalStudents = cohortStudentsForDate.length;
 
                     return (
                       <div key={date} className="border border-slate-200 rounded-lg p-4">
                         <div className="flex items-center justify-between mb-3">
-                          <h3 className="font-semibold text-slate-900">
-                            {format(new Date(date), 'EEEE, MMMM d, yyyy')}
-                          </h3>
+                          <div>
+                            <h3 className="font-semibold text-slate-900">
+                              {format(new Date(date), 'EEEE, MMMM d, yyyy')}
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-1">Total Students: {totalStudents}</p>
+                          </div>
                           <div className="flex items-center gap-3">
                             <Badge className="bg-green-100 text-green-700">
                               <CheckCircle className="w-3 h-3 mr-1" />
-                              {presentCount}
+                              {presentCount} Present
                             </Badge>
                             <Badge className="bg-yellow-100 text-yellow-700">
                               <Clock className="w-3 h-3 mr-1" />
-                              {lateCount}
+                              {lateCount} Late
                             </Badge>
                             <Badge className="bg-red-100 text-red-700">
                               <XCircle className="w-3 h-3 mr-1" />
-                              {absentCount}
+                              {absentCount} Absent
                             </Badge>
                           </div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                          {records.map((record) => {
-                            const student = students.find(s => s.id === record.student_user_id);
-                            const statusColors = {
-                              present: 'bg-green-50 border-green-200',
-                              late: 'bg-yellow-50 border-yellow-200',
-                              absent: 'bg-red-50 border-red-200'
-                            };
-                            return (
-                              <div key={record.id} className={`flex items-center justify-between p-2 rounded border ${statusColors[record.status]}`}>
-                                <span className="text-sm font-medium text-slate-900">{student?.full_name || 'Unknown'}</span>
-                                <Badge variant="outline" className="text-xs">
-                                  {record.status}
-                                </Badge>
+                        
+                        <div className="space-y-3">
+                          {/* Present Students */}
+                          {presentCount > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold text-green-700 mb-2 flex items-center gap-1">
+                                <CheckCircle className="w-4 h-4" />
+                                Present ({presentCount})
+                              </h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                {records
+                                  .filter(r => r.status === 'present')
+                                  .map((record) => {
+                                    const student = students.find(s => s.id === record.student_user_id);
+                                    return (
+                                      <div key={record.id} className="flex items-center gap-2 p-2 rounded bg-green-50 border border-green-200">
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                                          {student?.full_name?.charAt(0) || 'S'}
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-900">{student?.full_name || 'Unknown'}</span>
+                                      </div>
+                                    );
+                                  })}
                               </div>
-                            );
-                          })}
+                            </div>
+                          )}
+
+                          {/* Late Students */}
+                          {lateCount > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold text-yellow-700 mb-2 flex items-center gap-1">
+                                <Clock className="w-4 h-4" />
+                                Late ({lateCount})
+                              </h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                {records
+                                  .filter(r => r.status === 'late')
+                                  .map((record) => {
+                                    const student = students.find(s => s.id === record.student_user_id);
+                                    return (
+                                      <div key={record.id} className="flex items-center gap-2 p-2 rounded bg-yellow-50 border border-yellow-200">
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                                          {student?.full_name?.charAt(0) || 'S'}
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-900">{student?.full_name || 'Unknown'}</span>
+                                      </div>
+                                    );
+                                  })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Absent Students */}
+                          {absentCount > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold text-red-700 mb-2 flex items-center gap-1">
+                                <XCircle className="w-4 h-4" />
+                                Absent ({absentCount})
+                              </h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                {records
+                                  .filter(r => r.status === 'absent')
+                                  .map((record) => {
+                                    const student = students.find(s => s.id === record.student_user_id);
+                                    return (
+                                      <div key={record.id} className="flex items-center gap-2 p-2 rounded bg-red-50 border border-red-200">
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                                          {student?.full_name?.charAt(0) || 'S'}
+                                        </div>
+                                        <span className="text-sm font-medium text-slate-900">{student?.full_name || 'Unknown'}</span>
+                                      </div>
+                                    );
+                                  })}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
