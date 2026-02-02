@@ -20,6 +20,7 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, page: 'AdminDashboard' },
     { name: 'Users', icon: Users, page: 'AdminUsers' },
+    { name: 'Students', icon: GraduationCap, page: 'AdminStudents' },
     { name: 'Cohorts', icon: Calendar, page: 'AdminCohorts' },
     { name: 'Submissions', icon: ClipboardList, page: 'AdminSubmissions' },
     { name: 'Portfolio', icon: FolderCheck, page: 'AdminPortfolio' },
