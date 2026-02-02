@@ -132,13 +132,12 @@ export default function AdminUsers() {
 
     setIsSubmitting(true);
     try {
-      // Map app_role to Base44 role (user or admin)
-      const base44Role = newUser.app_role === 'admin' ? 'admin' : 'user';
+      const cohort = cohorts.find(c => c.id === newUser.cohort_id);
       
-      // Send invitation using Base44's built-in function
-      await base44.users.inviteUser(newUser.email, base44Role);
-
-      // Create invitation record for tracking
+      // Send invitation via Base44
+      await base44.users.inviteUser(newUser.email, 'user');
+      
+      // Create invitation record
       await createInvitationMutation.mutateAsync({
         email: newUser.email,
         full_name: newUser.full_name,
@@ -149,6 +148,14 @@ export default function AdminUsers() {
         sent_date: new Date().toISOString(),
       });
 
+      // Send branded email
+      await base44.functions.invoke('sendInvitationEmail', {
+        email: newUser.email,
+        full_name: newUser.full_name,
+        app_role: newUser.app_role,
+        cohortName: cohort?.name || null,
+      });
+      
       alert('Invitation sent successfully!');
       setNewUser({ full_name: '', email: '', app_role: 'student', cohort_id: '' });
       setShowCreateForm(false);
