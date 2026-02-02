@@ -132,8 +132,11 @@ export default function AdminUsers() {
 
     setIsSubmitting(true);
     try {
+      // Map app_role to Base44 role (user or admin)
+      const base44Role = newUser.app_role === 'admin' ? 'admin' : 'user';
+      
       // Send invitation using Base44's built-in function
-      await base44.users.inviteUser(newUser.email, newUser.app_role);
+      await base44.users.inviteUser(newUser.email, base44Role);
 
       // Create invitation record for tracking
       await createInvitationMutation.mutateAsync({
