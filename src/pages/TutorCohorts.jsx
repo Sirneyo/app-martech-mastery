@@ -145,32 +145,37 @@ export default function TutorCohorts() {
                     {cohort.end_date && ` - ${format(new Date(cohort.end_date), 'MMM d, yyyy')}`}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Users className="w-4 h-4" />
-                  <span className="text-sm">{cohortStudents.length} students</span>
-                </div>
+
               </div>
 
-              <div className="mb-4">
-                <h3 className="font-bold text-slate-900 mb-3">Student Roster</h3>
-                {cohortStudents.length === 0 ? (
-                  <p className="text-sm text-slate-500 text-center py-4">No students enrolled yet</p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {cohortStudents.map((student) => (
-                      <div key={student.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
-                          {student.full_name?.charAt(0) || 'S'}
-                        </div>
-                        <div>
-                          <p className="font-medium text-slate-900 text-sm">{student.full_name}</p>
-                          <p className="text-xs text-slate-500">{student.email}</p>
-                        </div>
-                      </div>
-                    ))}
+              <Collapsible>
+                <CollapsibleTrigger className="w-full mb-4 flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                  <h3 className="font-bold text-slate-900">Student Roster</h3>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-slate-600">{cohortStudents.length} students</span>
+                    <ChevronDown className="w-4 h-4 text-slate-500" />
                   </div>
-                )}
-              </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mb-4">
+                  {cohortStudents.length === 0 ? (
+                    <p className="text-sm text-slate-500 text-center py-4">No students enrolled yet</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+                      {cohortStudents.map((student) => (
+                        <div key={student.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
+                            {student.full_name?.charAt(0) || 'S'}
+                          </div>
+                          <div>
+                            <p className="font-medium text-slate-900 text-sm">{student.full_name}</p>
+                            <p className="text-xs text-slate-500">{student.email}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CollapsibleContent>
+              </Collapsible>
 
               <Collapsible>
                 <CollapsibleTrigger className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700">
