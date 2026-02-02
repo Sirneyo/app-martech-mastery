@@ -6,7 +6,7 @@ import { createPageUrl } from '../utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Users, Calendar, ChevronDown, ChevronRight } from 'lucide-react';
+import { Users, Calendar, ChevronDown, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
@@ -59,16 +59,16 @@ export default function TutorCohorts() {
     return [...new Set(memberships.map(m => m.user_id).filter(Boolean))];
   }, [memberships]);
 
-  const { data: studentsData } = useQuery({
-    queryKey: ['tutor-students'],
+  const { data: students = [] } = useQuery({
+    queryKey: ['students-in-cohorts', JSON.stringify(studentUserIds)],
     queryFn: async () => {
-      const response = await base44.functions.invoke('getTutorStudents', {});
-      return response.data;
+      if (studentUserIds.length === 0) return [];
+      const allUsers = await base44.entities.User.list();
+      return allUsers.filter(u => studentUserIds.includes(u.id));
     },
+    enabled: studentUserIds.length > 0,
     refetchInterval: 10000,
   });
-
-  const students = studentsData?.students || [];
 
   const getStudentsByCohort = (cohortId) => {
     const cohortStudentIds = memberships
@@ -109,77 +109,83 @@ export default function TutorCohorts() {
         <p className="text-slate-500 mt-1">Manage your assigned cohorts and students</p>
       </motion.div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {cohorts.map((cohort, index) => {
           const cohortStudents = getStudentsByCohort(cohort.id);
           
           return (
-            <Collapsible key={cohort.id}>
-              {({ open }) => (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
-                >
-                  <CollapsibleTrigger className="w-full p-6 text-left hover:bg-slate-50 transition-colors cursor-pointer">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h2 className="text-2xl font-bold text-slate-900">{cohort.name}</h2>
-                          <div className={`transition-transform ${open ? 'rotate-90' : ''}`}>
-                            <ChevronRight className="w-5 h-5 text-slate-400" />
-                          </div>
+            <motion.div
+              key={cohort.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">{cohort.name}</h2>
+                  <div className="flex items-center gap-3 mt-2">
+                    <Badge className="bg-blue-100 text-blue-700">{cohort.status}</Badge>
+                    <span className="text-sm text-slate-500">Week {cohort.current_week}/12</span>
+                  </div>
+                </div>
+                <Link to={createPageUrl('CohortDetail') + '?id=' + cohort.id}>
+                  <Button size="sm" variant="outline">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View Details
+                  </Button>
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="flex items-center gap-2 text-slate-600">
+                  <Calendar className="w-4 h-4" />
+                  <span className="text-sm">
+                    {cohort.start_date && format(new Date(cohort.start_date), 'MMM d, yyyy')}
+                    {cohort.end_date && ` - ${format(new Date(cohort.end_date), 'MMM d, yyyy')}`}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-600">
+                  <Users className="w-4 h-4" />
+                  <span className="text-sm">{cohortStudents.length} students</span>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <h3 className="font-bold text-slate-900 mb-3">Student Roster</h3>
+                {cohortStudents.length === 0 ? (
+                  <p className="text-sm text-slate-500 text-center py-4">No students enrolled yet</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {cohortStudents.map((student) => (
+                      <div key={student.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
+                          {student.full_name?.charAt(0) || 'S'}
                         </div>
-                        <div className="flex items-center gap-3 mb-3">
-                          <Badge className="bg-blue-100 text-blue-700">{cohort.status}</Badge>
-                          <span className="text-sm text-slate-500">Week {cohort.current_week}/12</span>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
-                            <span>
-                              {cohort.start_date && format(new Date(cohort.start_date), 'MMM d, yyyy')}
-                              {cohort.end_date && ` - ${format(new Date(cohort.end_date), 'MMM d, yyyy')}`}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Users className="w-4 h-4" />
-                            <span className="font-medium">{cohortStudents.length} students enrolled</span>
-                          </div>
+                        <div>
+                          <p className="font-medium text-slate-900 text-sm">{student.full_name}</p>
+                          <p className="text-xs text-slate-500">{student.email}</p>
                         </div>
                       </div>
-                    </div>
-                  </CollapsibleTrigger>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-                  <CollapsibleContent>
-                    <div className="px-6 pb-6 pt-2 border-t border-slate-100 bg-slate-50/50">
-                      <h3 className="font-bold text-slate-900 mb-4 text-lg">Students in this Cohort</h3>
-                      {cohortStudents.length === 0 ? (
-                        <div className="text-center py-12 bg-white rounded-xl border border-slate-200">
-                          <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                          <p className="text-sm text-slate-500">No students enrolled yet</p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                          {cohortStudents.map((student) => (
-                            <div key={student.id} className="flex items-center gap-3 p-4 bg-white rounded-xl hover:bg-slate-50 transition-colors border border-slate-200">
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white font-bold flex-shrink-0">
-                                {student.full_name?.charAt(0) || 'S'}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-slate-900 text-sm truncate">{student.full_name}</p>
-                                <p className="text-xs text-slate-500 truncate">{student.email}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </CollapsibleContent>
-                </motion.div>
-              )}
-            </Collapsible>
+              <Collapsible>
+                <CollapsibleTrigger className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700">
+                  <ChevronDown className="w-4 h-4" />
+                  <span>Debug Info</span>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-3 p-4 bg-slate-50 rounded-lg text-sm space-y-1">
+                  <p><strong>Cohort ID:</strong> {cohort.id}</p>
+                  <p><strong>Total Memberships:</strong> {memberships.filter(m => m.cohort_id === cohort.id).length}</p>
+                  <p><strong>Active Memberships:</strong> {memberships.filter(m => m.cohort_id === cohort.id && m.status === 'active').length}</p>
+                  <p><strong>Student User IDs:</strong> {memberships.filter(m => m.cohort_id === cohort.id).map(m => m.user_id).join(', ')}</p>
+                  <p><strong>Filtered Students:</strong> {cohortStudents.length}</p>
+                </CollapsibleContent>
+              </Collapsible>
+            </motion.div>
           );
         })}
       </div>
