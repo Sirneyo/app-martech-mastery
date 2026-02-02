@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Users, Calendar, ChevronDown, ExternalLink } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Users, Calendar, ChevronDown, ExternalLink, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
 export default function TutorCohorts() {
+  const [selectedCohortId, setSelectedCohortId] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const queryClient = useQueryClient();
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
@@ -66,12 +71,49 @@ export default function TutorCohorts() {
 
   const students = studentsData?.students || [];
 
+  const { data: attendanceRecords = [] } = useQuery({
+    queryKey: ['attendance-records', selectedCohortId, selectedDate],
+    queryFn: async () => {
+      if (!selectedCohortId || !selectedDate) return [];
+      return base44.entities.Attendance.filter({
+        cohort_id: selectedCohortId,
+        date: selectedDate
+      });
+    },
+    enabled: !!selectedCohortId && !!selectedDate,
+  });
+
+  const markAttendanceMutation = useMutation({
+    mutationFn: async ({ studentId, status }) => {
+      const existing = attendanceRecords.find(a => a.student_user_id === studentId);
+      if (existing) {
+        return base44.entities.Attendance.update(existing.id, { status });
+      } else {
+        return base44.entities.Attendance.create({
+          student_user_id: studentId,
+          cohort_id: selectedCohortId,
+          date: selectedDate,
+          status,
+          marked_by: user.id
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['attendance-records']);
+    },
+  });
+
   const getStudentsByCohort = (cohortId) => {
     const cohortStudentIds = memberships
       .filter(m => m.cohort_id === cohortId)
       .map(m => m.user_id)
       .filter(Boolean);
     return students.filter(s => cohortStudentIds.includes(s.id));
+  };
+
+  const getAttendanceStatus = (studentId) => {
+    const record = attendanceRecords.find(a => a.student_user_id === studentId);
+    return record?.status || null;
   };
 
   if (!user) {
@@ -125,12 +167,86 @@ export default function TutorCohorts() {
                     <span className="text-sm text-slate-500">Week {cohort.current_week}/12</span>
                   </div>
                 </div>
-                <Link to={createPageUrl('CohortDetail') + '?id=' + cohort.id}>
-                  <Button size="sm" variant="outline">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    View Details
-                  </Button>
-                </Link>
+                <div className="flex gap-2">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button size="sm" variant="default" onClick={() => setSelectedCohortId(cohort.id)}>
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Mark Attendance
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Mark Attendance - {cohort.name}</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium text-slate-700">Date</label>
+                          <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg mt-1"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          {cohortStudents.length === 0 ? (
+                            <p className="text-sm text-slate-500 text-center py-4">No students enrolled</p>
+                          ) : (
+                            cohortStudents.map((student) => {
+                              const status = getAttendanceStatus(student.id);
+                              return (
+                                <div key={student.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold">
+                                      {student.full_name?.charAt(0) || 'S'}
+                                    </div>
+                                    <div>
+                                      <p className="font-medium text-slate-900 text-sm">{student.full_name}</p>
+                                      <p className="text-xs text-slate-500">{student.email}</p>
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      variant={status === 'present' ? 'default' : 'outline'}
+                                      onClick={() => markAttendanceMutation.mutate({ studentId: student.id, status: 'present' })}
+                                      className={status === 'present' ? 'bg-green-600 hover:bg-green-700' : ''}
+                                    >
+                                      <CheckCircle className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant={status === 'late' ? 'default' : 'outline'}
+                                      onClick={() => markAttendanceMutation.mutate({ studentId: student.id, status: 'late' })}
+                                      className={status === 'late' ? 'bg-yellow-600 hover:bg-yellow-700' : ''}
+                                    >
+                                      <Clock className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant={status === 'absent' ? 'default' : 'outline'}
+                                      onClick={() => markAttendanceMutation.mutate({ studentId: student.id, status: 'absent' })}
+                                      className={status === 'absent' ? 'bg-red-600 hover:bg-red-700' : ''}
+                                    >
+                                      <XCircle className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  <Link to={createPageUrl('CohortDetail') + '?id=' + cohort.id}>
+                    <Button size="sm" variant="outline">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      View Details
+                    </Button>
+                  </Link>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
