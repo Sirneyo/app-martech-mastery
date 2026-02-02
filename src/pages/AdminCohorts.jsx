@@ -20,7 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Users, Calendar, Trash2, Edit } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Plus, Users, Calendar, Trash2, Edit, UserCheck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
@@ -33,6 +34,7 @@ export default function AdminCohorts() {
     end_date: '',
     current_week: 1,
     status: 'upcoming',
+    tutor_ids: [],
   });
 
   const queryClient = useQueryClient();
@@ -47,10 +49,36 @@ export default function AdminCohorts() {
     queryFn: () => base44.entities.CohortMembership.list(),
   });
 
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
+  const tutors = users.filter(u => u.app_role === 'tutor');
+
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Cohort.create(data),
+    mutationFn: async (data) => {
+      const { tutor_ids, ...cohortData } = data;
+      const cohort = await base44.entities.Cohort.create(cohortData);
+      
+      // Create tutor assignments
+      if (tutor_ids && tutor_ids.length > 0) {
+        const assignments = tutor_ids.map(tutorId => 
+          base44.entities.TutorCohortAssignment.create({
+            tutor_id: tutorId,
+            cohort_id: cohort.id,
+            assigned_date: new Date().toISOString().split('T')[0],
+            is_primary: true
+          })
+        );
+        await Promise.all(assignments);
+      }
+      
+      return cohort;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cohorts'] });
+      queryClient.invalidateQueries({ queryKey: ['tutor-cohort-assignments'] });
       setDialogOpen(false);
       resetForm();
     },
@@ -79,6 +107,7 @@ export default function AdminCohorts() {
       end_date: '',
       current_week: 1,
       status: 'upcoming',
+      tutor_ids: [],
     });
     setEditingCohort(null);
   };
@@ -99,6 +128,7 @@ export default function AdminCohorts() {
       end_date: cohort.end_date,
       current_week: cohort.current_week,
       status: cohort.status,
+      tutor_ids: [],
     });
     setDialogOpen(true);
   };
@@ -187,6 +217,35 @@ export default function AdminCohorts() {
                     </Select>
                   </div>
                 </div>
+                {!editingCohort && (
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <UserCheck className="w-4 h-4" />
+                      Assign Tutors (Optional)
+                    </Label>
+                    <div className="border border-slate-200 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                      {tutors.length === 0 ? (
+                        <p className="text-sm text-slate-500">No tutors available</p>
+                      ) : (
+                        tutors.map((tutor) => (
+                          <div key={tutor.id} className="flex items-center gap-2">
+                            <Checkbox
+                              checked={formData.tutor_ids.includes(tutor.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setFormData({ ...formData, tutor_ids: [...formData.tutor_ids, tutor.id] });
+                                } else {
+                                  setFormData({ ...formData, tutor_ids: formData.tutor_ids.filter(id => id !== tutor.id) });
+                                }
+                              }}
+                            />
+                            <label className="text-sm text-slate-700">{tutor.full_name}</label>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
                 <Button onClick={handleSubmit} className="w-full">
                   {editingCohort ? 'Update Cohort' : 'Create Cohort'}
                 </Button>
