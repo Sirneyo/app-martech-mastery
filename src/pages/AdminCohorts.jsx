@@ -223,27 +223,43 @@ export default function AdminCohorts() {
                       <UserCheck className="w-4 h-4" />
                       Assign Tutors (Optional)
                     </Label>
-                    <div className="border border-slate-200 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
-                      {tutors.length === 0 ? (
-                        <p className="text-sm text-slate-500">No tutors available</p>
-                      ) : (
-                        tutors.map((tutor) => (
-                          <div key={tutor.id} className="flex items-center gap-2">
-                            <Checkbox
-                              checked={formData.tutor_ids.includes(tutor.id)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setFormData({ ...formData, tutor_ids: [...formData.tutor_ids, tutor.id] });
-                                } else {
-                                  setFormData({ ...formData, tutor_ids: formData.tutor_ids.filter(id => id !== tutor.id) });
-                                }
-                              }}
-                            />
-                            <label className="text-sm text-slate-700">{tutor.full_name}</label>
-                          </div>
-                        ))
-                      )}
-                    </div>
+                    <Select 
+                      value="" 
+                      onValueChange={(tutorId) => {
+                        if (!formData.tutor_ids.includes(tutorId)) {
+                          setFormData({ ...formData, tutor_ids: [...formData.tutor_ids, tutorId] });
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select tutor to assign" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {tutors.map((tutor) => (
+                          <SelectItem key={tutor.id} value={tutor.id}>
+                            {tutor.full_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {formData.tutor_ids.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {formData.tutor_ids.map(tutorId => {
+                          const tutor = tutors.find(t => t.id === tutorId);
+                          return tutor ? (
+                            <Badge key={tutorId} variant="secondary" className="gap-1">
+                              {tutor.full_name}
+                              <button
+                                onClick={() => setFormData({ ...formData, tutor_ids: formData.tutor_ids.filter(id => id !== tutorId) })}
+                                className="ml-1 hover:text-red-600"
+                              >
+                                ×
+                              </button>
+                            </Badge>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
                   </div>
                 )}
                 <Button onClick={handleSubmit} className="w-full">
