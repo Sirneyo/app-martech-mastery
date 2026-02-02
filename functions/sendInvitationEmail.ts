@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
     `;
 
     // Send email via Base44
-    await base44.integrations.Core.SendEmail({
+    const emailResult = await base44.asServiceRole.integrations.Core.SendEmail({
       from_name: 'Martech Mastery',
       to: email,
       subject: `Welcome to Martech Mastery - ${roleLabel} Invitation`,
