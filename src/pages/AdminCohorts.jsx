@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from './utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -195,54 +197,60 @@ export default function AdminCohorts() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cohorts.map((cohort) => (
-            <div key={cohort.id} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">{cohort.name}</h3>
-                  <Badge className={statusColors[cohort.status]}>
-                    {cohort.status}
-                  </Badge>
+            <Link 
+              key={cohort.id} 
+              to={createPageUrl('CohortDetail') + '?id=' + cohort.id}
+              className="block"
+            >
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow cursor-pointer">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-slate-900 mb-2">{cohort.name}</h3>
+                    <Badge className={statusColors[cohort.status]}>
+                      {cohort.status}
+                    </Badge>
+                  </div>
+                  <div className="flex gap-1" onClick={(e) => e.preventDefault()}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleEdit(cohort)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        if (confirm('Delete this cohort?')) {
+                          deleteMutation.mutate(cohort.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-1">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleEdit(cohort)}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      if (confirm('Delete this cohort?')) {
-                        deleteMutation.mutate(cohort.id);
-                      }
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </Button>
-                </div>
-              </div>
 
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Calendar className="w-4 h-4" />
-                  <span>
-                    {cohort.start_date && format(new Date(cohort.start_date), 'MMM d, yyyy')}
-                    {cohort.end_date && ` - ${format(new Date(cohort.end_date), 'MMM d, yyyy')}`}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Users className="w-4 h-4" />
-                  <span>{getMemberCount(cohort.id)} students</span>
-                </div>
-                <div className="pt-2 border-t border-slate-100">
-                  <span className="text-slate-500">Week: </span>
-                  <span className="font-semibold text-slate-900">{cohort.current_week}/12</span>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-center gap-2 text-slate-600">
+                    <Calendar className="w-4 h-4" />
+                    <span>
+                      {cohort.start_date && format(new Date(cohort.start_date), 'MMM d, yyyy')}
+                      {cohort.end_date && ` - ${format(new Date(cohort.end_date), 'MMM d, yyyy')}`}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-600">
+                    <Users className="w-4 h-4" />
+                    <span>{getMemberCount(cohort.id)} students</span>
+                  </div>
+                  <div className="pt-2 border-t border-slate-100">
+                    <span className="text-slate-500">Week: </span>
+                    <span className="font-semibold text-slate-900">{cohort.current_week}/12</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

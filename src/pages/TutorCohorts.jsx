@@ -1,9 +1,12 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from './utils';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Users, Calendar, ChevronDown } from 'lucide-react';
+import { Users, Calendar, ChevronDown, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
@@ -108,6 +111,12 @@ export default function TutorCohorts() {
                     <span className="text-sm text-slate-500">Week {cohort.current_week}/12</span>
                   </div>
                 </div>
+                <Link to={createPageUrl('CohortDetail') + '?id=' + cohort.id}>
+                  <Button size="sm" variant="outline">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View Details
+                  </Button>
+                </Link>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
