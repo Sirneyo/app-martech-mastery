@@ -41,6 +41,11 @@ export default function CohortDetail() {
 
   const queryClient = useQueryClient();
 
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: cohort } = useQuery({
     queryKey: ['cohort', cohortId],
     queryFn: async () => {
@@ -189,10 +194,12 @@ export default function CohortDetail() {
               <p className="text-slate-500 mt-1">Cohort Details & Management</p>
             </div>
           </div>
-          <Button onClick={handleEditCohort} className="bg-violet-600 hover:bg-violet-700">
-            <Edit className="w-4 h-4 mr-2" />
-            Edit Cohort
-          </Button>
+          {currentUser?.app_role === 'admin' && (
+            <Button onClick={handleEditCohort} className="bg-violet-600 hover:bg-violet-700">
+              <Edit className="w-4 h-4 mr-2" />
+              Edit Cohort
+            </Button>
+          )}
         </div>
 
         {/* Cohort Info Card */}
@@ -226,10 +233,12 @@ export default function CohortDetail() {
               <Users className="w-5 h-5" />
               Students ({students.length})
             </CardTitle>
-            <Button onClick={() => setAssignStudentDialogOpen(true)} size="sm" variant="outline">
-              <UserPlus className="w-4 h-4 mr-2" />
-              Assign Student
-            </Button>
+            {currentUser?.app_role === 'admin' && (
+              <Button onClick={() => setAssignStudentDialogOpen(true)} size="sm" variant="outline">
+                <UserPlus className="w-4 h-4 mr-2" />
+                Assign Student
+              </Button>
+            )}
           </CardHeader>
           <CardContent>
             {students.length === 0 ? (
@@ -251,17 +260,19 @@ export default function CohortDetail() {
                       </div>
                       <div className="flex items-center gap-3">
                         <Badge variant="secondary">{membership?.status || 'active'}</Badge>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            if (confirm(`Remove ${student.full_name} from this cohort?`)) {
-                              removeStudentMutation.mutate(membership?.id);
-                            }
-                          }}
-                        >
-                          <UserMinus className="w-4 h-4 text-red-500" />
-                        </Button>
+                        {currentUser?.app_role === 'admin' && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              if (confirm(`Remove ${student.full_name} from this cohort?`)) {
+                                removeStudentMutation.mutate(membership?.id);
+                              }
+                            }}
+                          >
+                            <UserMinus className="w-4 h-4 text-red-500" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                   );
@@ -278,10 +289,12 @@ export default function CohortDetail() {
               <GraduationCap className="w-5 h-5" />
               Assigned Tutors ({tutors.length})
             </CardTitle>
-            <Button onClick={() => setAssignTutorDialogOpen(true)} size="sm" variant="outline">
-              <UserPlus className="w-4 h-4 mr-2" />
-              Assign Tutor
-            </Button>
+            {currentUser?.app_role === 'admin' && (
+              <Button onClick={() => setAssignTutorDialogOpen(true)} size="sm" variant="outline">
+                <UserPlus className="w-4 h-4 mr-2" />
+                Assign Tutor
+              </Button>
+            )}
           </CardHeader>
           <CardContent>
             {tutors.length === 0 ? (
@@ -303,17 +316,19 @@ export default function CohortDetail() {
                       </div>
                       <div className="flex items-center gap-3">
                         {assignment?.is_primary && <Badge>Primary</Badge>}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => {
-                            if (confirm(`Remove ${tutor.full_name} from this cohort?`)) {
-                              removeTutorMutation.mutate(assignment?.id);
-                            }
-                          }}
-                        >
-                          <UserMinus className="w-4 h-4 text-red-500" />
-                        </Button>
+                        {currentUser?.app_role === 'admin' && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              if (confirm(`Remove ${tutor.full_name} from this cohort?`)) {
+                                removeTutorMutation.mutate(assignment?.id);
+                              }
+                            }}
+                          >
+                            <UserMinus className="w-4 h-4 text-red-500" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                   );
