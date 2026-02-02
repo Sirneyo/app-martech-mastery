@@ -76,11 +76,11 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
         )}
 
         <a
-          href={settings?.kajabi_url || "https://www.the-growth-academy.co/library"}
+          href="https://live.kajabi.com/admin/"
           target="_blank"
           rel="noopener noreferrer"
           className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
-          title={isCollapsed ? 'Learning Platform' : ''}
+          title={isCollapsed ? 'GO Live' : ''}
         >
           <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-purple-600 to-violet-500">
             <BookOpen className="w-4 h-4 text-white" />
@@ -89,7 +89,7 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
             <>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
-                  Learning Platform
+                  GO Live
                 </p>
                 <p className="text-[10px] text-slate-500">Opens in new tab</p>
               </div>
