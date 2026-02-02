@@ -125,7 +125,12 @@ export default function TutorCohorts() {
                     <span className="text-sm text-slate-500">Week {cohort.current_week}/12</span>
                   </div>
                 </div>
-
+                <Link to={createPageUrl('CohortDetail') + '?id=' + cohort.id}>
+                  <Button size="sm" variant="outline">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View Details
+                  </Button>
+                </Link>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
