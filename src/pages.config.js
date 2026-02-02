@@ -72,6 +72,7 @@ import CohortDetail from './pages/CohortDetail';
 import Courses from './pages/Courses';
 import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
+import InvitationSignup from './pages/InvitationSignup';
 import MyCertification from './pages/MyCertification';
 import MyPortfolio from './pages/MyPortfolio';
 import MyProjects from './pages/MyProjects';
@@ -99,7 +100,6 @@ import TutorPortfolioReview from './pages/TutorPortfolioReview';
 import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import InvitationSignup from './pages/InvitationSignup';
 import __Layout from './Layout.jsx';
 
 
@@ -129,6 +129,7 @@ export const PAGES = {
     "Courses": Courses,
     "Dashboard": Dashboard,
     "Home": Home,
+    "InvitationSignup": InvitationSignup,
     "MyCertification": MyCertification,
     "MyPortfolio": MyPortfolio,
     "MyProjects": MyProjects,
@@ -156,7 +157,6 @@ export const PAGES = {
     "TutorPortfolioReviews": TutorPortfolioReviews,
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorSubmissionReview": TutorSubmissionReview,
-    "InvitationSignup": InvitationSignup,
 }
 
 export const pagesConfig = {
