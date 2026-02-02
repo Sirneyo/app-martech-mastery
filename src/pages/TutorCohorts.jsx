@@ -52,6 +52,7 @@ export default function TutorCohorts() {
       );
     },
     enabled: cohortIds.length > 0,
+    refetchInterval: 10000,
   });
 
   const studentUserIds = React.useMemo(() => {
@@ -66,6 +67,7 @@ export default function TutorCohorts() {
       return allUsers.filter(u => studentUserIds.includes(u.id));
     },
     enabled: studentUserIds.length > 0,
+    refetchInterval: 10000,
   });
 
   const getStudentsByCohort = (cohortId) => {
