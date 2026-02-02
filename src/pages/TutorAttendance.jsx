@@ -90,13 +90,15 @@ export default function TutorAttendance() {
   const submitAttendanceMutation = useMutation({
     mutationFn: async () => {
       const promises = [];
-      for (const [studentId, status] of Object.entries(attendanceData)) {
-        const existing = todayAttendance.find(a => a.student_user_id === studentId);
+      // Mark attendance for ALL students in the cohort
+      for (const student of cohortStudents) {
+        const status = getStudentStatus(student.id);
+        const existing = todayAttendance.find(a => a.student_user_id === student.id);
         if (existing) {
           promises.push(base44.entities.Attendance.update(existing.id, { status }));
         } else {
           promises.push(base44.entities.Attendance.create({
-            student_user_id: studentId,
+            student_user_id: student.id,
             cohort_id: selectedCohortId,
             date: selectedDate,
             status,
@@ -137,7 +139,6 @@ export default function TutorAttendance() {
   };
 
   const handleSubmit = () => {
-    if (Object.keys(attendanceData).length === 0) return;
     submitAttendanceMutation.mutate();
   };
 
