@@ -118,6 +118,7 @@ export default function CohortDetail() {
     mutationFn: (assignmentId) => base44.entities.TutorCohortAssignment.delete(assignmentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tutor-assignments', cohortId] });
+      queryClient.invalidateQueries({ queryKey: ['cohort-users', cohortId] });
     },
   });
 
