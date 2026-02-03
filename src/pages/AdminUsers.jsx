@@ -218,8 +218,6 @@ export default function AdminUsers() {
   const handleEditUser = (user) => {
     setSelectedUser(user);
     setEditData({
-      full_name: user.full_name || '',
-      email: user.email || '',
       app_role: user.app_role || 'student',
       status: user.status || 'active'
     });
