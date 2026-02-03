@@ -67,33 +67,19 @@ export default function CohortDetail() {
     enabled: !!cohortId,
   });
 
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => base44.entities.User.list(),
+  const { data: usersData } = useQuery({
+    queryKey: ['cohort-users', cohortId],
+    queryFn: async () => {
+      const response = await base44.functions.invoke('getUsersForCohort', { cohortId });
+      return response.data;
+    },
+    enabled: !!cohortId,
   });
 
-  const students = React.useMemo(() => {
-    console.log('All users:', allUsers.length);
-    console.log('Memberships:', memberships);
-    console.log('Membership user IDs:', memberships.map(m => m.user_id));
-    const filtered = allUsers.filter(u => 
-      memberships.map(m => m.user_id).includes(u.id)
-    );
-    console.log('Filtered students:', filtered);
-    return filtered;
-  }, [allUsers, memberships]);
-
-  const tutors = allUsers.filter(u => 
-    tutorAssignments.map(t => t.tutor_id).includes(u.id)
-  );
-
-  const availableStudents = allUsers.filter(u => 
-    u.app_role === 'student' && !memberships.map(m => m.user_id).includes(u.id)
-  );
-
-  const availableTutors = allUsers.filter(u => 
-    u.app_role === 'tutor' && !tutorAssignments.map(t => t.tutor_id).includes(u.id)
-  );
+  const students = usersData?.students || [];
+  const tutors = usersData?.tutors || [];
+  const availableStudents = usersData?.availableStudents || [];
+  const availableTutors = usersData?.availableTutors || [];
 
   const updateCohortMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Cohort.update(id, data),
