@@ -48,7 +48,7 @@ export default function AdminProfile() {
     
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     await base44.auth.updateMe({ profile_picture: file_url });
-    queryClient.invalidateQueries();
+    queryClient.invalidateQueries({ queryKey: ['current-user'] });
   };
 
   if (isLoading) {
