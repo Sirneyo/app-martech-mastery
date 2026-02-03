@@ -267,13 +267,12 @@ export default function StudentDashboard() {
                 </div>
               )}
               <div>
-                <h3 className="font-bold text-slate-900">Your Tutor</h3>
-                <p className="text-sm text-slate-500">Primary Contact</p>
+                <h3 className="font-bold text-slate-900">{tutor.display_name || tutor.full_name}</h3>
+                <p className="text-sm text-slate-500">Your Tutor</p>
               </div>
             </div>
             <div className="space-y-3">
               <div>
-                <p className="text-lg font-bold text-slate-900">{tutor.full_name}</p>
                 <p className="text-sm text-slate-600">{tutor.email}</p>
               </div>
               <div className="flex gap-2 pt-2">
