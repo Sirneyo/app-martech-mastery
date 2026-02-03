@@ -228,9 +228,15 @@ export default function AdminUsers() {
       return;
     }
 
+    // Only send custom fields (not built-in ones like full_name, email)
+    const updateData = {
+      app_role: editData.app_role,
+      status: editData.status
+    };
+
     updateUserMutation.mutate({
       userId: selectedUser.id,
-      data: editData
+      data: updateData
     });
   };
 
