@@ -27,7 +27,6 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
     { name: 'Exams', icon: Award, page: 'AdminExams' },
     { name: 'Templates', icon: FileText, page: 'AdminTemplates' },
     { name: 'Exam Bank Import', icon: FileText, page: 'AdminExamBankImport' },
-    { name: 'Profile', icon: User, page: 'AdminProfile' },
   ];
 
   return (
