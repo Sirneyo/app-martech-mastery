@@ -1,12 +1,9 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '../utils';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Users, Calendar, ChevronDown, ExternalLink } from 'lucide-react';
+import { Users, Calendar, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
@@ -115,20 +112,12 @@ export default function TutorCohorts() {
               transition={{ delay: index * 0.1 }}
               className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-900">{cohort.name}</h2>
-                  <div className="flex items-center gap-3 mt-2">
-                    <Badge className="bg-blue-100 text-blue-700">{cohort.status}</Badge>
-                    <span className="text-sm text-slate-500">Week {cohort.current_week}/12</span>
-                  </div>
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold text-slate-900">{cohort.name}</h2>
+                <div className="flex items-center gap-3 mt-2">
+                  <Badge className="bg-blue-100 text-blue-700">{cohort.status}</Badge>
+                  <span className="text-sm text-slate-500">Week {cohort.current_week}/12</span>
                 </div>
-                <Link to={createPageUrl('CohortDetail') + '?id=' + cohort.id}>
-                  <Button size="sm" variant="outline">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    View Details
-                  </Button>
-                </Link>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
