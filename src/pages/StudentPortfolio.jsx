@@ -282,6 +282,35 @@ export default function StudentPortfolio() {
         </div>
       )}
 
+      {studentProfile?.cv_url && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-8"
+        >
+          <h3 className="font-bold text-slate-900 text-lg mb-4">Your CV</h3>
+          <div className="relative group">
+            <a 
+              href={studentProfile.cv_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-4 p-4 rounded-xl border-2 border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+            >
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                <BookOpen className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-slate-900">CV Document</p>
+                <p className="text-sm text-slate-600">Download your uploaded CV</p>
+              </div>
+              <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+            </a>
+          </div>
+          <p className="text-xs text-slate-500 mt-2">Pending admin approval</p>
+        </motion.div>
+      )}
+
       <div className="space-y-6">
         <div>
           <h2 className="text-xl font-bold text-slate-900 mb-4">Required Items</h2>
