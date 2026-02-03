@@ -10,9 +10,21 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Award, FileText, FolderCheck, Calendar, TrendingUp, Mail, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { User, Award, FileText, FolderCheck, Calendar, TrendingUp, Mail, Clock, Check, X } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function StudentProfileModal({ student, isOpen, onClose }) {
+  const queryClient = useQueryClient();
+
+  const approvalMutation = useMutation({
+    mutationFn: ({ studentId, isApproved }) => 
+      base44.entities.User.update(studentId, { is_approved_graduate: isApproved }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+
   const { data: cohortMembership } = useQuery({
     queryKey: ['student-cohort', student?.id],
     queryFn: () => base44.entities.CohortMembership.filter({ user_id: student.id }),
@@ -96,15 +108,32 @@ export default function StudentProfileModal({ student, isOpen, onClose }) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white text-xl font-bold">
-              {student.full_name?.charAt(0) || 'S'}
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold">{student.full_name}</h2>
-              <p className="text-sm text-slate-500">{student.email}</p>
-            </div>
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white text-xl font-bold">
+                {student.full_name?.charAt(0) || 'S'}
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">{student.full_name}</h2>
+                <p className="text-sm text-slate-500">{student.email}</p>
+              </div>
+            </DialogTitle>
+            <Button
+              variant={student.is_approved_graduate ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => approvalMutation.mutate({ 
+                studentId: student.id, 
+                isApproved: !student.is_approved_graduate 
+              })}
+              disabled={approvalMutation.isPending}
+            >
+              {student.is_approved_graduate ? (
+                <><Check className="w-4 h-4 mr-1" /> Approved</>
+              ) : (
+                <><X className="w-4 h-4 mr-1" /> Approve Graduate</>
+              )}
+            </Button>
+          </div>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
