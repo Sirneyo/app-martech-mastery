@@ -592,6 +592,54 @@ export default function AdminUsers() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2">
+                <Label>Assigned Cohort</Label>
+                <Select 
+                  value={getUserCohort(selectedUser?.id) ? cohorts.find(c => c.name === getUserCohort(selectedUser?.id))?.id : ''} 
+                  onValueChange={(value) => {
+                    // Find existing membership/assignment for this user
+                    const studentMembership = memberships.find(m => m.user_id === selectedUser?.id);
+                    const tutorAssignment = tutorAssignments.find(ta => ta.tutor_id === selectedUser?.id);
+                    
+                    if (value) {
+                      if (studentMembership) {
+                        base44.entities.CohortMembership.update(studentMembership.id, { cohort_id: value });
+                      } else if (tutorAssignment) {
+                        base44.entities.TutorCohortAssignment.update(tutorAssignment.id, { cohort_id: value });
+                      } else {
+                        // Create new membership based on role
+                        if (selectedUser?.app_role === 'tutor') {
+                          base44.entities.TutorCohortAssignment.create({
+                            tutor_id: selectedUser.id,
+                            cohort_id: value,
+                            assigned_date: new Date().toISOString().split('T')[0],
+                          });
+                        } else {
+                          base44.entities.CohortMembership.create({
+                            user_id: selectedUser.id,
+                            cohort_id: value,
+                            enrollment_date: new Date().toISOString().split('T')[0],
+                          });
+                        }
+                      }
+                      queryClient.invalidateQueries({ queryKey: ['memberships'] });
+                      queryClient.invalidateQueries({ queryKey: ['tutor-assignments'] });
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select cohort" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={null}>None</SelectItem>
+                    {cohorts.map((cohort) => (
+                      <SelectItem key={cohort.id} value={cohort.id}>
+                        {cohort.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <Button onClick={handleSaveEdit} className="w-full" disabled={updateUserMutation.isPending}>
                 {updateUserMutation.isPending ? 'Saving...' : 'Save Changes'}
               </Button>
