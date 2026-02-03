@@ -26,6 +26,10 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
 export default function AdminCohorts() {
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCohort, setEditingCohort] = useState(null);
   const [formData, setFormData] = useState({
@@ -155,12 +159,14 @@ export default function AdminCohorts() {
             setDialogOpen(open);
             if (!open) resetForm();
           }}>
-            <DialogTrigger asChild>
-              <Button className="bg-violet-600 hover:bg-violet-700">
-                <Plus className="w-4 h-4 mr-2" />
-                Create Cohort
-              </Button>
-            </DialogTrigger>
+            {currentUser?.app_role === 'admin' && (
+              <DialogTrigger asChild>
+                <Button className="bg-violet-600 hover:bg-violet-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Cohort
+                </Button>
+              </DialogTrigger>
+            )}
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{editingCohort ? 'Edit Cohort' : 'Create New Cohort'}</DialogTitle>
@@ -285,26 +291,28 @@ export default function AdminCohorts() {
                       {cohort.status}
                     </Badge>
                   </div>
-                  <div className="flex gap-1" onClick={(e) => e.preventDefault()}>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleEdit(cohort)}
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        if (confirm('Delete this cohort?')) {
-                          deleteMutation.mutate(cohort.id);
-                        }
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </Button>
-                  </div>
+                  {currentUser?.app_role === 'admin' && (
+                    <div className="flex gap-1" onClick={(e) => e.preventDefault()}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleEdit(cohort)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          if (confirm('Delete this cohort?')) {
+                            deleteMutation.mutate(cohort.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-3 text-sm">
