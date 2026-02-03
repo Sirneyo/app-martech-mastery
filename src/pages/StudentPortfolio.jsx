@@ -72,6 +72,16 @@ export default function StudentPortfolio() {
     enabled: !!membership?.cohort_id,
   });
 
+  const { data: studentProfile } = useQuery({
+    queryKey: ['student-profile', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const profiles = await base44.entities.User.filter({ id: user.id });
+      return profiles[0];
+    },
+    enabled: !!user?.id,
+  });
+
   const getStatus = (templateId) => {
     const status = statuses.find(s => s.portfolio_item_id === templateId);
     return status || { status: 'not_started' };
