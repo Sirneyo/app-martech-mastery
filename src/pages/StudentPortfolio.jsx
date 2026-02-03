@@ -187,28 +187,48 @@ export default function StudentPortfolio() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-8 shadow-sm border-2 border-amber-200 mb-8"
+          className="bg-yellow-50 rounded-2xl p-8 shadow-sm border-3 border-yellow-300 mb-8"
         >
           <h3 className="text-lg font-semibold text-slate-900 mb-6">Your Certificate</h3>
-          <div className="bg-white rounded-xl border-2 border-amber-300 p-8 text-center">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center mx-auto mb-6">
-              <BookOpen className="w-10 h-10 text-white" />
+          <div className="bg-white rounded-2xl border-3 border-yellow-300 p-12 text-center relative">
+            <div className="absolute inset-0 opacity-5 pointer-events-none">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-yellow-500 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2"></div>
             </div>
-            <h4 className="text-xl font-bold text-slate-900 mb-2">Certificate of Completion</h4>
-            <p className="text-sm text-slate-600 mb-4">You have successfully completed the</p>
-            <p className="text-lg font-bold text-slate-900 mb-6">{cohort?.name}</p>
-            <p className="text-xs text-slate-500 mb-4">Certificate ID: {certificate.certificate_id_code}</p>
-            {certificate.certificate_url && (
-              <a 
-                href={certificate.certificate_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-amber-700 hover:text-amber-900 font-medium"
-              >
-                View Certificate
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            )}
+            
+            <div className="relative">
+              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center mx-auto mb-8">
+                <BookOpen className="w-12 h-12 text-white" />
+              </div>
+              
+              <h4 className="text-2xl font-bold text-slate-900 mb-2">Certificate of Completion</h4>
+              <p className="text-sm text-slate-600 mb-6">This certifies that</p>
+              
+              <p className="text-3xl font-bold text-slate-900 mb-6">{user?.display_name || user?.full_name}</p>
+              <p className="text-sm text-slate-600 mb-1">has successfully completed the</p>
+              <p className="text-xl font-bold text-slate-900 mb-8">{cohort?.name}</p>
+              
+              <div className="grid grid-cols-2 gap-6 text-sm mb-8 py-6 border-t border-b border-slate-200">
+                <div>
+                  <p className="text-slate-600 text-xs">Program Duration</p>
+                  <p className="font-semibold text-slate-900">12 Weeks</p>
+                </div>
+                <div>
+                  <p className="text-slate-600 text-xs">Issued Date</p>
+                  <p className="font-semibold text-slate-900">{certificate.issued_at ? new Date(certificate.issued_at).toLocaleDateString() : 'Pending'}</p>
+                </div>
+                <div>
+                  <p className="text-slate-600 text-xs">Certificate ID</p>
+                  <p className="font-semibold text-slate-900 font-mono text-xs">{certificate.certificate_id_code}</p>
+                </div>
+                <div>
+                  <p className="text-slate-600 text-xs">Status</p>
+                  <p className="font-semibold text-green-600">Verified</p>
+                </div>
+              </div>
+              
+              <p className="text-xs text-slate-500">Certificate is a valid credential for professional purposes</p>
+            </div>
           </div>
         </motion.div>
       )}
