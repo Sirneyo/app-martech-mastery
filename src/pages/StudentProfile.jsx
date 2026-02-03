@@ -93,6 +93,15 @@ export default function StudentProfile() {
     queryClient.invalidateQueries({ queryKey: ['current-user'] });
   };
 
+  const handleProfilePictureUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const { data } = await base44.integrations.Core.UploadFile({ file });
+    await base44.auth.updateMe({ profile_picture_url: data.file_url });
+    queryClient.invalidateQueries({ queryKey: ['current-user'] });
+  };
+
   const activeMembership = memberships.find(m => m.status === 'active');
   const activeCohort = cohorts.find(c => c.id === activeMembership?.cohort_id);
   const hasCertificate = certificate && certificate.length > 0;
@@ -118,8 +127,31 @@ export default function StudentProfile() {
         <Card className="border-0 shadow-lg">
           <CardContent className="pt-8 pb-8">
             <div className="flex flex-col items-center text-center">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-4xl font-bold mb-4">
-                {user?.full_name?.charAt(0) || 'U'}
+              <div className="relative mb-4">
+                {user?.profile_picture_url ? (
+                  <img
+                    src={user.profile_picture_url}
+                    alt={user.full_name}
+                    className="w-32 h-32 rounded-full object-cover border-4 border-violet-100"
+                  />
+                ) : (
+                  <div className="w-32 h-32 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-4xl font-bold">
+                    {user?.full_name?.charAt(0) || 'U'}
+                  </div>
+                )}
+                <label
+                  htmlFor="profile-picture-upload"
+                  className="absolute bottom-0 right-0 w-10 h-10 bg-violet-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-violet-700 transition-colors shadow-lg"
+                >
+                  <Upload className="w-5 h-5 text-white" />
+                </label>
+                <input
+                  id="profile-picture-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfilePictureUpload}
+                  className="hidden"
+                />
               </div>
               <h2 className="text-3xl font-bold text-slate-900">{user?.full_name}</h2>
               <p className="text-slate-500 mt-2">Manage your profile and learning journey</p>
