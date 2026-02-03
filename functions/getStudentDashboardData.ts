@@ -29,10 +29,8 @@ Deno.serve(async (req) => {
 
     let tutor = null;
     if (tutorAssignments.length > 0) {
-      const tutors = await base44.asServiceRole.entities.User.filter({ 
-        id: tutorAssignments[0].tutor_id 
-      });
-      tutor = tutors[0] || null;
+      const allUsers = await base44.asServiceRole.entities.User.list();
+      tutor = allUsers.find(u => u.id === tutorAssignments[0].tutor_id) || null;
     }
 
     // Get cohort members
