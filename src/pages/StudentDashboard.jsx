@@ -132,7 +132,45 @@ export default function StudentDashboard() {
     enabled: !!user?.id,
   });
 
+  const { data: portfolioStatuses = [] } = useQuery({
+    queryKey: ['my-portfolio-statuses'],
+    queryFn: async () => {
+      if (!user?.id || !membership?.cohort_id) return [];
+      return base44.entities.PortfolioItemStatus.filter({ 
+        user_id: user.id,
+        cohort_id: membership.cohort_id
+      });
+    },
+    enabled: !!user?.id && !!membership?.cohort_id,
+  });
+
+  const { data: portfolioTemplates = [] } = useQuery({
+    queryKey: ['portfolio-templates'],
+    queryFn: () => base44.entities.PortfolioItemTemplate.list('sort_order'),
+  });
+
+  const { data: certificate } = useQuery({
+    queryKey: ['my-certificate', membership?.cohort_id],
+    queryFn: async () => {
+      if (!user?.id || !membership?.cohort_id) return null;
+      const certs = await base44.entities.Certificate.filter({ 
+        student_user_id: user.id, 
+        cohort_id: membership.cohort_id 
+      });
+      return certs[0];
+    },
+    enabled: !!user?.id && !!membership?.cohort_id,
+  });
+
   const leaderboard = dashboardData?.leaderboardData || [];
+  const requiredRequirements = portfolioTemplates.filter(t => t.required_flag);
+  const completedRequirements = requiredRequirements.filter(t => {
+    const status = portfolioStatuses.find(s => s.portfolio_item_id === t.id);
+    return status?.status === 'approved';
+  }).length;
+  const certificationProgress = requiredRequirements.length > 0 
+    ? Math.round((completedRequirements / requiredRequirements.length) * 100)
+    : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
