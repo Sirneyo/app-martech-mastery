@@ -173,17 +173,17 @@ export default function StudentDashboard() {
   });
 
   const leaderboard = React.useMemo(() => {
-    if (!allPoints || !cohortUsers || !cohortMembers) return [];
+    if (!allPoints || !cohortUsers || !cohortMembers || !user) return [];
     
     const memberIds = cohortMembers.map(m => m.user_id);
     const students = cohortUsers.filter(u => memberIds.includes(u.id));
     
     return students
-      .map(user => ({
-        id: user.id,
-        name: user.full_name,
-        points: allPoints[user.id] || 0,
-        isMe: user.id === user?.id,
+      .map(student => ({
+        id: student.id,
+        name: student.full_name,
+        points: allPoints[student.id] || 0,
+        isMe: student.id === user.id,
       }))
       .sort((a, b) => b.points - a.points)
       .slice(0, 10);
@@ -278,14 +278,18 @@ export default function StudentDashboard() {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Current Week:</span>
-                <span className="font-semibold text-slate-900">Week {cohort.current_week} of 12</span>
+               <span className="text-slate-600">Current Week:</span>
+               <span className="font-semibold text-slate-900">Week {cohort.current_week} of 12</span>
               </div>
-              <div className="w-full bg-slate-100 rounded-full h-2">
-                <div 
-                  className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all"
-                  style={{ width: `${(cohort.current_week / 12) * 100}%` }}
-                />
+              <div className="flex justify-between text-sm">
+               <span className="text-slate-600">Weeks Remaining:</span>
+               <span className="font-semibold text-blue-600">{12 - cohort.current_week} weeks</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-2 mt-2">
+               <div 
+                 className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all"
+                 style={{ width: `${(cohort.current_week / 12) * 100}%` }}
+               />
               </div>
               {cohort.start_date && cohort.end_date && (
                 <>
