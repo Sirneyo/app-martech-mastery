@@ -53,21 +53,17 @@ export default function StudentDashboard() {
     enabled: !!membership?.cohort_id,
   });
 
-  const { data: tutor } = useQuery({
-    queryKey: ['my-tutor', membership?.cohort_id],
+  const { data: dashboardData } = useQuery({
+    queryKey: ['student-dashboard-data', membership?.cohort_id],
     queryFn: async () => {
-      if (!membership?.cohort_id) return null;
-      const assignments = await base44.entities.TutorCohortAssignment.filter({ 
-        cohort_id: membership.cohort_id,
-        is_primary: true 
-      });
-      if (assignments.length === 0) return null;
-      
-      const users = await base44.entities.User.filter({ id: assignments[0].tutor_id });
-      return users[0];
+      if (!membership?.cohort_id) return { tutor: null, leaderboardData: [] };
+      const { data } = await base44.functions.invoke('getStudentDashboardData');
+      return data;
     },
     enabled: !!membership?.cohort_id,
   });
+
+  const tutor = dashboardData?.tutor;
 
   const { data: streak } = useQuery({
     queryKey: ['login-streak'],
@@ -108,43 +104,7 @@ export default function StudentDashboard() {
     enabled: !!user?.id,
   });
 
-  const { data: cohortMembers } = useQuery({
-    queryKey: ['cohort-members', membership?.cohort_id],
-    queryFn: async () => {
-      if (!membership?.cohort_id) return [];
-      return base44.entities.CohortMembership.filter({ cohort_id: membership.cohort_id, status: 'active' });
-    },
-    enabled: !!membership?.cohort_id,
-  });
 
-  const { data: allPoints } = useQuery({
-    queryKey: ['all-cohort-points', membership?.cohort_id, cohortMembers?.length],
-    queryFn: async () => {
-      if (!membership?.cohort_id || !cohortMembers || cohortMembers.length === 0) return {};
-      const allLedger = await base44.entities.PointsLedger.list();
-      const memberIds = cohortMembers.map(m => m.user_id);
-      
-      const pointsByUser = {};
-      allLedger
-        .filter(entry => memberIds.includes(entry.user_id))
-        .forEach(entry => {
-          pointsByUser[entry.user_id] = (pointsByUser[entry.user_id] || 0) + entry.points;
-        });
-      
-      return pointsByUser;
-    },
-    enabled: !!membership?.cohort_id && !!cohortMembers && cohortMembers.length > 0,
-  });
-
-  const { data: cohortUsers } = useQuery({
-    queryKey: ['cohort-users', membership?.cohort_id],
-    queryFn: async () => {
-      if (!cohortMembers || cohortMembers.length === 0) return [];
-      const userIds = cohortMembers.map(m => m.user_id);
-      return base44.entities.User.list();
-    },
-    enabled: !!cohortMembers && cohortMembers.length > 0,
-  });
 
   const { data: mySubmissions } = useQuery({
     queryKey: ['my-submissions-count'],
@@ -172,22 +132,7 @@ export default function StudentDashboard() {
     enabled: !!user?.id,
   });
 
-  const leaderboard = React.useMemo(() => {
-    if (!allPoints || !cohortUsers || !cohortMembers || !user) return [];
-    
-    const memberIds = cohortMembers.map(m => m.user_id);
-    const students = cohortUsers.filter(u => memberIds.includes(u.id));
-    
-    return students
-      .map(student => ({
-        id: student.id,
-        name: student.full_name,
-        points: allPoints[student.id] || 0,
-        isMe: student.id === user.id,
-      }))
-      .sort((a, b) => b.points - a.points)
-      .slice(0, 10);
-  }, [allPoints, cohortUsers, cohortMembers, user]);
+  const leaderboard = dashboardData?.leaderboardData || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
