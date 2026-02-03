@@ -47,7 +47,7 @@ export default function AdminProfile() {
     if (!file) return;
     
     const { data } = await base44.integrations.Core.UploadFile({ file });
-    await base44.auth.updateMe({ profile_picture_url: data.file_url });
+    await base44.auth.updateMe({ profile_picture: data.file_url });
     queryClient.invalidateQueries({ queryKey: ['current-user'] });
   };
 
@@ -73,9 +73,9 @@ export default function AdminProfile() {
           <CardContent className="pt-8 pb-8">
             <div className="flex flex-col items-center text-center">
               <div className="relative mb-4">
-                {user?.profile_picture_url ? (
+                {user?.profile_picture ? (
                   <img
-                    src={user.profile_picture_url}
+                    src={user.profile_picture}
                     alt={user.full_name}
                     className="w-32 h-32 rounded-full object-cover border-4 border-violet-100"
                   />
