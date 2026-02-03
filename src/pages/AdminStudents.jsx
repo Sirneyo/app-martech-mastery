@@ -5,7 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Search, Users, GraduationCap } from 'lucide-react';
+import { Search, Users, GraduationCap, Check, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import StudentProfileModal from '@/components/StudentProfileModal';
 
 export default function AdminStudents() {
@@ -64,9 +66,27 @@ export default function AdminStudents() {
     return matchesSearch && matchesCohort;
   });
 
+  const queryClient = useQueryClient();
+
+  const approvalMutation = useMutation({
+    mutationFn: ({ studentId, isApproved }) => 
+      base44.entities.User.update(studentId, { is_approved_graduate: isApproved }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+
   const handleStudentClick = (student) => {
     setSelectedStudent(student);
     setModalOpen(true);
+  };
+
+  const handleToggleApproval = (e, student) => {
+    e.stopPropagation();
+    approvalMutation.mutate({ 
+      studentId: student.id, 
+      isApproved: !student.is_approved_graduate 
+    });
   };
 
   return (
@@ -148,31 +168,50 @@ export default function AdminStudents() {
                     </div>
 
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-500">Cohort</span>
-                        {cohort ? (
-                          <Badge variant="secondary">{cohort.name}</Badge>
-                        ) : (
-                          <span className="text-sm text-slate-400">Not assigned</span>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-500">Total Points</span>
-                        <span className="font-bold text-violet-600">{points}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-slate-500">Status</span>
-                        <Badge variant={student.status === 'active' ? 'default' : 'secondary'}>
-                          {student.status || 'active'}
-                        </Badge>
-                      </div>
-                    </div>
+                       <div className="flex items-center justify-between">
+                         <span className="text-sm text-slate-500">Cohort</span>
+                         {cohort ? (
+                           <Badge variant="secondary">{cohort.name}</Badge>
+                         ) : (
+                           <span className="text-sm text-slate-400">Not assigned</span>
+                         )}
+                       </div>
+                       <div className="flex items-center justify-between">
+                         <span className="text-sm text-slate-500">Total Points</span>
+                         <span className="font-bold text-violet-600">{points}</span>
+                       </div>
+                       <div className="flex items-center justify-between">
+                         <span className="text-sm text-slate-500">Status</span>
+                         <Badge variant={student.status === 'active' ? 'default' : 'secondary'}>
+                           {student.status || 'active'}
+                         </Badge>
+                       </div>
+                       <div className="flex items-center justify-between">
+                         <span className="text-sm text-slate-500">Graduate Status</span>
+                         <Badge variant={student.is_approved_graduate ? 'default' : 'outline'}>
+                           {student.is_approved_graduate ? 'Approved' : 'Pending'}
+                         </Badge>
+                       </div>
+                     </div>
 
-                    <div className="pt-3 border-t border-slate-200">
-                      <p className="text-xs text-center text-slate-500">
-                        Click to view full profile
-                      </p>
-                    </div>
+                    <div className="pt-3 border-t border-slate-200 space-y-2">
+                       <p className="text-xs text-center text-slate-500">
+                         Click to view full profile
+                       </p>
+                       <Button
+                         size="sm"
+                         variant={student.is_approved_graduate ? 'default' : 'outline'}
+                         onClick={(e) => handleToggleApproval(e, student)}
+                         className="w-full"
+                         disabled={approvalMutation.isPending}
+                       >
+                         {student.is_approved_graduate ? (
+                           <><Check className="w-4 h-4 mr-1" /> Approve Graduate</>
+                         ) : (
+                           <><X className="w-4 h-4 mr-1" /> Approve as Graduate</>
+                         )}
+                       </Button>
+                     </div>
                   </div>
                 </Card>
               );
