@@ -554,12 +554,17 @@ export default function AdminUsers() {
               <DialogTitle>Edit User</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+                <p className="text-xs text-amber-700">
+                  <strong>Note:</strong> Name and email cannot be changed (managed by authentication system)
+                </p>
+              </div>
               <div className="space-y-2">
-                <Label>Full Name</Label>
+                <Label>Full Name (Read-only)</Label>
                 <Input
-                  value={editData.full_name}
-                  onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
-                  placeholder="John Doe"
+                  value={selectedUser?.full_name || ''}
+                  disabled
+                  className="bg-slate-100"
                 />
               </div>
               <div className="space-y-2">
