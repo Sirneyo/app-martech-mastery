@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, CheckCircle, XCircle, Clock, Users, Edit } from 'lucide-react';
+import { Calendar, CheckCircle, XCircle, Clock, Users, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
 export default function AdminAttendance() {
   const [selectedCohortId, setSelectedCohortId] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [editingDate, setEditingDate] = useState(null);
-  const [attendanceData, setAttendanceData] = useState({});
-  const queryClient = useQueryClient();
 
   const { data: cohorts = [] } = useQuery({
     queryKey: ['cohorts'],
@@ -42,37 +37,6 @@ export default function AdminAttendance() {
     enabled: !!selectedCohortId,
   });
 
-  const { data: dateAttendance = [] } = useQuery({
-    queryKey: ['date-attendance', selectedCohortId, selectedDate],
-    queryFn: async () => {
-      if (!selectedCohortId || !selectedDate) return [];
-      return base44.entities.Attendance.filter({
-        cohort_id: selectedCohortId,
-        date: selectedDate
-      });
-    },
-    enabled: !!selectedCohortId && !!selectedDate,
-  });
-
-  const updateAttendanceMutation = useMutation({
-    mutationFn: async () => {
-      const promises = [];
-      for (const [studentId, status] of Object.entries(attendanceData)) {
-        const existing = dateAttendance.find(a => a.student_user_id === studentId);
-        if (existing) {
-          promises.push(base44.entities.Attendance.update(existing.id, { status }));
-        }
-      }
-      return Promise.all(promises);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['attendance-history']);
-      queryClient.invalidateQueries(['date-attendance']);
-      setEditingDate(null);
-      setAttendanceData({});
-    },
-  });
-
   const students = users.filter(u => u.app_role === 'student' || !u.app_role);
 
   const getStudentsByCohort = (cohortId) => {
@@ -85,21 +49,42 @@ export default function AdminAttendance() {
 
   const cohortStudents = selectedCohortId ? getStudentsByCohort(selectedCohortId) : [];
 
-  const handleStatusChange = (studentId, status) => {
-    setAttendanceData(prev => ({
-      ...prev,
-      [studentId]: status
-    }));
-  };
+  const handleExportCSV = () => {
+    if (!selectedCohortId || attendanceHistory.length === 0) return;
 
-  const getStudentStatus = (studentId) => {
-    if (attendanceData[studentId]) return attendanceData[studentId];
-    const existing = dateAttendance.find(a => a.student_user_id === studentId);
-    return existing?.status || 'present';
-  };
+    const selectedCohort = cohorts.find(c => c.id === selectedCohortId);
+    
+    // Prepare CSV content
+    const headers = ['Date', 'Student Name', 'Student Email', 'Status', 'Marked At'];
+    const rows = attendanceHistory.map(record => {
+      const student = students.find(s => s.id === record.student_user_id);
+      return [
+        record.date,
+        student?.full_name || 'Unknown',
+        student?.email || 'N/A',
+        record.status,
+        new Date(record.created_date).toLocaleString()
+      ];
+    });
 
-  const handleSaveEdit = () => {
-    updateAttendanceMutation.mutate();
+    // Sort by date descending
+    rows.sort((a, b) => new Date(b[0]) - new Date(a[0]));
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `attendance_${selectedCohort?.name}_${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
   };
 
   const groupedHistory = React.useMemo(() => {
@@ -139,9 +124,7 @@ export default function AdminAttendance() {
                     key={cohort.id}
                     onClick={() => {
                       setSelectedCohortId(cohort.id);
-                      setSelectedDate(null);
-                      setEditingDate(null);
-                    }}
+                      }}
                     className={`w-full text-left p-4 rounded-lg border transition-all ${
                       selectedCohortId === cohort.id
                         ? 'border-orange-500 bg-orange-50'
@@ -163,10 +146,18 @@ export default function AdminAttendance() {
         {/* Attendance Records */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              Attendance Records
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                Attendance Records
+              </CardTitle>
+              {selectedCohortId && attendanceHistory.length > 0 && (
+                <Button onClick={handleExportCSV} variant="outline" className="gap-2">
+                  <Download className="w-4 h-4" />
+                  Export CSV
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {!selectedCohortId ? (
@@ -180,7 +171,6 @@ export default function AdminAttendance() {
                   const lateCount = records.filter(r => r.status === 'late').length;
                   const absentCount = records.filter(r => r.status === 'absent').length;
                   const totalStudents = cohortStudents.length;
-                  const isEditing = editingDate === date;
 
                   return (
                     <div key={date} className="border border-slate-200 rounded-lg p-4">
@@ -204,86 +194,8 @@ export default function AdminAttendance() {
                             <XCircle className="w-3 h-3 mr-1" />
                             {absentCount} Absent
                           </Badge>
-                          {!isEditing && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setSelectedDate(date);
-                                setEditingDate(date);
-                                setAttendanceData({});
-                              }}
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                          )}
                         </div>
                       </div>
-
-                      {isEditing && (
-                        <div className="space-y-2 mt-4 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                          <p className="text-sm font-medium text-orange-900 mb-3">Edit Attendance</p>
-                          {cohortStudents.map((student) => {
-                            const status = getStudentStatus(student.id);
-                            return (
-                              <div key={student.id} className="flex items-center justify-between p-3 bg-white rounded-lg">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                                    {student.full_name?.charAt(0) || 'S'}
-                                  </div>
-                                  <div>
-                                    <p className="font-medium text-slate-900">{student.full_name}</p>
-                                    <p className="text-xs text-slate-500">{student.email}</p>
-                                  </div>
-                                </div>
-                                <Select value={status} onValueChange={(value) => handleStatusChange(student.id, value)}>
-                                  <SelectTrigger className="w-32">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="present">
-                                      <div className="flex items-center gap-2">
-                                        <CheckCircle className="w-4 h-4 text-green-600" />
-                                        Present
-                                      </div>
-                                    </SelectItem>
-                                    <SelectItem value="late">
-                                      <div className="flex items-center gap-2">
-                                        <Clock className="w-4 h-4 text-yellow-600" />
-                                        Late
-                                      </div>
-                                    </SelectItem>
-                                    <SelectItem value="absent">
-                                      <div className="flex items-center gap-2">
-                                        <XCircle className="w-4 h-4 text-red-600" />
-                                        Absent
-                                      </div>
-                                    </SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            );
-                          })}
-                          <div className="flex gap-2 mt-4">
-                            <Button
-                              onClick={handleSaveEdit}
-                              disabled={updateAttendanceMutation.isPending}
-                              className="flex-1"
-                            >
-                              {updateAttendanceMutation.isPending ? 'Saving...' : 'Save Changes'}
-                            </Button>
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                setEditingDate(null);
-                                setAttendanceData({});
-                              }}
-                            >
-                              Cancel
-                            </Button>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   );
                 })}
