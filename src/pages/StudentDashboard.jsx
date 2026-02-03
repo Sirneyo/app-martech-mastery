@@ -118,9 +118,9 @@ export default function StudentDashboard() {
   });
 
   const { data: allPoints } = useQuery({
-    queryKey: ['all-cohort-points', membership?.cohort_id],
+    queryKey: ['all-cohort-points', membership?.cohort_id, cohortMembers?.length],
     queryFn: async () => {
-      if (!membership?.cohort_id || !cohortMembers) return [];
+      if (!membership?.cohort_id || !cohortMembers || cohortMembers.length === 0) return {};
       const allLedger = await base44.entities.PointsLedger.list();
       const memberIds = cohortMembers.map(m => m.user_id);
       
@@ -133,7 +133,7 @@ export default function StudentDashboard() {
       
       return pointsByUser;
     },
-    enabled: !!membership?.cohort_id && !!cohortMembers,
+    enabled: !!membership?.cohort_id && !!cohortMembers && cohortMembers.length > 0,
   });
 
   const { data: cohortUsers } = useQuery({
@@ -259,13 +259,13 @@ export default function StudentDashboard() {
         </div>
       </motion.div>
 
-      {cohort && tutor && (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"
-        >
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"
+      >
+        {cohort && (
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/50">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
@@ -301,7 +301,9 @@ export default function StudentDashboard() {
               )}
             </div>
           </div>
+        )}
 
+        {tutor && (
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/50">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
@@ -328,10 +330,10 @@ export default function StudentDashboard() {
               </div>
             </div>
           </div>
-        </motion.div>
-      )}
+        )}
+      </motion.div>
 
-      {leaderboard.length > 0 && (
+      {cohort && leaderboard.length > 0 && (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
