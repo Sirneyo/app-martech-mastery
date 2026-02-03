@@ -72,9 +72,16 @@ export default function CohortDetail() {
     queryFn: () => base44.entities.User.list(),
   });
 
-  const students = allUsers.filter(u => 
-    memberships.map(m => m.user_id).includes(u.id)
-  );
+  const students = React.useMemo(() => {
+    console.log('All users:', allUsers.length);
+    console.log('Memberships:', memberships);
+    console.log('Membership user IDs:', memberships.map(m => m.user_id));
+    const filtered = allUsers.filter(u => 
+      memberships.map(m => m.user_id).includes(u.id)
+    );
+    console.log('Filtered students:', filtered);
+    return filtered;
+  }, [allUsers, memberships]);
 
   const tutors = allUsers.filter(u => 
     tutorAssignments.map(t => t.tutor_id).includes(u.id)
