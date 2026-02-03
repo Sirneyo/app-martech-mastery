@@ -55,6 +55,12 @@ export default function StudentProfileModal({ student, isOpen, onClose }) {
     enabled: !!student,
   });
 
+  const { data: attendanceRecords = [] } = useQuery({
+    queryKey: ['student-attendance', student?.id],
+    queryFn: () => base44.entities.Attendance.filter({ student_user_id: student.id }, '-date'),
+    enabled: !!student,
+  });
+
   const { data: grades = [] } = useQuery({
     queryKey: ['student-grades', student?.id],
     queryFn: async () => {
@@ -74,6 +80,17 @@ export default function StudentProfileModal({ student, isOpen, onClose }) {
   const projectSubmissions = submissions.filter(s => s.submission_kind === 'project');
   const gradedSubmissions = submissions.filter(s => s.status === 'graded');
   const passedExams = examAttempts.filter(e => e.pass_flag === true);
+  
+  const attendanceStats = {
+    total: attendanceRecords.length,
+    present: attendanceRecords.filter(a => a.status === 'present').length,
+    late: attendanceRecords.filter(a => a.status === 'late').length,
+    absent: attendanceRecords.filter(a => a.status === 'absent').length,
+  };
+  
+  const attendanceRate = attendanceStats.total > 0 
+    ? Math.round((attendanceStats.present / attendanceStats.total) * 100) 
+    : 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -92,7 +109,7 @@ export default function StudentProfileModal({ student, isOpen, onClose }) {
 
         <div className="space-y-6 py-4">
           {/* Quick Stats */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-5 gap-4">
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2">
@@ -133,6 +150,17 @@ export default function StudentProfileModal({ student, isOpen, onClose }) {
                   <div>
                     <p className="text-2xl font-bold">{examAttempts.length}</p>
                     <p className="text-xs text-slate-500">Exam Attempts</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-8 h-8 text-indigo-600" />
+                  <div>
+                    <p className="text-2xl font-bold">{attendanceRate}%</p>
+                    <p className="text-xs text-slate-500">Attendance Rate</p>
                   </div>
                 </div>
               </CardContent>
@@ -183,10 +211,11 @@ export default function StudentProfileModal({ student, isOpen, onClose }) {
 
           {/* Detailed Information Tabs */}
           <Tabs defaultValue="submissions" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="submissions">Submissions</TabsTrigger>
               <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
               <TabsTrigger value="exams">Exams</TabsTrigger>
+              <TabsTrigger value="attendance">Attendance</TabsTrigger>
               <TabsTrigger value="activity">Activity</TabsTrigger>
             </TabsList>
 
@@ -330,6 +359,74 @@ export default function StudentProfileModal({ student, isOpen, onClose }) {
                   ))
                 )}
               </div>
+            </TabsContent>
+
+            <TabsContent value="attendance" className="space-y-4">
+              <div className="grid grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <p className="text-2xl font-bold">{attendanceStats.total}</p>
+                    <p className="text-sm text-slate-500">Total Sessions</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <p className="text-2xl font-bold text-green-600">{attendanceStats.present}</p>
+                    <p className="text-sm text-slate-500">Present</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <p className="text-2xl font-bold text-yellow-600">{attendanceStats.late}</p>
+                    <p className="text-sm text-slate-500">Late</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <p className="text-2xl font-bold text-red-600">{attendanceStats.absent}</p>
+                    <p className="text-sm text-slate-500">Absent</p>
+                  </CardContent>
+                </Card>
+              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Calendar className="w-5 h-5" />
+                    Attendance History
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {attendanceRecords.length === 0 ? (
+                      <p className="text-center text-slate-500 py-8">No attendance records yet</p>
+                    ) : (
+                      attendanceRecords.map(record => (
+                        <div key={record.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">
+                              {new Date(record.date).toLocaleDateString('en-US', { 
+                                weekday: 'short', 
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              Marked at {new Date(record.created_date).toLocaleTimeString()}
+                            </p>
+                          </div>
+                          <Badge variant={
+                            record.status === 'present' ? 'default' :
+                            record.status === 'late' ? 'secondary' : 'destructive'
+                          }>
+                            {record.status}
+                          </Badge>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="activity" className="space-y-4">
