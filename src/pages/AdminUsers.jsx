@@ -97,7 +97,17 @@ export default function AdminUsers() {
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: ({ userId, data }) => base44.entities.User.update(userId, data),
+    mutationFn: async ({ userId, data }) => {
+      // Only send non-built-in fields that we're actually allowed to update
+      const allowedFields = {};
+      if (data.app_role !== undefined) allowedFields.app_role = data.app_role;
+      if (data.status !== undefined) allowedFields.status = data.status;
+      if (data.phone_number !== undefined) allowedFields.phone_number = data.phone_number;
+      if (data.professional_bio !== undefined) allowedFields.professional_bio = data.professional_bio;
+      if (data.profile_picture !== undefined) allowedFields.profile_picture = data.profile_picture;
+      
+      return await base44.entities.User.update(userId, allowedFields);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
