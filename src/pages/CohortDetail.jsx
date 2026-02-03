@@ -176,7 +176,7 @@ export default function CohortDetail() {
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to={createPageUrl('AdminCohorts')}>
+            <Link to={createPageUrl(currentUser?.app_role === 'admin' ? 'AdminCohorts' : 'TutorCohorts')}>
               <Button variant="outline" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
