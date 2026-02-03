@@ -65,7 +65,7 @@ export default function StudentAssignments() {
         <p className="text-slate-500 mt-1">Complete weekly assignments to build your skills</p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="flex flex-col gap-4 max-w-4xl">
         {assignments.map((assignment, index) => {
           const submissionStatus = getSubmissionStatus(assignment.id);
           const isLocked = isAssignmentLocked(index);
