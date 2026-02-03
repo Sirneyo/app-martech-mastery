@@ -109,61 +109,72 @@ export default function StudentPortfolio() {
           transition={{ delay: 0.05 }}
           className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 mb-8"
         >
-          <div className="flex items-start gap-6 mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
-              <BookOpen className="w-8 h-8 text-white" />
+          <div className="flex items-start gap-8 mb-12">
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
+              <BookOpen className="w-10 h-10 text-white" />
             </div>
             <div className="flex-1">
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">{cohort.name}</h2>
+              <h2 className="text-3xl font-bold text-slate-900 mb-1">{cohort.name}</h2>
               <p className="text-slate-600">Complete your journey and earn your professional certification</p>
             </div>
           </div>
 
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-slate-900">Certification Progress</h3>
-              <span className="text-2xl font-bold text-slate-900">{completionPercentage}%</span>
+          <div className="mb-8 pb-8 border-b border-slate-200">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-slate-900 text-base">Certification Progress</h3>
+              <span className="text-3xl font-bold text-slate-900">{completionPercentage}%</span>
             </div>
-            <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+            <p className="text-sm text-slate-600 mb-3">
+              {requiredTemplates.filter(t => getStatus(t.id).status === 'approved').length} of {requiredTemplates.length} requirements completed
+            </p>
+            <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
               <div 
-                className="bg-gradient-to-r from-amber-500 to-orange-500 h-3 rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full transition-all duration-500"
                 style={{ width: `${completionPercentage}%` }}
               />
             </div>
-            <p className="text-sm text-slate-600 mt-2">
-              {requiredTemplates.filter(t => getStatus(t.id).status === 'approved').length} of {requiredTemplates.length} requirements completed
-            </p>
           </div>
 
-          <div className="border-t border-slate-200 pt-6">
-            <h3 className="font-semibold text-slate-900 mb-4">Certification Requirements</h3>
-            <div className="space-y-3">
+          <div>
+            <h3 className="font-semibold text-slate-900 mb-6 text-base flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-amber-500" />
+              Certification Requirements
+            </h3>
+            <div className="space-y-4">
               {requiredTemplates.map((template) => {
                 const itemStatus = getStatus(template.id);
                 const isApproved = itemStatus.status === 'approved';
                 
                 return (
-                  <div key={template.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors">
-                    <div className={`w-5 h-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                  <Link
+                    key={template.id}
+                    to={createPageUrl(`StudentPortfolioItemDetail?id=${template.id}`)}
+                    className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 hover:border-amber-300 hover:bg-amber-50 transition-all group cursor-pointer"
+                  >
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
                       isApproved 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-slate-200 text-slate-400'
+                        ? 'bg-green-100' 
+                        : 'bg-slate-100'
                     }`}>
                       {isApproved ? (
-                        <CheckCircle className="w-4 h-4" />
+                        <CheckCircle className="w-5 h-5 text-green-600" />
                       ) : (
-                        <span className="w-2 h-2 bg-current rounded-full" />
+                        <div className="w-5 h-5 rounded-full border-2 border-slate-300" />
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className={`font-medium ${isApproved ? 'text-slate-900' : 'text-slate-600'}`}>
+                      <p className={`font-semibold ${isApproved ? 'text-slate-900' : 'text-slate-700'}`}>
                         {template.title}
                       </p>
                       {template.short_description && (
-                        <p className="text-sm text-slate-500 mt-1">{template.short_description}</p>
+                        <p className="text-sm text-slate-600 mt-1">{template.short_description}</p>
                       )}
                     </div>
-                  </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className={getStatusColor(itemStatus.status)}>{itemStatus.status}</Badge>
+                      <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all" />
+                    </div>
+                  </Link>
                 );
               })}
             </div>
