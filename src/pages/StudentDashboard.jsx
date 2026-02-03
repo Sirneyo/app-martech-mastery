@@ -327,11 +327,111 @@ export default function StudentDashboard() {
         )}
       </motion.div>
 
-      {cohort && leaderboard.length > 0 && (
+      {requiredRequirements.length > 0 && (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
+          className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/50 mb-8"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+              <Award className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 text-lg">Certification Progress</h3>
+              <p className="text-sm text-slate-500">{completedRequirements} of {requiredRequirements.length} requirements completed</p>
+            </div>
+          </div>
+          
+          <div className="mb-6">
+            <div className="flex justify-between mb-2">
+              <span className="text-sm text-slate-600">Overall Progress</span>
+              <span className="text-sm font-bold text-slate-900">{certificationProgress}%</span>
+            </div>
+            <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+              <div 
+                className="bg-gradient-to-r from-amber-500 to-orange-500 h-3 rounded-full transition-all duration-500"
+                style={{ width: `${certificationProgress}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {requiredRequirements.map((req) => {
+              const status = portfolioStatuses.find(s => s.portfolio_item_id === req.id);
+              const isApproved = status?.status === 'approved';
+              const progress = status?.progress || 0;
+              
+              return (
+                <div key={req.id} className="flex items-center gap-3 p-3 rounded-lg bg-slate-50">
+                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                    isApproved ? 'bg-green-100' : 'bg-slate-200'
+                  }`}>
+                    {isApproved ? (
+                      <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    ) : (
+                      <div className="w-2 h-2 rounded-full bg-slate-400" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm font-medium ${isApproved ? 'text-slate-900' : 'text-slate-700'}`}>
+                      {req.title}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="flex-1 bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                        <div 
+                          className={`h-1.5 rounded-full transition-all ${
+                            isApproved ? 'bg-green-500 w-full' : 'bg-blue-500'
+                          }`}
+                          style={{ width: isApproved ? '100%' : `${progress}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-slate-500 ml-1">{progress}%</span>
+                    </div>
+                  </div>
+                  <Badge className={`text-xs flex-shrink-0 ${
+                    isApproved 
+                      ? 'bg-green-100 text-green-700' 
+                      : 'bg-amber-100 text-amber-700'
+                  }`}>
+                    {status?.status || 'pending'}
+                  </Badge>
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
+
+      {certificate && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 shadow-sm border-2 border-yellow-300 mb-8"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
+              <Trophy className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900">Certificate Unlocked!</h3>
+              <p className="text-sm text-slate-600">You've completed all requirements</p>
+            </div>
+          </div>
+          <p className="text-sm text-slate-700 mb-3">Certificate ID: <span className="font-mono font-semibold">{certificate.certificate_id_code}</span></p>
+          <p className="text-xs text-slate-600">Issued: {certificate.issued_at ? new Date(certificate.issued_at).toLocaleDateString() : 'Pending'}</p>
+        </motion.div>
+      )}
+
+      {cohort && leaderboard.length > 0 && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
           className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/50 mb-8"
         >
           <div className="flex items-center gap-3 mb-6">
