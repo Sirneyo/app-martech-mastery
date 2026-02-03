@@ -4,12 +4,22 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, CheckCircle, XCircle, Clock, Users, Download } from 'lucide-react';
+import { Calendar, CheckCircle, XCircle, Clock, Users, Download, Filter, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from 'date-fns';
+import StudentProfileModal from '@/components/StudentProfileModal';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function AdminAttendance() {
   const [selectedCohortId, setSelectedCohortId] = useState(null);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [dateFilter, setDateFilter] = useState('all');
 
   const { data: cohorts = [] } = useQuery({
     queryKey: ['cohorts'],
@@ -49,26 +59,74 @@ export default function AdminAttendance() {
 
   const cohortStudents = selectedCohortId ? getStudentsByCohort(selectedCohortId) : [];
 
+  const getFilteredAttendance = () => {
+    if (dateFilter === 'all') return attendanceHistory;
+    
+    const now = new Date();
+    let startDate, endDate;
+    
+    if (dateFilter === 'this_week') {
+      startDate = startOfWeek(now);
+      endDate = endOfWeek(now);
+    } else if (dateFilter === 'this_month') {
+      startDate = startOfMonth(now);
+      endDate = endOfMonth(now);
+    } else if (dateFilter === 'last_month') {
+      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      startDate = startOfMonth(lastMonth);
+      endDate = endOfMonth(lastMonth);
+    }
+    
+    return attendanceHistory.filter(record => {
+      const recordDate = new Date(record.date);
+      return recordDate >= startDate && recordDate <= endDate;
+    });
+  };
+
+  const filteredAttendance = getFilteredAttendance();
+
   const handleExportCSV = () => {
-    if (!selectedCohortId || attendanceHistory.length === 0) return;
+    if (!selectedCohortId || filteredAttendance.length === 0) return;
 
     const selectedCohort = cohorts.find(c => c.id === selectedCohortId);
     
-    // Prepare CSV content
-    const headers = ['Date', 'Student Name', 'Student Email', 'Status', 'Marked At'];
-    const rows = attendanceHistory.map(record => {
-      const student = students.find(s => s.id === record.student_user_id);
-      return [
-        record.date,
-        student?.full_name || 'Unknown',
-        student?.email || 'N/A',
-        record.status,
-        new Date(record.created_date).toLocaleString()
-      ];
+    // Group by date and student
+    const dateMap = {};
+    filteredAttendance.forEach(record => {
+      if (!dateMap[record.date]) {
+        dateMap[record.date] = {};
+      }
+      dateMap[record.date][record.student_user_id] = record.status;
     });
 
-    // Sort by date descending
-    rows.sort((a, b) => new Date(b[0]) - new Date(a[0]));
+    const dates = Object.keys(dateMap).sort();
+    const studentIds = [...new Set(filteredAttendance.map(r => r.student_user_id))];
+    
+    // Prepare structured CSV
+    const headers = ['Student Name', 'Student Email', ...dates, 'Present', 'Late', 'Absent', 'Attendance Rate'];
+    
+    const rows = studentIds.map(studentId => {
+      const student = students.find(s => s.id === studentId);
+      const studentRecords = filteredAttendance.filter(r => r.student_user_id === studentId);
+      
+      const present = studentRecords.filter(r => r.status === 'present').length;
+      const late = studentRecords.filter(r => r.status === 'late').length;
+      const absent = studentRecords.filter(r => r.status === 'absent').length;
+      const total = studentRecords.length;
+      const rate = total > 0 ? Math.round((present / total) * 100) : 0;
+      
+      const dateStatuses = dates.map(date => dateMap[date]?.[studentId] || '-');
+      
+      return [
+        student?.full_name || 'Unknown',
+        student?.email || 'N/A',
+        ...dateStatuses,
+        present,
+        late,
+        absent,
+        `${rate}%`
+      ];
+    });
 
     const csvContent = [
       headers.join(','),
@@ -80,23 +138,29 @@ export default function AdminAttendance() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `attendance_${selectedCohort?.name}_${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    const filterLabel = dateFilter === 'all' ? 'all' : dateFilter.replace('_', '-');
+    a.download = `attendance_${selectedCohort?.name}_${filterLabel}_${format(new Date(), 'yyyy-MM-dd')}.csv`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
     a.remove();
   };
 
+  const handleStudentClick = (student) => {
+    setSelectedStudent(student);
+    setModalOpen(true);
+  };
+
   const groupedHistory = React.useMemo(() => {
     const grouped = {};
-    attendanceHistory.forEach(record => {
+    filteredAttendance.forEach(record => {
       if (!grouped[record.date]) {
         grouped[record.date] = [];
       }
       grouped[record.date].push(record);
     });
     return Object.entries(grouped).sort((a, b) => new Date(b[0]) - new Date(a[0]));
-  }, [attendanceHistory]);
+  }, [filteredAttendance]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
@@ -152,10 +216,29 @@ export default function AdminAttendance() {
                 Attendance Records
               </CardTitle>
               {selectedCohortId && attendanceHistory.length > 0 && (
-                <Button onClick={handleExportCSV} variant="outline" className="gap-2">
-                  <Download className="w-4 h-4" />
-                  Export CSV
-                </Button>
+                <div className="flex items-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="gap-2">
+                        <Filter className="w-4 h-4" />
+                        {dateFilter === 'all' ? 'All Time' : 
+                         dateFilter === 'this_week' ? 'This Week' :
+                         dateFilter === 'this_month' ? 'This Month' : 'Last Month'}
+                        <ChevronDown className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => setDateFilter('all')}>All Time</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setDateFilter('this_week')}>This Week</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setDateFilter('this_month')}>This Month</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setDateFilter('last_month')}>Last Month</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Button onClick={handleExportCSV} variant="outline" className="gap-2">
+                    <Download className="w-4 h-4" />
+                    Export CSV
+                  </Button>
+                </div>
               )}
             </div>
           </CardHeader>
@@ -196,6 +279,44 @@ export default function AdminAttendance() {
                           </Badge>
                         </div>
                       </div>
+
+                      {/* Student List */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-3">
+                        {records.map(record => {
+                          const student = students.find(s => s.id === record.student_user_id);
+                          return (
+                            <button
+                              key={record.id}
+                              onClick={() => handleStudentClick(student)}
+                              className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer text-left"
+                            >
+                              {student?.profile_picture ? (
+                                <img
+                                  src={student.profile_picture}
+                                  alt={student.full_name}
+                                  className="w-8 h-8 rounded-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                                  {student?.full_name?.charAt(0) || 'S'}
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-slate-900 truncate">{student?.full_name || 'Unknown'}</p>
+                              </div>
+                              <Badge 
+                                variant={
+                                  record.status === 'present' ? 'default' :
+                                  record.status === 'late' ? 'secondary' : 'destructive'
+                                }
+                                className="text-xs"
+                              >
+                                {record.status}
+                              </Badge>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   );
                 })}
@@ -204,6 +325,16 @@ export default function AdminAttendance() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Student Profile Modal */}
+      <StudentProfileModal
+        student={selectedStudent}
+        isOpen={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedStudent(null);
+        }}
+      />
     </div>
   );
 }
