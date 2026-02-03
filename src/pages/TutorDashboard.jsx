@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Users, ClipboardCheck, Award, ChevronRight, TrendingUp } from 'lucide-react';
+import { Users, ClipboardCheck, Award, ChevronRight, TrendingUp, Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function TutorDashboard() {
@@ -22,6 +22,59 @@ export default function TutorDashboard() {
   });
 
   const cohortIds = [...new Set(assignments?.map(a => a.cohort_id) || [])];
+
+  const { data: cohorts } = useQuery({
+    queryKey: ['tutor-cohorts', cohortIds],
+    queryFn: async () => {
+      if (cohortIds.length === 0) return [];
+      return base44.entities.Cohort.list();
+    },
+    enabled: cohortIds.length > 0,
+  });
+
+  const { data: allUsers } = useQuery({
+    queryKey: ['all-users'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
+  const { data: cohortLeaderboards } = useQuery({
+    queryKey: ['cohort-leaderboards', cohortIds],
+    queryFn: async () => {
+      if (cohortIds.length === 0) return {};
+
+      const memberships = await base44.entities.CohortMembership.list();
+      const points = await base44.entities.PointsLedger.list();
+
+      const leaderboards = {};
+      
+      for (const cohortId of cohortIds) {
+        const cohortMemberIds = memberships
+          .filter(m => m.cohort_id === cohortId && m.status === 'active')
+          .map(m => m.user_id);
+
+        const studentPoints = cohortMemberIds.map(userId => {
+          const userPoints = points
+            .filter(p => p.user_id === userId)
+            .reduce((sum, p) => sum + p.points, 0);
+          
+          const userData = allUsers?.find(u => u.id === userId);
+          
+          return {
+            id: userId,
+            name: userData?.display_name || userData?.full_name || 'Unknown',
+            points: userPoints,
+          };
+        });
+
+        leaderboards[cohortId] = studentPoints
+          .sort((a, b) => b.points - a.points)
+          .slice(0, 10);
+      }
+
+      return leaderboards;
+    },
+    enabled: cohortIds.length > 0 && !!allUsers,
+  });
 
   const { data: assignmentSubmissions } = useQuery({
     queryKey: ['pending-assignment-submissions', cohortIds],
@@ -133,7 +186,7 @@ export default function TutorDashboard() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200"
+        className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-8"
       >
         <h2 className="text-xl font-bold text-slate-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -171,6 +224,60 @@ export default function TutorDashboard() {
           </Link>
         </div>
       </motion.div>
+
+      {cohortIds.length > 0 && cohortLeaderboards && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="space-y-6"
+        >
+          {cohortIds.map((cohortId) => {
+            const cohort = cohorts?.find(c => c.id === cohortId);
+            const leaderboard = cohortLeaderboards[cohortId] || [];
+            
+            if (!cohort || leaderboard.length === 0) return null;
+
+            return (
+              <div key={cohortId} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                    <Trophy className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-lg">{cohort.name} Leaderboard</h3>
+                    <p className="text-sm text-slate-500">Top 10 students by points</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {leaderboard.map((student, index) => (
+                    <div 
+                      key={student.id}
+                      className="flex items-center gap-4 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
+                        index === 0 ? 'bg-amber-500 text-white' :
+                        index === 1 ? 'bg-slate-400 text-white' :
+                        index === 2 ? 'bg-orange-400 text-white' :
+                        'bg-slate-200 text-slate-700'
+                      }`}>
+                        {index + 1}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-slate-900">{student.name}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Award className="w-4 h-4 text-slate-400" />
+                        <span className="font-bold text-slate-900">{student.points}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </motion.div>
+      )}
     </div>
   );
 }
