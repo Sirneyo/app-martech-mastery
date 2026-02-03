@@ -97,17 +97,7 @@ export default function AdminUsers() {
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: async ({ userId, data }) => {
-      // Only send non-built-in fields that we're actually allowed to update
-      const allowedFields = {};
-      if (data.app_role !== undefined) allowedFields.app_role = data.app_role;
-      if (data.status !== undefined) allowedFields.status = data.status;
-      if (data.phone_number !== undefined) allowedFields.phone_number = data.phone_number;
-      if (data.professional_bio !== undefined) allowedFields.professional_bio = data.professional_bio;
-      if (data.profile_picture !== undefined) allowedFields.profile_picture = data.profile_picture;
-      
-      return await base44.entities.User.update(userId, allowedFields);
-    },
+    mutationFn: ({ userId, data }) => base44.entities.User.update(userId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
@@ -218,6 +208,7 @@ export default function AdminUsers() {
   const handleEditUser = (user) => {
     setSelectedUser(user);
     setEditData({
+      full_name: user.full_name || '',
       app_role: user.app_role || 'student',
       status: user.status || 'active'
     });
@@ -557,10 +548,22 @@ export default function AdminUsers() {
               <DialogTitle>Edit User</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                <p className="text-sm text-blue-700">
-                  <strong>{selectedUser?.full_name}</strong> ({selectedUser?.email})
-                </p>
+              <div className="space-y-2">
+                <Label>Full Name</Label>
+                <Input
+                  value={editData.full_name}
+                  onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
+                  placeholder="John Doe"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Email (Read-only)</Label>
+                <Input
+                  type="email"
+                  value={selectedUser?.email || ''}
+                  disabled
+                  className="bg-slate-100"
+                />
               </div>
               <div className="space-y-2">
                 <Label>App Role</Label>
