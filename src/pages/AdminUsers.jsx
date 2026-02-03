@@ -557,22 +557,10 @@ export default function AdminUsers() {
               <DialogTitle>Edit User</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label>Full Name</Label>
-                <Input
-                  value={editData.full_name}
-                  onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
-                  placeholder="John Doe"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  value={editData.email}
-                  onChange={(e) => setEditData({ ...editData, email: e.target.value })}
-                  placeholder="john@example.com"
-                />
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <p className="text-sm text-blue-700">
+                  <strong>{selectedUser?.full_name}</strong> ({selectedUser?.email})
+                </p>
               </div>
               <div className="space-y-2">
                 <Label>App Role</Label>
