@@ -4,13 +4,23 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
-import { FolderOpen, ChevronRight } from 'lucide-react';
+import { FolderOpen, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function StudentProjects() {
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
+  });
+
+  const { data: membership } = useQuery({
+    queryKey: ['my-cohort-membership'],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const memberships = await base44.entities.CohortMembership.filter({ user_id: user.id, status: 'active' });
+      return memberships[0];
+    },
+    enabled: !!user?.id,
   });
 
   const { data: projects = [] } = useQuery({
@@ -39,6 +49,13 @@ export default function StudentProjects() {
     return { status: 'not_started', label: 'Not Started', color: 'bg-slate-100 text-slate-600' };
   };
 
+  const isProjectLocked = (projectIndex) => {
+    if (projectIndex === 0) return false;
+    const previousProject = projects[projectIndex - 1];
+    const previousSubmission = submissions.find(s => s.project_template_id === previousProject.id);
+    return !previousSubmission || previousSubmission.status !== 'graded';
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
@@ -46,9 +63,10 @@ export default function StudentProjects() {
         <p className="text-slate-500 mt-1">Complete projects to demonstrate your skills</p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-4">
         {projects.map((project, index) => {
           const submissionStatus = getSubmissionStatus(project.id);
+          const isLocked = isProjectLocked(index);
           
           return (
             <motion.div
@@ -57,26 +75,58 @@ export default function StudentProjects() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              <Link
-                to={createPageUrl(`StudentProjectDetail?id=${project.id}`)}
-                className="block bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all group"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="outline">Week {project.week_number}</Badge>
-                      <Badge className={submissionStatus.color}>{submissionStatus.label}</Badge>
+              {isLocked ? (
+                <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm opacity-60">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                      <Lock className="w-6 h-6 text-slate-400" />
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-2">{project.title}</h3>
-                    <p className="text-sm text-slate-600 line-clamp-2">{project.description}</p>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="outline">Week {project.week_number}</Badge>
+                        <Badge className="bg-slate-100 text-slate-600">Locked</Badge>
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-900 mb-1">{project.title}</h3>
+                      <p className="text-sm text-slate-500">Complete the previous project to unlock</p>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <FolderOpen className="w-4 h-4" />
+                      <span>{project.points} points</span>
+                    </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all flex-shrink-0 ml-4" />
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-500 mt-4 pt-4 border-t border-slate-100">
-                  <FolderOpen className="w-4 h-4" />
-                  <span>{project.points} points</span>
-                </div>
-              </Link>
+              ) : (
+                <Link
+                  to={createPageUrl(`StudentProjectDetail?id=${project.id}`)}
+                  className="block bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                      submissionStatus.status === 'graded' ? 'bg-green-100' :
+                      submissionStatus.status === 'submitted' ? 'bg-amber-100' :
+                      'bg-blue-100'
+                    }`}>
+                      <FolderOpen className={`w-6 h-6 ${
+                        submissionStatus.status === 'graded' ? 'text-green-600' :
+                        submissionStatus.status === 'submitted' ? 'text-amber-600' :
+                        'text-blue-600'
+                      }`} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="outline">Week {project.week_number}</Badge>
+                        <Badge className={submissionStatus.color}>{submissionStatus.label}</Badge>
+                      </div>
+                      <h3 className="text-lg font-bold text-slate-900 mb-1">{project.title}</h3>
+                      <p className="text-sm text-slate-600 line-clamp-1">{project.short_description || project.title}</p>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <FolderOpen className="w-4 h-4" />
+                      <span>{project.points} points</span>
+                    </div>
+                  </div>
+                </Link>
+              )}
             </motion.div>
           );
         })}
