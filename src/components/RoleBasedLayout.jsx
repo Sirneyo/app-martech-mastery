@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Menu, X, Settings, User, LogOut } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import ProfileModal from '@/components/ProfileModal';
 import StudentSidebar from '@/components/StudentSidebar';
 import TutorSidebar from '@/components/TutorSidebar';
 import AdminSidebar from '@/components/AdminSidebar';
@@ -11,7 +12,6 @@ import LoadingLogo from '@/components/LoadingLogo';
 export default function RoleBasedLayout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   useEffect(() => {
     loadUserAndTrackLogin();
@@ -131,9 +131,15 @@ export default function RoleBasedLayout({ children, currentPageName }) {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => setProfileModalOpen(true)}>
-                  <User className="w-4 h-4 mr-2" />
-                  Profile Settings
+                <DropdownMenuItem asChild>
+                  <Link to={createPageUrl(
+                    user?.app_role === 'admin' ? 'AdminProfile' :
+                    user?.app_role === 'tutor' ? 'TutorProfile' :
+                    'StudentProfile'
+                  )}>
+                    <User className="w-4 h-4 mr-2" />
+                    Profile Settings
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => base44.auth.logout()}>
                   <LogOut className="w-4 h-4 mr-2" />
@@ -146,8 +152,6 @@ export default function RoleBasedLayout({ children, currentPageName }) {
 
         {children}
       </main>
-
-      <ProfileModal open={profileModalOpen} onOpenChange={setProfileModalOpen} />
     </div>
   );
 }
