@@ -76,6 +76,20 @@ export default function TutorAttendance() {
     enabled: !!selectedCohortId && !!selectedDate,
   });
 
+  // Check if attendance is locked (more than 1 hour since submission)
+  const isAttendanceLocked = React.useMemo(() => {
+    if (todayAttendance.length === 0) return false;
+    
+    const firstRecord = todayAttendance[0];
+    if (!firstRecord.created_date) return false;
+    
+    const submittedTime = new Date(firstRecord.created_date);
+    const currentTime = new Date();
+    const hoursSinceSubmission = (currentTime - submittedTime) / (1000 * 60 * 60);
+    
+    return hoursSinceSubmission >= 1;
+  }, [todayAttendance]);
+
   const { data: attendanceHistory = [] } = useQuery({
     queryKey: ['attendance-history', selectedCohortId],
     queryFn: async () => {
@@ -244,7 +258,11 @@ export default function TutorAttendance() {
                               <p className="text-xs text-slate-500">{student.email}</p>
                             </div>
                           </div>
-                          <Select value={status} onValueChange={(value) => handleStatusChange(student.id, value)}>
+                          <Select 
+                            value={status} 
+                            onValueChange={(value) => handleStatusChange(student.id, value)}
+                            disabled={isAttendanceLocked}
+                          >
                             <SelectTrigger className="w-32">
                               <SelectValue />
                             </SelectTrigger>
@@ -275,10 +293,19 @@ export default function TutorAttendance() {
                   )}
                 </div>
 
+                {isAttendanceLocked && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      Attendance is locked (submitted over 1 hour ago). Contact admin to modify.
+                    </div>
+                  </div>
+                )}
+                
                 {cohortStudents.length > 0 && (
                   <Button 
                     onClick={handleSubmit} 
-                    disabled={submitAttendanceMutation.isPending}
+                    disabled={submitAttendanceMutation.isPending || isAttendanceLocked}
                     className="w-full"
                   >
                     {submitAttendanceMutation.isPending ? 'Submitting...' : 'Submit Attendance'}

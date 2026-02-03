@@ -103,6 +103,7 @@ import TutorSubmissionReview from './pages/TutorSubmissionReview';
 import AdminProfile from './pages/AdminProfile';
 import StudentProfile from './pages/StudentProfile';
 import TutorProfile from './pages/TutorProfile';
+import AdminAttendance from './pages/AdminAttendance';
 import __Layout from './Layout.jsx';
 
 
@@ -163,6 +164,7 @@ export const PAGES = {
     "AdminProfile": AdminProfile,
     "StudentProfile": StudentProfile,
     "TutorProfile": TutorProfile,
+    "AdminAttendance": AdminAttendance,
 }
 
 export const pagesConfig = {
