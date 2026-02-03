@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Users, Calendar, FileText, LayoutDashboard, ChevronLeft, ChevronRight, ClipboardList, FolderCheck, Award, GraduationCap, ExternalLink, Zap } from 'lucide-react';
+import { Users, Calendar, FileText, LayoutDashboard, ChevronLeft, ChevronRight, ClipboardList, FolderCheck, Award, GraduationCap, ExternalLink, Zap, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
@@ -27,6 +27,7 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
     { name: 'Exams', icon: Award, page: 'AdminExams' },
     { name: 'Templates', icon: FileText, page: 'AdminTemplates' },
     { name: 'Exam Bank Import', icon: FileText, page: 'AdminExamBankImport' },
+    { name: 'Profile', icon: User, page: 'AdminProfile' },
   ];
 
   return (

@@ -14,7 +14,8 @@ import {
   ClipboardList,
   FolderOpen,
   Briefcase,
-  ChevronLeft
+  ChevronLeft,
+  User
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
     { name: 'My Projects', icon: FolderOpen, page: 'StudentProjects' },
     { name: 'My Certification', icon: Award, page: 'StudentCertification' },
     { name: 'My Portfolio', icon: Briefcase, page: 'StudentPortfolio' },
+    { name: 'Profile', icon: User, page: 'StudentProfile' },
   ];
 
   return (

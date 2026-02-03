@@ -14,7 +14,8 @@ import {
   FolderCheck,
   Award,
   ChevronLeft,
-  CheckCircle
+  CheckCircle,
+  User
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,7 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
     { name: 'Submissions (Assignments)', icon: ClipboardCheck, page: 'TutorAssignmentSubmissions' },
     { name: 'Submissions (Projects)', icon: FolderCheck, page: 'TutorProjectSubmissions' },
     { name: 'Portfolio Reviews', icon: Award, page: 'TutorPortfolioReviews' },
+    { name: 'Profile', icon: User, page: 'TutorProfile' },
   ];
 
   return (
