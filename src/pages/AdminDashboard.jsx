@@ -268,63 +268,6 @@ export default function AdminDashboard() {
           <p className="text-slate-600">Complete overview of your platform</p>
         </div>
 
-        {/* Quick Access Tools */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
-            to={createPageUrl('BeginLearning')}
-            className="flex items-center gap-3 px-4 py-4 rounded-xl transition-all duration-200 group bg-white hover:bg-slate-50 border-2 border-slate-200 hover:border-purple-300"
-          >
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-gradient-to-br from-purple-600 to-violet-500">
-              <GraduationCap className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
-                Begin Learning
-              </p>
-              <p className="text-xs text-slate-500">Courses & Live Sessions</p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600" />
-          </Link>
-
-          <a
-            href={settings?.marketo_url || "https://experience.adobe.com/#/@oadsolutionsltd/"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 px-4 py-4 rounded-xl transition-all duration-200 group bg-white hover:bg-slate-50 border-2 border-slate-200 hover:border-slate-300"
-          >
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-white border border-slate-200">
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/81e4b8812_AdobeIcon.png" 
-                alt="Adobe" 
-                className="w-8 h-8"
-              />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
-                Launch Marketo
-              </p>
-              <p className="text-xs text-slate-500">Opens in new tab</p>
-            </div>
-            <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-slate-600" />
-          </a>
-
-          <Link
-            to={createPageUrl('StudentAITools')}
-            className="flex items-center gap-3 px-4 py-4 rounded-xl transition-all duration-200 group bg-white hover:bg-slate-50 border-2 border-slate-200 hover:border-cyan-300"
-          >
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-gradient-to-br from-blue-500 to-cyan-500">
-              <Zap className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
-                AI Tools
-              </p>
-              <p className="text-xs text-slate-500">MarTech AI Assistant</p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-600" />
-          </Link>
-        </div>
-
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Link to={createPageUrl('AdminUsers')}>
