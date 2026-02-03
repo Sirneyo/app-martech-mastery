@@ -20,6 +20,7 @@ export default function AdminAttendance() {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [dateFilter, setDateFilter] = useState('all');
+  const [expandedDate, setExpandedDate] = useState(null);
 
   const { data: cohorts = [] } = useQuery({
     queryKey: ['cohorts'],
@@ -255,68 +256,80 @@ export default function AdminAttendance() {
                   const absentCount = records.filter(r => r.status === 'absent').length;
                   const totalStudents = cohortStudents.length;
 
-                  return (
-                    <div key={date} className="border border-slate-200 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h3 className="font-semibold text-slate-900">
-                            {format(new Date(date), 'EEEE, MMMM d, yyyy')}
-                          </h3>
-                          <p className="text-xs text-slate-500 mt-1">Total Students: {totalStudents}</p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Badge className="bg-green-100 text-green-700">
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            {presentCount} Present
-                          </Badge>
-                          <Badge className="bg-yellow-100 text-yellow-700">
-                            <Clock className="w-3 h-3 mr-1" />
-                            {lateCount} Late
-                          </Badge>
-                          <Badge className="bg-red-100 text-red-700">
-                            <XCircle className="w-3 h-3 mr-1" />
-                            {absentCount} Absent
-                          </Badge>
-                        </div>
-                      </div>
+                  const isExpanded = expandedDate === date;
 
-                      {/* Student List */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mt-3">
-                        {records.map(record => {
-                          const student = students.find(s => s.id === record.student_user_id);
-                          return (
-                            <button
-                              key={record.id}
-                              onClick={() => handleStudentClick(student)}
-                              className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer text-left"
-                            >
-                              {student?.profile_picture ? (
-                                <img
-                                  src={student.profile_picture}
-                                  alt={student.full_name}
-                                  className="w-8 h-8 rounded-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-                                  {student?.full_name?.charAt(0) || 'S'}
-                                </div>
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-slate-900 truncate">{student?.full_name || 'Unknown'}</p>
-                              </div>
-                              <Badge 
-                                variant={
-                                  record.status === 'present' ? 'default' :
-                                  record.status === 'late' ? 'secondary' : 'destructive'
-                                }
-                                className="text-xs"
-                              >
-                                {record.status}
-                              </Badge>
-                            </button>
-                          );
-                        })}
-                      </div>
+                  return (
+                    <div key={date} className="border border-slate-200 rounded-lg overflow-hidden">
+                      <button
+                        onClick={() => setExpandedDate(isExpanded ? null : date)}
+                        className="w-full p-4 hover:bg-slate-50 transition-colors text-left"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-semibold text-slate-900">
+                              {format(new Date(date), 'EEEE, MMMM d, yyyy')}
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-1">Total Students: {totalStudents}</p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Badge className="bg-green-100 text-green-700">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              {presentCount} Present
+                            </Badge>
+                            <Badge className="bg-yellow-100 text-yellow-700">
+                              <Clock className="w-3 h-3 mr-1" />
+                              {lateCount} Late
+                            </Badge>
+                            <Badge className="bg-red-100 text-red-700">
+                              <XCircle className="w-3 h-3 mr-1" />
+                              {absentCount} Absent
+                            </Badge>
+                            <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                          </div>
+                        </div>
+                      </button>
+
+                      {/* Student List - Only shown when expanded */}
+                      {isExpanded && (
+                        <div className="border-t border-slate-200 p-4 bg-slate-50">
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                            {records.map(record => {
+                              const student = students.find(s => s.id === record.student_user_id);
+                              return (
+                                <button
+                                  key={record.id}
+                                  onClick={() => handleStudentClick(student)}
+                                  className="flex items-center gap-2 p-2 rounded-lg bg-white hover:bg-slate-100 transition-colors cursor-pointer text-left"
+                                >
+                                  {student?.profile_picture ? (
+                                    <img
+                                      src={student.profile_picture}
+                                      alt={student.full_name}
+                                      className="w-8 h-8 rounded-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                                      {student?.full_name?.charAt(0) || 'S'}
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-slate-900 truncate">{student?.full_name || 'Unknown'}</p>
+                                  </div>
+                                  <Badge 
+                                    variant={
+                                      record.status === 'present' ? 'default' :
+                                      record.status === 'late' ? 'secondary' : 'destructive'
+                                    }
+                                    className="text-xs"
+                                  >
+                                    {record.status}
+                                  </Badge>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
