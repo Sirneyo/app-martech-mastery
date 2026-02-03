@@ -65,8 +65,8 @@ export default function StudentProfile() {
     const file = e.target.files[0];
     if (!file) return;
     
-    const { data } = await base44.integrations.Core.UploadFile({ file });
-    await base44.auth.updateMe({ cv_url: data.file_url });
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    await base44.auth.updateMe({ cv_url: file_url });
     queryClient.invalidateQueries({ queryKey: ['current-user'] });
   };
 
@@ -74,9 +74,9 @@ export default function StudentProfile() {
     const file = e.target.files[0];
     if (!file) return;
     
-    const { data } = await base44.integrations.Core.UploadFile({ file });
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
     const currentDocs = user?.portfolio_documents || [];
-    await base44.auth.updateMe({ portfolio_documents: [...currentDocs, data.file_url] });
+    await base44.auth.updateMe({ portfolio_documents: [...currentDocs, file_url] });
     queryClient.invalidateQueries({ queryKey: ['current-user'] });
   };
 
@@ -97,9 +97,10 @@ export default function StudentProfile() {
     const file = e.target.files[0];
     if (!file) return;
     
-    const { data } = await base44.integrations.Core.UploadFile({ file });
-    await base44.auth.updateMe({ profile_picture: data.file_url });
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    await base44.auth.updateMe({ profile_picture: file_url });
     queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    queryClient.invalidateQueries({ queryKey: ['users'] });
   };
 
   const activeMembership = memberships.find(m => m.status === 'active');

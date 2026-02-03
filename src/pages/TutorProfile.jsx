@@ -52,9 +52,10 @@ export default function TutorProfile() {
     const file = e.target.files[0];
     if (!file) return;
     
-    const { data } = await base44.integrations.Core.UploadFile({ file });
-    await base44.auth.updateMe({ profile_picture: data.file_url });
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    await base44.auth.updateMe({ profile_picture: file_url });
     queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    queryClient.invalidateQueries({ queryKey: ['users'] });
   };
 
   if (isLoading) {
