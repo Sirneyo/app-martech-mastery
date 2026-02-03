@@ -98,6 +98,97 @@ export default function StudentDashboard() {
     enabled: !!user?.id,
   });
 
+  const { data: myPoints } = useQuery({
+    queryKey: ['my-points'],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const ledger = await base44.entities.PointsLedger.filter({ user_id: user.id });
+      return ledger.reduce((sum, entry) => sum + entry.points, 0);
+    },
+    enabled: !!user?.id,
+  });
+
+  const { data: cohortMembers } = useQuery({
+    queryKey: ['cohort-members', membership?.cohort_id],
+    queryFn: async () => {
+      if (!membership?.cohort_id) return [];
+      return base44.entities.CohortMembership.filter({ cohort_id: membership.cohort_id, status: 'active' });
+    },
+    enabled: !!membership?.cohort_id,
+  });
+
+  const { data: allPoints } = useQuery({
+    queryKey: ['all-cohort-points', membership?.cohort_id],
+    queryFn: async () => {
+      if (!membership?.cohort_id || !cohortMembers) return [];
+      const allLedger = await base44.entities.PointsLedger.list();
+      const memberIds = cohortMembers.map(m => m.user_id);
+      
+      const pointsByUser = {};
+      allLedger
+        .filter(entry => memberIds.includes(entry.user_id))
+        .forEach(entry => {
+          pointsByUser[entry.user_id] = (pointsByUser[entry.user_id] || 0) + entry.points;
+        });
+      
+      return pointsByUser;
+    },
+    enabled: !!membership?.cohort_id && !!cohortMembers,
+  });
+
+  const { data: cohortUsers } = useQuery({
+    queryKey: ['cohort-users', membership?.cohort_id],
+    queryFn: async () => {
+      if (!cohortMembers || cohortMembers.length === 0) return [];
+      const userIds = cohortMembers.map(m => m.user_id);
+      return base44.entities.User.list();
+    },
+    enabled: !!cohortMembers && cohortMembers.length > 0,
+  });
+
+  const { data: mySubmissions } = useQuery({
+    queryKey: ['my-submissions-count'],
+    queryFn: async () => {
+      if (!user?.id) return { total: 0, graded: 0 };
+      const submissions = await base44.entities.Submission.filter({ user_id: user.id });
+      return {
+        total: submissions.length,
+        graded: submissions.filter(s => s.status === 'graded').length,
+      };
+    },
+    enabled: !!user?.id,
+  });
+
+  const { data: attendance } = useQuery({
+    queryKey: ['my-attendance'],
+    queryFn: async () => {
+      if (!user?.id) return { total: 0, present: 0 };
+      const records = await base44.entities.Attendance.filter({ student_user_id: user.id });
+      return {
+        total: records.length,
+        present: records.filter(r => r.status === 'present').length,
+      };
+    },
+    enabled: !!user?.id,
+  });
+
+  const leaderboard = React.useMemo(() => {
+    if (!allPoints || !cohortUsers || !cohortMembers) return [];
+    
+    const memberIds = cohortMembers.map(m => m.user_id);
+    const students = cohortUsers.filter(u => memberIds.includes(u.id));
+    
+    return students
+      .map(user => ({
+        id: user.id,
+        name: user.full_name,
+        points: allPoints[user.id] || 0,
+        isMe: user.id === user?.id,
+      }))
+      .sort((a, b) => b.points - a.points)
+      .slice(0, 10);
+  }, [allPoints, cohortUsers, cohortMembers, user]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <motion.div 
@@ -115,8 +206,46 @@ export default function StudentDashboard() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
       >
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/50 hover:shadow-md transition-shadow">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm text-slate-500 font-medium">Total Points</p>
+              <p className="text-2xl font-bold text-slate-900 mt-1">{myPoints || 0}</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
+              <Award className="w-5 h-5 text-white" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/50 hover:shadow-md transition-shadow">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm text-slate-500 font-medium">Submissions</p>
+              <p className="text-2xl font-bold text-slate-900 mt-1">{mySubmissions?.graded || 0}/{mySubmissions?.total || 0}</p>
+              <p className="text-xs text-slate-400 mt-1">Graded</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
+              <BookOpen className="w-5 h-5 text-white" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/50 hover:shadow-md transition-shadow">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm text-slate-500 font-medium">Attendance</p>
+              <p className="text-2xl font-bold text-slate-900 mt-1">{attendance?.present || 0}/{attendance?.total || 0}</p>
+              <p className="text-xs text-slate-400 mt-1">{attendance?.total > 0 ? Math.round((attendance.present / attendance.total) * 100) : 0}%</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg">
+              <Clock className="w-5 h-5 text-white" />
+            </div>
+          </div>
+        </div>
+
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/50 hover:shadow-md transition-shadow">
           <div className="flex items-start justify-between">
             <div>
@@ -128,44 +257,135 @@ export default function StudentDashboard() {
             </div>
           </div>
         </div>
+      </motion.div>
 
-        {cohort && (
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/50 hover:shadow-md transition-shadow">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm text-slate-500 font-medium">Cohort</p>
-                <p className="text-lg font-bold text-slate-900 mt-1">{cohort.name}</p>
-                <p className="text-xs text-slate-400 mt-1">Week {cohort.current_week}/12</p>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
+      {cohort && tutor && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"
+        >
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/50">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
                 <Trophy className="w-5 h-5 text-white" />
               </div>
+              <div>
+                <h3 className="font-bold text-slate-900">Your Cohort</h3>
+                <p className="text-sm text-slate-500">{cohort.name}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-600">Current Week:</span>
+                <span className="font-semibold text-slate-900">Week {cohort.current_week} of 12</span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-2">
+                <div 
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all"
+                  style={{ width: `${(cohort.current_week / 12) * 100}%` }}
+                />
+              </div>
+              {cohort.start_date && cohort.end_date && (
+                <>
+                  <div className="flex justify-between text-sm pt-2">
+                    <span className="text-slate-600">Started:</span>
+                    <span className="font-medium text-slate-900">{format(new Date(cohort.start_date), 'MMM d, yyyy')}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-600">Ends:</span>
+                    <span className="font-medium text-slate-900">{format(new Date(cohort.end_date), 'MMM d, yyyy')}</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
-        )}
 
-        {tutor && (
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/50 hover:shadow-md transition-shadow">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm text-slate-500 font-medium">Your Tutor</p>
-                <p className="text-lg font-bold text-slate-900 mt-1">{tutor.full_name}</p>
-                <a href={`mailto:${tutor.email}`} className="text-xs text-blue-600 hover:underline mt-1 inline-block">
-                  Contact
-                </a>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center shadow-lg">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/50">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
                 <User className="w-5 h-5 text-white" />
               </div>
+              <div>
+                <h3 className="font-bold text-slate-900">Your Tutor</h3>
+                <p className="text-sm text-slate-500">Primary Contact</p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <p className="text-lg font-bold text-slate-900">{tutor.full_name}</p>
+                <p className="text-sm text-slate-600">{tutor.email}</p>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <a 
+                  href={`mailto:${tutor.email}`}
+                  className="flex-1 flex items-center justify-center gap-2 bg-violet-50 text-violet-700 px-4 py-2 rounded-lg hover:bg-violet-100 transition-colors text-sm font-medium"
+                >
+                  <Mail className="w-4 h-4" />
+                  Email
+                </a>
+              </div>
             </div>
           </div>
-        )}
-      </motion.div>
+        </motion.div>
+      )}
+
+      {leaderboard.length > 0 && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/50 mb-8"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+              <Trophy className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 text-lg">Cohort Leaderboard</h3>
+              <p className="text-sm text-slate-500">Top 10 students by points</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {leaderboard.map((student, index) => (
+              <div 
+                key={student.id}
+                className={`flex items-center gap-4 p-3 rounded-xl transition-colors ${
+                  student.id === user?.id 
+                    ? 'bg-amber-50 border-2 border-amber-200' 
+                    : 'bg-slate-50 hover:bg-slate-100'
+                }`}
+              >
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
+                  index === 0 ? 'bg-amber-500 text-white' :
+                  index === 1 ? 'bg-slate-400 text-white' :
+                  index === 2 ? 'bg-orange-400 text-white' :
+                  'bg-slate-200 text-slate-700'
+                }`}>
+                  {index + 1}
+                </div>
+                <div className="flex-1">
+                  <p className={`font-semibold ${student.id === user?.id ? 'text-amber-900' : 'text-slate-900'}`}>
+                    {student.name} {student.id === user?.id && '(You)'}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Award className={`w-4 h-4 ${student.id === user?.id ? 'text-amber-600' : 'text-slate-400'}`} />
+                  <span className={`font-bold ${student.id === user?.id ? 'text-amber-900' : 'text-slate-900'}`}>
+                    {student.points}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+        transition={{ delay: 0.25 }}
         className="mb-8"
       >
         <a
@@ -213,7 +433,7 @@ export default function StudentDashboard() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+        className="grid grid-cols-1 md:grid-cols-2 gap-4"
       >
         <a 
           href={settings?.marketo_url || "https://experience.adobe.com/#/@oadsolutionsltd/"}
@@ -251,26 +471,6 @@ export default function StudentDashboard() {
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </div>
           </a>
-        )}
-
-        {cohort && cohort.start_date && cohort.end_date && (
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-            <h3 className="font-bold text-slate-900 mb-3">Program Timeline</h3>
-            <div className="space-y-2 text-sm text-slate-600">
-              <div className="flex justify-between">
-                <span>Started:</span>
-                <span className="font-medium">{format(new Date(cohort.start_date), 'MMM d, yyyy')}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Ends:</span>
-                <span className="font-medium">{format(new Date(cohort.end_date), 'MMM d, yyyy')}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Status:</span>
-                <Badge className="bg-green-100 text-green-700">{cohort.status}</Badge>
-              </div>
-            </div>
-          </div>
         )}
       </motion.div>
     </div>
