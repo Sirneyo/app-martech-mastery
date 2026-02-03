@@ -87,7 +87,6 @@ export default function TutorCohorts() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900">My Cohorts</h1>
-          <p className="text-slate-500 mt-1">Manage your assigned cohorts and students</p>
         </motion.div>
         <div className="bg-white rounded-2xl p-12 border border-slate-200 shadow-sm text-center">
           <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
@@ -102,7 +101,6 @@ export default function TutorCohorts() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">My Cohorts</h1>
-        <p className="text-slate-500 mt-1">Manage your assigned cohorts and students</p>
       </motion.div>
 
       <div className="space-y-6">
