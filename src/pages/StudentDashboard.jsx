@@ -309,10 +309,18 @@ export default function StudentDashboard() {
 
         {tutor && (
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/50">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
-                <User className="w-5 h-5 text-white" />
-              </div>
+            <div className="flex items-center gap-4 mb-4">
+              {tutor.profile_picture ? (
+                <img 
+                  src={tutor.profile_picture} 
+                  alt={tutor.full_name}
+                  className="w-16 h-16 rounded-xl object-cover border-2 border-violet-200"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
+                  <User className="w-8 h-8 text-white" />
+                </div>
+              )}
               <div>
                 <h3 className="font-bold text-slate-900">Your Tutor</h3>
                 <p className="text-sm text-slate-500">Primary Contact</p>
