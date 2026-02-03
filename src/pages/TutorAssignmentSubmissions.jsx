@@ -56,7 +56,10 @@ export default function TutorAssignmentSubmissions() {
 
   const { data: students = [] } = useQuery({
     queryKey: ['students'],
-    queryFn: () => base44.entities.User.list(),
+    queryFn: async () => {
+      const allUsers = await base44.entities.User.list();
+      return allUsers;
+    },
   });
 
   const { data: templates = [] } = useQuery({
@@ -65,8 +68,9 @@ export default function TutorAssignmentSubmissions() {
   });
 
   const getStudentName = (userId) => {
+    if (!students || students.length === 0) return 'Loading...';
     const student = students.find(s => s.id === userId);
-    return student?.full_name || 'Unknown Student';
+    return student?.full_name || student?.email || 'Unknown Student';
   };
 
   const getTemplateName = (templateId) => {
