@@ -11,7 +11,7 @@ import { Mail, Phone, Shield, Upload } from 'lucide-react';
 export default function AdminProfile() {
   const [activeTab, setActiveTab] = useState('personal');
   const [formData, setFormData] = useState({
-    full_name: '',
+    display_name: '',
     phone: '',
     professional_bio: '',
   });
@@ -23,7 +23,7 @@ export default function AdminProfile() {
     queryFn: async () => {
       const userData = await base44.auth.me();
       setFormData({
-        full_name: userData.full_name || '',
+        display_name: userData.display_name || userData.full_name || '',
         phone: userData.phone || '',
         professional_bio: userData.professional_bio || '',
       });
@@ -98,7 +98,7 @@ export default function AdminProfile() {
                   className="hidden"
                 />
               </div>
-              <h2 className="text-3xl font-bold text-slate-900">{user?.full_name}</h2>
+              <h2 className="text-3xl font-bold text-slate-900">{user?.display_name || user?.full_name}</h2>
               <p className="text-slate-500 mt-2">Administrator - Manage your profile settings</p>
             </div>
           </CardContent>
@@ -181,8 +181,8 @@ export default function AdminProfile() {
                       <div className="space-y-2">
                         <Label>Display Name</Label>
                         <Input
-                          value={formData.full_name}
-                          onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                          value={formData.display_name}
+                          onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
                           placeholder="Enter your name"
                         />
                         <p className="text-xs text-slate-500">This name will be shown throughout the app.</p>
