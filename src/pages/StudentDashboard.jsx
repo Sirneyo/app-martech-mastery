@@ -179,10 +179,23 @@ export default function StudentDashboard() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-          Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}! 👋
-        </h1>
-        <p className="text-slate-500 mt-1">Continue your MarTech journey</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+              Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}! 👋
+            </h1>
+            <p className="text-slate-500 mt-1">Continue your MarTech journey</p>
+          </div>
+          {user?.is_approved_graduate && (
+            <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl px-4 py-3">
+              <Trophy className="w-6 h-6 text-yellow-600" />
+              <div>
+                <p className="font-bold text-yellow-900">Approved Graduate</p>
+                <p className="text-xs text-yellow-700">Certified Professional</p>
+              </div>
+            </div>
+          )}
+        </div>
       </motion.div>
 
       <motion.div 
