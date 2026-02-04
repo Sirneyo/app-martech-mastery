@@ -50,12 +50,7 @@ export default function StudentAssignments() {
   };
 
   const isAssignmentLocked = (currentIndex) => {
-    if (currentIndex === 0) return false;
-    
-    const previousAssignment = assignments[currentIndex - 1];
-    const previousSubmission = submissions.find(s => s.assignment_template_id === previousAssignment.id);
-    
-    return !previousSubmission || (previousSubmission.status !== 'graded');
+    return false;
   };
 
   return (
