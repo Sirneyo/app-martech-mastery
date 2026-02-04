@@ -70,7 +70,7 @@ export default function TutorProjectSubmissions() {
   const getStudentName = (userId) => {
     if (!students || students.length === 0) return 'Loading...';
     const student = students.find(s => s.id === userId);
-    return student?.full_name || student?.email || 'Unknown Student';
+    return student?.data?.display_name || student?.full_name || student?.email || 'Unknown Student';
   };
 
   const getTemplateName = (templateId) => {
