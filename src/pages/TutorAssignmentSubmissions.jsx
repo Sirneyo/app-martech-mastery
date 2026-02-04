@@ -60,8 +60,13 @@ export default function TutorAssignmentSubmissions() {
     queryKey: ['students', studentIds],
     queryFn: async () => {
       if (studentIds.length === 0) return [];
-      const allUsers = await base44.entities.User.list();
-      return allUsers.filter(u => studentIds.includes(u.id));
+      const studentPromises = studentIds.map(id => 
+        base44.functions.invoke('getStudentInfo', { userId: id })
+          .then(res => res.data.student)
+          .catch(() => null)
+      );
+      const results = await Promise.all(studentPromises);
+      return results.filter(s => s !== null);
     },
     enabled: studentIds.length > 0,
   });

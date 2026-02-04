@@ -57,8 +57,15 @@ export default function TutorProjectSubmissions() {
   const { data: students = [] } = useQuery({
     queryKey: ['students'],
     queryFn: async () => {
-      const allUsers = await base44.entities.User.list();
-      return allUsers;
+      const allSubmissions = await base44.entities.Submission.list();
+      const uniqueUserIds = [...new Set(allSubmissions.map(s => s.user_id))];
+      const studentPromises = uniqueUserIds.map(id => 
+        base44.functions.invoke('getStudentInfo', { userId: id })
+          .then(res => res.data.student)
+          .catch(() => null)
+      );
+      const results = await Promise.all(studentPromises);
+      return results.filter(s => s !== null);
     },
   });
 

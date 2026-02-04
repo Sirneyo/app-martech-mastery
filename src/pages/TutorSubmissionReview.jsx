@@ -39,8 +39,8 @@ export default function TutorSubmissionReview() {
   const { data: student, isPending: isStudentPending } = useQuery({
     queryKey: ['student', submission?.user_id],
     queryFn: async () => {
-      const result = await base44.entities.User.filter({ id: submission.user_id });
-      return result[0] || null;
+      const response = await base44.functions.invoke('getStudentInfo', { userId: submission.user_id });
+      return response.data.student;
     },
     enabled: !!submission?.user_id,
   });
