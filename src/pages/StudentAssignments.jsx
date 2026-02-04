@@ -37,6 +37,17 @@ export default function StudentAssignments() {
     enabled: !!user?.id,
   });
 
+  const { data: grades = [] } = useQuery({
+    queryKey: ['my-grades'],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const allGrades = await base44.entities.SubmissionGrade.list();
+      const mySubmissionIds = submissions.map(s => s.id);
+      return allGrades.filter(g => mySubmissionIds.includes(g.submission_id));
+    },
+    enabled: !!user?.id && submissions.length > 0,
+  });
+
   const getSubmissionStatus = (assignmentId) => {
     const submission = submissions.find(s => s.assignment_template_id === assignmentId);
     if (!submission) return { status: 'not_started', label: 'Not Started', color: 'bg-slate-100 text-slate-600' };
@@ -110,7 +121,16 @@ export default function StudentAssignments() {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-slate-500 mt-4 pt-4 border-t border-slate-100">
                     <FileText className="w-4 h-4" />
-                    <span>{assignment.points} points</span>
+                    {(() => {
+                      const userSubmission = submissions.find(s => s.assignment_template_id === assignment.id);
+                      if (userSubmission && userSubmission.status === 'graded') {
+                        const grade = grades.find(g => g.submission_id === userSubmission.id);
+                        if (grade && grade.score !== undefined) {
+                          return <span>Score: {grade.score}/{assignment.points}</span>;
+                        }
+                      }
+                      return <span>{assignment.points} points</span>;
+                    })()}
                   </div>
                 </Link>
               )}
