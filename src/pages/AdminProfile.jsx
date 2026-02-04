@@ -34,7 +34,7 @@ export default function AdminProfile() {
   const updateProfileMutation = useMutation({
     mutationFn: (data) => base44.auth.updateMe(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['current-user'] });
+      queryClient.invalidateQueries();
     },
   });
 
@@ -48,7 +48,7 @@ export default function AdminProfile() {
     
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     await base44.auth.updateMe({ profile_picture: file_url });
-    queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    queryClient.invalidateQueries();
   };
 
   if (isLoading) {

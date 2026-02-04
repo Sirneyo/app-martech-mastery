@@ -53,7 +53,7 @@ export default function StudentProfile() {
   const updateProfileMutation = useMutation({
     mutationFn: (data) => base44.auth.updateMe(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['current-user'] });
+      queryClient.invalidateQueries();
     },
   });
 
@@ -67,7 +67,7 @@ export default function StudentProfile() {
     
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     await base44.auth.updateMe({ cv_url: file_url });
-    queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    queryClient.invalidateQueries();
   };
 
   const handlePortfolioUpload = async (e) => {
@@ -77,12 +77,12 @@ export default function StudentProfile() {
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     const currentDocs = user?.portfolio_documents || [];
     await base44.auth.updateMe({ portfolio_documents: [...currentDocs, file_url] });
-    queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    queryClient.invalidateQueries();
   };
 
   const handleRemoveCV = async () => {
     await base44.auth.updateMe({ cv_url: null });
-    queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    queryClient.invalidateQueries();
   };
 
   const handleRemovePortfolioDoc = async (docUrl) => {
@@ -90,7 +90,7 @@ export default function StudentProfile() {
     await base44.auth.updateMe({ 
       portfolio_documents: currentDocs.filter(d => d !== docUrl) 
     });
-    queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    queryClient.invalidateQueries();
   };
 
   const handleProfilePictureUpload = async (e) => {

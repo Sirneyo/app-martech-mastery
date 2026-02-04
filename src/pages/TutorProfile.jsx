@@ -40,7 +40,7 @@ export default function TutorProfile() {
   const updateProfileMutation = useMutation({
     mutationFn: (data) => base44.auth.updateMe(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['current-user'] });
+      queryClient.invalidateQueries();
     },
   });
 
