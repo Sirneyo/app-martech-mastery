@@ -58,7 +58,7 @@ export default function AdminSubmissionDetail() {
     queryKey: ['grade', submissionId],
     queryFn: async () => {
       const grades = await base44.entities.SubmissionGrade.filter({ submission_id: submissionId });
-      return grades[0];
+      return grades[0] || null;
     },
     enabled: !!submissionId,
   });
