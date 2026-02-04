@@ -36,11 +36,11 @@ export default function TutorSubmissionReview() {
     enabled: !!submissionId,
   });
 
-  const { data: student } = useQuery({
+  const { data: student, isPending: isStudentPending } = useQuery({
     queryKey: ['student', submission?.user_id],
     queryFn: async () => {
       const result = await base44.entities.User.filter({ id: submission.user_id });
-      return result[0];
+      return result[0] || null;
     },
     enabled: !!submission?.user_id,
   });
@@ -164,7 +164,9 @@ export default function TutorSubmissionReview() {
               <div className="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-slate-100">
                 <div className="flex items-center gap-2 text-slate-600">
                   <User className="w-4 h-4" />
-                  <span className="text-sm">{student?.full_name}</span>
+                  <span className="text-sm">
+                    {isStudentPending ? 'Loading student...' : student?.full_name || 'Unknown Student'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-600">
                   <Calendar className="w-4 h-4" />
