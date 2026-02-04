@@ -95,7 +95,6 @@ import StudentProfile from './pages/StudentProfile';
 import StudentProjectDetail from './pages/StudentProjectDetail';
 import StudentProjects from './pages/StudentProjects';
 import TutorAITools from './pages/TutorAITools';
-import TutorAssignmentSubmissions from './pages/TutorAssignmentSubmissions';
 import TutorAttendance from './pages/TutorAttendance';
 import TutorCohorts from './pages/TutorCohorts';
 import TutorDashboard from './pages/TutorDashboard';
@@ -104,6 +103,7 @@ import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProfile from './pages/TutorProfile';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
+import TutorAssignmentSubmissions from './pages/TutorAssignmentSubmissions';
 import __Layout from './Layout.jsx';
 
 
@@ -156,7 +156,6 @@ export const PAGES = {
     "StudentProjectDetail": StudentProjectDetail,
     "StudentProjects": StudentProjects,
     "TutorAITools": TutorAITools,
-    "TutorAssignmentSubmissions": TutorAssignmentSubmissions,
     "TutorAttendance": TutorAttendance,
     "TutorCohorts": TutorCohorts,
     "TutorDashboard": TutorDashboard,
@@ -165,6 +164,7 @@ export const PAGES = {
     "TutorProfile": TutorProfile,
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorSubmissionReview": TutorSubmissionReview,
+    "TutorAssignmentSubmissions": TutorAssignmentSubmissions,
 }
 
 export const pagesConfig = {

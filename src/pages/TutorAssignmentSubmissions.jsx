@@ -54,14 +54,12 @@ export default function TutorAssignmentSubmissions() {
     enabled: cohortIds.length > 0,
   });
 
-  const { data: students = [] } = useQuery({
+  const { data: students = [], isLoading: studentsLoading } = useQuery({
     queryKey: ['students'],
     queryFn: async () => {
-      if (cohortIds.length === 0) return [];
       const { data } = await base44.functions.invoke('getTutorStudents');
       return data || [];
     },
-    enabled: cohortIds.length > 0,
   });
 
   const { data: templates = [] } = useQuery({
@@ -70,9 +68,9 @@ export default function TutorAssignmentSubmissions() {
   });
 
   const getStudentName = (userId) => {
-    if (!students || students.length === 0) return 'Loading...';
+    if (studentsLoading) return 'Loading...';
     const student = students.find(s => s.id === userId);
-    return student?.full_name || student?.email || 'Unknown Student';
+    return student?.display_name || student?.full_name || student?.email || 'Unknown Student';
   };
 
   const getTemplateName = (templateId) => {
