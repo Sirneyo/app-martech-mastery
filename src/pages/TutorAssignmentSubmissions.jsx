@@ -57,9 +57,11 @@ export default function TutorAssignmentSubmissions() {
   const { data: students = [] } = useQuery({
     queryKey: ['students'],
     queryFn: async () => {
-      const allUsers = await base44.entities.User.list();
-      return allUsers;
+      if (cohortIds.length === 0) return [];
+      const { data } = await base44.functions.invoke('getTutorStudents');
+      return data || [];
     },
+    enabled: cohortIds.length > 0,
   });
 
   const { data: templates = [] } = useQuery({
