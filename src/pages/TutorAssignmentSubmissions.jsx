@@ -59,7 +59,7 @@ export default function TutorAssignmentSubmissions() {
     queryFn: async () => {
       if (cohortIds.length === 0) return [];
       const { data } = await base44.functions.invoke('getTutorStudents');
-      return data?.students || [];
+      return data || [];
     },
     enabled: cohortIds.length > 0,
   });
