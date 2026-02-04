@@ -61,6 +61,25 @@ export default function TutorSubmissionReview() {
 
   const gradeMutation = useMutation({
     mutationFn: async () => {
+      // Calculate score based on rubric grade
+      const isProject = submission.submission_kind === 'project';
+      let score = 0;
+      let maxScore = 100;
+      
+      if (isProject) {
+        // Project scoring (keep existing logic)
+        if (rubricGrade === 'Excellent') score = 60;
+        else if (rubricGrade === 'Good') score = 40;
+        maxScore = 100;
+      } else {
+        // Assignment scoring
+        if (rubricGrade === 'Excellent') score = 100;
+        else if (rubricGrade === 'Good') score = 50;
+        else if (rubricGrade === 'Fair') score = 25;
+        else score = 0; // Poor
+        maxScore = 100;
+      }
+      
       const gradeData = {
         submission_id: submissionId,
         graded_by: user.id,
@@ -68,6 +87,8 @@ export default function TutorSubmissionReview() {
         feedback_text: feedbackText,
         feedback_url: feedbackUrl,
         graded_date: new Date().toISOString(),
+        score: score,
+        max_score: maxScore,
       };
 
       await base44.entities.SubmissionGrade.create(gradeData);
