@@ -468,7 +468,7 @@ export default function StudentAssignmentDetail() {
 
                     {latestGrade && latestGrade.score !== undefined && (
                       <div className="pt-4 border-t border-slate-200">
-                        <p className="text-sm text-slate-500 mb-1">Latest Score</p>
+                        <p className="text-sm text-slate-500 mb-1">Score</p>
                         <p className="text-2xl font-bold text-slate-900">
                           {latestGrade.score}/{latestGrade.max_score}
                         </p>

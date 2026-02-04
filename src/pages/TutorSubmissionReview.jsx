@@ -75,24 +75,40 @@ export default function TutorSubmissionReview() {
       const newStatus = (rubricGrade === 'Poor' || rubricGrade === 'Fair') ? 'needs_revision' : 'graded';
       await base44.entities.Submission.update(submissionId, { status: newStatus });
 
-      if (newStatus === 'graded') {
+      // Only award points on first attempt
+      const isFirstAttempt = submission.attempt_number === 1 || !submission.attempt_number;
+      
+      if (newStatus === 'graded' && isFirstAttempt) {
         const isProject = submission.submission_kind === 'project';
-        const points = rubricGrade === 'Excellent' 
-          ? (isProject ? 60 : 30) 
-          : (isProject ? 40 : 20);
+        
+        let points = 0;
+        if (isProject) {
+          // Project points (keep existing logic)
+          points = rubricGrade === 'Excellent' ? 60 : 40;
+        } else {
+          // Assignment points (new logic)
+          if (rubricGrade === 'Excellent') points = 100;
+          else if (rubricGrade === 'Good') points = 50;
+          else if (rubricGrade === 'Fair') points = 25;
+          else points = 0; // Poor
+        }
         
         const reason = isProject 
           ? (rubricGrade === 'Excellent' ? 'graded_excellent_project' : 'graded_good_project')
-          : (rubricGrade === 'Excellent' ? 'graded_excellent_assignment' : 'graded_good_assignment');
+          : (rubricGrade === 'Excellent' ? 'graded_excellent_assignment' : 
+             rubricGrade === 'Good' ? 'graded_good_assignment' : 
+             rubricGrade === 'Fair' ? 'graded_fair_assignment' : 'graded_poor_assignment');
 
-        await base44.entities.PointsLedger.create({
-          user_id: submission.user_id,
-          points: points,
-          reason: reason,
-          source_type: submission.submission_kind,
-          source_id: submissionId,
-          awarded_by: user.id
-        });
+        if (points > 0) {
+          await base44.entities.PointsLedger.create({
+            user_id: submission.user_id,
+            points: points,
+            reason: reason,
+            source_type: submission.submission_kind,
+            source_id: submissionId,
+            awarded_by: user.id
+          });
+        }
 
         // Unlock next assignment if this was an assignment submission
         if (submission.submission_kind === 'assignment' && submission.assignment_template_id) {
