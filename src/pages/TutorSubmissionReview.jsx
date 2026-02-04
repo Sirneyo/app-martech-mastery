@@ -136,6 +136,12 @@ export default function TutorSubmissionReview() {
     ? 'TutorAssignmentSubmissions' 
     : 'TutorProjectSubmissions';
 
+  const getStudentDisplayName = () => {
+    if (isStudentPending) return 'Loading student...';
+    if (!student) return 'Unknown Student';
+    return student.data?.display_name || student.full_name || student.email || 'Unknown Student';
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <div className="max-w-4xl mx-auto">
@@ -164,9 +170,7 @@ export default function TutorSubmissionReview() {
               <div className="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-slate-100">
                 <div className="flex items-center gap-2 text-slate-600">
                   <User className="w-4 h-4" />
-                  <span className="text-sm">
-                    {isStudentPending ? 'Loading student...' : student?.full_name || 'Unknown Student'}
-                  </span>
+                  <span className="text-sm">{getStudentDisplayName()}</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-600">
                   <Calendar className="w-4 h-4" />
