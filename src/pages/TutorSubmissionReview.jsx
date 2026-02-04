@@ -113,6 +113,8 @@ export default function TutorSubmissionReview() {
       queryClient.invalidateQueries({ queryKey: ['submission'] });
       queryClient.invalidateQueries({ queryKey: ['assignment-submissions'] });
       queryClient.invalidateQueries({ queryKey: ['project-submissions'] });
+      queryClient.invalidateQueries({ queryKey: ['my-submissions'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-assignment-submissions'] });
       
       const backUrl = submission.submission_kind === 'assignment' 
         ? 'TutorAssignmentSubmissions' 
