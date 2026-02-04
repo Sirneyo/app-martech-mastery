@@ -87,10 +87,23 @@ export default function TutorDashboard() {
         .map(m => m.user_id);
       
       const submissions = await base44.entities.Submission.filter({ submission_kind: 'assignment' });
-      return submissions.filter(s => 
+      const filtered = submissions.filter(s => 
         studentIds.includes(s.user_id) && 
         ['submitted', 'in_review'].includes(s.status)
       );
+      
+      // Fetch templates and users for display
+      const templateIds = [...new Set(filtered.map(s => s.assignment_template_id).filter(Boolean))];
+      const templates = templateIds.length > 0 
+        ? await base44.entities.AssignmentTemplate.list()
+        : [];
+      const users = allUsers || await base44.entities.User.list();
+      
+      return filtered.map(s => ({
+        ...s,
+        template: templates.find(t => t.id === s.assignment_template_id),
+        student: users.find(u => u.id === s.user_id),
+      }));
     },
     enabled: cohortIds.length > 0,
   });
