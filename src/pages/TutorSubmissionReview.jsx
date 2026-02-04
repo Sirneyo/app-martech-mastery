@@ -93,6 +93,20 @@ export default function TutorSubmissionReview() {
           source_id: submissionId,
           awarded_by: user.id
         });
+
+        // Unlock next assignment if this was an assignment submission
+        if (submission.submission_kind === 'assignment' && submission.assignment_template_id) {
+          const allTemplates = await base44.entities.AssignmentTemplate.list('week_number');
+          const currentTemplate = allTemplates.find(t => t.id === submission.assignment_template_id);
+          
+          if (currentTemplate) {
+            const currentIndex = allTemplates.findIndex(t => t.id === currentTemplate.id);
+            const nextTemplate = allTemplates[currentIndex + 1];
+            
+            // Next assignment is automatically unlocked when student views the assignments page
+            // No additional action needed here - the StudentAssignments page checks previous submission status
+          }
+        }
       }
     },
     onSuccess: () => {
