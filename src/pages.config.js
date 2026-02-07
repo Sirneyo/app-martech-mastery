@@ -104,6 +104,7 @@ import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProfile from './pages/TutorProfile';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
+import AcceptInvite from './pages/AcceptInvite';
 import __Layout from './Layout.jsx';
 
 
@@ -165,6 +166,7 @@ export const PAGES = {
     "TutorProfile": TutorProfile,
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorSubmissionReview": TutorSubmissionReview,
+    "AcceptInvite": AcceptInvite,
 }
 
 export const pagesConfig = {
