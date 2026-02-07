@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const { email, full_name, app_role, cohortName } = await req.json();
+    const { email, full_name, app_role, cohortName, invitationId } = await req.json();
 
     const roleLabel = app_role === 'student' ? 'Student' : 
                       app_role === 'tutor' ? 'Tutor' : 'Admin';
@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
           </p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${Deno.env.get('BASE44_APP_URL')}" 
+            <a href="${Deno.env.get('BASE44_APP_URL')}/accept-invite/${invitationId}?email=${encodeURIComponent(email)}" 
                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                       color: white; 
                       padding: 15px 40px; 

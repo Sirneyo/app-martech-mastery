@@ -18,6 +18,10 @@ export default function AcceptInvite() {
 
   // Extract token from path (e.g., /accept-invite/TOKEN)
   const token = window.location.pathname.split('/').pop();
+  
+  // Extract email from query parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const emailFromUrl = urlParams.get('email');
 
   const { data: invitation, isLoading, error: loadError } = useQuery({
     queryKey: ['invitation', token],
@@ -117,7 +121,7 @@ export default function AcceptInvite() {
                 <Input
                   id="email"
                   type="email"
-                  value={invitation.email}
+                  value={emailFromUrl || invitation.email}
                   disabled
                   className="bg-slate-50 text-slate-500 cursor-not-allowed"
                 />
