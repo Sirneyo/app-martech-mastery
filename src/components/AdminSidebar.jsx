@@ -90,10 +90,8 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
           )}
         </Link>
 
-        <a
-          href="https://experience.adobe.com/#/@oadsolutionsltd/marketo"
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          to={createPageUrl('MarketoAccess')}
           className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
           title={isCollapsed ? 'Launch Marketo' : ''}
         >
@@ -110,12 +108,12 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
                 <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
                   Launch Marketo
                 </p>
-                <p className="text-[10px] text-slate-500">Opens in new tab</p>
+                <p className="text-[10px] text-slate-500">Access Marketo</p>
               </div>
-              <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
             </>
           )}
-        </a>
+        </Link>
 
         <Link
           to={createPageUrl('AITools')}
