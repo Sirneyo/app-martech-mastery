@@ -39,6 +39,7 @@ export default function AdminCohorts() {
     current_week: 1,
     status: 'upcoming',
     tutor_ids: [],
+    credential_id: '',
   });
 
   const queryClient = useQueryClient();
@@ -56,6 +57,11 @@ export default function AdminCohorts() {
   const { data: users = [] } = useQuery({
     queryKey: ['users'],
     queryFn: () => base44.entities.User.list(),
+  });
+
+  const { data: credentials = [] } = useQuery({
+    queryKey: ['credentials'],
+    queryFn: () => base44.entities.Credential.list('-created_date'),
   });
 
   const tutors = users.filter(u => u.app_role === 'tutor');
@@ -112,6 +118,7 @@ export default function AdminCohorts() {
       current_week: 1,
       status: 'upcoming',
       tutor_ids: [],
+      credential_id: '',
     });
     setEditingCohort(null);
   };
@@ -133,6 +140,7 @@ export default function AdminCohorts() {
       current_week: cohort.current_week,
       status: cohort.status,
       tutor_ids: [],
+      credential_id: cohort.credential_id || '',
     });
     setDialogOpen(true);
   };
@@ -222,6 +230,31 @@ export default function AdminCohorts() {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Credentials (Optional)</Label>
+                  <Select 
+                    value={formData.credential_id} 
+                    onValueChange={(value) => setFormData({ ...formData, credential_id: value })}
+                    disabled={editingCohort}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select credentials for this cohort" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={null}>None</SelectItem>
+                      {credentials.map((cred) => (
+                        <SelectItem key={cred.id} value={cred.id}>
+                          {cred.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {editingCohort && (
+                    <p className="text-xs text-slate-500">
+                      Credentials can only be changed in the Credentials section
+                    </p>
+                  )}
                 </div>
                 {!editingCohort && (
                   <div className="space-y-2">

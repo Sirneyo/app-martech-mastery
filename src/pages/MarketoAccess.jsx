@@ -9,6 +9,41 @@ import { toast } from 'sonner';
 export default function MarketoAccess() {
   const [showPassword, setShowPassword] = useState(false);
 
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const { data: membership } = useQuery({
+    queryKey: ['my-membership', currentUser?.id],
+    queryFn: async () => {
+      if (!currentUser?.id) return null;
+      const memberships = await base44.entities.CohortMembership.filter({ user_id: currentUser.id, status: 'active' });
+      return memberships[0] || null;
+    },
+    enabled: !!currentUser?.id,
+  });
+
+  const { data: cohort } = useQuery({
+    queryKey: ['cohort', membership?.cohort_id],
+    queryFn: async () => {
+      if (!membership?.cohort_id) return null;
+      const cohorts = await base44.entities.Cohort.filter({ id: membership.cohort_id });
+      return cohorts[0] || null;
+    },
+    enabled: !!membership?.cohort_id,
+  });
+
+  const { data: credential } = useQuery({
+    queryKey: ['credential', cohort?.credential_id],
+    queryFn: async () => {
+      if (!cohort?.credential_id) return null;
+      const credentials = await base44.entities.Credential.filter({ id: cohort.credential_id });
+      return credentials[0] || null;
+    },
+    enabled: !!cohort?.credential_id,
+  });
+
   const { data: settings, isLoading } = useQuery({
     queryKey: ['app-settings'],
     queryFn: async () => {
@@ -17,12 +52,17 @@ export default function MarketoAccess() {
     },
   });
 
+  const displayEmail = credential?.marketo_email || settings?.marketo_shared_email;
+  const displayPassword = credential?.marketo_password || settings?.marketo_shared_password;
+
   const handleCopy = (value, label) => {
     if (value) {
       navigator.clipboard.writeText(value);
       toast.success(`${label} copied to clipboard`);
     }
   };
+
+  const credentialSource = credential ? 'from your cohort credentials' : 'from shared credentials';
 
   const handleLaunch = () => {
     window.open('https://experience.adobe.com/#/@oadsolutionsltd/marketo', '_blank', 'noopener,noreferrer');
@@ -42,6 +82,9 @@ export default function MarketoAccess() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">Marketo Access</h1>
           <p className="text-slate-600">Copy the credentials below, then launch Marketo.</p>
+          {credential && (
+            <p className="text-sm text-blue-600 mt-1">Using credentials: {credential.name}</p>
+          )}
         </div>
 
         <Card className="mb-6">
@@ -53,13 +96,13 @@ export default function MarketoAccess() {
               <label className="text-sm font-medium text-slate-700 mb-2 block">Email</label>
               <div className="flex items-center gap-2">
                 <code className="flex-1 px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-sm font-mono text-slate-800">
-                  {settings?.marketo_shared_email || 'Not configured'}
+                  {displayEmail || 'Not configured'}
                 </code>
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => handleCopy(settings?.marketo_shared_email, 'Email')}
-                  disabled={!settings?.marketo_shared_email}
+                  onClick={() => handleCopy(displayEmail, 'Email')}
+                  disabled={!displayEmail}
                 >
                   <Copy className="w-4 h-4" />
                 </Button>
@@ -70,9 +113,9 @@ export default function MarketoAccess() {
               <label className="text-sm font-medium text-slate-700 mb-2 block">Password</label>
               <div className="flex items-center gap-2">
                 <code className="flex-1 px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-sm font-mono text-slate-800">
-                  {settings?.marketo_shared_password
+                  {displayPassword
                     ? showPassword
-                      ? settings.marketo_shared_password
+                      ? displayPassword
                       : '••••••••••••'
                     : 'Not configured'}
                 </code>
@@ -80,15 +123,15 @@ export default function MarketoAccess() {
                   variant="outline"
                   size="icon"
                   onClick={() => setShowPassword(!showPassword)}
-                  disabled={!settings?.marketo_shared_password}
+                  disabled={!displayPassword}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => handleCopy(settings?.marketo_shared_password, 'Password')}
-                  disabled={!settings?.marketo_shared_password}
+                  onClick={() => handleCopy(displayPassword, 'Password')}
+                  disabled={!displayPassword}
                 >
                   <Copy className="w-4 h-4" />
                 </Button>
