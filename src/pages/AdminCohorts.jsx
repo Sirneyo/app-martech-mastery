@@ -35,7 +35,8 @@ export default function AdminCohorts() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterYear, setFilterYear] = useState('all');
   const [formData, setFormData] = useState({
-    name: '',
+    cohort_month: new Date().getMonth() + 1,
+    cohort_year: new Date().getFullYear(),
     start_date: '',
     end_date: '',
     current_week: 1,
@@ -43,6 +44,9 @@ export default function AdminCohorts() {
     tutor_ids: [],
     credential_id: '',
   });
+
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const YEARS = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 2 + i);
 
   const queryClient = useQueryClient();
 
@@ -114,7 +118,8 @@ export default function AdminCohorts() {
 
   const resetForm = () => {
     setFormData({
-      name: '',
+      cohort_month: new Date().getMonth() + 1,
+      cohort_year: new Date().getFullYear(),
       start_date: '',
       end_date: '',
       current_week: 1,
@@ -126,17 +131,37 @@ export default function AdminCohorts() {
   };
 
   const handleSubmit = () => {
+    const cohortName = `${MONTHS[formData.cohort_month - 1]} ${formData.cohort_year}`;
+    const dataToSubmit = {
+      ...formData,
+      name: cohortName,
+    };
+    
     if (editingCohort) {
-      updateMutation.mutate({ id: editingCohort.id, data: formData });
+      updateMutation.mutate({ id: editingCohort.id, data: dataToSubmit });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(dataToSubmit);
     }
   };
 
   const handleEdit = (cohort) => {
     setEditingCohort(cohort);
+    
+    // Try to extract month and year from cohort name
+    let cohortMonth = new Date().getMonth() + 1;
+    let cohortYear = new Date().getFullYear();
+    
+    if (cohort.name) {
+      const monthMatch = MONTHS.findIndex(m => cohort.name.includes(m));
+      if (monthMatch !== -1) cohortMonth = monthMatch + 1;
+      
+      const yearMatch = cohort.name.match(/\d{4}/);
+      if (yearMatch) cohortYear = parseInt(yearMatch[0]);
+    }
+    
     setFormData({
-      name: cohort.name,
+      cohort_month: cohortMonth,
+      cohort_year: cohortYear,
       start_date: cohort.start_date,
       end_date: cohort.end_date,
       current_week: cohort.current_week,
@@ -199,13 +224,48 @@ export default function AdminCohorts() {
                 <DialogTitle>{editingCohort ? 'Edit Cohort' : 'Create New Cohort'}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label>Cohort Name</Label>
-                  <Input
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g., Cohort 2024-Q1"
-                  />
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                  <p className="text-sm font-semibold text-blue-900">
+                    Cohort Name: {MONTHS[formData.cohort_month - 1]} {formData.cohort_year}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Cohort Month</Label>
+                    <Select 
+                      value={formData.cohort_month.toString()} 
+                      onValueChange={(value) => setFormData({ ...formData, cohort_month: parseInt(value) })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {MONTHS.map((month, index) => (
+                          <SelectItem key={index + 1} value={(index + 1).toString()}>
+                            {month}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Cohort Year</Label>
+                    <Select 
+                      value={formData.cohort_year.toString()} 
+                      onValueChange={(value) => setFormData({ ...formData, cohort_year: parseInt(value) })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {YEARS.map(year => (
+                          <SelectItem key={year} value={year.toString()}>
+                            {year}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
