@@ -32,6 +32,8 @@ export default function AdminCohorts() {
   });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCohort, setEditingCohort] = useState(null);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterYear, setFilterYear] = useState('all');
   const [formData, setFormData] = useState({
     name: '',
     start_date: '',
@@ -154,6 +156,23 @@ export default function AdminCohorts() {
     active: 'bg-green-100 text-green-700',
     completed: 'bg-slate-100 text-slate-700',
   };
+
+  // Sort cohorts by start_date (January to December per year)
+  const sortedCohorts = [...cohorts].sort((a, b) => {
+    if (!a.start_date) return 1;
+    if (!b.start_date) return -1;
+    return new Date(a.start_date) - new Date(b.start_date);
+  });
+
+  // Get unique years from cohorts
+  const availableYears = [...new Set(sortedCohorts.map(c => c.start_date ? new Date(c.start_date).getFullYear() : null).filter(Boolean))].sort((a, b) => b - a);
+
+  // Filter cohorts
+  const filteredCohorts = sortedCohorts.filter(cohort => {
+    const statusMatch = filterStatus === 'all' || cohort.status === filterStatus;
+    const yearMatch = filterYear === 'all' || (cohort.start_date && new Date(cohort.start_date).getFullYear().toString() === filterYear);
+    return statusMatch && yearMatch;
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
@@ -303,64 +322,98 @@ export default function AdminCohorts() {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cohorts.map((cohort) => (
-            <Link 
-              key={cohort.id} 
-              to={createPageUrl('CohortDetail') + '?id=' + cohort.id}
-              className="block"
-            >
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow cursor-pointer">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-slate-900 mb-2">{cohort.name}</h3>
-                    <Badge className={statusColors[cohort.status]}>
-                      {cohort.status}
-                    </Badge>
-                  </div>
-                  {currentUser?.app_role === 'admin' && (
-                    <div className="flex gap-1" onClick={(e) => e.preventDefault()}>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEdit(cohort)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          if (confirm('Delete this cohort?')) {
-                            deleteMutation.mutate(cohort.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 mb-6">
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <Label className="text-xs text-slate-600 mb-2 block">Filter by Status</Label>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="upcoming">Upcoming</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex-1">
+              <Label className="text-xs text-slate-600 mb-2 block">Filter by Year</Label>
+              <Select value={filterYear} onValueChange={setFilterYear}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Years</SelectItem>
+                  {availableYears.map(year => (
+                    <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
 
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center gap-2 text-slate-600">
-                    <Calendar className="w-4 h-4" />
-                    <span>
-                      {cohort.start_date && format(new Date(cohort.start_date), 'MMM d, yyyy')}
-                      {cohort.end_date && ` - ${format(new Date(cohort.end_date), 'MMM d, yyyy')}`}
-                    </span>
+        <div className="space-y-3">
+          {filteredCohorts.map((cohort) => (
+            <div key={cohort.id} className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-4">
+                <Link 
+                  to={createPageUrl('CohortDetail') + '?id=' + cohort.id}
+                  className="flex-1 flex items-center gap-4 cursor-pointer"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-1">
+                      <h3 className="text-lg font-bold text-slate-900">{cohort.name}</h3>
+                      <Badge className={statusColors[cohort.status]}>
+                        {cohort.status}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-6 text-sm text-slate-600">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>
+                          {cohort.start_date && format(new Date(cohort.start_date), 'MMM d, yyyy')}
+                          {cohort.end_date && ` - ${format(new Date(cohort.end_date), 'MMM d, yyyy')}`}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4" />
+                        <span>{getMemberCount(cohort.id)} students</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Week: </span>
+                        <span className="font-semibold text-slate-900">{cohort.current_week}/12</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-600">
-                    <Users className="w-4 h-4" />
-                    <span>{getMemberCount(cohort.id)} students</span>
+                </Link>
+                {currentUser?.app_role === 'admin' && (
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEdit(cohort)}
+                    >
+                      <Edit className="w-4 h-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        if (confirm('Delete this cohort?')) {
+                          deleteMutation.mutate(cohort.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                    </Button>
                   </div>
-                  <div className="pt-2 border-t border-slate-100">
-                    <span className="text-slate-500">Week: </span>
-                    <span className="font-semibold text-slate-900">{cohort.current_week}/12</span>
-                  </div>
-                </div>
+                )}
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>
