@@ -236,7 +236,6 @@ export default function AdminCohorts() {
                   <Select 
                     value={formData.credential_id} 
                     onValueChange={(value) => setFormData({ ...formData, credential_id: value })}
-                    disabled={editingCohort}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select credentials for this cohort" />
@@ -250,11 +249,6 @@ export default function AdminCohorts() {
                       ))}
                     </SelectContent>
                   </Select>
-                  {editingCohort && (
-                    <p className="text-xs text-slate-500">
-                      Credentials can only be changed in the Credentials section
-                    </p>
-                  )}
                 </div>
                 {!editingCohort && (
                   <div className="space-y-2">
