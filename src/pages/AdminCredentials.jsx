@@ -180,73 +180,71 @@ export default function AdminCredentials() {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-3">
           {credentials.map((credential) => {
             const assignedCohorts = getCohortsUsingCredential(credential.id);
             return (
-              <Card key={credential.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
+              <div key={credential.id} className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-orange-100">
+                      <img 
+                        src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/81e4b8812_AdobeIcon.png" 
+                        alt="Marketo" 
+                        className="w-6 h-6"
+                      />
+                    </div>
                     <div className="flex-1">
-                      <CardTitle className="text-lg mb-2">{credential.name}</CardTitle>
-                      <Badge className="bg-blue-100 text-blue-700">
-                        {MONTHS[credential.month - 1]} {credential.year}
-                      </Badge>
-                    </div>
-                    <div className="flex gap-1">
-                      <Button size="sm" variant="ghost" onClick={() => handleEdit(credential)}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          if (assignedCohorts.length > 0) {
-                            alert(`Cannot delete. This credential is used by ${assignedCohorts.length} cohort(s).`);
-                            return;
-                          }
-                          if (confirm('Delete this credential?')) {
-                            deleteMutation.mutate(credential.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Key className="w-4 h-4 text-slate-500" />
-                      <span className="text-slate-600">Email:</span>
-                      <code className="text-xs bg-slate-100 px-2 py-1 rounded">{credential.marketo_email}</code>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Key className="w-4 h-4 text-slate-500" />
-                      <span className="text-slate-600">Password:</span>
-                      <code className="text-xs bg-slate-100 px-2 py-1 rounded">••••••••</code>
-                    </div>
-                  </div>
-                  {assignedCohorts.length > 0 && (
-                    <div className="pt-3 border-t border-slate-200">
-                      <p className="text-xs text-slate-500 mb-2">Used by {assignedCohorts.length} cohort(s):</p>
-                      <div className="flex flex-wrap gap-1">
-                        {assignedCohorts.slice(0, 3).map(cohort => (
-                          <Badge key={cohort.id} variant="outline" className="text-xs">
-                            {cohort.name}
-                          </Badge>
-                        ))}
-                        {assignedCohorts.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{assignedCohorts.length - 3} more
-                          </Badge>
+                      <div className="flex items-center gap-3 mb-1">
+                        <h3 className="font-semibold text-slate-900">{credential.name}</h3>
+                        <Badge className="bg-orange-100 text-orange-700 text-xs">
+                          Marketo Login
+                        </Badge>
+                        <Badge className="bg-blue-100 text-blue-700 text-xs">
+                          {MONTHS[credential.month - 1]} {credential.year}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-6 text-sm text-slate-600">
+                        <div className="flex items-center gap-2">
+                          <Key className="w-3.5 h-3.5 text-slate-400" />
+                          <span className="font-mono text-xs">{credential.marketo_email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Key className="w-3.5 h-3.5 text-slate-400" />
+                          <span className="font-mono text-xs">••••••••</span>
+                        </div>
+                        {assignedCohorts.length > 0 && (
+                          <div className="flex items-center gap-2">
+                            <Users className="w-3.5 h-3.5 text-slate-400" />
+                            <span className="text-xs">{assignedCohorts.length} cohort(s)</span>
+                          </div>
                         )}
                       </div>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => handleEdit(credential)}>
+                      <Edit className="w-4 h-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        if (assignedCohorts.length > 0) {
+                          alert(`Cannot delete. This credential is used by ${assignedCohorts.length} cohort(s).`);
+                          return;
+                        }
+                        if (confirm('Delete this credential?')) {
+                          deleteMutation.mutate(credential.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
             );
           })}
         </div>
