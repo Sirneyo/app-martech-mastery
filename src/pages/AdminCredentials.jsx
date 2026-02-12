@@ -30,9 +30,15 @@ export default function AdminCredentials() {
 
   const queryClient = useQueryClient();
 
-  const { data: credentials = [] } = useQuery({
+  const { data: credentialsRaw = [] } = useQuery({
     queryKey: ['credentials'],
     queryFn: () => base44.entities.Credential.list('-created_date'),
+  });
+
+  // Sort credentials by year (desc) then month (Jan to Dec)
+  const credentials = [...credentialsRaw].sort((a, b) => {
+    if (a.year !== b.year) return b.year - a.year;
+    return a.month - b.month;
   });
 
   const { data: cohorts = [] } = useQuery({
