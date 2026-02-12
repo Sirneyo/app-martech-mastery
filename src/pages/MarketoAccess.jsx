@@ -52,8 +52,8 @@ export default function MarketoAccess() {
     },
   });
 
-  const displayEmail = credential?.marketo_email || settings?.marketo_shared_email;
-  const displayPassword = credential?.marketo_password || settings?.marketo_shared_password;
+  const displayEmail = credential?.email || credential?.marketo_email || settings?.marketo_shared_email;
+  const displayPassword = credential?.password || credential?.marketo_password || settings?.marketo_shared_password;
 
   const handleCopy = (value, label) => {
     if (value) {

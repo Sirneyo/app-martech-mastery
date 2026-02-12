@@ -20,10 +20,12 @@ export default function AdminCredentials() {
   const [editingCredential, setEditingCredential] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
+    credential_type: 'Marketo',
     month: 1,
     year: new Date().getFullYear(),
-    marketo_email: '',
-    marketo_password: '',
+    email: '',
+    password: '',
+    additional_info: '',
   });
 
   const queryClient = useQueryClient();
@@ -66,10 +68,12 @@ export default function AdminCredentials() {
   const resetForm = () => {
     setFormData({
       name: '',
+      credential_type: 'Marketo',
       month: 1,
       year: new Date().getFullYear(),
-      marketo_email: '',
-      marketo_password: '',
+      email: '',
+      password: '',
+      additional_info: '',
     });
     setEditingCredential(null);
   };
@@ -86,16 +90,40 @@ export default function AdminCredentials() {
     setEditingCredential(credential);
     setFormData({
       name: credential.name,
+      credential_type: credential.credential_type || 'Marketo',
       month: credential.month,
       year: credential.year,
-      marketo_email: credential.marketo_email,
-      marketo_password: credential.marketo_password,
+      email: credential.email || credential.marketo_email || '',
+      password: credential.password || credential.marketo_password || '',
+      additional_info: credential.additional_info || '',
     });
     setDialogOpen(true);
   };
 
   const getCohortsUsingCredential = (credentialId) => {
     return cohorts.filter(c => c.credential_id === credentialId);
+  };
+
+  const getCredentialIcon = (type) => {
+    switch(type) {
+      case 'Marketo':
+        return 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/81e4b8812_AdobeIcon.png';
+      default:
+        return null;
+    }
+  };
+
+  const getCredentialColor = (type) => {
+    switch(type) {
+      case 'Marketo':
+        return 'bg-orange-100';
+      case 'Kajabi':
+        return 'bg-purple-100';
+      case 'AI Tools':
+        return 'bg-blue-100';
+      default:
+        return 'bg-slate-100';
+    }
   };
 
   return (
@@ -129,6 +157,20 @@ export default function AdminCredentials() {
                     placeholder="e.g., January 2026 Marketo Credentials"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label>Credential Type</Label>
+                  <Select value={formData.credential_type} onValueChange={(value) => setFormData({ ...formData, credential_type: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Marketo">Marketo</SelectItem>
+                      <SelectItem value="Kajabi">Kajabi</SelectItem>
+                      <SelectItem value="AI Tools">AI Tools</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Month</Label>
@@ -155,21 +197,29 @@ export default function AdminCredentials() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Marketo Email</Label>
+                  <Label>Email</Label>
                   <Input
                     type="email"
-                    value={formData.marketo_email}
-                    onChange={(e) => setFormData({ ...formData, marketo_email: e.target.value })}
-                    placeholder="marketo@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="email@example.com"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Marketo Password</Label>
+                  <Label>Password</Label>
                   <Input
                     type="text"
-                    value={formData.marketo_password}
-                    onChange={(e) => setFormData({ ...formData, marketo_password: e.target.value })}
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     placeholder="Enter password"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Additional Info (Optional)</Label>
+                  <Input
+                    value={formData.additional_info}
+                    onChange={(e) => setFormData({ ...formData, additional_info: e.target.value })}
+                    placeholder="Any additional notes"
                   />
                 </div>
                 <Button onClick={handleSubmit} className="w-full">
@@ -187,18 +237,22 @@ export default function AdminCredentials() {
               <div key={credential.id} className="bg-white rounded-lg p-4 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-orange-100">
-                      <img 
-                        src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/81e4b8812_AdobeIcon.png" 
-                        alt="Marketo" 
-                        className="w-6 h-6"
-                      />
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getCredentialColor(credential.credential_type || 'Marketo')}`}>
+                      {getCredentialIcon(credential.credential_type || 'Marketo') ? (
+                        <img 
+                          src={getCredentialIcon(credential.credential_type || 'Marketo')} 
+                          alt={credential.credential_type || 'Marketo'} 
+                          className="w-6 h-6"
+                        />
+                      ) : (
+                        <Key className="w-5 h-5 text-slate-600" />
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-1">
                         <h3 className="font-semibold text-slate-900">{credential.name}</h3>
                         <Badge className="bg-orange-100 text-orange-700 text-xs">
-                          Marketo Login
+                          {credential.credential_type || 'Marketo'} Login
                         </Badge>
                         <Badge className="bg-blue-100 text-blue-700 text-xs">
                           {MONTHS[credential.month - 1]} {credential.year}
@@ -207,7 +261,7 @@ export default function AdminCredentials() {
                       <div className="flex items-center gap-6 text-sm text-slate-600">
                         <div className="flex items-center gap-2">
                           <Key className="w-3.5 h-3.5 text-slate-400" />
-                          <span className="font-mono text-xs">{credential.marketo_email}</span>
+                          <span className="font-mono text-xs">{credential.email || credential.marketo_email}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Key className="w-3.5 h-3.5 text-slate-400" />
