@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ArrowLeft, Upload, Loader2, CheckCircle, Download, FileText, Calendar, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
+import ReactQuill from 'react-quill';
 
 export default function StudentAssignmentDetail() {
   const navigate = useNavigate();
@@ -280,14 +281,26 @@ export default function StudentAssignmentDetail() {
                       {evidenceReqs.allow_text && (
                         <div>
                           <Label>Written Response</Label>
-                          <Textarea
-                            value={formData.text_response}
-                            onChange={(e) => setFormData({ ...formData, text_response: e.target.value })}
-                            placeholder="Describe your work, insights, or approach..."
-                            rows={6}
-                            disabled={isReadOnly}
-                            className="mt-2"
-                          />
+                          <div className="mt-2">
+                            <ReactQuill
+                              value={formData.text_response}
+                              onChange={(value) => setFormData({ ...formData, text_response: value })}
+                              placeholder="Describe your work, insights, or approach..."
+                              readOnly={isReadOnly}
+                              theme="snow"
+                              modules={{
+                                toolbar: [
+                                  [{ 'header': [1, 2, 3, false] }],
+                                  ['bold', 'italic', 'underline', 'strike'],
+                                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                  [{ 'align': [] }],
+                                  ['link'],
+                                  ['clean']
+                                ]
+                              }}
+                              className="bg-white rounded-md"
+                            />
+                          </div>
                         </div>
                       )}
 
