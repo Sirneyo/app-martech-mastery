@@ -25,6 +25,7 @@ export default function StudentAssignmentDetail() {
     files: []
   });
   const [uploading, setUploading] = useState(false);
+  const quillRef = React.useRef(null);
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -110,6 +111,69 @@ export default function StudentAssignmentDetail() {
       setUploading(false);
     }
   };
+
+  const handleImageUpload = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (file) {
+        try {
+          const result = await base44.integrations.Core.UploadFile({ file });
+          const quill = quillRef.current?.getEditor();
+          if (quill) {
+            const range = quill.getSelection(true);
+            quill.insertEmbed(range.index, 'image', result.file_url);
+          }
+        } catch (error) {
+          console.error('Error uploading image:', error);
+        }
+      }
+    };
+  };
+
+  const handleVideoUpload = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'video/*');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (file) {
+        try {
+          const result = await base44.integrations.Core.UploadFile({ file });
+          const quill = quillRef.current?.getEditor();
+          if (quill) {
+            const range = quill.getSelection(true);
+            quill.insertEmbed(range.index, 'video', result.file_url);
+          }
+        } catch (error) {
+          console.error('Error uploading video:', error);
+        }
+      }
+    };
+  };
+
+  const quillModules = React.useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'align': [] }],
+        ['link', 'image', 'video'],
+        ['clean']
+      ],
+      handlers: {
+        image: handleImageUpload,
+        video: handleVideoUpload
+      }
+    }
+  }), []);
 
   const submitMutation = useMutation({
     mutationFn: async () => {
@@ -283,21 +347,14 @@ export default function StudentAssignmentDetail() {
                           <Label>Written Response</Label>
                           <div className="mt-2">
                             <ReactQuill
+                              ref={quillRef}
                               value={formData.text_response}
                               onChange={(value) => setFormData({ ...formData, text_response: value })}
                               placeholder="Describe your work, insights, or approach..."
                               readOnly={isReadOnly}
                               theme="snow"
-                              modules={{
-                                toolbar: [
-                                  [{ 'header': [1, 2, 3, false] }],
-                                  ['bold', 'italic', 'underline', 'strike'],
-                                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                                  [{ 'align': [] }],
-                                  ['link'],
-                                  ['clean']
-                                ]
-                              }}
+                              modules={quillModules}
+                              style={{ height: '400px', marginBottom: '50px' }}
                               className="bg-white rounded-md"
                             />
                           </div>
