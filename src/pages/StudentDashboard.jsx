@@ -344,6 +344,53 @@ export default function StudentDashboard() {
         )}
       </motion.div>
 
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mb-8"
+      >
+        <a
+          href={settings?.kajabi_url || "https://www.the-growth-academy.co/library"}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block group"
+        >
+          <div className="bg-gradient-to-br from-purple-600 to-violet-500 rounded-3xl p-12 text-white hover:shadow-2xl hover:shadow-purple-500/30 transition-all duration-300 relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+              <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2"></div>
+            </div>
+
+            <div className="relative flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex-1 text-center md:text-left">
+                <h2 className="text-4xl font-bold mb-3">Continue Your Learning</h2>
+                <p className="text-white/90 text-lg mb-6">
+                  Access all course materials, videos, and resources on the Growth Academy platform
+                </p>
+                <div className="flex flex-wrap items-center gap-4 text-sm">
+                  <span className="flex items-center gap-2">
+                    <Play className="w-4 h-4" /> Video lessons
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <BookOpen className="w-4 h-4" /> Course materials
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <Target className="w-4 h-4" /> Live sessions
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex-shrink-0">
+                <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                  <Play className="w-10 h-10 text-purple-600 ml-1" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      </motion.div>
+
       {certificate && (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
