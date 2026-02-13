@@ -344,85 +344,6 @@ export default function StudentDashboard() {
         )}
       </motion.div>
 
-      {requiredRequirements.length > 0 && (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/50 mb-8"
-        >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-              <Award className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h3 className="font-bold text-slate-900 text-lg">Certification Progress</h3>
-              <p className="text-sm text-slate-500">{completedRequirements} of {requiredRequirements.length} requirements completed</p>
-            </div>
-          </div>
-          
-          <div className="mb-6">
-            <div className="flex justify-between mb-2">
-              <span className="text-sm text-slate-600">Overall Progress</span>
-              <span className="text-sm font-bold text-slate-900">{certificationProgress}%</span>
-            </div>
-            <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
-              <div 
-                className="bg-gradient-to-r from-amber-500 to-orange-500 h-3 rounded-full transition-all duration-500"
-                style={{ width: `${certificationProgress}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {requiredRequirements.map((req) => {
-              const status = portfolioStatuses.find(s => s.portfolio_item_id === req.id);
-              const isApproved = status?.status === 'approved';
-              const progress = status?.progress || 0;
-              
-              return (
-                <div key={req.id} className="flex items-center gap-3 p-3 rounded-lg bg-slate-50">
-                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                    isApproved ? 'bg-green-100' : 'bg-slate-200'
-                  }`}>
-                    {isApproved ? (
-                      <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    ) : (
-                      <div className="w-2 h-2 rounded-full bg-slate-400" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${isApproved ? 'text-slate-900' : 'text-slate-700'}`}>
-                      {req.title}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="flex-1 bg-slate-200 rounded-full h-1.5 overflow-hidden">
-                        <div 
-                          className={`h-1.5 rounded-full transition-all ${
-                            isApproved ? 'bg-green-500 w-full' : 'bg-blue-500'
-                          }`}
-                          style={{ width: isApproved ? '100%' : `${progress}%` }}
-                        />
-                      </div>
-                      <span className="text-xs text-slate-500 ml-1">{progress}%</span>
-                    </div>
-                  </div>
-                  <Badge className={`text-xs flex-shrink-0 ${
-                    isApproved 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'bg-amber-100 text-amber-700'
-                  }`}>
-                    {status?.status || 'pending'}
-                  </Badge>
-                </div>
-              );
-            })}
-          </div>
-        </motion.div>
-      )}
-
       {certificate && (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -495,83 +416,17 @@ export default function StudentDashboard() {
         </motion.div>
       )}
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35 }}
-        className="mb-8"
-      >
-        <a
-          href={settings?.kajabi_url || "https://www.the-growth-academy.co/library"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block group"
+      {settings?.whatsapp_community_url && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
         >
-          <div className="bg-gradient-to-br from-purple-600 to-violet-500 rounded-3xl p-12 text-white hover:shadow-2xl hover:shadow-purple-500/30 transition-all duration-300 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
-              <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2"></div>
-            </div>
-
-            <div className="relative flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex-1 text-center md:text-left">
-                <h2 className="text-4xl font-bold mb-3">Continue Your Learning</h2>
-                <p className="text-white/90 text-lg mb-6">
-                  Access all course materials, videos, and resources on the Growth Academy platform
-                </p>
-                <div className="flex flex-wrap items-center gap-4 text-sm">
-                  <span className="flex items-center gap-2">
-                    <Play className="w-4 h-4" /> Video lessons
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <BookOpen className="w-4 h-4" /> Course materials
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <Target className="w-4 h-4" /> Live sessions
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex-shrink-0">
-                <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-                  <Play className="w-10 h-10 text-purple-600 ml-1" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </a>
-      </motion.div>
-
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="grid grid-cols-1 md:grid-cols-2 gap-4"
-      >
-        <a 
-          href={settings?.marketo_url || "https://experience.adobe.com/#/@oadsolutionsltd/"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl p-6 text-white hover:shadow-xl hover:shadow-red-500/25 transition-all duration-300"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <Target className="w-6 h-6" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-lg">Practice in Marketo</h3>
-              <p className="text-white/80 text-sm">Apply your skills</p>
-            </div>
-            <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </div>
-        </a>
-
-        {settings?.whatsapp_community_url && (
           <a 
             href={settings.whatsapp_community_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl p-6 text-white hover:shadow-xl hover:shadow-green-500/25 transition-all duration-300"
+            className="block group bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl p-6 text-white hover:shadow-xl hover:shadow-green-500/25 transition-all duration-300"
           >
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
@@ -584,8 +439,8 @@ export default function StudentDashboard() {
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </div>
           </a>
-        )}
-      </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 }
