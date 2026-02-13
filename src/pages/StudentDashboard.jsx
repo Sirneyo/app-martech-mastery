@@ -18,6 +18,7 @@ import {
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import NotificationBell from '@/components/NotificationBell';
 
 export default function StudentDashboard() {
   const { data: user } = useQuery({
@@ -186,15 +187,18 @@ export default function StudentDashboard() {
             </h1>
             <p className="text-slate-500 mt-1">Continue your MarTech journey</p>
           </div>
-          {user?.is_approved_graduate && (
-            <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl px-4 py-3">
-              <Trophy className="w-6 h-6 text-yellow-600" />
-              <div>
-                <p className="font-bold text-yellow-900">Approved Graduate</p>
-                <p className="text-xs text-yellow-700">Certified Professional</p>
+          <div className="flex items-center gap-4">
+            <NotificationBell />
+            {user?.is_approved_graduate && (
+              <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl px-4 py-3">
+                <Trophy className="w-6 h-6 text-yellow-600" />
+                <div>
+                  <p className="font-bold text-yellow-900">Approved Graduate</p>
+                  <p className="text-xs text-yellow-700">Certified Professional</p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </motion.div>
 
