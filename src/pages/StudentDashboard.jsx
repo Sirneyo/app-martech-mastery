@@ -370,7 +370,7 @@ export default function StudentDashboard() {
               )}
               <div>
                 <h3 className="font-bold text-slate-900">{tutor.display_name || tutor.full_name}</h3>
-                <p className="text-sm text-slate-500">Your Tutor</p>
+                <p className="text-sm text-slate-500">Current Tutor</p>
               </div>
             </div>
             <div className="space-y-3">
