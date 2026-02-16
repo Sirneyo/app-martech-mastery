@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
     `;
 
     await base44.integrations.Core.SendEmail({
-      from_name: 'Martech Academy',
+      from_name: 'MarTech Mastery',
       to: email,
       subject: `Welcome to Martech Academy - ${roleLabel} Invitation`,
       body: emailBody
