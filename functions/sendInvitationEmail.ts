@@ -61,11 +61,11 @@ Deno.serve(async (req) => {
       </div>
     `;
 
-    await base44.asServiceRole.integrations.Core.SendEmail({
-      from_name: 'MarTech Mastery',
+    await resend.emails.send({
+      from: 'MarTech Mastery <noreply@yourdomain.com>',
       to: email,
       subject: `Welcome to Martech Academy - ${roleLabel} Invitation`,
-      body: emailBody
+      html: emailBody
     });
 
     return Response.json({ success: true });
