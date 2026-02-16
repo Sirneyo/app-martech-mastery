@@ -5,13 +5,6 @@ const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-
-    if (!user || user.app_role !== 'admin') {
-      return Response.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
     const { email, full_name, app_role, cohortName, invitationId } = await req.json();
 
     const roleLabel = app_role === 'student' ? 'Student' : 
