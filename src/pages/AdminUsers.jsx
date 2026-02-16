@@ -134,9 +134,6 @@ export default function AdminUsers() {
     try {
       const cohort = cohorts.find(c => c.id === newUser.cohort_id);
       
-      // Send invitation via Base44
-      await base44.users.inviteUser(newUser.email, 'user');
-      
       // Create invitation record
       const invitationRecord = await createInvitationMutation.mutateAsync({
         email: newUser.email,
@@ -148,7 +145,7 @@ export default function AdminUsers() {
         sent_date: new Date().toISOString(),
       });
 
-      // Send branded email with invitation ID
+      // Send branded email with invitation ID (this also invites the user)
       await base44.functions.invoke('sendInvitationEmail', {
         email: newUser.email,
         full_name: newUser.full_name,
