@@ -49,8 +49,31 @@ export default function AcceptInvite() {
         throw new Error('Passwords do not match');
       }
 
-      // Use the SDK to accept invitation with password
+      // Invite user to platform
+      await base44.asServiceRole.users.inviteUser(invitation.email, 'user');
+      
+      // Accept the platform invitation with password
       await base44.auth.acceptInvitation(token, password);
+      
+      // Mark invitation as accepted
+      await base44.asServiceRole.entities.Invitation.update(token, { status: 'accepted' });
+      
+      // Create cohort membership if specified
+      if (invitation.cohort_id && invitation.intended_app_role === 'student') {
+        await base44.asServiceRole.entities.CohortMembership.create({
+          user_id: invitation.email,
+          cohort_id: invitation.cohort_id,
+          enrollment_date: new Date().toISOString().split('T')[0],
+        });
+      }
+      
+      // Set user role
+      const users = await base44.asServiceRole.entities.User.filter({ email: invitation.email });
+      if (users.length > 0) {
+        await base44.asServiceRole.entities.User.update(users[0].id, { 
+          app_role: invitation.intended_app_role 
+        });
+      }
     },
     onSuccess: () => {
       navigate(createPageUrl('RoleRedirect'));
