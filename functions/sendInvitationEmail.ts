@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
     `;
 
     await resend.emails.send({
-      from: 'MarTech Mastery <noreply@yourdomain.com>',
+      from: Deno.env.get('Email_aut') || 'MarTech Mastery <noreply@martechmastery.com>',
       to: email,
       subject: `Welcome to Martech Academy - ${roleLabel} Invitation`,
       html: emailBody
