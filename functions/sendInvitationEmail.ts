@@ -11,9 +11,6 @@ Deno.serve(async (req) => {
 
     const { email, full_name, app_role, cohortName, invitationId } = await req.json();
 
-    // Invite user to platform first (this creates the account)
-    await base44.asServiceRole.users.inviteUser(email, 'user');
-
     const roleLabel = app_role === 'student' ? 'Student' : 
                       app_role === 'tutor' ? 'Tutor' : 'Admin';
 
