@@ -3,13 +3,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-
-    if (!user || user.app_role !== 'admin') {
-      return Response.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    const { email, full_name, app_role, cohortName, invitationId } = await req.json();
+    const { email, full_name, app_role, cohortName } = await req.json();
 
     const roleLabel = app_role === 'student' ? 'Student' : 
                       app_role === 'tutor' ? 'Tutor' : 'Admin';
@@ -33,7 +27,7 @@ Deno.serve(async (req) => {
           </p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${Deno.env.get('BASE44_APP_URL') || 'https://your-app-url.base44.com'}/accept-invite/${invitationId}?email=${encodeURIComponent(email)}" 
+            <a href="https://app.martech-mastery.com" 
                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                       color: white; 
                       padding: 15px 40px; 
@@ -58,10 +52,10 @@ Deno.serve(async (req) => {
       </div>
     `;
 
-    await base44.integrations.Core.SendEmail({
-      from_name: 'Martech Academy',
+    await base44.asServiceRole.integrations.Core.SendEmail({
+      from_name: 'MarTech Mastery',
       to: email,
-      subject: `Welcome to Martech Academy - ${roleLabel} Invitation`,
+      subject: `Welcome to MarTech Mastery - ${roleLabel} Invitation`,
       body: emailBody
     });
 
