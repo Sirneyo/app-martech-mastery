@@ -132,10 +132,11 @@ export default function AdminUsers() {
 
     setIsSubmitting(true);
     try {
-        const cohort = cohorts.find(c => c.id === newUser.cohort_id);
+        // Use Base44's native invite system
+        await base44.users.inviteUser(newUser.email, newUser.app_role);
 
-        // Create invitation record
-        const invitationRecord = await createInvitationMutation.mutateAsync({
+        // Create invitation record for tracking
+        await createInvitationMutation.mutateAsync({
           email: newUser.email,
           full_name: newUser.full_name,
           intended_app_role: newUser.app_role,
@@ -143,15 +144,6 @@ export default function AdminUsers() {
           status: 'pending',
           invited_by: currentUser?.email,
           sent_date: new Date().toISOString(),
-        });
-
-        // Send custom branded email using Base44's SendEmail
-        await base44.functions.invoke('sendInvitationEmail', {
-          email: newUser.email,
-          full_name: newUser.full_name,
-          app_role: newUser.app_role,
-          cohortName: cohort?.name || null,
-          invitationId: invitationRecord.id,
         });
 
         alert('Invitation sent successfully!');
