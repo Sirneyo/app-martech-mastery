@@ -48,7 +48,6 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import AITools from './pages/AITools';
-import AcceptInvite from './pages/AcceptInvite';
 import AdminAttendance from './pages/AdminAttendance';
 import AdminCohortOverview from './pages/AdminCohortOverview';
 import AdminCohorts from './pages/AdminCohorts';
@@ -68,7 +67,6 @@ import AdminTemplatesStudio from './pages/AdminTemplatesStudio';
 import AdminTemplatesStudioDuplicate from './pages/AdminTemplatesStudioDuplicate';
 import AdminTemplatesStudioEdit from './pages/AdminTemplatesStudioEdit';
 import AdminTemplatesStudioPreview from './pages/AdminTemplatesStudioPreview';
-import AdminUsers from './pages/AdminUsers';
 import Assignments from './pages/Assignments';
 import BeginLearning from './pages/BeginLearning';
 import Certifications from './pages/Certifications';
@@ -107,12 +105,13 @@ import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProfile from './pages/TutorProfile';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
+import AcceptInvite from './pages/AcceptInvite';
+import AdminUsers from './pages/AdminUsers';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AITools": AITools,
-    "AcceptInvite": AcceptInvite,
     "AdminAttendance": AdminAttendance,
     "AdminCohortOverview": AdminCohortOverview,
     "AdminCohorts": AdminCohorts,
@@ -132,7 +131,6 @@ export const PAGES = {
     "AdminTemplatesStudioDuplicate": AdminTemplatesStudioDuplicate,
     "AdminTemplatesStudioEdit": AdminTemplatesStudioEdit,
     "AdminTemplatesStudioPreview": AdminTemplatesStudioPreview,
-    "AdminUsers": AdminUsers,
     "Assignments": Assignments,
     "BeginLearning": BeginLearning,
     "Certifications": Certifications,
@@ -171,6 +169,8 @@ export const PAGES = {
     "TutorProfile": TutorProfile,
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorSubmissionReview": TutorSubmissionReview,
+    "AcceptInvite": AcceptInvite,
+    "AdminUsers": AdminUsers,
 }
 
 export const pagesConfig = {
