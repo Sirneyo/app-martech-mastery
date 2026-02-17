@@ -132,12 +132,7 @@ export default function AdminUsers() {
 
     setIsSubmitting(true);
     try {
-      const cohort = cohorts.find(c => c.id === newUser.cohort_id);
-
-      // Send invitation via Base44
-      await base44.users.inviteUser(newUser.email, 'user');
-
-      // Track invitation in database
+      // Track invitation in database first
       await createInvitationMutation.mutateAsync({
         email: newUser.email,
         full_name: newUser.full_name,
@@ -148,15 +143,10 @@ export default function AdminUsers() {
         sent_date: new Date().toISOString(),
       });
 
-      // Send custom branded email
-      await base44.functions.invoke('sendInvitationEmail', {
-        email: newUser.email,
-        full_name: newUser.full_name,
-        app_role: newUser.app_role,
-        cohortName: cohort?.name || null,
-      });
+      // Send invitation via Base44 - this should use your configured email domain
+      await base44.users.inviteUser(newUser.email, 'user');
 
-      alert('Invitation sent successfully!');
+      alert('Invitation sent! Email should arrive from no-reply@app.martech-mastery.com. Check spam/junk folder.');
       setNewUser({ full_name: '', email: '', app_role: 'student', cohort_id: '' });
       setShowCreateForm(false);
     } catch (error) {
