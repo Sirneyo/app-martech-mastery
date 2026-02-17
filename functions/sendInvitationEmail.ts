@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
           </p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${Deno.env.get('BASE44_APP_URL')}/accept-invite/${invitationId}?email=${encodeURIComponent(email)}" 
+            <a href="${Deno.env.get('BASE44_APP_URL') || 'https://your-app-url.base44.com'}/accept-invite/${invitationId}?email=${encodeURIComponent(email)}" 
                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
                       color: white; 
                       padding: 15px 40px; 
