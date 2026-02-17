@@ -132,37 +132,29 @@ export default function AdminUsers() {
 
     setIsSubmitting(true);
     try {
-      const cohort = cohorts.find(c => c.id === newUser.cohort_id);
-      
-      // Create invitation record
-      const invitationRecord = await createInvitationMutation.mutateAsync({
-        email: newUser.email,
-        full_name: newUser.full_name,
-        intended_app_role: newUser.app_role,
-        cohort_id: newUser.cohort_id || null,
-        status: 'pending',
-        invited_by: currentUser?.email,
-        sent_date: new Date().toISOString(),
-      });
+        // Use Base44's built-in invite system
+        await base44.users.inviteUser(newUser.email, newUser.app_role);
 
-      // Send custom branded email
-      await base44.functions.invoke('sendInvitationEmail', {
-        email: newUser.email,
-        full_name: newUser.full_name,
-        app_role: newUser.app_role,
-        cohortName: cohort?.name || null,
-        invitationId: invitationRecord.id,
-      });
-      
-      alert('Invitation sent successfully!');
-      setNewUser({ full_name: '', email: '', app_role: 'student', cohort_id: '' });
-      setShowCreateForm(false);
-    } catch (error) {
-      console.error('Invitation error:', error);
-      alert('Failed to send invitation: ' + (error.message || 'Unknown error'));
-    } finally {
-      setIsSubmitting(false);
-    }
+        // Create invitation record for tracking
+        await createInvitationMutation.mutateAsync({
+          email: newUser.email,
+          full_name: newUser.full_name,
+          intended_app_role: newUser.app_role,
+          cohort_id: newUser.cohort_id || null,
+          status: 'pending',
+          invited_by: currentUser?.email,
+          sent_date: new Date().toISOString(),
+        });
+
+        alert('Invitation sent successfully!');
+        setNewUser({ full_name: '', email: '', app_role: 'student', cohort_id: '' });
+        setShowCreateForm(false);
+      } catch (error) {
+        console.error('Invitation error:', error);
+        alert('Failed to send invitation: ' + (error.message || 'Unknown error'));
+      } finally {
+        setIsSubmitting(false);
+      }
   };
 
   const handleAssignCohort = () => {
