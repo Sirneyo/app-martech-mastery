@@ -73,6 +73,7 @@ import BeginLearning from './pages/BeginLearning';
 import Certifications from './pages/Certifications';
 import CohortDetail from './pages/CohortDetail';
 import Courses from './pages/Courses';
+import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
 import MarketoAccess from './pages/MarketoAccess';
 import MyCertification from './pages/MyCertification';
@@ -105,7 +106,7 @@ import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProfile from './pages/TutorProfile';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import Dashboard from './pages/Dashboard';
+import AcceptInvitation from './pages/AcceptInvitation';
 import __Layout from './Layout.jsx';
 
 
@@ -136,6 +137,7 @@ export const PAGES = {
     "Certifications": Certifications,
     "CohortDetail": CohortDetail,
     "Courses": Courses,
+    "Dashboard": Dashboard,
     "Home": Home,
     "MarketoAccess": MarketoAccess,
     "MyCertification": MyCertification,
@@ -168,7 +170,7 @@ export const PAGES = {
     "TutorProfile": TutorProfile,
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorSubmissionReview": TutorSubmissionReview,
-    "Dashboard": Dashboard,
+    "AcceptInvitation": AcceptInvitation,
 }
 
 export const pagesConfig = {

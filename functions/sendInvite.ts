@@ -16,32 +16,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Email and full name required' }, { status: 400 });
     }
 
-    // Map app_role to Base44 role (only "user" or "admin" allowed)
-    const base44Role = (app_role === 'admin') ? 'admin' : 'user';
-    
-    console.log('Inviting user with role:', base44Role, 'from app_role:', app_role);
-    
-    // Use Base44's native invitation system to create user and send email
-    await base44.users.inviteUser(email, base44Role);
-
-    // After successful Base44 invite, also update the User entity with app_role
-    // Wait a moment for the user to be created in Base44's system
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    // Find the newly created user and update their app_role
-    try {
-      const users = await base44.asServiceRole.entities.User.filter({ email: email });
-      if (users && users.length > 0) {
-        await base44.asServiceRole.entities.User.update(users[0].id, {
-          app_role: app_role || 'student',
-          status: 'active'
-        });
-      }
-    } catch (userUpdateError) {
-      console.warn('Could not update user app_role immediately:', userUpdateError.message);
-    }
-
-    // Track invitation in database after successful invite
+    // Create invitation record first
     const invitation = await base44.asServiceRole.entities.Invitation.create({
       email,
       full_name,
@@ -52,11 +27,44 @@ Deno.serve(async (req) => {
       sent_date: new Date().toISOString(),
     });
 
+    // Generate custom invitation link
+    const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://app.martech-mastery.com';
+    const invitationLink = `${appUrl}/AcceptInvitation?id=${invitation.id}`;
+
+    // Send custom invitation email
+    await base44.asServiceRole.integrations.Core.SendEmail({
+      from_name: 'MarTech Mastery Academy',
+      to: email,
+      subject: 'You\'re Invited to Join MarTech Mastery Academy',
+      body: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #f97316;">Welcome to MarTech Mastery Academy!</h2>
+          <p>Hi ${full_name},</p>
+          <p>You've been invited to join MarTech Mastery Academy by ${user.full_name || user.email}.</p>
+          <p>Click the button below to create your account and get started:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${invitationLink}" 
+               style="background-color: #f97316; color: white; padding: 12px 30px; 
+                      text-decoration: none; border-radius: 5px; display: inline-block;">
+              Create Your Account
+            </a>
+          </div>
+          <p style="color: #666; font-size: 14px;">
+            Or copy and paste this link into your browser:<br>
+            <a href="${invitationLink}">${invitationLink}</a>
+          </p>
+          <p style="color: #666; font-size: 12px; margin-top: 30px;">
+            This invitation was sent to ${email}. If you didn't expect this invitation, you can safely ignore this email.
+          </p>
+        </div>
+      `
+    });
+
     return Response.json({ 
       success: true, 
       message: 'Invitation sent successfully',
       invitation_id: invitation.id,
-      from_email: 'no-reply@app.martech-mastery.com'
+      invitation_link: invitationLink
     });
   } catch (error) {
     console.error('Invitation error:', error);
