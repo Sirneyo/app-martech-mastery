@@ -26,27 +26,8 @@ Deno.serve(async (req) => {
       sent_date: new Date().toISOString(),
     });
 
-    // Generate invitation link manually since native inviteUser requires special setup
-    const inviteUrl = `${Deno.env.get('BASE_URL') || 'https://app.martech-mastery.com'}/AcceptInvite?email=${encodeURIComponent(email)}&name=${encodeURIComponent(full_name)}`;
-    
-    // Send email with invitation
-    const emailBody = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Welcome to MarTech Mastery!</h2>
-        <p>Hi ${full_name},</p>
-        <p>You've been invited to join MarTech Mastery as a ${app_role}.</p>
-        <p><a href="${inviteUrl}" style="background: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Accept Invitation</a></p>
-        <p>Or copy this link: ${inviteUrl}</p>
-        <p>Best regards,<br/>The MarTech Mastery Team</p>
-      </div>
-    `;
-    
-    await base44.asServiceRole.integrations.Core.SendEmail({
-      from_name: 'MarTech Mastery',
-      to: email,
-      subject: 'You\'re invited to MarTech Mastery',
-      body: emailBody,
-    });
+    // Use Base44's native invitation system (sends from no-reply@app.martech-mastery.com)
+    await base44.users.inviteUser(email, 'user');
 
     return Response.json({ 
       success: true, 
