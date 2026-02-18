@@ -37,53 +37,22 @@ export default function AcceptInvitation() {
         return;
       }
 
-      // Fetch invitation by token
-      const invitations = await base44.asServiceRole.entities.Invitation.filter({ token: token });
+      // Validate invitation via backend function
+      const response = await base44.functions.invoke('validateInvitation', { token });
       
-      if (!invitations || invitations.length === 0) {
-        setError('Invitation not found. The link may be invalid.');
+      if (!response.data.success) {
+        setError(response.data.error || 'Invalid invitation');
         setLoading(false);
         return;
       }
 
-      const inv = invitations[0];
-      
-      // Check if expired
-      if (inv.expiry_date && new Date(inv.expiry_date) < new Date()) {
-        setError('This invitation has expired. Please request a new invitation.');
-        setLoading(false);
-        return;
-      }
-      
-      if (inv.status === 'accepted') {
-        setError('This invitation has already been used. Please log in instead.');
-        setLoading(false);
-        return;
-      }
-
-      if (inv.status === 'cancelled') {
-        setError('This invitation has been cancelled. Please contact an administrator.');
-        setLoading(false);
-        return;
-      }
-
-      setInvitation(inv);
-      setFullName(inv.full_name || '');
-
-      // Check if user already exists
-      try {
-        const users = await base44.asServiceRole.entities.User.filter({ email: inv.email });
-        if (users && users.length > 0) {
-          setUserExists(true);
-        }
-      } catch (err) {
-        console.log('User does not exist yet');
-      }
-
+      setInvitation(response.data.invitation);
+      setFullName(response.data.invitation.full_name || '');
+      setUserExists(response.data.userExists);
       setLoading(false);
     } catch (err) {
       console.error('Error checking invitation:', err);
-      setError('Failed to load invitation. Please try again.');
+      setError(err.response?.data?.error || 'Failed to load invitation. Please try again.');
       setLoading(false);
     }
   };
@@ -105,26 +74,18 @@ export default function AcceptInvitation() {
     setSubmitting(true);
 
     try {
-      // Create user account using Base44's signup
-      await base44.auth.signup({
-        email: invitation.email,
-        password: password,
-        full_name: fullName
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+
+      // Accept invitation via backend function
+      const response = await base44.functions.invoke('acceptInvitation', {
+        token,
+        full_name: fullName,
+        password: password
       });
 
-      // Update invitation status
-      await base44.asServiceRole.entities.Invitation.update(invitation.id, {
-        status: 'accepted',
-        accepted_date: new Date().toISOString()
-      });
-
-      // Update user with app_role
-      const users = await base44.asServiceRole.entities.User.filter({ email: invitation.email });
-      if (users && users.length > 0) {
-        await base44.asServiceRole.entities.User.update(users[0].id, {
-          app_role: invitation.intended_app_role || 'student',
-          status: 'active'
-        });
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Failed to create account');
       }
 
       // Auto-login after signup
@@ -134,7 +95,7 @@ export default function AcceptInvitation() {
       });
 
       // Redirect based on role
-      const role = invitation.intended_app_role || 'student';
+      const role = response.data.redirect_role || 'student';
       if (role === 'admin') {
         navigate(createPageUrl('AdminDashboard'));
       } else if (role === 'tutor') {
@@ -144,7 +105,7 @@ export default function AcceptInvitation() {
       }
     } catch (err) {
       console.error('Signup error:', err);
-      setError(err.message || 'Failed to create account. Please try again.');
+      setError(err.response?.data?.error || err.message || 'Failed to create account. Please try again.');
       setSubmitting(false);
     }
   };
