@@ -24,6 +24,23 @@ Deno.serve(async (req) => {
     // Use Base44's native invitation system to create user and send email
     await base44.users.inviteUser(email, base44Role);
 
+    // After successful Base44 invite, also update the User entity with app_role
+    // Wait a moment for the user to be created in Base44's system
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Find the newly created user and update their app_role
+    try {
+      const users = await base44.asServiceRole.entities.User.filter({ email: email });
+      if (users && users.length > 0) {
+        await base44.asServiceRole.entities.User.update(users[0].id, {
+          app_role: app_role || 'student',
+          status: 'active'
+        });
+      }
+    } catch (userUpdateError) {
+      console.warn('Could not update user app_role immediately:', userUpdateError.message);
+    }
+
     // Track invitation in database after successful invite
     const invitation = await base44.asServiceRole.entities.Invitation.create({
       email,
