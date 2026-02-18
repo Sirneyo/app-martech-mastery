@@ -31,34 +31,48 @@ Deno.serve(async (req) => {
     const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://app.martech-mastery.com';
     const invitationLink = `${appUrl}/AcceptInvitation?id=${invitation.id}`;
 
-    // Send custom invitation email
-    await base44.asServiceRole.integrations.Core.SendEmail({
-      from_name: 'MarTech Mastery Academy',
-      to: email,
-      subject: 'You\'re Invited to Join MarTech Mastery Academy',
-      body: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #f97316;">Welcome to MarTech Mastery Academy!</h2>
-          <p>Hi ${full_name},</p>
-          <p>You've been invited to join MarTech Mastery Academy by ${user.full_name || user.email}.</p>
-          <p>Click the button below to create your account and get started:</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${invitationLink}" 
-               style="background-color: #f97316; color: white; padding: 12px 30px; 
-                      text-decoration: none; border-radius: 5px; display: inline-block;">
-              Create Your Account
-            </a>
+    // Send custom invitation email via Resend
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+
+    const resendResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'MarTech Mastery Academy <onboarding@resend.dev>',
+        to: [email],
+        subject: 'You\'re Invited to Join MarTech Mastery Academy',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #f97316;">Welcome to MarTech Mastery Academy!</h2>
+            <p>Hi ${full_name},</p>
+            <p>You've been invited to join MarTech Mastery Academy by ${user.full_name || user.email}.</p>
+            <p>Click the button below to create your account and get started:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${invitationLink}" 
+                 style="background-color: #f97316; color: white; padding: 12px 30px; 
+                        text-decoration: none; border-radius: 5px; display: inline-block;">
+                Create Your Account
+              </a>
+            </div>
+            <p style="color: #666; font-size: 14px;">
+              Or copy and paste this link into your browser:<br>
+              <a href="${invitationLink}">${invitationLink}</a>
+            </p>
+            <p style="color: #666; font-size: 12px; margin-top: 30px;">
+              This invitation was sent to ${email}. If you didn't expect this invitation, you can safely ignore this email.
+            </p>
           </div>
-          <p style="color: #666; font-size: 14px;">
-            Or copy and paste this link into your browser:<br>
-            <a href="${invitationLink}">${invitationLink}</a>
-          </p>
-          <p style="color: #666; font-size: 12px; margin-top: 30px;">
-            This invitation was sent to ${email}. If you didn't expect this invitation, you can safely ignore this email.
-          </p>
-        </div>
-      `
+        `
+      })
     });
+
+    if (!resendResponse.ok) {
+      const errorData = await resendResponse.json();
+      throw new Error(`Resend API error: ${errorData.message || 'Failed to send email'}`);
+    }
 
     return Response.json({ 
       success: true, 
