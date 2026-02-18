@@ -67,6 +67,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
       }
     } catch (error) {
       console.error('Error loading user:', error);
+      setLoading(false);
       base44.auth.redirectToLogin(window.location.pathname);
     }
   };
