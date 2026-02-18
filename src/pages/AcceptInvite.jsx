@@ -16,11 +16,14 @@ export default function AcceptInvite() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
-  // Extract token from path (e.g., /accept-invite/TOKEN)
-  const token = window.location.pathname.split('/').pop();
+  // Extract token from path or query parameters
+  const pathParts = window.location.pathname.split('/');
+  const pathToken = pathParts[pathParts.length - 1];
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryToken = urlParams.get('token') || urlParams.get('invite_token');
+  const token = (pathToken && pathToken !== 'accept-invite') ? pathToken : queryToken;
   
   // Extract email from query parameters
-  const urlParams = new URLSearchParams(window.location.search);
   const emailFromUrl = urlParams.get('email');
 
   const { data: invitation, isLoading, error: loadError } = useQuery({
