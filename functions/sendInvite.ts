@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
     });
 
     // Use Base44's native invitation system (sends from no-reply@app.martech-mastery.com)
-    await base44.asServiceRole.users.inviteUser(email, 'user');
+    await base44.users.inviteUser(email, 'user');
 
     return Response.json({ 
       success: true, 
