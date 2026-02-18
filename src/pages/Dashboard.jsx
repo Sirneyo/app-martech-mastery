@@ -6,6 +6,7 @@ import LoadingLogo from '@/components/LoadingLogo';
 
 export default function Dashboard() {
   const [user, setUser] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     loadUser();
@@ -13,16 +14,21 @@ export default function Dashboard() {
 
   const loadUser = async () => {
     try {
+      const isAuth = await base44.auth.isAuthenticated();
+      if (!isAuth) {
+        base44.auth.redirectToLogin('/Dashboard');
+        return;
+      }
       const userData = await base44.auth.me();
       setUser(userData);
+      setLoading(false);
     } catch (error) {
       console.error('Error loading user:', error);
-      // Redirect to login if not authenticated
-      base44.auth.redirectToLogin(window.location.pathname);
+      base44.auth.redirectToLogin('/Dashboard');
     }
   };
 
-  if (!user) {
+  if (loading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <LoadingLogo />
