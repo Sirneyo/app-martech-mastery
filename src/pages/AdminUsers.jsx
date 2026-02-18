@@ -132,7 +132,10 @@ export default function AdminUsers() {
 
     setIsSubmitting(true);
     try {
-      // Track invitation in database first
+      // Send invitation via Base44 - uses your configured domain no-reply@app.martech-mastery.com
+      await base44.users.inviteUser(newUser.email, 'user');
+
+      // Track invitation in database after successful send
       await createInvitationMutation.mutateAsync({
         email: newUser.email,
         full_name: newUser.full_name,
@@ -143,10 +146,7 @@ export default function AdminUsers() {
         sent_date: new Date().toISOString(),
       });
 
-      // Send invitation via Base44 - this should use your configured email domain
-      await base44.users.inviteUser(newUser.email, 'user');
-
-      alert('Invitation sent! Email should arrive from no-reply@app.martech-mastery.com. Check spam/junk folder.');
+      alert('Invitation sent from no-reply@app.martech-mastery.com! Check spam/junk folder if not received.');
       setNewUser({ full_name: '', email: '', app_role: 'student', cohort_id: '' });
       setShowCreateForm(false);
     } catch (error) {
