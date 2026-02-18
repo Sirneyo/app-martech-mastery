@@ -57,6 +57,8 @@ export default function RoleBasedLayout({ children, currentPageName }) {
       }
     } catch (error) {
       console.error('Error loading user:', error);
+      // If user is not authenticated, redirect to login
+      base44.auth.redirectToLogin(window.location.pathname);
     }
   };
 
