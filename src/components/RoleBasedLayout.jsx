@@ -20,6 +20,13 @@ export default function RoleBasedLayout({ children, currentPageName }) {
 
   const loadUserAndTrackLogin = async () => {
     try {
+      // Check if user is authenticated first
+      const isAuth = await base44.auth.isAuthenticated();
+      if (!isAuth) {
+        base44.auth.redirectToLogin(window.location.pathname);
+        return;
+      }
+
       const userData = await base44.auth.me();
       setUser(userData);
       
@@ -57,7 +64,6 @@ export default function RoleBasedLayout({ children, currentPageName }) {
       }
     } catch (error) {
       console.error('Error loading user:', error);
-      // If user is not authenticated, redirect to login
       base44.auth.redirectToLogin(window.location.pathname);
     }
   };
