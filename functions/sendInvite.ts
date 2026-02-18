@@ -15,8 +15,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Email and full name required' }, { status: 400 });
     }
 
-    // Use Base44's native invitation system to create user and send email
-    await base44.users.inviteUser(email, app_role || 'student');
+    // Use Base44's native invitation system with service role privileges
+    await base44.asServiceRole.users.inviteUser(email, app_role || 'student');
 
     // Track invitation in database after successful invite
     const invitation = await base44.asServiceRole.entities.Invitation.create({
