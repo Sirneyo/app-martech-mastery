@@ -48,7 +48,6 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import AITools from './pages/AITools';
-import AcceptInvite from './pages/AcceptInvite';
 import AdminAttendance from './pages/AdminAttendance';
 import AdminCohortOverview from './pages/AdminCohortOverview';
 import AdminCohorts from './pages/AdminCohorts';
@@ -112,7 +111,6 @@ import __Layout from './Layout.jsx';
 
 export const PAGES = {
     "AITools": AITools,
-    "AcceptInvite": AcceptInvite,
     "AdminAttendance": AdminAttendance,
     "AdminCohortOverview": AdminCohortOverview,
     "AdminCohorts": AdminCohorts,
