@@ -13,6 +13,7 @@ import { Toaster } from 'sonner';
 export default function RoleBasedLayout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadUserAndTrackLogin();
@@ -23,12 +24,14 @@ export default function RoleBasedLayout({ children, currentPageName }) {
       // Check if user is authenticated first
       const isAuth = await base44.auth.isAuthenticated();
       if (!isAuth) {
+        setLoading(false);
         base44.auth.redirectToLogin(window.location.pathname);
         return;
       }
 
       const userData = await base44.auth.me();
       setUser(userData);
+      setLoading(false);
       
       // Track login event
       const today = new Date().toISOString().split('T')[0];
