@@ -16,20 +16,33 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Email and full name required' }, { status: 400 });
     }
 
+    // Generate unique secure token
+    const tokenBytes = new Uint8Array(32);
+    crypto.getRandomValues(tokenBytes);
+    const token = Array.from(tokenBytes)
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+
+    // Set expiry to 7 days from now
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 7);
+
     // Create invitation record first
     const invitation = await base44.asServiceRole.entities.Invitation.create({
       email,
       full_name,
       intended_app_role: app_role || 'student',
       cohort_id: cohort_id || null,
+      token,
       status: 'pending',
       invited_by: user.email,
       sent_date: new Date().toISOString(),
+      expiry_date: expiryDate.toISOString(),
     });
 
     // Generate custom invitation link
     const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://app.martech-mastery.com';
-    const invitationLink = `${appUrl}/AcceptInvitation?id=${invitation.id}`;
+    const invitationLink = `${appUrl}/AcceptInvitation?token=${token}`;
 
     // Send custom invitation email via Resend
     const resendApiKey = Deno.env.get('RESEND_API_KEY');

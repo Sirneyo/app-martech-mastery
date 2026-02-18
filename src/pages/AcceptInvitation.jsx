@@ -29,33 +29,40 @@ export default function AcceptInvitation() {
   const checkInvitation = async () => {
     try {
       const urlParams = new URLSearchParams(window.location.search);
-      const invitationId = urlParams.get('id');
+      const token = urlParams.get('token');
       
-      if (!invitationId) {
-        setError('Invalid invitation link');
+      if (!token) {
+        setError('Invalid invitation link - missing token');
         setLoading(false);
         return;
       }
 
-      // Fetch invitation
-      const invitations = await base44.entities.Invitation.filter({ id: invitationId });
+      // Fetch invitation by token
+      const invitations = await base44.asServiceRole.entities.Invitation.filter({ token: token });
       
       if (!invitations || invitations.length === 0) {
-        setError('Invitation not found');
+        setError('Invitation not found. The link may be invalid.');
         setLoading(false);
         return;
       }
 
       const inv = invitations[0];
       
+      // Check if expired
+      if (inv.expiry_date && new Date(inv.expiry_date) < new Date()) {
+        setError('This invitation has expired. Please request a new invitation.');
+        setLoading(false);
+        return;
+      }
+      
       if (inv.status === 'accepted') {
-        setError('This invitation has already been used');
+        setError('This invitation has already been used. Please log in instead.');
         setLoading(false);
         return;
       }
 
       if (inv.status === 'cancelled') {
-        setError('This invitation has been cancelled');
+        setError('This invitation has been cancelled. Please contact an administrator.');
         setLoading(false);
         return;
       }
@@ -76,7 +83,7 @@ export default function AcceptInvitation() {
       setLoading(false);
     } catch (err) {
       console.error('Error checking invitation:', err);
-      setError('Failed to load invitation');
+      setError('Failed to load invitation. Please try again.');
       setLoading(false);
     }
   };
