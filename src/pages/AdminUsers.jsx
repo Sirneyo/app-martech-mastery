@@ -132,26 +132,23 @@ export default function AdminUsers() {
 
     setIsSubmitting(true);
     try {
-      // Send invitation via Base44 - uses your configured domain no-reply@app.martech-mastery.com
-      await base44.users.inviteUser(newUser.email, 'user');
-
-      // Track invitation in database after successful send
-      await createInvitationMutation.mutateAsync({
+      const response = await base44.functions.invoke('sendInvite', {
         email: newUser.email,
         full_name: newUser.full_name,
-        intended_app_role: newUser.app_role,
+        app_role: newUser.app_role,
         cohort_id: newUser.cohort_id || null,
-        status: 'pending',
-        invited_by: currentUser?.email,
-        sent_date: new Date().toISOString(),
       });
 
-      alert('Invitation sent from no-reply@app.martech-mastery.com! Check spam/junk folder if not received.');
-      setNewUser({ full_name: '', email: '', app_role: 'student', cohort_id: '' });
-      setShowCreateForm(false);
+      if (response.data.success) {
+        alert(`Invitation sent to ${newUser.email} from ${response.data.from_email}. Check spam/junk folder.`);
+        setNewUser({ full_name: '', email: '', app_role: 'student', cohort_id: '' });
+        setShowCreateForm(false);
+      } else {
+        throw new Error(response.data.error || 'Failed to send invitation');
+      }
     } catch (error) {
       console.error('Invitation error:', error);
-      alert('Failed to send invitation: ' + (error.message || 'Unknown error'));
+      alert('Failed to send invitation: ' + (error.response?.data?.error || error.message || 'Unknown error'));
     } finally {
       setIsSubmitting(false);
     }
