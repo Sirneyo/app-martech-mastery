@@ -34,29 +34,18 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'User already exists' }, { status: 400 });
     }
 
-    // Create user account using Base44's signup
-    const signupResponse = await fetch(`${Deno.env.get('BASE44_API_URL') || 'https://api.base44.com'}/auth/signup`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-app-id': Deno.env.get('BASE44_APP_ID')
-      },
-      body: JSON.stringify({
+    // Create user account using Base44's service role signup
+    try {
+      await base44.asServiceRole.auth.signup({
         email: invitation.email,
         password: password,
         full_name: full_name
-      })
-    });
-
-    if (!signupResponse.ok) {
-      let errorMessage = 'Failed to create account';
-      try {
-        const errorData = await signupResponse.json();
-        errorMessage = errorData.message || errorData.error || errorMessage;
-      } catch (e) {
-        // If response is not JSON, use default message
-      }
-      return Response.json({ error: errorMessage }, { status: 400 });
+      });
+    } catch (signupError) {
+      console.error('Signup error:', signupError);
+      return Response.json({ 
+        error: signupError.message || 'Failed to create account' 
+      }, { status: 400 });
     }
 
     // Update invitation status
