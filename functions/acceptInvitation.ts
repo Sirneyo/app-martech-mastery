@@ -57,26 +57,20 @@ Deno.serve(async (req) => {
       user_id: userId
     });
 
-      // If cohort_id is specified, create cohort membership
-      if (invitation.cohort_id && invitation.intended_app_role === 'student') {
-        await base44.asServiceRole.entities.CohortMembership.create({
-          user_id: userId,
-          cohort_id: invitation.cohort_id,
-          enrollment_date: new Date().toISOString().split('T')[0],
-          status: 'active'
-        });
-      } else if (invitation.cohort_id && invitation.intended_app_role === 'tutor') {
-        await base44.asServiceRole.entities.TutorCohortAssignment.create({
-          tutor_id: userId,
-          cohort_id: invitation.cohort_id,
-          assigned_date: new Date().toISOString().split('T')[0],
-          is_primary: true
-        });
-      }
-
-      // Store user_id in invitation for record keeping
-      await base44.asServiceRole.entities.Invitation.update(invitation.id, {
-        user_id: userId
+    // If cohort_id is specified, create cohort membership
+    if (invitation.cohort_id && invitation.intended_app_role === 'student') {
+      await base44.asServiceRole.entities.CohortMembership.create({
+        user_id: userId,
+        cohort_id: invitation.cohort_id,
+        enrollment_date: new Date().toISOString().split('T')[0],
+        status: 'active'
+      });
+    } else if (invitation.cohort_id && invitation.intended_app_role === 'tutor') {
+      await base44.asServiceRole.entities.TutorCohortAssignment.create({
+        tutor_id: userId,
+        cohort_id: invitation.cohort_id,
+        assigned_date: new Date().toISOString().split('T')[0],
+        is_primary: true
       });
     }
 
