@@ -2,8 +2,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 Deno.serve(async (req) => {
   try {
+    const payload = await req.json();
+    const { token, full_name, password } = payload;
     const base44 = createClientFromRequest(req);
-    const { token, full_name, password } = await req.json();
 
     if (!token || !password || !full_name) {
       return Response.json({ error: 'Token, full name, and password are required' }, { status: 400 });
