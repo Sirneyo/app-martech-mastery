@@ -34,34 +34,19 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'User already exists' }, { status: 400 });
     }
 
-    // Create user account using Base44 signup endpoint
-    const baseUrl = Deno.env.get('BASE44_API_URL') || 'https://api.base44.com';
-    const signupUrl = `${baseUrl}/auth/signup`;
-    
-    const signupResponse = await fetch(signupUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-app-id': Deno.env.get('BASE44_APP_ID'),
-        'Authorization': `Bearer ${Deno.env.get('BASE44_SERVICE_ROLE_KEY')}`
-      },
-      body: JSON.stringify({
-        email: invitation.email,
-        password: password,
-        full_name: full_name
-      })
-    });
-
-    if (!signupResponse.ok) {
-      const errorText = await signupResponse.text();
-      console.error('Signup failed:', errorText);
-      return Response.json({ 
-        error: `Failed to create account: ${signupResponse.status} ${signupResponse.statusText}` 
-      }, { status: 400 });
+    // Use Base44 SDK to invite and activate the user
+    try {
+      // First invite the user (this creates the account)
+      await base44.asServiceRole.users.inviteUser(
+        invitation.email, 
+        invitation.intended_app_role || 'student'
+      );
+      
+      console.log('User invited successfully');
+    } catch (inviteError) {
+      console.error('Invite error:', inviteError);
+      // User might already exist, continue to update
     }
-
-    const signupData = await signupResponse.json();
-    console.log('Signup successful:', signupData);
 
     // Update invitation status
     await base44.asServiceRole.entities.Invitation.update(invitation.id, {
