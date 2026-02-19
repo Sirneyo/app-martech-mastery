@@ -21,54 +21,55 @@ export default function RoleBasedLayout({ children, currentPageName }) {
 
   const loadUserAndTrackLogin = async () => {
     try {
-      // Check if user is authenticated first
-      const isAuth = await base44.auth.isAuthenticated();
-      if (!isAuth) {
+      const userData = await base44.auth.me();
+      if (!userData) {
         setLoading(false);
         base44.auth.redirectToLogin(window.location.pathname);
         return;
       }
 
-      const userData = await base44.auth.me();
       setUser(userData);
       setLoading(false);
       
-      // Track login event
-      const today = new Date().toISOString().split('T')[0];
-      const loginEvents = await base44.entities.LoginEvent.filter({ 
-        user_id: userData.id,
-        login_time: today
-      });
-      
-      if (loginEvents.length === 0) {
-        await base44.entities.LoginEvent.create({
-          user_id: userData.id,
-          login_time: new Date().toISOString(),
-          ip_address: '',
-          user_agent: navigator.userAgent
-        });
-        
-        // Award daily login points
-        const todayPoints = await base44.entities.PointsLedger.filter({
-          user_id: userData.id,
-          created_date: today
-        });
-        
-        const hasLoginPoints = todayPoints.some(p => p.reason === 'daily_login');
-        if (!hasLoginPoints) {
-          await base44.entities.PointsLedger.create({
-            user_id: userData.id,
-            points: 5,
-            reason: 'daily_login',
-            source_type: 'bonus',
-            source_id: today
-          });
-        }
-      }
+      // Track login event in background
+      trackLoginEvent(userData).catch(err => console.error('Login tracking error:', err));
     } catch (error) {
       console.error('Error loading user:', error);
       setLoading(false);
       base44.auth.redirectToLogin(window.location.pathname);
+    }
+  };
+
+  const trackLoginEvent = async (userData) => {
+    const today = new Date().toISOString().split('T')[0];
+    const loginEvents = await base44.entities.LoginEvent.filter({ 
+      user_id: userData.id,
+      login_time: today
+    });
+    
+    if (loginEvents.length === 0) {
+      await base44.entities.LoginEvent.create({
+        user_id: userData.id,
+        login_time: new Date().toISOString(),
+        ip_address: '',
+        user_agent: navigator.userAgent
+      });
+      
+      const todayPoints = await base44.entities.PointsLedger.filter({
+        user_id: userData.id,
+        created_date: today
+      });
+      
+      const hasLoginPoints = todayPoints.some(p => p.reason === 'daily_login');
+      if (!hasLoginPoints) {
+        await base44.entities.PointsLedger.create({
+          user_id: userData.id,
+          points: 5,
+          reason: 'daily_login',
+          source_type: 'bonus',
+          source_id: today
+        });
+      }
     }
   };
 
