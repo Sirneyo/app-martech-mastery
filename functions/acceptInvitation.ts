@@ -34,36 +34,28 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'User already exists' }, { status: 400 });
     }
 
-    // Use Base44 SDK to invite and activate the user
-    try {
-      // First invite the user (this creates the account)
-      await base44.asServiceRole.users.inviteUser(
-        invitation.email, 
-        invitation.intended_app_role || 'student'
-      );
-      
-      console.log('User invited successfully');
-    } catch (inviteError) {
-      console.error('Invite error:', inviteError);
-      // User might already exist, continue to update
-    }
+    // Create user with the SDK auth signup
+    const signupResult = await base44.asServiceRole.auth.signupUser({
+      email: invitation.email,
+      password: password,
+      full_name: full_name
+    });
+    
+    const userId = signupResult.user_id;
+    console.log('User created successfully:', userId);
+
+    // Update user with app_role and status
+    await base44.asServiceRole.entities.User.update(userId, {
+      app_role: invitation.intended_app_role || 'student',
+      status: 'active'
+    });
 
     // Update invitation status
     await base44.asServiceRole.entities.Invitation.update(invitation.id, {
       status: 'accepted',
-      accepted_date: new Date().toISOString()
+      accepted_date: new Date().toISOString(),
+      user_id: userId
     });
-
-    // Get the newly created user
-    const users = await base44.asServiceRole.entities.User.filter({ email: invitation.email });
-    if (users && users.length > 0) {
-      const userId = users[0].id;
-
-      // Update user with app_role and status
-      await base44.asServiceRole.entities.User.update(userId, {
-        app_role: invitation.intended_app_role || 'student',
-        status: 'active'
-      });
 
       // If cohort_id is specified, create cohort membership
       if (invitation.cohort_id && invitation.intended_app_role === 'student') {
