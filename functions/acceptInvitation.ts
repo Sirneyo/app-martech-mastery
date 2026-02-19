@@ -34,19 +34,25 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'User already exists' }, { status: 400 });
     }
 
-    // Create user with the SDK auth signup
-    const signupResult = await base44.asServiceRole.auth.signupUser({
-      email: invitation.email,
-      password: password,
-      full_name: full_name
-    });
+    // Invite the user (creates account)
+    await base44.asServiceRole.users.inviteUser(
+      invitation.email,
+      invitation.intended_app_role || 'student'
+    );
     
-    const userId = signupResult.user_id;
-    console.log('User created successfully:', userId);
+    console.log('User invited successfully');
 
-    // Update user with app_role and status
+    // Get the newly created user
+    const users = await base44.asServiceRole.entities.User.filter({ email: invitation.email });
+    if (!users || users.length === 0) {
+      throw new Error('User creation failed');
+    }
+    
+    const userId = users[0].id;
+
+    // Update user with full name and status
     await base44.asServiceRole.entities.User.update(userId, {
-      app_role: invitation.intended_app_role || 'student',
+      full_name: full_name,
       status: 'active'
     });
 
