@@ -78,20 +78,21 @@ export default function AcceptInvitation() {
       const token = urlParams.get('token');
 
       // Register user using frontend auth
-      const signupResult = await base44.auth.signup({
+      await base44.auth.register({
         email: invitation.email,
-        password: password,
-        full_name: fullName
+        password: password
       });
 
-      if (!signupResult?.user?.id) {
-        throw new Error('Failed to create account');
-      }
+      // Log in the user
+      await base44.auth.loginViaEmailPassword(invitation.email, password);
+
+      // Get the logged-in user to retrieve user_id
+      const currentUser = await base44.auth.me();
 
       // Complete invitation process (update role, cohort, etc)
       const response = await base44.functions.invoke('completeInvitation', {
         token,
-        user_id: signupResult.user.id
+        user_id: currentUser.id
       });
 
       if (!response?.data?.success) {
