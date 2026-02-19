@@ -84,8 +84,8 @@ export default function AcceptInvitation() {
         password: password
       });
 
-      if (!response.data.success) {
-        throw new Error(response.data.error || 'Failed to create account');
+      if (!response?.data?.success) {
+        throw new Error(response?.data?.error || 'Failed to create account');
       }
 
       // Auto-login after signup
@@ -105,7 +105,8 @@ export default function AcceptInvitation() {
       }
     } catch (err) {
       console.error('Signup error:', err);
-      setError(err.response?.data?.error || err.message || 'Failed to create account. Please try again.');
+      const errorMessage = err?.data?.error || err?.response?.data?.error || err.message || 'Failed to create account. Please try again.';
+      setError(errorMessage);
       setSubmitting(false);
     }
   };
