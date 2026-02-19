@@ -49,8 +49,14 @@ Deno.serve(async (req) => {
     });
 
     if (!signupResponse.ok) {
-      const errorData = await signupResponse.json();
-      throw new Error(errorData.message || 'Failed to create account');
+      let errorMessage = 'Failed to create account';
+      try {
+        const errorData = await signupResponse.json();
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } catch (e) {
+        // If response is not JSON, use default message
+      }
+      return Response.json({ error: errorMessage }, { status: 400 });
     }
 
     // Update invitation status
