@@ -77,22 +77,26 @@ export default function AcceptInvitation() {
       const urlParams = new URLSearchParams(window.location.search);
       const token = urlParams.get('token');
 
-      // Accept invitation via backend function
-      const response = await base44.functions.invoke('acceptInvitation', {
+      // Register user using frontend auth
+      const signupResult = await base44.auth.signup({
+        email: invitation.email,
+        password: password,
+        full_name: fullName
+      });
+
+      if (!signupResult?.user?.id) {
+        throw new Error('Failed to create account');
+      }
+
+      // Complete invitation process (update role, cohort, etc)
+      const response = await base44.functions.invoke('completeInvitation', {
         token,
-        full_name: fullName,
-        password: password
+        user_id: signupResult.user.id
       });
 
       if (!response?.data?.success) {
-        throw new Error(response?.data?.error || 'Failed to create account');
+        throw new Error(response?.data?.error || 'Failed to complete registration');
       }
-
-      // Auto-login after signup
-      await base44.auth.login({
-        email: invitation.email,
-        password: password
-      });
 
       // Redirect based on role
       const role = response.data.redirect_role || 'student';
