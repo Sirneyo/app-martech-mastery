@@ -36,13 +36,14 @@ Deno.serve(async (req) => {
 
     // Create user account using Base44 signup endpoint
     const baseUrl = Deno.env.get('BASE44_API_URL') || 'https://api.base44.com';
-    const signupUrl = `${baseUrl}/v1/auth/signup`;
+    const signupUrl = `${baseUrl}/auth/signup`;
     
     const signupResponse = await fetch(signupUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-app-id': Deno.env.get('BASE44_APP_ID')
+        'x-app-id': Deno.env.get('BASE44_APP_ID'),
+        'Authorization': `Bearer ${Deno.env.get('BASE44_SERVICE_ROLE_KEY')}`
       },
       body: JSON.stringify({
         email: invitation.email,
