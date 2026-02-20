@@ -105,10 +105,11 @@ export default function AcceptInvitation() {
       const urlParams = new URLSearchParams(window.location.search);
       const token = urlParams.get('token');
 
-      // Verify email with code
-      await base44.auth.verifyEmail({
+      // Verify email with OTP code
+      await base44.auth.verifyOtp({
         email: invitation.email,
-        token: verificationCode
+        token: verificationCode,
+        type: 'signup'
       });
 
       // Log in the user
@@ -141,6 +142,18 @@ export default function AcceptInvitation() {
       const errorMessage = err?.data?.error || err?.response?.data?.error || err.message || 'Failed to verify email. Please try again.';
       setError(errorMessage);
       setSubmitting(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    try {
+      setError('');
+      await base44.auth.resendOtp(invitation.email);
+      // Show success message
+      setError('Verification code resent successfully!');
+    } catch (err) {
+      console.error('Resend error:', err);
+      setError('Failed to resend code. Please try again.');
     }
   };
 
@@ -229,7 +242,7 @@ export default function AcceptInvitation() {
               </div>
 
               {error && (
-                <Alert variant="destructive">
+                <Alert variant={error.includes('success') ? 'default' : 'destructive'}>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
@@ -248,6 +261,15 @@ export default function AcceptInvitation() {
                 ) : (
                   'Verify & Continue'
                 )}
+              </Button>
+
+              <Button 
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleResendCode}
+              >
+                Resend Code
               </Button>
             </form>
           </CardContent>
