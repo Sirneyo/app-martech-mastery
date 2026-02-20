@@ -106,11 +106,13 @@ export default function AcceptInvitation() {
       const token = urlParams.get('token');
 
       // Verify email with OTP code
-      await base44.auth.verifyOtp({
+      console.log('Attempting to verify OTP with:', { email: invitation.email, code: verificationCode });
+      const result = await base44.auth.verifyOtp({
         email: invitation.email,
         token: verificationCode,
         type: 'signup'
       });
+      console.log('OTP verification result:', result);
 
       // Log in the user
       await base44.auth.loginViaEmailPassword(invitation.email, password);
@@ -138,7 +140,10 @@ export default function AcceptInvitation() {
         navigate(createPageUrl('StudentDashboard'));
       }
     } catch (err) {
-      console.error('Verification error:', err);
+      console.error('Verification error FULL:', err);
+      console.error('Error keys:', Object.keys(err || {}));
+      console.error('Error string:', JSON.stringify(err, null, 2));
+      
       let errorMessage = 'Failed to verify email. Please try again.';
       
       if (typeof err === 'string') {
