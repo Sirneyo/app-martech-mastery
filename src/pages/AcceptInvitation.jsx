@@ -21,6 +21,8 @@ export default function AcceptInvitation() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [verificationStep, setVerificationStep] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
 
   useEffect(() => {
     checkInvitation();
@@ -83,6 +85,32 @@ export default function AcceptInvitation() {
         password: password
       });
 
+      // Show verification step
+      setVerificationStep(true);
+      setSubmitting(false);
+    } catch (err) {
+      console.error('Signup error:', err);
+      const errorMessage = err?.data?.error || err?.response?.data?.error || err.message || 'Failed to create account. Please try again.';
+      setError(errorMessage);
+      setSubmitting(false);
+    }
+  };
+
+  const handleVerification = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSubmitting(true);
+
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+
+      // Verify email with code
+      await base44.auth.verifyEmail({
+        email: invitation.email,
+        token: verificationCode
+      });
+
       // Log in the user
       await base44.auth.loginViaEmailPassword(invitation.email, password);
 
@@ -109,8 +137,8 @@ export default function AcceptInvitation() {
         navigate(createPageUrl('StudentDashboard'));
       }
     } catch (err) {
-      console.error('Signup error:', err);
-      const errorMessage = err?.data?.error || err?.response?.data?.error || err.message || 'Failed to create account. Please try again.';
+      console.error('Verification error:', err);
+      const errorMessage = err?.data?.error || err?.response?.data?.error || err.message || 'Failed to verify email. Please try again.';
       setError(errorMessage);
       setSubmitting(false);
     }
@@ -170,6 +198,58 @@ export default function AcceptInvitation() {
             <Button onClick={handleExistingUserLogin} className="w-full bg-orange-500 hover:bg-orange-600">
               Continue to Login
             </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (verificationStep) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Verify Your Email</CardTitle>
+            <CardDescription>
+              We've sent a verification code to <strong>{invitation.email}</strong>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleVerification} className="space-y-4">
+              <div>
+                <Label htmlFor="verificationCode">Verification Code</Label>
+                <Input
+                  id="verificationCode"
+                  type="text"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  required
+                  placeholder="Enter the code from your email"
+                />
+              </div>
+
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <Button 
+                type="submit" 
+                className="w-full bg-orange-500 hover:bg-orange-600"
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  'Verify & Continue'
+                )}
+              </Button>
+            </form>
           </CardContent>
         </Card>
       </div>
