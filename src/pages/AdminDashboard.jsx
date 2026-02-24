@@ -419,7 +419,7 @@ export default function AdminDashboard() {
                           </span>
                           <span className="font-medium text-sm text-slate-900 truncate">{student.name}</span>
                         </div>
-                        <Badge variant="outline" className="bg-white text-xs">
+                        <Badge variant="outline" className="bg-white text-xs" style={{ filter: 'blur(6px)', userSelect: 'none' }}>
                           {student.points}
                         </Badge>
                       </div>
