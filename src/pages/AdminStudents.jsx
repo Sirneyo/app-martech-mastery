@@ -177,7 +177,7 @@ export default function AdminStudents() {
                       </div>
                       <div className="text-center select-none">
                         <p className="text-slate-400 text-xs mb-1">Points</p>
-                        <span className="font-bold text-violet-600 blur-sm">{points}</span>
+                        <span className="font-bold text-violet-600" style={{ filter: 'blur(4px)', userSelect: 'none' }}>{points}</span>
                       </div>
                       <div className="text-center">
                         <p className="text-slate-400 text-xs mb-1">Status</p>
