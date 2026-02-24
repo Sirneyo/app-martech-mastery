@@ -70,7 +70,6 @@ import AdminTemplatesStudioEdit from './pages/AdminTemplatesStudioEdit';
 import AdminTemplatesStudioPreview from './pages/AdminTemplatesStudioPreview';
 import AdminUsers from './pages/AdminUsers';
 import Assignments from './pages/Assignments';
-import BeginLearning from './pages/BeginLearning';
 import Certifications from './pages/Certifications';
 import CohortDetail from './pages/CohortDetail';
 import Courses from './pages/Courses';
@@ -135,7 +134,6 @@ export const PAGES = {
     "AdminTemplatesStudioPreview": AdminTemplatesStudioPreview,
     "AdminUsers": AdminUsers,
     "Assignments": Assignments,
-    "BeginLearning": BeginLearning,
     "Certifications": Certifications,
     "CohortDetail": CohortDetail,
     "Courses": Courses,
