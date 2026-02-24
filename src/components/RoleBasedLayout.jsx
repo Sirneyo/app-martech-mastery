@@ -167,6 +167,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
 
         {children}
       </main>
+      {user?.app_role === 'student' && <AIAssistant />}
       <Toaster position="top-right" />
     </div>
   );
