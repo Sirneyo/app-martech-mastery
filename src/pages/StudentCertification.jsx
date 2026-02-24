@@ -260,29 +260,39 @@ export default function StudentCertification() {
   };
 
   if (!isUnlocked) {
-    const weeksRemaining = unlockWeek - currentWeek;
+    const unlockDate = cohort?.start_date ? (() => {
+      const d = new Date(cohort.start_date);
+      d.setDate(d.getDate() + (unlockWeek - 1) * 7);
+      return d;
+    })() : null;
+    const msLeft = unlockDate ? Math.max(0, unlockDate - now) : 0;
+    const daysLeft = Math.floor(msLeft / (1000 * 60 * 60 * 24));
+    const hoursLeft = Math.floor((msLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minsLeft = Math.floor((msLeft % (1000 * 60 * 60)) / (1000 * 60));
+    const secsLeft = Math.floor((msLeft % (1000 * 60)) / 1000);
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-        <div className="max-w-3xl mx-auto">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl p-12 text-center shadow-lg border border-slate-200"
-          >
-            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Lock className="w-10 h-10 text-slate-400" />
+        <div className="max-w-2xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-8 py-10 text-center text-white">
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                <Lock className="w-8 h-8 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold mb-1">MarTech Mastery Certification</h1>
+              <p className="text-white/80 text-sm">Unlocks at Week {unlockWeek} of your cohort</p>
             </div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-4">
-              MarTech Mastery Certification
-            </h1>
-            <p className="text-lg text-slate-600 mb-6">
-              Exam unlocks in week {unlockWeek}
-            </p>
-            <div className="inline-flex items-center gap-3 px-6 py-3 bg-slate-100 rounded-lg">
-              <Clock className="w-5 h-5 text-slate-600" />
-              <span className="font-semibold text-slate-900">
-                {weeksRemaining} {weeksRemaining === 1 ? 'week' : 'weeks'} remaining
-              </span>
+            <div className="px-8 py-8 text-center">
+              <p className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-5">Time until unlock</p>
+              <div className="grid grid-cols-4 gap-3 max-w-sm mx-auto mb-6">
+                {[{ val: daysLeft, label: 'Days' }, { val: hoursLeft, label: 'Hours' }, { val: minsLeft, label: 'Mins' }, { val: secsLeft, label: 'Secs' }].map(({ val, label }) => (
+                  <div key={label} className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                    <p className="text-2xl font-bold text-slate-900 font-mono">{String(val).padStart(2, '0')}</p>
+                    <p className="text-xs text-slate-500 mt-1">{label}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-slate-500">Keep completing your assignments to prepare!</p>
             </div>
           </motion.div>
         </div>
