@@ -38,7 +38,7 @@ export default function AdminTemplatesStudio() {
 
   const { data: assignments = [] } = useQuery({
     queryKey: ['assignment-templates'],
-    queryFn: () => base44.entities.AssignmentTemplate.list('-updated_date'),
+    queryFn: () => base44.entities.AssignmentTemplate.list('week_number'),
   });
 
   const { data: projects = [] } = useQuery({
