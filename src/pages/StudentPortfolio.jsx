@@ -137,7 +137,7 @@ export default function StudentPortfolio() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
         <div className="max-w-2xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-10 text-center text-white">
+            <div className="bg-gradient-to-r from-violet-600 to-purple-600 px-8 py-10 text-center text-white">
               <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
                 <Lock className="w-8 h-8 text-white" />
               </div>
