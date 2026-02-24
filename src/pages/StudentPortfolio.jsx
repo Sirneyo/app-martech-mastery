@@ -72,6 +72,19 @@ export default function StudentPortfolio() {
     enabled: !!membership?.cohort_id,
   });
 
+  const getCurrentWeek = () => {
+    if (!cohort?.start_date) return 0;
+    const startDate = new Date(cohort.start_date);
+    const today = new Date();
+    const diffTime = today - startDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return Math.floor(diffDays / 7) + 1;
+  };
+
+  const UNLOCK_WEEK = 8;
+  const currentWeek = getCurrentWeek();
+  const isUnlocked = currentWeek >= UNLOCK_WEEK;
+
   const { data: studentProfile } = useQuery({
     queryKey: ['student-profile', user?.id],
     queryFn: async () => {
