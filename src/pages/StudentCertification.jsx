@@ -117,6 +117,13 @@ export default function StudentCertification() {
   const currentWeek = getCurrentWeek();
   const unlockWeek = examConfig?.unlock_week || 8;
   const isUnlocked = currentWeek >= unlockWeek;
+
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    if (isUnlocked) return;
+    const interval = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, [isUnlocked]);
   
   const preparedAttempts = attempts.filter(a => a.prepared_at);
   const attemptsUsed = preparedAttempts.length;
