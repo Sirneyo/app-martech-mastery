@@ -385,7 +385,7 @@ export default function AdminDashboard() {
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm text-slate-900 truncate">{student.name}</p>
                     </div>
-                    <Badge className="bg-orange-500 text-white text-sm px-2 py-0.5">
+                    <Badge className="bg-orange-500 text-white text-sm px-2 py-0.5" style={{ filter: 'blur(6px)', userSelect: 'none' }}>
                       {student.points}
                     </Badge>
                   </div>
