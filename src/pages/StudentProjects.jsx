@@ -102,7 +102,7 @@ export default function StudentProjects() {
               <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
                 <Lock className="w-8 h-8 text-white" />
               </div>
-              <h1 className="text-2xl font-bold mb-1">My Projects</h1>
+              <h1 className="text-2xl font-bold mb-1">Projects</h1>
               <p className="text-white/80 text-sm">Unlocks at Week {UNLOCK_WEEK} of your cohort</p>
             </div>
             <div className="px-8 py-8 text-center">
