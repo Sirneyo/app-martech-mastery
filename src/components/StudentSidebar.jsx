@@ -79,8 +79,10 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
           </p>
         )}
 
-        <Link
-          to={createPageUrl('BeginLearning')}
+        <a
+          href={settings?.kajabi_url || "https://www.the-growth-academy.co/library"}
+          target="_blank"
+          rel="noopener noreferrer"
           className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
           title={isCollapsed ? 'Begin Learning' : ''}
         >
