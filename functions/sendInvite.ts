@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'MarTech Mastery Academy <onboarding@resend.dev>',
+        from: 'Martech Mastery Academy <noreply@app.martech-mastery.com>',
         to: [email],
         subject: 'You\'re Invited to Join MarTech Mastery Academy',
         html: `
