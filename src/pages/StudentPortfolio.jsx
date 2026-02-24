@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Lock, ExternalLink, ChevronRight, Award, BookOpen } from 'lucide-react';
+import { CheckCircle, Lock, ExternalLink, ChevronRight, Award, BookOpen, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function StudentPortfolio() {
