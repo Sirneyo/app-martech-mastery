@@ -312,47 +312,86 @@ export default function StudentDashboard() {
         transition={{ delay: 0.2 }}
         className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"
       >
-        {cohort && (
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/50">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                <Trophy className="w-5 h-5 text-white" />
+        {cohort && (() => {
+          const startDate = new Date(cohort.start_date);
+          const endDate = new Date(cohort.end_date);
+          const now = new Date();
+          const totalWeeks = 12;
+
+          let cohortStatus = 'Upcoming';
+          let currentWeek = 0;
+          let weeksRemaining = 0;
+
+          if (cohort.start_date && cohort.end_date) {
+            if (isWithinInterval(now, { start: startDate, end: endDate })) {
+              cohortStatus = 'Active';
+              currentWeek = Math.min(differenceInWeeks(now, startDate) + 1, totalWeeks);
+              weeksRemaining = Math.max(0, differenceInWeeks(endDate, now));
+            } else if (isAfter(now, endDate)) {
+              cohortStatus = 'Completed';
+              currentWeek = totalWeeks;
+              weeksRemaining = 0;
+            } else {
+              cohortStatus = 'Upcoming';
+              currentWeek = 0;
+              weeksRemaining = differenceInWeeks(startDate, now);
+            }
+          }
+
+          const statusColor = cohortStatus === 'Active' ? 'text-green-600' : cohortStatus === 'Upcoming' ? 'text-blue-500' : 'text-slate-500';
+
+          return (
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/50">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                  <Trophy className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900">Your Cohort</h3>
+                  <p className="text-sm text-slate-500">{cohort.name}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-slate-900">Your Cohort</h3>
-                <p className="text-sm text-slate-500">{cohort.name}</p>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-600">Status:</span>
+                  <span className={`font-semibold ${statusColor}`}>{cohortStatus}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-600">Current Week:</span>
+                  <span className="font-semibold text-slate-900">
+                    {cohortStatus === 'Upcoming' ? 'Not started' : `Week ${currentWeek} of ${totalWeeks}`}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-600">{cohortStatus === 'Upcoming' ? 'Starts in:' : 'Weeks Remaining:'}</span>
+                  <span className="font-semibold text-blue-600">{weeksRemaining} weeks</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2 mt-2">
+                  <div
+                    className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all"
+                    style={{ width: `${(currentWeek / totalWeeks) * 100}%` }}
+                  />
+                </div>
+                {cohort.start_date && cohort.end_date && (
+                  <>
+                    <div className="flex justify-between text-sm pt-1">
+                      <span className="text-slate-600">Started:</span>
+                      <span className="font-medium text-slate-900">{format(startDate, 'MMM d, yyyy')}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-600">Ends:</span>
+                      <span className="font-medium text-slate-900">{format(endDate, 'MMM d, yyyy')}</span>
+                    </div>
+                  </>
+                )}
+                <div className="flex justify-between text-sm pt-2 border-t border-slate-100 mt-2">
+                  <span className="text-slate-500">Your Local Time:</span>
+                  <span className="font-mono text-xs text-slate-700">{now.toLocaleString()}</span>
+                </div>
               </div>
             </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-               <span className="text-slate-600">Current Week:</span>
-               <span className="font-semibold text-slate-900">Week {cohort.current_week} of 12</span>
-              </div>
-              <div className="flex justify-between text-sm">
-               <span className="text-slate-600">Weeks Remaining:</span>
-               <span className="font-semibold text-blue-600">{12 - cohort.current_week} weeks</span>
-              </div>
-              <div className="w-full bg-slate-100 rounded-full h-2 mt-2">
-               <div 
-                 className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all"
-                 style={{ width: `${(cohort.current_week / 12) * 100}%` }}
-               />
-              </div>
-              {cohort.start_date && cohort.end_date && (
-                <>
-                  <div className="flex justify-between text-sm pt-2">
-                    <span className="text-slate-600">Started:</span>
-                    <span className="font-medium text-slate-900">{format(new Date(cohort.start_date), 'MMM d, yyyy')}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Ends:</span>
-                    <span className="font-medium text-slate-900">{format(new Date(cohort.end_date), 'MMM d, yyyy')}</span>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {tutor && (
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/50">
