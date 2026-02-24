@@ -294,7 +294,7 @@ export default function TutorDashboard() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Award className="w-4 h-4 text-slate-400" />
-                        <span className="font-bold text-slate-900">{student.points}</span>
+                        <span className="font-bold text-slate-900" style={{ filter: 'blur(6px)', userSelect: 'none' }}>{student.points}</span>
                       </div>
                     </div>
                   ))}
