@@ -107,6 +107,7 @@ import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProfile from './pages/TutorProfile';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
+import StudentSupport from './pages/StudentSupport';
 import __Layout from './Layout.jsx';
 
 
@@ -171,6 +172,7 @@ export const PAGES = {
     "TutorProfile": TutorProfile,
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorSubmissionReview": TutorSubmissionReview,
+    "StudentSupport": StudentSupport,
 }
 
 export const pagesConfig = {
