@@ -168,16 +168,8 @@ export default function StudentProjects() {
                   className="block bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all group"
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      submissionStatus.status === 'graded' ? 'bg-green-100' :
-                      submissionStatus.status === 'submitted' ? 'bg-amber-100' :
-                      'bg-blue-100'
-                    }`}>
-                      <FolderOpen className={`w-6 h-6 ${
-                        submissionStatus.status === 'graded' ? 'text-green-600' :
-                        submissionStatus.status === 'submitted' ? 'text-amber-600' :
-                        'text-blue-600'
-                      }`} />
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-violet-100">
+                      <FolderOpen className="w-6 h-6 text-violet-600" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
