@@ -37,6 +37,7 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
     { name: 'My Projects', icon: FolderOpen, page: 'StudentProjects' },
     { name: 'My Certification', icon: Award, page: 'StudentCertification' },
     { name: 'My Portfolio', icon: Briefcase, page: 'StudentPortfolio' },
+    { name: 'Support', icon: LifeBuoy, page: 'StudentSupport' },
   ];
 
   return (
