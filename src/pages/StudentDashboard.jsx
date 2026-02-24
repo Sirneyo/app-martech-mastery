@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
+import { format, differenceInWeeks, isBefore, isAfter, isWithinInterval } from 'date-fns';
 import NotificationBell from '@/components/NotificationBell';
 
 export default function StudentDashboard() {
