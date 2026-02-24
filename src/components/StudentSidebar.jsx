@@ -100,7 +100,7 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
             </>
           )}
-        </Link>
+        </a>
 
         <Link
           to={createPageUrl('MarketoAccess')}
