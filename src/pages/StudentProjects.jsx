@@ -126,7 +126,7 @@ export default function StudentProjects() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">My Projects</h1>
+        <h1 className="text-3xl font-bold text-slate-900">Projects</h1>
         <p className="text-slate-500 mt-1">Complete projects to demonstrate your skills</p>
       </motion.div>
 
