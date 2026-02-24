@@ -37,17 +37,21 @@ export default function AdminTemplatesStudioDuplicate() {
   }, [template, downloads]);
 
   const performDuplication = async () => {
+    // Generate a new unique template_key so it appears as a separate template
+    const newKey = `${template.template_key}-copy-${Date.now()}`;
+
     const duplicateData = {
       ...template,
-      template_key: template.template_key,
-      version: (template.version || 1) + 1,
+      template_key: newKey,
+      title: `${template.title} (Copy)`,
+      version: 1,
       status: 'draft',
       published_at: null,
-      updated_date: new Date().toISOString(),
     };
 
     delete duplicateData.id;
     delete duplicateData.created_date;
+    delete duplicateData.updated_date;
     delete duplicateData.created_by;
 
     const newTemplate = await base44.entities[entityMap[templateType]].create(duplicateData);
