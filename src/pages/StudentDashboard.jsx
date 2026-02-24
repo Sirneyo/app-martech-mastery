@@ -375,11 +375,11 @@ export default function StudentDashboard() {
                 {cohort.start_date && cohort.end_date && (
                   <>
                     <div className="flex justify-between text-sm pt-1">
-                      <span className="text-slate-600">Started:</span>
+                      <span className="text-slate-600">Start Date:</span>
                       <span className="font-medium text-slate-900">{format(startDate, 'MMM d, yyyy')}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-600">Ends:</span>
+                      <span className="text-slate-600">End Date:</span>
                       <span className="font-medium text-slate-900">{format(endDate, 'MMM d, yyyy')}</span>
                     </div>
                   </>
