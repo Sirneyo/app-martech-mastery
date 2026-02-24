@@ -175,9 +175,9 @@ export default function AdminStudents() {
                           <span className="text-slate-400 text-xs">Not assigned</span>
                         )}
                       </div>
-                      <div className="text-center">
+                      <div className="text-center select-none">
                         <p className="text-slate-400 text-xs mb-1">Points</p>
-                        <span className="font-bold text-violet-600">{points}</span>
+                        <span className="font-bold text-violet-600 blur-sm">{points}</span>
                       </div>
                       <div className="text-center">
                         <p className="text-slate-400 text-xs mb-1">Status</p>
