@@ -4,7 +4,7 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
-import { FolderOpen, Lock } from 'lucide-react';
+import { FolderOpen, Lock, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function StudentProjects() {
