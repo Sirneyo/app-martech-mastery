@@ -492,7 +492,7 @@ export default function StudentDashboard() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Award className={`w-4 h-4 ${student.id === user?.id ? 'text-amber-600' : 'text-slate-400'}`} />
-                  <span className={`font-bold ${student.id === user?.id ? 'text-amber-900' : 'text-slate-900'}`}>
+                  <span className={`font-bold ${student.id === user?.id ? 'text-amber-900' : 'text-slate-900'}`} style={{ filter: 'blur(6px)', userSelect: 'none' }}>
                     {student.points}
                   </span>
                 </div>
