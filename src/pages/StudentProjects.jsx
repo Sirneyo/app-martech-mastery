@@ -79,6 +79,29 @@ export default function StudentProjects() {
     return !previousSubmission || previousSubmission.status !== 'graded';
   };
 
+  if (!isUnlocked && cohort) {
+    const weeksRemaining = UNLOCK_WEEK - currentWeek;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+        <div className="max-w-3xl mx-auto">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl p-12 text-center shadow-lg border border-slate-200">
+            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Lock className="w-10 h-10 text-slate-400" />
+            </div>
+            <h1 className="text-3xl font-bold text-slate-900 mb-4">My Projects</h1>
+            <p className="text-lg text-slate-600 mb-6">Projects unlock in Week {UNLOCK_WEEK}</p>
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-slate-100 rounded-lg">
+              <Clock className="w-5 h-5 text-slate-600" />
+              <span className="font-semibold text-slate-900">
+                {weeksRemaining} {weeksRemaining === 1 ? 'week' : 'weeks'} remaining
+              </span>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
