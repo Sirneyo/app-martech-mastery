@@ -23,6 +23,29 @@ export default function StudentProjects() {
     enabled: !!user?.id,
   });
 
+  const { data: cohort } = useQuery({
+    queryKey: ['my-cohort', membership?.cohort_id],
+    queryFn: async () => {
+      if (!membership?.cohort_id) return null;
+      const cohorts = await base44.entities.Cohort.filter({ id: membership.cohort_id });
+      return cohorts[0];
+    },
+    enabled: !!membership?.cohort_id,
+  });
+
+  const getCurrentWeek = () => {
+    if (!cohort?.start_date) return 0;
+    const startDate = new Date(cohort.start_date);
+    const today = new Date();
+    const diffTime = today - startDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return Math.floor(diffDays / 7) + 1;
+  };
+
+  const currentWeek = getCurrentWeek();
+  const UNLOCK_WEEK = 8;
+  const isUnlocked = currentWeek >= UNLOCK_WEEK;
+
   const { data: projects = [] } = useQuery({
     queryKey: ['project-templates'],
     queryFn: () => base44.entities.ProjectTemplate.list('week_number'),
