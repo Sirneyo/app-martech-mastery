@@ -136,10 +136,10 @@ export default function AdminStudents() {
           </div>
         </div>
 
-        {/* Students Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Students List */}
+        <div className="space-y-3">
           {filteredStudents.length === 0 ? (
-            <div className="col-span-full text-center py-12">
+            <div className="text-center py-12 bg-white rounded-xl border border-slate-200">
               <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
               <p className="text-slate-500">No students found matching your filters</p>
             </div>
@@ -151,67 +151,61 @@ export default function AdminStudents() {
               return (
                 <Card
                   key={student.id}
-                  className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 bg-gradient-to-br from-white to-slate-50"
+                  className="cursor-pointer hover:shadow-md transition-all duration-200 bg-white"
                   onClick={() => handleStudentClick(student)}
                 >
-                  <div className="p-6 space-y-4">
-                    <div className="flex items-start gap-4">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
-                        {student.full_name?.charAt(0) || 'S'}
+                  <div className="p-4 flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0">
+                      {student.full_name?.charAt(0) || 'S'}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-slate-900 truncate">
+                        {student.full_name || 'Unnamed Student'}
+                      </h3>
+                      <p className="text-sm text-slate-500 truncate">{student.email}</p>
+                    </div>
+
+                    <div className="hidden md:flex items-center gap-6 text-sm">
+                      <div className="text-center">
+                        <p className="text-slate-400 text-xs mb-1">Cohort</p>
+                        {cohort ? (
+                          <Badge variant="secondary">{cohort.name}</Badge>
+                        ) : (
+                          <span className="text-slate-400 text-xs">Not assigned</span>
+                        )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-slate-900 truncate">
-                          {student.full_name || 'Unnamed Student'}
-                        </h3>
-                        <p className="text-sm text-slate-500 truncate">{student.email}</p>
+                      <div className="text-center">
+                        <p className="text-slate-400 text-xs mb-1">Points</p>
+                        <span className="font-bold text-violet-600">{points}</span>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-slate-400 text-xs mb-1">Status</p>
+                        <Badge variant={student.status === 'active' ? 'default' : 'secondary'}>
+                          {student.status || 'active'}
+                        </Badge>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-slate-400 text-xs mb-1">Graduate</p>
+                        <Badge variant={student.is_approved_graduate ? 'default' : 'outline'}>
+                          {student.is_approved_graduate ? 'Approved' : 'Pending'}
+                        </Badge>
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                       <div className="flex items-center justify-between">
-                         <span className="text-sm text-slate-500">Cohort</span>
-                         {cohort ? (
-                           <Badge variant="secondary">{cohort.name}</Badge>
-                         ) : (
-                           <span className="text-sm text-slate-400">Not assigned</span>
-                         )}
-                       </div>
-                       <div className="flex items-center justify-between">
-                         <span className="text-sm text-slate-500">Total Points</span>
-                         <span className="font-bold text-violet-600">{points}</span>
-                       </div>
-                       <div className="flex items-center justify-between">
-                         <span className="text-sm text-slate-500">Status</span>
-                         <Badge variant={student.status === 'active' ? 'default' : 'secondary'}>
-                           {student.status || 'active'}
-                         </Badge>
-                       </div>
-                       <div className="flex items-center justify-between">
-                         <span className="text-sm text-slate-500">Graduate Status</span>
-                         <Badge variant={student.is_approved_graduate ? 'default' : 'outline'}>
-                           {student.is_approved_graduate ? 'Approved' : 'Pending'}
-                         </Badge>
-                       </div>
-                     </div>
-
-                    <div className="pt-3 border-t border-slate-200 space-y-2">
-                       <p className="text-xs text-center text-slate-500">
-                         Click to view full profile
-                       </p>
-                       <Button
-                         size="sm"
-                         variant={student.is_approved_graduate ? 'default' : 'outline'}
-                         onClick={(e) => handleToggleApproval(e, student)}
-                         className="w-full"
-                         disabled={approvalMutation.isPending}
-                       >
-                         {student.is_approved_graduate ? (
-                           <><Check className="w-4 h-4 mr-1" /> Approve Graduate</>
-                         ) : (
-                           <><X className="w-4 h-4 mr-1" /> Approve as Graduate</>
-                         )}
-                       </Button>
-                     </div>
+                    <Button
+                      size="sm"
+                      variant={student.is_approved_graduate ? 'default' : 'outline'}
+                      onClick={(e) => handleToggleApproval(e, student)}
+                      disabled={approvalMutation.isPending}
+                      className="flex-shrink-0"
+                    >
+                      {student.is_approved_graduate ? (
+                        <><Check className="w-4 h-4 mr-1" /> Approved</>
+                      ) : (
+                        <><X className="w-4 h-4 mr-1" /> Approve</>
+                      )}
+                    </Button>
                   </div>
                 </Card>
               );
