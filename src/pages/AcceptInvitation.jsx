@@ -108,8 +108,7 @@ export default function AcceptInvitation() {
       // Verify email with OTP code
       await base44.auth.verifyOtp({
         email: invitation.email,
-        otp_code: verificationCode,
-        type: 'signup'
+        otpCode: verificationCode
       });
 
       // Log in the user
