@@ -103,7 +103,7 @@ export default function AdminTemplatesStudio() {
     return Object.values(grouped);
   };
 
-  const latestAssignments = getLatestVersions(assignments);
+  const latestAssignments = getLatestVersions(assignments).sort((a, b) => (a.week_number || 0) - (b.week_number || 0));
   const latestProjects = getLatestVersions(projects);
   const latestPortfolio = getLatestVersions(portfolio);
 
