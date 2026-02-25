@@ -37,7 +37,8 @@ export default function Home() {
       window.location.href = next || createPageUrl('Dashboard');
     } catch (err) {
       console.error('Login error:', err);
-      setError(err?.response?.data?.error || err?.data?.error || err?.message || 'Invalid email or password. Please try again.');
+      // Fallback: redirect to Base44 native login
+      base44.auth.redirectToLogin(createPageUrl('Dashboard'));
     } finally {
       setLoading(false);
     }
