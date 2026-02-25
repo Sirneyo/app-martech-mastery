@@ -144,14 +144,20 @@ export default function Home() {
                 <span className="bg-white px-2 text-slate-400">or</span>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={handleMagicLink}
-              disabled={loading}
-              className="mt-4 w-full text-sm text-slate-600 hover:text-slate-900 underline underline-offset-2"
-            >
-              Send me a magic link instead
-            </button>
+            {magicLinkSent ? (
+              <p className="mt-4 text-center text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3">
+                ✓ Check your email for a login link!
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={handleMagicLink}
+                disabled={loading}
+                className="mt-4 w-full text-sm text-slate-600 hover:text-slate-900 underline underline-offset-2"
+              >
+                Send me a magic link instead
+              </button>
+            )}
           </div>
 
           <p className="text-center text-sm text-slate-500 mt-6">
