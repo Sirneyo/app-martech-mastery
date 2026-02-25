@@ -243,6 +243,70 @@ export default function AcceptInvitation() {
     );
   }
 
+  if (accountSetupStep) {
+    const minutes = Math.floor(countdown / 60);
+    const seconds = countdown % 60;
+    const progress = ((300 - countdown) / 300) * 100;
+
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+              </div>
+            </div>
+            <CardTitle className="text-xl">Setting Up Your Account</CardTitle>
+            <CardDescription className="text-base mt-2">
+              We're verifying your invitation and preparing your account. This takes up to 5 minutes.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Countdown */}
+            <div className="bg-orange-50 rounded-xl p-5">
+              <p className="text-sm text-gray-500 mb-1">Estimated time remaining</p>
+              <p className="text-4xl font-bold text-orange-500 tabular-nums">
+                {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+              </p>
+            </div>
+
+            {/* Progress bar */}
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-orange-500 h-2 rounded-full transition-all duration-1000"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+
+            {/* Email notice */}
+            <div className="flex items-start gap-3 bg-blue-50 rounded-xl p-4 text-left">
+              <Mail className="w-5 h-5 text-blue-500 mt-0.5 shrink-0" />
+              <p className="text-sm text-blue-700">
+                Once your account is ready, we'll send a verification code to <strong>{invitation?.email}</strong>. Please check your inbox.
+              </p>
+            </div>
+
+            <p className="text-xs text-gray-400">Please do not close this page.</p>
+
+            {/* Skip button for already verified */}
+            <Button
+              variant="outline"
+              className="w-full text-sm"
+              onClick={() => {
+                clearInterval(countdownRef.current);
+                setAccountSetupStep(false);
+                setVerificationStep(true);
+              }}
+            >
+              I already received the code →
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (verificationStep) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
