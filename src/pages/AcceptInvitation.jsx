@@ -95,9 +95,23 @@ export default function AcceptInvitation() {
         password: password
       });
 
-      // Show verification step
-      setVerificationStep(true);
+      // Show account setup / countdown step first
+      setAccountSetupStep(true);
       setSubmitting(false);
+
+      // Start countdown
+      countdownRef.current = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownRef.current);
+            // After countdown, move to verification step
+            setAccountSetupStep(false);
+            setVerificationStep(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     } catch (err) {
       console.error('Signup error:', err);
       const errorMessage = err?.data?.error || err?.response?.data?.error || err.message || 'Failed to create account. Please try again.';
