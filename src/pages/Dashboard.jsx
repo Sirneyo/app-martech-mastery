@@ -18,8 +18,8 @@ export default function Dashboard() {
       setUser(userData);
     } catch (error) {
       console.error('Error loading user:', error);
-      // User not authenticated, redirect to login
-      base44.auth.redirectToLogin();
+      // User not authenticated, redirect to custom login
+      window.location.href = createPageUrl('Home');
     } finally {
       setLoading(false);
     }

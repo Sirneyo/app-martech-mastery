@@ -19,7 +19,7 @@ export default function AcceptInvitation() {
   // Block access if no token in URL
   const urlParams = new URLSearchParams(window.location.search);
   if (!urlParams.get('token')) {
-    base44.auth.redirectToLogin();
+    window.location.href = createPageUrl('Home');
     return null;
   }
   
