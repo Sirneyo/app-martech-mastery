@@ -211,8 +211,8 @@ export default function AcceptInvitation() {
             <CardDescription>{error}</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => navigate(createPageUrl('Home'))} className="w-full">
-              Go to Home
+            <Button onClick={() => base44.auth.redirectToLogin()} className="w-full">
+              Go to Login
             </Button>
           </CardContent>
         </Card>
