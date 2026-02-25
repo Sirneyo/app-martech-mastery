@@ -32,7 +32,9 @@ export default function Home() {
     setLoading(true);
     try {
       await base44.auth.loginViaEmailPassword(email, password);
-      window.location.href = createPageUrl('Dashboard');
+      const params = new URLSearchParams(window.location.search);
+      const next = params.get('next');
+      window.location.href = next || createPageUrl('Dashboard');
     } catch (err) {
       setError('Invalid email or password. Please try again.');
     } finally {
