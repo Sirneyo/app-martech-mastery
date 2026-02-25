@@ -14,6 +14,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState('');
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
 
   useEffect(() => {
     // If already logged in, redirect to dashboard
