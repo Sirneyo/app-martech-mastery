@@ -135,6 +135,25 @@ export default function Home() {
             </Button>
           </form>
 
+          <div className="mt-4">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-slate-200" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-slate-400">or</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleMagicLink}
+              disabled={loading}
+              className="mt-4 w-full text-sm text-slate-600 hover:text-slate-900 underline underline-offset-2"
+            >
+              Send me a magic link instead
+            </button>
+          </div>
+
           <p className="text-center text-sm text-slate-500 mt-6">
             Access is by invitation only. Contact your administrator if you need access.
           </p>
