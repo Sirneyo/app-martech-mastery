@@ -19,7 +19,7 @@ export default function AcceptInvitation() {
   // Block access if no token in URL
   const urlParams = new URLSearchParams(window.location.search);
   if (!urlParams.get('token')) {
-    window.location.href = createPageUrl('Home');
+    base44.auth.redirectToLogin();
     return null;
   }
   
@@ -165,7 +165,7 @@ export default function AcceptInvitation() {
 
   const handleExistingUserLogin = () => {
     // Redirect to login with email pre-filled
-    window.location.href = createPageUrl('Home') + '?next=' + encodeURIComponent(window.location.pathname + window.location.search);
+    base44.auth.redirectToLogin(window.location.pathname + window.location.search);
   };
 
   if (loading) {

@@ -25,19 +25,19 @@ export default function RoleBasedLayout({ children, currentPageName }) {
       const userData = await base44.auth.me();
       if (!userData) {
         setLoading(false);
-        window.location.href = createPageUrl('Home');
+        base44.auth.redirectToLogin(window.location.pathname);
         return;
       }
 
       setUser(userData);
       setLoading(false);
-
+      
       // Track login event in background
       trackLoginEvent(userData).catch(err => console.error('Login tracking error:', err));
     } catch (error) {
       console.error('Error loading user:', error);
       setLoading(false);
-      window.location.href = createPageUrl('Home');
+      base44.auth.redirectToLogin(window.location.pathname);
     }
   };
 
