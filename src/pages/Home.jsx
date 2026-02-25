@@ -37,7 +37,7 @@ export default function Home() {
       window.location.href = next || createPageUrl('Dashboard');
     } catch (err) {
       console.error('Login error:', err);
-      setError('Invalid email or password. Please try again.');
+      setError('Invalid email or password. If you signed up via an invite link, try the magic link option below.');
     } finally {
       setLoading(false);
     }
@@ -52,11 +52,10 @@ export default function Home() {
     setError('');
     try {
       await base44.auth.sendMagicLink(email);
-      setError('');
-      alert('Check your email for a login link!');
+      setMagicLinkSent(true);
     } catch (err) {
       console.error('Magic link error:', err);
-      setError('Could not send login link. Please try again.');
+      setError('Could not send login link. Please check your email and try again.');
     } finally {
       setLoading(false);
     }
