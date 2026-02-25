@@ -31,7 +31,7 @@ export default function Home() {
     setError('');
     setLoading(true);
     try {
-      await base44.auth.login(email, password);
+      await base44.auth.loginViaEmailPassword(email, password);
       window.location.href = createPageUrl('Dashboard');
     } catch (err) {
       setError('Invalid email or password. Please try again.');

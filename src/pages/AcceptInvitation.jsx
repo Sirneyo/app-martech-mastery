@@ -165,7 +165,7 @@ export default function AcceptInvitation() {
 
   const handleExistingUserLogin = () => {
     // Redirect to login with email pre-filled
-    base44.auth.redirectToLogin(window.location.pathname + window.location.search);
+    window.location.href = createPageUrl('Home') + '?next=' + encodeURIComponent(window.location.pathname + window.location.search);
   };
 
   if (loading) {
