@@ -37,8 +37,26 @@ export default function Home() {
       window.location.href = next || createPageUrl('Dashboard');
     } catch (err) {
       console.error('Login error:', err);
-      // Fallback: redirect to Base44 native login
-      base44.auth.redirectToLogin(createPageUrl('Dashboard'));
+      setError('Invalid email or password. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMagicLink = async () => {
+    if (!email) {
+      setError('Please enter your email address first.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      await base44.auth.sendMagicLink(email);
+      setError('');
+      alert('Check your email for a login link!');
+    } catch (err) {
+      console.error('Magic link error:', err);
+      setError('Could not send login link. Please try again.');
     } finally {
       setLoading(false);
     }
