@@ -36,7 +36,8 @@ export default function Home() {
       const next = params.get('next');
       window.location.href = next || createPageUrl('Dashboard');
     } catch (err) {
-      setError('Invalid email or password. Please try again.');
+      console.error('Login error:', err);
+      setError(err?.response?.data?.error || err?.data?.error || err?.message || 'Invalid email or password. Please try again.');
     } finally {
       setLoading(false);
     }
