@@ -30,6 +30,9 @@ export default function AcceptInvitation() {
   const [submitting, setSubmitting] = useState(false);
   const [verificationStep, setVerificationStep] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
+  const [accountSetupStep, setAccountSetupStep] = useState(false);
+  const [countdown, setCountdown] = useState(300); // 5 minutes in seconds
+  const countdownRef = useRef(null);
 
   useEffect(() => {
     checkInvitation();
