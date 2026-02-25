@@ -31,7 +31,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
 
       setUser(userData);
       setLoading(false);
-      
+
       // Track login event in background
       trackLoginEvent(userData).catch(err => console.error('Login tracking error:', err));
     } catch (error) {
