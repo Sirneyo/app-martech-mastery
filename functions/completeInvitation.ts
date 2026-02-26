@@ -49,6 +49,20 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Send welcome email + in-app notification for students
+    if ((invitation.intended_app_role || 'student') === 'student') {
+      try {
+        const student = await base44.asServiceRole.entities.User.get(user_id);
+        await base44.asServiceRole.functions.invoke('notifyWelcomeStudent', {
+          student_user_id: user_id,
+          student_name: student?.full_name || invitation.full_name || '',
+          student_email: student?.email || '',
+        });
+      } catch (e) {
+        console.error('Welcome notification error:', e.message);
+      }
+    }
+
     return Response.json({
       success: true,
       redirect_role: invitation.intended_app_role || 'student'
