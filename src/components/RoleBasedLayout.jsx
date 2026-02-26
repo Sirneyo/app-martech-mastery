@@ -9,6 +9,7 @@ import TutorSidebar from '@/components/TutorSidebar';
 import AdminSidebar from '@/components/AdminSidebar';
 import LoadingLogo from '@/components/LoadingLogo';
 import AIAssistant from '@/components/AIAssistant';
+import NotificationBell from '@/components/NotificationBell';
 import { Toaster } from 'sonner';
 
 export default function RoleBasedLayout({ children, currentPageName }) {
