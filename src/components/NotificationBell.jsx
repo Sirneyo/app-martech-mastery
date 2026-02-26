@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Bell, X, Check, BookOpen, Trophy, Award, FileCheck, AlertCircle } from 'lucide-react';
+import { Bell, X, Check, BookOpen, Trophy, Award, FileCheck, AlertCircle, Flame, Clock, Star, Unlock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -67,8 +67,10 @@ export default function NotificationBell() {
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'assignment_published':
+      case 'assignment_unlocked':
       case 'project_published':
-        return <BookOpen className="w-5 h-5 text-blue-500" />;
+      case 'project_unlocked':
+        return <Unlock className="w-5 h-5 text-blue-500" />;
       case 'assignment_graded':
         return <Award className="w-5 h-5 text-green-500" />;
       case 'assignment_needs_revision':
@@ -76,13 +78,26 @@ export default function NotificationBell() {
       case 'portfolio_approved':
         return <Check className="w-5 h-5 text-green-500" />;
       case 'portfolio_needs_revision':
+      case 'portfolio_feedback':
         return <AlertCircle className="w-5 h-5 text-orange-500" />;
+      case 'portfolio_unlocked':
+      case 'exam_unlocked':
+        return <Unlock className="w-5 h-5 text-violet-500" />;
       case 'certificate_issued':
         return <Trophy className="w-5 h-5 text-yellow-500" />;
       case 'exam_results_ready':
         return <FileCheck className="w-5 h-5 text-purple-500" />;
       case 'points_awarded':
-        return <Award className="w-5 h-5 text-amber-500" />;
+        return <Star className="w-5 h-5 text-amber-500" />;
+      case 'points_deducted':
+        return <AlertCircle className="w-5 h-5 text-red-500" />;
+      case 'login_streak':
+      case 'achievement':
+        return <Flame className="w-5 h-5 text-orange-500" />;
+      case 'deadline_reminder':
+        return <Clock className="w-5 h-5 text-red-500" />;
+      case 'welcome':
+        return <Bell className="w-5 h-5 text-violet-500" />;
       default:
         return <Bell className="w-5 h-5 text-slate-500" />;
     }
