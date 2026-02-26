@@ -34,9 +34,6 @@ export default function AcceptInvitation() {
 
   useEffect(() => {
     checkInvitation();
-    return () => {
-      if (countdownRef.current) clearInterval(countdownRef.current);
-    };
   }, []);
 
   const checkInvitation = async () => {
