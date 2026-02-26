@@ -18,7 +18,6 @@ import {
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { format, differenceInWeeks, isBefore, isAfter, isWithinInterval } from 'date-fns';
-import NotificationBell from '@/components/NotificationBell';
 
 export default function StudentDashboard() {
   const { data: user } = useQuery({
