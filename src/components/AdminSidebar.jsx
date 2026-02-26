@@ -24,6 +24,7 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
     { name: 'Cohorts', icon: Calendar, page: 'AdminCohorts' },
     { name: 'Credentials', icon: User, page: 'AdminCredentials' },
     { name: 'Attendance', icon: ClipboardList, page: 'AdminAttendance' },
+    { name: 'Quiz Results', icon: Trophy, page: 'AdminQuizResults' },
     { name: 'Submissions', icon: ClipboardList, page: 'AdminSubmissions' },
     { name: 'Portfolio', icon: FolderCheck, page: 'AdminPortfolio' },
     { name: 'Exams', icon: Award, page: 'AdminExams' },
