@@ -188,7 +188,6 @@ export default function StudentDashboard() {
             <p className="text-slate-500 mt-1">Continue your MarTech journey</p>
           </div>
           <div className="flex items-center gap-4">
-            <NotificationBell />
             {user?.is_approved_graduate && (
               <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl px-4 py-3">
                 <Trophy className="w-6 h-6 text-yellow-600" />
