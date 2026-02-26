@@ -60,6 +60,7 @@ import AdminExams from './pages/AdminExams';
 import AdminOverview from './pages/AdminOverview';
 import AdminPortfolio from './pages/AdminPortfolio';
 import AdminProfile from './pages/AdminProfile';
+import AdminQuizResults from './pages/AdminQuizResults';
 import AdminStudents from './pages/AdminStudents';
 import AdminSubmissionDetail from './pages/AdminSubmissionDetail';
 import AdminSubmissions from './pages/AdminSubmissions';
@@ -106,9 +107,8 @@ import TutorPortfolioReview from './pages/TutorPortfolioReview';
 import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProfile from './pages/TutorProfile';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
-import TutorSubmissionReview from './pages/TutorSubmissionReview';
 import TutorQuizGrading from './pages/TutorQuizGrading';
-import AdminQuizResults from './pages/AdminQuizResults';
+import TutorSubmissionReview from './pages/TutorSubmissionReview';
 import __Layout from './Layout.jsx';
 
 
@@ -126,6 +126,7 @@ export const PAGES = {
     "AdminOverview": AdminOverview,
     "AdminPortfolio": AdminPortfolio,
     "AdminProfile": AdminProfile,
+    "AdminQuizResults": AdminQuizResults,
     "AdminStudents": AdminStudents,
     "AdminSubmissionDetail": AdminSubmissionDetail,
     "AdminSubmissions": AdminSubmissions,
@@ -172,9 +173,8 @@ export const PAGES = {
     "TutorPortfolioReviews": TutorPortfolioReviews,
     "TutorProfile": TutorProfile,
     "TutorProjectSubmissions": TutorProjectSubmissions,
-    "TutorSubmissionReview": TutorSubmissionReview,
     "TutorQuizGrading": TutorQuizGrading,
-    "AdminQuizResults": AdminQuizResults,
+    "TutorSubmissionReview": TutorSubmissionReview,
 }
 
 export const pagesConfig = {
