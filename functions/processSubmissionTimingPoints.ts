@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { Resend } from 'npm:resend@4.0.0';
 
 /**
  * Entity automation - triggered when a Submission is created/updated with status='submitted'.
