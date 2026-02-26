@@ -210,7 +210,7 @@ export default function StudentDashboard() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm text-slate-500 font-medium">Total Points</p>
-              <p className="text-2xl font-bold text-slate-900 mt-1" style={{ filter: 'blur(6px)', userSelect: 'none' }}>{myPoints || 0}</p>
+              <p className="text-2xl font-bold text-slate-900 mt-1">{myPoints || 0}</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
               <Award className="w-5 h-5 text-white" />
@@ -490,7 +490,7 @@ export default function StudentDashboard() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Award className={`w-4 h-4 ${student.id === user?.id ? 'text-amber-600' : 'text-slate-400'}`} />
-                  <span className={`font-bold ${student.id === user?.id ? 'text-amber-900' : 'text-slate-900'}`} style={{ filter: 'blur(6px)', userSelect: 'none' }}>
+                  <span className={`font-bold ${student.id === user?.id ? 'text-amber-900' : 'text-slate-900'}`}>
                     {student.points}
                   </span>
                 </div>
