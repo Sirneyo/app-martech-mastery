@@ -35,6 +35,7 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
     { name: 'Dashboard', icon: LayoutDashboard, page: 'TutorDashboard' },
     { name: 'My Cohorts', icon: Users, page: 'TutorCohorts' },
     { name: 'Mark Attendance', icon: CheckCircle, page: 'TutorAttendance' },
+    { name: 'Quiz Grading', icon: Trophy, page: 'TutorQuizGrading' },
     { name: 'Submissions (Assignments)', icon: ClipboardCheck, page: 'TutorAssignmentSubmissions' },
     { name: 'Submissions (Projects)', icon: FolderCheck, page: 'TutorProjectSubmissions' },
     { name: 'Portfolio Reviews', icon: Award, page: 'TutorPortfolioReviews' },
