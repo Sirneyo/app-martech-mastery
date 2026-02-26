@@ -50,6 +50,19 @@ Deno.serve(async (req) => {
         awarded_by: 'system',
       });
       awarded.push({ user_id: pos.user_id, position: pos.position, points: pos.points });
+
+      // In-app notification for quiz placement
+      const medals = { first: '🥇', second: '🥈', third: '🥉' };
+      const ordinals = { first: '1st', second: '2nd', third: '3rd' };
+      const quizLabel = isFinalQuiz ? 'Final Quiz (Week 8)' : `Week ${week_number} Quiz`;
+      await db.entities.Notification.create({
+        user_id: pos.user_id,
+        type: 'achievement',
+        title: `${medals[pos.position]} You placed ${ordinals[pos.position]} in the ${quizLabel}!`,
+        message: `Congratulations! You finished ${ordinals[pos.position]} and earned +${pos.points} points. Keep it up!`,
+        link_url: `/StudentDashboard`,
+        related_entity_id: sourceId,
+      });
     }
 
     return Response.json({ awarded });
