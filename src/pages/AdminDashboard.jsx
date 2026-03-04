@@ -474,7 +474,7 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {cohortHealthData.map((data) => (
+                  {(showAllHealthCohorts ? cohortHealthData : cohortHealthData.slice(0, 3)).map((data) => (
                     <tr key={data.cohort.id} className="border-b border-slate-100 hover:bg-slate-50">
                       <td className="p-3">
                         <Link 
