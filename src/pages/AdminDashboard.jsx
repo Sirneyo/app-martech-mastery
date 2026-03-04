@@ -98,11 +98,15 @@ export default function AdminDashboard() {
   // Calculate cohort leaderboards
   const cohortLeaderboards = useMemo(() => {
     return cohorts.map(cohort => {
+      const cohortMemberIds = new Set(
+        memberships
+          .filter(m => m.cohort_id === cohort.id && m.status === 'active')
+          .map(m => m.user_id)
+      );
+
       const cohortPoints = {};
-      
       pointsLedger.forEach(entry => {
-        const user = users.find(u => u.id === entry.user_id);
-        if (user?.cohort_id === cohort.id) {
+        if (cohortMemberIds.has(entry.user_id)) {
           if (!cohortPoints[entry.user_id]) {
             cohortPoints[entry.user_id] = 0;
           }
@@ -120,14 +124,14 @@ export default function AdminDashboard() {
           };
         })
         .sort((a, b) => b.points - a.points)
-        .slice(0, 3);
+        .slice(0, 5);
 
       return {
         cohort,
         leaderboard,
       };
     });
-  }, [cohorts, pointsLedger, users]);
+  }, [cohorts, pointsLedger, users, memberships]);
 
   // Calculate statistics
   const stats = useMemo(() => {
