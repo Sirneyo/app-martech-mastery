@@ -397,7 +397,7 @@ export default function AdminDashboard() {
           </Card>
 
           {/* Cohort Leaderboards */}
-          {cohortLeaderboards.slice(0, 2).map(({ cohort, leaderboard }) => (
+          {cohortLeaderboards.slice(0, showAllCohorts ? cohortLeaderboards.length : 2).map(({ cohort, leaderboard }) => (
             <Card key={cohort.id} className="border border-slate-200">
               <CardHeader className="bg-slate-50 border-b border-slate-200">
                 <CardTitle className="flex items-center justify-between text-lg">
