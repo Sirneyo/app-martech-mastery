@@ -97,7 +97,7 @@ export default function AdminDashboard() {
 
   // Calculate cohort leaderboards
   const cohortLeaderboards = useMemo(() => {
-    return cohorts.map(cohort => {
+    return [...cohorts].sort((a, b) => new Date(a.start_date) - new Date(b.start_date)).map(cohort => {
       const cohortMemberIds = new Set(
         memberships
           .filter(m => m.cohort_id === cohort.id && m.status === 'active')
