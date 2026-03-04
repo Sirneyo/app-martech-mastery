@@ -264,6 +264,7 @@ export default function AdminDashboard() {
   }, [loginEvents]);
 
   const [showAllCohorts, setShowAllCohorts] = React.useState(false);
+  const [showAllHealthCohorts, setShowAllHealthCohorts] = React.useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
