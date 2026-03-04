@@ -435,6 +435,18 @@ export default function AdminDashboard() {
           ))}
         </div>
 
+        {cohortLeaderboards.length > 2 && (
+          <div className="flex justify-center">
+            <button
+              onClick={() => setShowAllCohorts(!showAllCohorts)}
+              className="flex items-center gap-2 px-5 py-2 rounded-full bg-white border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm"
+            >
+              <ChevronRight className={`w-4 h-4 transition-transform ${showAllCohorts ? 'rotate-90' : ''}`} />
+              {showAllCohorts ? 'Show Less' : `View ${cohortLeaderboards.length - 2} More Cohort${cohortLeaderboards.length - 2 > 1 ? 's' : ''}`}
+            </button>
+          </div>
+        )}
+
         {/* Cohort Health Table */}
         <Card>
           <CardHeader>
