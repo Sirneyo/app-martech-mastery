@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
     });
     
     if (memberships.length === 0) {
-      return Response.json({ tutor: null, leaderboardData: [] });
+      return Response.json({ tutor: null, leaderboardData: [], debug: 'no_membership' });
     }
 
     const membership = memberships[0];
