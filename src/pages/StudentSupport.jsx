@@ -378,7 +378,7 @@ export default function StudentSupport() {
             </motion.div>
           )}
 
-        </AnimatePresence>
+        </AnimatePresence>}
       </div>
     </div>
   );
