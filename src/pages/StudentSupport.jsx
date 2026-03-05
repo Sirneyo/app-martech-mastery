@@ -277,6 +277,51 @@ export default function StudentSupport() {
             </motion.div>
           )}
 
+          {/* Ticket Detail */}
+          {view === 'detail' && selectedTicket && (
+            <motion.div key="detail" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              {(() => {
+                const ticket = selectedTicket;
+                const status = STATUS_CONFIG[ticket.status] || STATUS_CONFIG.open;
+                const priority = PRIORITY_CONFIG[ticket.priority] || PRIORITY_CONFIG.medium;
+                const typeConfig = TICKET_TYPES.find(t => t.id === ticket.ticket_type);
+                return (
+                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className={`bg-gradient-to-r ${typeConfig?.color || 'from-slate-400 to-slate-500'} px-6 py-4`}>
+                      <div className="flex items-center gap-3">
+                        {typeConfig && <typeConfig.icon className="w-5 h-5 text-white" />}
+                        <h2 className="text-white font-bold">{typeConfig?.title}</h2>
+                      </div>
+                    </div>
+                    <div className="p-6 space-y-5">
+                      <div className="flex flex-wrap gap-2">
+                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${status.color}`}>{status.label}</span>
+                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${priority.color}`}>{priority.label} Priority</span>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Subject</p>
+                        <p className="font-semibold text-slate-900 text-lg">{ticket.subject}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Description</p>
+                        <p className="text-slate-700 whitespace-pre-wrap">{ticket.description}</p>
+                      </div>
+                      {ticket.admin_reply && (
+                        <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
+                          <p className="text-xs text-violet-400 uppercase tracking-wide mb-1">Support Response</p>
+                          <p className="text-violet-900 whitespace-pre-wrap">{ticket.admin_reply}</p>
+                        </div>
+                      )}
+                      <div className="pt-3 border-t border-slate-100 text-xs text-slate-400">
+                        Submitted {format(new Date(ticket.created_date), 'MMM d, yyyy • h:mm a')}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </motion.div>
+          )}
+
           {/* Ticket List */}
           {view === 'list' && (
             <motion.div key="list" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
