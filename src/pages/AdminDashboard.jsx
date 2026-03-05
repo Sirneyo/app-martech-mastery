@@ -12,7 +12,8 @@ import { motion } from 'framer-motion';
 export default function AdminDashboard() {
   const { data: users = [] } = useQuery({
     queryKey: ['all-users'],
-    queryFn: () => base44.entities.User.list(),
+    queryFn: () => base44.entities.User.list('created_date', 1000),
+    staleTime: 0,
   });
 
   const { data: cohorts = [] } = useQuery({
