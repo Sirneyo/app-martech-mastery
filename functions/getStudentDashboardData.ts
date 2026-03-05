@@ -34,14 +34,15 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Get all users to validate tutor exists
+    const allUsers = await base44.asServiceRole.entities.User.list();
+    const allUserIds = new Set(allUsers.map(u => u.id));
+
     let tutor = null;
-    if (tutorAssignments.length > 0) {
-      const tutorId = tutorAssignments[0].tutor_id;
-      try {
-        tutor = await base44.asServiceRole.entities.User.get(tutorId);
-      } catch (error) {
-        console.error(`Error fetching tutor ${tutorId}:`, error.message);
-        tutor = null;
+    for (const assignment of tutorAssignments) {
+      if (allUserIds.has(assignment.tutor_id)) {
+        tutor = allUsers.find(u => u.id === assignment.tutor_id);
+        break;
       }
     }
 
