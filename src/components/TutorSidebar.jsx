@@ -42,7 +42,7 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
   ];
 
   return (
-    <aside className={`${isCollapsed ? 'w-20' : 'w-72'} bg-gradient-to-b from-slate-100 to-slate-200 h-screen flex flex-col border-r border-slate-300 transition-all duration-300 relative overflow-hidden`}>
+    <aside className={`${isCollapsed ? 'w-20' : 'w-72'} bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 h-screen flex flex-col border-r border-slate-300 dark:border-slate-700 transition-all duration-300 relative overflow-hidden`}>
       <div className="p-4 border-b border-slate-300 flex items-center justify-between">
         {!isCollapsed && (
           <Link to={createPageUrl('TutorDashboard')}>

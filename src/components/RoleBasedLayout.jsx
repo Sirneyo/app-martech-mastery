@@ -82,17 +82,17 @@ export default function RoleBasedLayout({ children, currentPageName }) {
 
   if (loading || !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950">
         <LoadingLogo />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
+    <div className="flex min-h-screen bg-slate-100 dark:bg-slate-950">
       <button
         onClick={() => setSidebarOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-40 p-2 bg-white rounded-lg shadow-md border border-slate-200"
+        className="lg:hidden fixed top-4 left-4 z-40 p-2 bg-white dark:bg-slate-800 rounded-lg shadow-md border border-slate-200 dark:border-slate-700"
       >
         <Menu className="w-6 h-6 text-slate-700" />
       </button>
@@ -120,13 +120,13 @@ export default function RoleBasedLayout({ children, currentPageName }) {
       </div>
 
       <main className="flex-1 h-screen overflow-y-auto lg:ml-0">
-        <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-6 py-3">
+        <div className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 px-6 py-3">
           <div className="flex items-center justify-end gap-2">
             <ThemeToggle />
             <NotificationBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 transition-all group">
+                <button className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group">
                   {user?.profile_picture ? (
                     <img
                       src={user.profile_picture}
@@ -139,10 +139,10 @@ export default function RoleBasedLayout({ children, currentPageName }) {
                     </div>
                   )}
                   <div className="text-left hidden sm:block">
-                    <p className="text-sm font-medium text-slate-700">
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
                       {user?.full_name || 'Loading...'}
                     </p>
-                    <p className="text-[10px] text-slate-500 capitalize">
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 capitalize">
                       {user?.app_role || 'student'}
                     </p>
                   </div>
