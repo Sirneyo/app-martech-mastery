@@ -75,7 +75,13 @@ Deno.serve(async (req) => {
 
     return Response.json({ 
       tutor,
-      leaderboardData: leaderboard 
+      leaderboardData: leaderboard,
+      debug: {
+        cohort_id: membership.cohort_id,
+        tutor_assignments_count: tutorAssignments.length,
+        all_users_count: allUsers.length,
+        tutor_ids: tutorAssignments.map(a => a.tutor_id),
+      }
     });
 
   } catch (error) {
