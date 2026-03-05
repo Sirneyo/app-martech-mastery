@@ -33,8 +33,12 @@ Deno.serve(async (req) => {
     // Get portfolio item title
     let itemTitle = 'a portfolio item';
     if (data.portfolio_item_id) {
-      const templates = await db.entities.PortfolioItemTemplate.filter({ id: data.portfolio_item_id });
-      if (templates.length) itemTitle = templates[0].title;
+      try {
+        const templates = await db.entities.PortfolioItemTemplate.filter({ id: data.portfolio_item_id });
+        if (templates.length) itemTitle = templates[0].title;
+      } catch (e) {
+        // keep default
+      }
     }
 
     const isApproved = newStatus === 'approved';
