@@ -9,11 +9,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user's cohort membership via service role
-    const memberships = await base44.asServiceRole.entities.CohortMembership.filter({ 
-      user_id: user.id, 
-      status: 'active' 
+    // Get user's cohort membership via service role to ensure access
+    const allMemberships = await base44.asServiceRole.entities.CohortMembership.filter({ 
+      user_id: user.id
     });
+    const memberships = allMemberships.filter(m => m.status === 'active');
     
     if (memberships.length === 0) {
       return Response.json({ tutor: null, leaderboardData: [], debug: 'no_membership' });
