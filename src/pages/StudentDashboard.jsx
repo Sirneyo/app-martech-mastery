@@ -37,8 +37,8 @@ export default function StudentDashboard() {
     queryKey: ['my-cohort-membership'],
     queryFn: async () => {
       if (!user?.id) return null;
-      const memberships = await base44.entities.CohortMembership.filter({ user_id: user.id, status: 'active' });
-      return memberships[0];
+      const { data } = await base44.functions.invoke('getStudentDashboardData');
+      return data?._membership || null;
     },
     enabled: !!user?.id,
   });
