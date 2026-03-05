@@ -1,9 +1,9 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 import { Resend } from 'npm:resend@4.0.0';
 
 /**
  * Called directly from the completeInvitation flow after a student account is created.
- * Sends a welcome email with next steps.
+ * Sends a welcome email with next steps + creates an in-app notification.
  */
 
 Deno.serve(async (req) => {
@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
     // Send welcome email
     if (resendKey) {
       const resend = new Resend(resendKey);
-      await resend.emails.send({
+      const emailResult = await resend.emails.send({
         from: 'MarTech Mastery <noreply@martech-mastery.com>',
         to: student_email,
         subject: `🎉 Welcome to MarTech Mastery Matrix!`,
@@ -51,6 +51,7 @@ Deno.serve(async (req) => {
           </div>
         `
       });
+      console.log('Welcome email sent:', JSON.stringify(emailResult));
     }
 
     // Create welcome in-app notification

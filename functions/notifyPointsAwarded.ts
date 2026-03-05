@@ -1,10 +1,9 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 /**
  * Entity automation - fires when PointsLedger entry is created.
  * Creates an in-app notification for points earned or lost.
- * Skips daily_login (too frequent/noisy) and streak notifications 
- * (those get their own richer message).
+ * Skips daily_login (too frequent/noisy).
  */
 
 const SKIP_REASONS = ['daily_login'];

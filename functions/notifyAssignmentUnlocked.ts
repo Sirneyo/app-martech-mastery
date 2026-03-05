@@ -1,7 +1,7 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 /**
- * Scheduled daily automation - checks which assignments unlock today (Saturday noon)
+ * Scheduled hourly automation - checks which assignments unlock today (Saturday noon)
  * and sends in-app notifications to all enrolled students.
  *
  * Also checks for upcoming deadlines (due in 24h) for reminder notifications.
@@ -67,14 +67,12 @@ Deno.serve(async (req) => {
 
         for (const studentId of studentIds) {
           if (isUnlockHour) {
-            // Check for duplicate unlock notification today
             const dupeKey = `unlock_${template.id}_${cohort.id}_${todayStr}`;
             const existing = await db.entities.Notification.filter({
               user_id: studentId,
               related_entity_id: dupeKey,
             });
             if (existing.length === 0) {
-              // Week 8 special unlocks
               if (template.week_number === 8) {
                 await db.entities.Notification.create({
                   user_id: studentId,
