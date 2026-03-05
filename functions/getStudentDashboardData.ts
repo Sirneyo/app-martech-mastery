@@ -25,22 +25,20 @@ Deno.serve(async (req) => {
     const allUsers = await base44.asServiceRole.entities.User.list();
     const allUserIds = new Set(allUsers.map(u => u.id));
 
-    // Get tutor assignments via service role
-    let tutorAssignments = await base44.asServiceRole.entities.TutorCohortAssignment.filter({ 
-      cohort_id: membership.cohort_id,
-      is_primary: true 
+    // Get ALL tutor assignments for this cohort via service role
+    const tutorAssignments = await base44.asServiceRole.entities.TutorCohortAssignment.filter({ 
+      cohort_id: membership.cohort_id
     });
 
-    if (tutorAssignments.length === 0) {
-      tutorAssignments = await base44.asServiceRole.entities.TutorCohortAssignment.filter({ 
-        cohort_id: membership.cohort_id
-      });
-    }
+    // Sort: primary first, then any
+    tutorAssignments.sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0));
 
+    // Find first tutor that still exists in the system
     let tutor = null;
     for (const assignment of tutorAssignments) {
-      if (allUserIds.has(assignment.tutor_id)) {
-        tutor = allUsers.find(u => u.id === assignment.tutor_id);
+      const found = allUsers.find(u => u.id === assignment.tutor_id);
+      if (found) {
+        tutor = found;
         break;
       }
     }
