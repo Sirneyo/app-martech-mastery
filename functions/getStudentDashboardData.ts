@@ -21,8 +21,8 @@ Deno.serve(async (req) => {
 
     const membership = memberships[0];
 
-    // Get all users via service role
-    const allUsers = await base44.asServiceRole.entities.User.list();
+    // Get all users via service role (large limit to ensure we get everyone)
+    const allUsers = await base44.asServiceRole.entities.User.list('created_date', 1000);
     const allUserIds = new Set(allUsers.map(u => u.id));
 
     // Get ALL tutor assignments for this cohort via service role
