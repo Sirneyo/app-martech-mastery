@@ -202,7 +202,7 @@ export default function AdminUsers() {
     setEditDialogOpen(true);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!selectedUser) return;
 
     // Check if trying to remove last admin's admin role
@@ -215,15 +215,54 @@ export default function AdminUsers() {
       return;
     }
 
-    // Only send custom fields (not built-in ones like full_name, email)
-    const updateData = {
-      app_role: editData.app_role,
-      status: editData.status
-    };
+    const oldRole = selectedUser.app_role;
+    const newRole = editData.app_role;
+    const roleChanged = oldRole !== newRole;
+
+    // If role changed, clean up old assignments and create new ones
+    if (roleChanged) {
+      // Remove old student memberships
+      if (oldRole === 'student') {
+        const oldMemberships = memberships.filter(m => m.user_id === selectedUser.id);
+        await Promise.all(oldMemberships.map(m => base44.entities.CohortMembership.delete(m.id)));
+      }
+      // Remove old tutor assignments
+      if (oldRole === 'tutor') {
+        const oldAssignments = tutorAssignments.filter(ta => ta.tutor_id === selectedUser.id);
+        await Promise.all(oldAssignments.map(ta => base44.entities.TutorCohortAssignment.delete(ta.id)));
+      }
+      // If moving to student, migrate existing tutor cohort assignments as student memberships
+      if (newRole === 'student' && oldRole === 'tutor') {
+        const oldAssignments = tutorAssignments.filter(ta => ta.tutor_id === selectedUser.id);
+        await Promise.all(oldAssignments.map(ta =>
+          base44.entities.CohortMembership.create({
+            user_id: selectedUser.id,
+            cohort_id: ta.cohort_id,
+            enrollment_date: new Date().toISOString().split('T')[0],
+            status: 'active',
+          })
+        ));
+      }
+      // If moving to tutor, migrate existing student memberships as tutor assignments
+      if (newRole === 'tutor' && oldRole === 'student') {
+        const oldMemberships = memberships.filter(m => m.user_id === selectedUser.id);
+        await Promise.all(oldMemberships.map(m =>
+          base44.entities.TutorCohortAssignment.create({
+            tutor_id: selectedUser.id,
+            cohort_id: m.cohort_id,
+            assigned_date: new Date().toISOString().split('T')[0],
+            is_primary: true,
+          })
+        ));
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['memberships'] });
+      queryClient.invalidateQueries({ queryKey: ['tutor-assignments'] });
+    }
 
     updateUserMutation.mutate({
       userId: selectedUser.id,
-      data: updateData
+      data: { app_role: newRole, status: editData.status }
     });
   };
 
