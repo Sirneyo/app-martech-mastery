@@ -45,8 +45,9 @@ const PRIORITY_CONFIG = {
 };
 
 export default function StudentSupport() {
-  const [view, setView] = useState('list'); // 'list' | 'select-type' | 'form'
+  const [view, setView] = useState('list'); // 'list' | 'select-type' | 'form' | 'detail'
   const [selectedType, setSelectedType] = useState(null);
+  const [selectedTicket, setSelectedTicket] = useState(null);
   const [form, setForm] = useState({ subject: '', description: '', priority: 'medium' });
   const [submitted, setSubmitted] = useState(false);
   const queryClient = useQueryClient();
