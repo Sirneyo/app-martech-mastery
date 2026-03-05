@@ -144,6 +144,37 @@ export default function StudentSupport() {
           </div>
         </motion.div>
 
+        {/* Success screen */}
+        {submitted && selectedTicket && (
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-3xl p-10 shadow-lg text-center"
+          >
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-10 h-10 text-green-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Ticket Submitted!</h2>
+            <p className="text-slate-500 mb-8">
+              Your support request has been sent. Our team will get back to you shortly.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => { setSubmitted(false); setView('detail'); }}
+                className="w-full border-2 border-violet-600 text-violet-600 hover:bg-violet-50 font-semibold py-3 rounded-xl transition-colors"
+              >
+                View Ticket
+              </button>
+              <button
+                onClick={resetForm}
+                className="w-full bg-violet-600 hover:bg-violet-700 text-white font-semibold py-3 rounded-xl transition-colors"
+              >
+                Back to My Tickets
+              </button>
+            </div>
+          </motion.div>
+        )}
+
         <AnimatePresence mode="wait">
 
           {/* Ticket Type Selection */}
