@@ -21,22 +21,21 @@ Deno.serve(async (req) => {
 
     const membership = memberships[0];
 
-    // Get tutor using service role - try primary first, then any tutor
-    let tutorAssignments = await base44.entities.TutorCohortAssignment.filter({ 
+    // Get all users via service role
+    const allUsers = await base44.asServiceRole.entities.User.list();
+    const allUserIds = new Set(allUsers.map(u => u.id));
+
+    // Get tutor assignments via service role
+    let tutorAssignments = await base44.asServiceRole.entities.TutorCohortAssignment.filter({ 
       cohort_id: membership.cohort_id,
       is_primary: true 
     });
 
-    // If no primary tutor, get any tutor assigned to this cohort
     if (tutorAssignments.length === 0) {
-      tutorAssignments = await base44.entities.TutorCohortAssignment.filter({ 
+      tutorAssignments = await base44.asServiceRole.entities.TutorCohortAssignment.filter({ 
         cohort_id: membership.cohort_id
       });
     }
-
-    // Get all users to validate tutor exists
-    const allUsers = await base44.asServiceRole.entities.User.list();
-    const allUserIds = new Set(allUsers.map(u => u.id));
 
     let tutor = null;
     for (const assignment of tutorAssignments) {
