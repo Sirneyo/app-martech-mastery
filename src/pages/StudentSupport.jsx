@@ -350,7 +350,7 @@ export default function StudentSupport() {
                     const priority = PRIORITY_CONFIG[ticket.priority] || PRIORITY_CONFIG.medium;
                     const typeConfig = TICKET_TYPES.find(t => t.id === ticket.ticket_type);
                     return (
-                      <div key={ticket.id} className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-sm transition-shadow">
+                      <div key={ticket.id} onClick={() => openTicket(ticket)} className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-md transition-shadow cursor-pointer">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-start gap-3 flex-1 min-w-0">
                             <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${typeConfig?.color || 'from-slate-400 to-slate-500'} flex items-center justify-center flex-shrink-0 mt-0.5`}>
