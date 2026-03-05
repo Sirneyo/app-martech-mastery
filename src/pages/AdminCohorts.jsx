@@ -174,7 +174,9 @@ export default function AdminCohorts() {
   };
 
   const getMemberCount = (cohortId) => {
-    return memberships.filter(m => m.cohort_id === cohortId && m.status === 'active').length;
+    const active = memberships.filter(m => m.cohort_id === cohortId && m.status === 'active');
+    const unique = new Set(active.map(m => m.user_id));
+    return unique.size;
   };
 
   const statusColors = {
