@@ -9,8 +9,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user's cohort membership
-    const memberships = await base44.entities.CohortMembership.filter({ 
+    // Get user's cohort membership via service role
+    const memberships = await base44.asServiceRole.entities.CohortMembership.filter({ 
       user_id: user.id, 
       status: 'active' 
     });
