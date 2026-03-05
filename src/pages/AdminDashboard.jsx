@@ -100,9 +100,10 @@ export default function AdminDashboard() {
   // Calculate cohort leaderboards
   const cohortLeaderboards = useMemo(() => {
     return [...cohorts].sort((a, b) => new Date(a.start_date) - new Date(b.start_date)).map(cohort => {
+      const userIdSet = new Set(users.map(u => u.id));
       const cohortMemberIds = new Set(
         memberships
-          .filter(m => m.cohort_id === cohort.id && m.status === 'active')
+          .filter(m => m.cohort_id === cohort.id && m.status === 'active' && userIdSet.has(m.user_id))
           .map(m => m.user_id)
       );
 
@@ -166,7 +167,8 @@ export default function AdminDashboard() {
   // Cohort health data
   const cohortHealthData = useMemo(() => {
     return [...cohorts].sort((a, b) => new Date(a.start_date) - new Date(b.start_date)).map(cohort => {
-      const cohortMembers = memberships.filter(m => m.cohort_id === cohort.id && m.status === 'active');
+      const allUserIds = new Set(users.map(u => u.id));
+      const cohortMembers = memberships.filter(m => m.cohort_id === cohort.id && m.status === 'active' && allUserIds.has(m.user_id));
       const cohortTutors = tutorAssignments.filter(ta => ta.cohort_id === cohort.id && ta.is_primary);
       const cohortPendingSubmissions = submissions.filter(s => 
         s.cohort_id === cohort.id && ['submitted', 'in_review'].includes(s.status)
