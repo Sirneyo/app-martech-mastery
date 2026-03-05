@@ -177,6 +177,7 @@ export default function StudentSupport() {
 
         {!submitted && <AnimatePresence mode="wait">
 
+
           {/* Ticket Type Selection */}
           {view === 'select-type' && (
             <motion.div key="select" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
