@@ -44,13 +44,13 @@ Deno.serve(async (req) => {
     }
 
     // Get cohort members
-    const cohortMembers = await base44.entities.CohortMembership.filter({ 
+    const cohortMembers = await base44.asServiceRole.entities.CohortMembership.filter({ 
       cohort_id: membership.cohort_id, 
       status: 'active' 
     });
 
     // Get all points for cohort members
-    const allLedger = await base44.entities.PointsLedger.list();
+    const allLedger = await base44.asServiceRole.entities.PointsLedger.list();
     const memberIds = cohortMembers.map(m => m.user_id);
     
     const pointsByUser = {};
