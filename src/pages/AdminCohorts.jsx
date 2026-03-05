@@ -57,7 +57,8 @@ export default function AdminCohorts() {
 
   const { data: memberships = [] } = useQuery({
     queryKey: ['memberships'],
-    queryFn: () => base44.entities.CohortMembership.list(),
+    queryFn: () => base44.entities.CohortMembership.list('created_date', 1000),
+    staleTime: 0,
   });
 
   const { data: users = [] } = useQuery({
