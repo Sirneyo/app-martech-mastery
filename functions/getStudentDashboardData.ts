@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
     const memberships = allMemberships.filter(m => m.status === 'active');
     
     if (memberships.length === 0) {
-      return Response.json({ tutor: null, leaderboardData: [], debug: 'no_membership' });
+      return Response.json({ tutor: null, leaderboardData: [], debug: { reason: 'no_membership', user_id: user.id, all_memberships: allMemberships.length } });
     }
 
     const membership = memberships[0];
