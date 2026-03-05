@@ -63,7 +63,8 @@ export default function AdminCohorts() {
 
   const { data: users = [] } = useQuery({
     queryKey: ['users'],
-    queryFn: () => base44.entities.User.list(),
+    queryFn: () => base44.entities.User.list('created_date', 1000),
+    staleTime: 0,
   });
 
   const { data: credentials = [] } = useQuery({
@@ -173,8 +174,10 @@ export default function AdminCohorts() {
     setDialogOpen(true);
   };
 
+  const userIds = new Set(users.map(u => u.id));
+
   const getMemberCount = (cohortId) => {
-    const active = memberships.filter(m => m.cohort_id === cohortId && m.status === 'active');
+    const active = memberships.filter(m => m.cohort_id === cohortId && m.status === 'active' && userIds.has(m.user_id));
     const unique = new Set(active.map(m => m.user_id));
     return unique.size;
   };
