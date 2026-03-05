@@ -62,9 +62,7 @@ Deno.serve(async (req) => {
         pointsByUser[entry.user_id] = (pointsByUser[entry.user_id] || 0) + entry.points;
       });
 
-    // Get all cohort users using service role
-    const cohortUsers = await base44.asServiceRole.entities.User.list();
-    const students = cohortUsers.filter(u => memberIds.includes(u.id));
+    const students = allUsers.filter(u => memberIds.includes(u.id));
 
     // Build leaderboard
     const leaderboard = students
