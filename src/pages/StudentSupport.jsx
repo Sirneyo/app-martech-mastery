@@ -89,8 +89,9 @@ export default function StudentSupport() {
       await base44.functions.invoke('sendTicketNotification', { ticket_id: ticket.id });
       return ticket;
     },
-    onSuccess: () => {
+    onSuccess: (ticket) => {
       queryClient.invalidateQueries({ queryKey: ['my-tickets'] });
+      setSelectedTicket(ticket);
       setSubmitted(true);
     },
   });
