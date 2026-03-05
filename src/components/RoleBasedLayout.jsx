@@ -10,6 +10,7 @@ import AdminSidebar from '@/components/AdminSidebar';
 import LoadingLogo from '@/components/LoadingLogo';
 import AIAssistant from '@/components/AIAssistant';
 import NotificationBell from '@/components/NotificationBell';
+import ThemeToggle from '@/components/ThemeToggle';
 import { Toaster } from 'sonner';
 
 export default function RoleBasedLayout({ children, currentPageName }) {
@@ -121,6 +122,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
       <main className="flex-1 h-screen overflow-y-auto lg:ml-0">
         <div className="sticky top-0 z-30 bg-white border-b border-slate-200 px-6 py-3">
           <div className="flex items-center justify-end gap-2">
+            <ThemeToggle />
             <NotificationBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
