@@ -175,8 +175,8 @@ export default function StudentSupport() {
           </motion.div>
         )}
 
-        {!submitted && <AnimatePresence mode="wait">
-
+        {!submitted && (
+        <AnimatePresence mode="wait">
 
           {/* Ticket Type Selection */}
           {view === 'select-type' && (
