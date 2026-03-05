@@ -38,7 +38,16 @@ Deno.serve(async (req) => {
     for (const assignment of tutorAssignments) {
       const found = allUsers.find(u => u.id === assignment.tutor_id);
       if (found) {
-        tutor = found;
+        // Flatten data fields so frontend can access them directly
+        tutor = {
+          id: found.id,
+          full_name: found.full_name,
+          email: found.email,
+          display_name: found.display_name || found.data?.display_name || found.full_name,
+          profile_picture: found.profile_picture || found.data?.profile_picture || null,
+          professional_bio: found.professional_bio || found.data?.professional_bio || null,
+          phone: found.phone || found.data?.phone || null,
+        };
         break;
       }
     }
