@@ -262,72 +262,97 @@ export default function StudentAssignmentDetail() {
             <div className="grid grid-cols-3 gap-6">
               {/* Main Content */}
               <div className="col-span-2 space-y-6">
-                {/* Assignment Title */}
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                  <h1 className="text-3xl font-bold text-slate-900 mb-3">{assignment.title}</h1>
-                  {assignment.short_description && (
-                    <p className="text-lg text-slate-600">{assignment.short_description}</p>
+
+                {/* Assignment Brief Card — styled like the template preview */}
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  {assignment.thumbnail_url && (
+                    <img src={assignment.thumbnail_url} alt={assignment.title} className="w-full h-56 object-cover" />
                   )}
-                </div>
-
-                {/* Assignment Brief */}
-                <Collapsible open={briefOpen} onOpenChange={setBriefOpen}>
-                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <CollapsibleTrigger className="w-full bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between hover:bg-slate-100 transition-colors">
-                      <h2 className="text-lg font-bold text-slate-900">Assignment Brief</h2>
-                      {briefOpen ? (
-                        <ChevronUp className="w-5 h-5 text-slate-500" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-slate-500" />
-                      )}
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <div className="p-6">
-                        {assignment.content_html && (
-                          <div className="prose prose-slate max-w-none prose-headings:text-slate-900 prose-headings:font-bold prose-p:text-slate-700 prose-p:leading-relaxed prose-a:text-violet-600 prose-a:font-medium prose-a:underline prose-a:decoration-2 prose-a:underline-offset-2 hover:prose-a:text-violet-700 prose-strong:text-slate-900 prose-strong:font-bold prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6 prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6 prose-li:text-slate-700 prose-li:my-2 prose-li:leading-relaxed mb-6" dangerouslySetInnerHTML={{ __html: assignment.content_html }} />
-                        )}
-
-                        {/* Legacy tasks fallback */}
-                        {assignment.tasks && assignment.tasks.length > 0 && !assignment.content_html && (
-                          <div className="mb-6">
-                            <h3 className="font-bold text-slate-900 mb-3">Tasks:</h3>
-                            <ul className="space-y-2">
-                              {assignment.tasks.map((task, idx) => (
-                                <li key={idx} className="flex items-start gap-2 text-slate-600">
-                                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                                  <span>{task}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {downloads.length > 0 && (
-                          <div className="mt-6 p-4 bg-violet-50 rounded-lg border border-violet-200">
-                            <h3 className="font-semibold text-violet-900 mb-3 flex items-center gap-2">
-                              <Download className="w-5 h-5" />
-                              Downloads
-                            </h3>
-                            <div className="space-y-2">
-                              {downloads.map((download) => (
-                                <a
-                                  key={download.id}
-                                  href={download.file_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-violet-100 transition-colors"
-                                >
-                                  <FileText className="w-5 h-5 text-violet-600" />
-                                  <span className="flex-1 font-medium text-slate-700">{download.file_name}</span>
-                                </a>
-                              ))}
-                            </div>
-                          </div>
+                  <div className="p-8">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Badge variant="outline">Week {assignment.week_number}</Badge>
+                          <Badge className={
+                            submission?.status === 'graded' ? 'bg-green-100 text-green-700' :
+                            submission?.status === 'needs_revision' ? 'bg-amber-100 text-amber-700' :
+                            submission?.status === 'submitted' || submission?.status === 'in_review' ? 'bg-blue-100 text-blue-700' :
+                            'bg-slate-100 text-slate-600'
+                          }>
+                            {submission?.status ? submission.status.replace('_', ' ') : 'Not Started'}
+                          </Badge>
+                        </div>
+                        <h1 className="text-3xl font-bold text-slate-900 mb-2">{assignment.title}</h1>
+                        {assignment.short_description && (
+                          <p className="text-lg text-slate-600">{assignment.short_description}</p>
                         )}
                       </div>
-                    </CollapsibleContent>
+                      <div className="text-right ml-6 flex-shrink-0">
+                        <p className="text-sm text-slate-500">Points</p>
+                        <p className="text-2xl font-bold text-violet-600">{assignment.points} pts</p>
+                      </div>
+                    </div>
+
+                    {/* Full brief — collapsible */}
+                    {(assignment.content_html || (assignment.tasks && assignment.tasks.length > 0)) && (
+                      <>
+                        <Collapsible open={briefOpen} onOpenChange={setBriefOpen}>
+                          <CollapsibleContent>
+                            <div className="mt-6 pt-6 border-t border-slate-100">
+                              {assignment.content_html && (
+                                <div
+                                  className="prose prose-slate max-w-none prose-headings:text-slate-900 prose-headings:font-bold prose-p:text-slate-700 prose-p:leading-relaxed prose-a:text-violet-600 prose-a:font-medium prose-strong:text-slate-900 prose-ul:list-disc prose-ul:pl-6 prose-ol:list-decimal prose-ol:pl-6 prose-li:text-slate-700 prose-li:leading-relaxed mb-6"
+                                  dangerouslySetInnerHTML={{ __html: assignment.content_html }}
+                                />
+                              )}
+                              {assignment.tasks && assignment.tasks.length > 0 && !assignment.content_html && (
+                                <ul className="space-y-2 mb-6">
+                                  {assignment.tasks.map((task, idx) => (
+                                    <li key={idx} className="flex items-start gap-2 text-slate-600">
+                                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                                      <span>{task}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                              {downloads.length > 0 && (
+                                <div className="p-5 bg-slate-50 rounded-lg border border-slate-200">
+                                  <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                                    <Download className="w-5 h-5" />
+                                    Downloads
+                                  </h3>
+                                  <div className="space-y-2">
+                                    {downloads.map((download) => (
+                                      <a
+                                        key={download.id}
+                                        href={download.file_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-slate-100 transition-colors border border-slate-100"
+                                      >
+                                        <FileText className="w-5 h-5 text-violet-600" />
+                                        <span className="flex-1 font-medium text-slate-700">{download.file_name}</span>
+                                      </a>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </CollapsibleContent>
+                          <CollapsibleTrigger asChild>
+                            <Button variant="outline" size="sm" className="mt-4">
+                              {briefOpen ? (
+                                <><ChevronUp className="w-4 h-4 mr-1" /> Hide Full Brief</>
+                              ) : (
+                                <><ChevronDown className="w-4 h-4 mr-1" /> View Full Brief</>
+                              )}
+                            </Button>
+                          </CollapsibleTrigger>
+                        </Collapsible>
+                      </>
+                    )}
                   </div>
-                </Collapsible>
+                </div>
 
                 {/* Student Submission */}
                 <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
