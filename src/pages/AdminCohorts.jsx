@@ -97,6 +97,9 @@ export default function AdminCohorts() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cohorts'] });
       queryClient.invalidateQueries({ queryKey: ['tutor-cohort-assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['tutor-assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['memberships'] });
+      queryClient.invalidateQueries({ queryKey: ['cohort-users'] });
       setDialogOpen(false);
       resetForm();
     },
@@ -115,6 +118,9 @@ export default function AdminCohorts() {
     mutationFn: (id) => base44.entities.Cohort.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cohorts'] });
+      queryClient.invalidateQueries({ queryKey: ['memberships'] });
+      queryClient.invalidateQueries({ queryKey: ['tutor-assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['tutor-cohort-assignments'] });
     },
   });
 

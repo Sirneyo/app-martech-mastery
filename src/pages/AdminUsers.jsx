@@ -73,6 +73,8 @@ export default function AdminUsers() {
     mutationFn: (data) => base44.entities.CohortMembership.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memberships'] });
+      queryClient.invalidateQueries({ queryKey: ['cohort-users'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       setAssignDialogOpen(false);
       setSelectedUser(null);
       setAssignmentData({ cohort_id: '', tutor_id: '' });
@@ -83,6 +85,9 @@ export default function AdminUsers() {
     mutationFn: (data) => base44.entities.TutorCohortAssignment.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tutor-cohort-assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['tutor-assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['cohort-users'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       setAssignDialogOpen(false);
       setSelectedUser(null);
       setAssignmentData({ cohort_id: '', tutor_id: '' });
@@ -258,6 +263,8 @@ export default function AdminUsers() {
 
       queryClient.invalidateQueries({ queryKey: ['memberships'] });
       queryClient.invalidateQueries({ queryKey: ['tutor-assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['tutor-cohort-assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['cohort-users'] });
     }
 
     updateUserMutation.mutate({
@@ -638,28 +645,33 @@ export default function AdminUsers() {
                     const tutorAssignment = tutorAssignments.find(ta => ta.tutor_id === selectedUser?.id);
                     
                     if (value) {
-                      if (studentMembership) {
-                        base44.entities.CohortMembership.update(studentMembership.id, { cohort_id: value });
-                      } else if (tutorAssignment) {
-                        base44.entities.TutorCohortAssignment.update(tutorAssignment.id, { cohort_id: value });
-                      } else {
-                        // Create new membership based on role
-                        if (selectedUser?.app_role === 'tutor') {
-                          base44.entities.TutorCohortAssignment.create({
-                            tutor_id: selectedUser.id,
-                            cohort_id: value,
-                            assigned_date: new Date().toISOString().split('T')[0],
-                          });
+                      const doUpdate = async () => {
+                        if (studentMembership) {
+                          await base44.entities.CohortMembership.update(studentMembership.id, { cohort_id: value });
+                        } else if (tutorAssignment) {
+                          await base44.entities.TutorCohortAssignment.update(tutorAssignment.id, { cohort_id: value });
                         } else {
-                          base44.entities.CohortMembership.create({
-                            user_id: selectedUser.id,
-                            cohort_id: value,
-                            enrollment_date: new Date().toISOString().split('T')[0],
-                          });
+                          if (selectedUser?.app_role === 'tutor') {
+                            await base44.entities.TutorCohortAssignment.create({
+                              tutor_id: selectedUser.id,
+                              cohort_id: value,
+                              assigned_date: new Date().toISOString().split('T')[0],
+                            });
+                          } else {
+                            await base44.entities.CohortMembership.create({
+                              user_id: selectedUser.id,
+                              cohort_id: value,
+                              enrollment_date: new Date().toISOString().split('T')[0],
+                            });
+                          }
                         }
-                      }
-                      queryClient.invalidateQueries({ queryKey: ['memberships'] });
-                      queryClient.invalidateQueries({ queryKey: ['tutor-assignments'] });
+                        queryClient.invalidateQueries({ queryKey: ['memberships'] });
+                        queryClient.invalidateQueries({ queryKey: ['tutor-assignments'] });
+                        queryClient.invalidateQueries({ queryKey: ['tutor-cohort-assignments'] });
+                        queryClient.invalidateQueries({ queryKey: ['cohort-users'] });
+                        queryClient.invalidateQueries({ queryKey: ['users'] });
+                      };
+                      doUpdate();
                     }
                   }}
                 >

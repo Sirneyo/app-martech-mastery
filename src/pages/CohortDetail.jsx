@@ -85,6 +85,7 @@ export default function CohortDetail() {
     mutationFn: ({ id, data }) => base44.entities.Cohort.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cohort', cohortId] });
+      queryClient.invalidateQueries({ queryKey: ['cohorts'] });
       setEditDialogOpen(false);
     },
   });
@@ -93,6 +94,8 @@ export default function CohortDetail() {
     mutationFn: (data) => base44.entities.CohortMembership.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memberships', cohortId] });
+      queryClient.invalidateQueries({ queryKey: ['memberships'] });
+      queryClient.invalidateQueries({ queryKey: ['cohort-users', cohortId] });
       setAssignStudentDialogOpen(false);
       setSelectedUserId('');
     },
@@ -102,6 +105,8 @@ export default function CohortDetail() {
     mutationFn: (membershipId) => base44.entities.CohortMembership.delete(membershipId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memberships', cohortId] });
+      queryClient.invalidateQueries({ queryKey: ['memberships'] });
+      queryClient.invalidateQueries({ queryKey: ['cohort-users', cohortId] });
     },
   });
 
@@ -109,6 +114,8 @@ export default function CohortDetail() {
     mutationFn: (data) => base44.entities.TutorCohortAssignment.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tutor-assignments', cohortId] });
+      queryClient.invalidateQueries({ queryKey: ['tutor-cohort-assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['cohort-users', cohortId] });
       setAssignTutorDialogOpen(false);
       setSelectedUserId('');
     },
@@ -118,6 +125,7 @@ export default function CohortDetail() {
     mutationFn: (assignmentId) => base44.entities.TutorCohortAssignment.delete(assignmentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tutor-assignments', cohortId] });
+      queryClient.invalidateQueries({ queryKey: ['tutor-cohort-assignments'] });
       queryClient.invalidateQueries({ queryKey: ['cohort-users', cohortId] });
     },
   });

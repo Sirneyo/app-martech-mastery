@@ -25,6 +25,7 @@ export default function NotificationBell() {
       return base44.entities.Notification.filter({ user_id: user.id }, '-created_date');
     },
     enabled: !!user?.id,
+    refetchInterval: 30000,
   });
 
   const markAsReadMutation = useMutation({
