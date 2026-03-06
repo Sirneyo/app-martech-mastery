@@ -44,13 +44,9 @@ export default function RoleBasedLayout({ children, currentPageName }) {
 
   const trackLoginEvent = async (userData) => {
     const today = new Date().toISOString().split('T')[0];
-
-    // Only record login event once per day (dedup by checking existing login events)
     const existingEvents = await base44.entities.LoginEvent.filter({ user_id: userData.id });
     const alreadyLoggedToday = existingEvents.some(e => e.login_time?.startsWith(today));
-
     if (alreadyLoggedToday) return;
-
     await base44.entities.LoginEvent.create({
       user_id: userData.id,
       login_time: new Date().toISOString(),
