@@ -34,6 +34,7 @@ export default function AdminUsers() {
   const [roleFilter, setRoleFilter] = useState('all');
   const [cohortFilter, setCohortFilter] = useState('all');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [assignError, setAssignError] = useState('');
 
   const queryClient = useQueryClient();
 
@@ -160,13 +161,19 @@ export default function AdminUsers() {
   };
 
   const handleAssignCohort = () => {
-    if (selectedUser && assignmentData.cohort_id) {
-      assignCohortMutation.mutate({
-        user_id: selectedUser.id,
-        cohort_id: assignmentData.cohort_id,
-        enrollment_date: new Date().toISOString().split('T')[0],
-      });
+    if (!selectedUser || !assignmentData.cohort_id) return;
+    setAssignError('');
+    const existingMembership = memberships.find(m => m.user_id === selectedUser.id);
+    if (existingMembership) {
+      const existingCohort = cohorts.find(c => c.id === existingMembership.cohort_id);
+      setAssignError(`${selectedUser.full_name} is already assigned to "${existingCohort?.name || 'another cohort'}". Remove them from that cohort first.`);
+      return;
     }
+    assignCohortMutation.mutate({
+      user_id: selectedUser.id,
+      cohort_id: assignmentData.cohort_id,
+      enrollment_date: new Date().toISOString().split('T')[0],
+    });
   };
 
   const handleAssignTutor = () => {
@@ -543,17 +550,26 @@ export default function AdminUsers() {
           </div>
         </div>
 
-        <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+        <Dialog open={assignDialogOpen} onOpenChange={(open) => { setAssignDialogOpen(open); if (!open) setAssignError(''); }}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Assign {selectedUser?.full_name}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
+              {(() => {
+                const existingMembership = memberships.find(m => m.user_id === selectedUser?.id);
+                const existingCohort = existingMembership ? cohorts.find(c => c.id === existingMembership.cohort_id) : null;
+                return existingCohort ? (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-700">
+                    This student is currently in <strong>{existingCohort.name}</strong>. Assigning as a student again will be blocked.
+                  </div>
+                ) : null;
+              })()}
               <div className="space-y-2">
                 <Label>Select Cohort</Label>
                 <Select
                   value={assignmentData.cohort_id}
-                  onValueChange={(value) => setAssignmentData({ ...assignmentData, cohort_id: value })}
+                  onValueChange={(value) => { setAssignmentData({ ...assignmentData, cohort_id: value }); setAssignError(''); }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Choose a cohort" />
@@ -567,6 +583,11 @@ export default function AdminUsers() {
                   </SelectContent>
                 </Select>
               </div>
+              {assignError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                  {assignError}
+                </div>
+              )}
               <div className="flex gap-2">
                 <Button onClick={handleAssignCohort} className="flex-1">
                   <Users className="w-4 h-4 mr-2" />
