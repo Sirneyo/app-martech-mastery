@@ -9,22 +9,26 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    // Use service role for admin operations
     const db = base44.asServiceRole;
 
-    const allLedger = await db.entities.PointsLedger.list('created_date', 10000);
-    for (const entry of allLedger) {
-      await db.entities.PointsLedger.delete(entry.id);
-    }
+    // Fetch and delete PointsLedger in batches
+    let totalDeletedPoints = 0;
+    let totalDeletedLogins = 0;
 
-    const allLoginEvents = await db.entities.LoginEvent.list('login_time', 10000);
-    for (const event of allLoginEvents) {
-      await db.entities.LoginEvent.delete(event.id);
-    }
+    const ledgerBatch = await db.entities.PointsLedger.list('created_date', 500);
+    await Promise.all(ledgerBatch.map(e => db.entities.PointsLedger.delete(e.id)));
+    totalDeletedPoints = ledgerBatch.length;
+
+    // Delete LoginEvents too so old cached browser code can't bypass dedup and re-create daily_login entries
+    const loginBatch = await db.entities.LoginEvent.list('login_time', 500);
+    await Promise.all(loginBatch.map(e => db.entities.LoginEvent.delete(e.id)));
+    totalDeletedLogins = loginBatch.length;
 
     return Response.json({ 
       success: true, 
-      deleted_points: allLedger.length,
-      deleted_login_events: allLoginEvents.length
+      deleted_points: totalDeletedPoints,
+      deleted_login_events: totalDeletedLogins
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
