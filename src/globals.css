@@ -12,11 +12,21 @@
 .ql-editor em { font-style: italic; }
 
 /* Rich text content display — scoped heading styles with proper sizes */
+.rich-content {
+  all: unset;
+  display: block;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: inherit;
+}
+
 .rich-content h1 {
-  margin: 0.75em 0 0.5em 0 !important;
-  font-size: 2em !important;
-  font-weight: 700 !important;
-  line-height: 1.2 !important;
+  margin: 0.75em 0 0.5em 0;
+  font-size: 2em;
+  font-weight: 700;
+  line-height: 1.2;
+  display: block;
 }
 
 .rich-content h2 {
