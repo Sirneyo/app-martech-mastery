@@ -45,31 +45,17 @@ export default function RoleBasedLayout({ children, currentPageName }) {
   const trackLoginEvent = async (userData) => {
     const today = new Date().toISOString().split('T')[0];
 
-    // Check for existing login points today using source_id (the date string) as the dedup key
-    const existingLoginPoints = await base44.entities.PointsLedger.filter({
-      user_id: userData.id,
-      source_type: 'bonus',
-      source_id: today,
-      reason: 'daily_login',
-    });
+    // Only record login event once per day (dedup by checking existing login events)
+    const existingEvents = await base44.entities.LoginEvent.filter({ user_id: userData.id });
+    const alreadyLoggedToday = existingEvents.some(e => e.login_time?.startsWith(today));
 
-    if (existingLoginPoints.length > 0) return; // Already logged in today
+    if (alreadyLoggedToday) return;
 
-    // Record login event
     await base44.entities.LoginEvent.create({
       user_id: userData.id,
       login_time: new Date().toISOString(),
       ip_address: '',
       user_agent: navigator.userAgent
-    });
-
-    // Award daily login points
-    await base44.entities.PointsLedger.create({
-      user_id: userData.id,
-      points: 5,
-      reason: 'daily_login',
-      source_type: 'bonus',
-      source_id: today
     });
   };
 
