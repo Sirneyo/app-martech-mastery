@@ -41,8 +41,8 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
   ];
 
   return (
-    <aside className={`${isCollapsed ? 'w-20' : 'w-72'} bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 h-screen flex flex-col border-r border-slate-300 dark:border-slate-700 transition-all duration-300 relative overflow-hidden`}>
-      <div className="p-4 border-b border-slate-300 dark:border-slate-700 flex items-center justify-between">
+    <aside className={`${isCollapsed ? 'w-20' : 'w-72'} bg-gradient-to-b from-slate-100 to-slate-200 h-screen flex flex-col border-r border-slate-300 transition-all duration-300 relative overflow-hidden`}>
+      <div className="p-4 border-b border-slate-300 flex items-center justify-between">
         {!isCollapsed && (
           <Link to={createPageUrl('StudentDashboard')}>
             <img 
@@ -67,14 +67,14 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
         variant="ghost"
         size="icon"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 bottom-8 z-50 h-6 w-6 rounded-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700"
+        className="absolute -right-3 bottom-8 z-50 h-6 w-6 rounded-full bg-white border border-slate-300 hover:bg-slate-100"
       >
         {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </Button>
 
       <div className="p-4">
         {!isCollapsed && (
-          <p className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold px-3 mb-3">
+          <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
             Tools
           </p>
         )}
@@ -83,7 +83,7 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
           href={settings?.kajabi_url || "https://www.the-growth-academy.co/library"}
           target="_blank"
           rel="noopener noreferrer"
-          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 ${isCollapsed ? 'justify-center' : ''}`}
+          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
           title={isCollapsed ? 'Begin Learning' : ''}
         >
           <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-purple-600 to-violet-500">
@@ -92,10 +92,10 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
           {!isCollapsed && (
             <>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white">
+                <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
                   Begin Learning
                 </p>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400">Courses & Live Sessions</p>
+                <p className="text-[10px] text-slate-500">Courses & Live Sessions</p>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
             </>
@@ -104,7 +104,7 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
 
         <Link
           to={createPageUrl('MarketoAccess')}
-          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 ${isCollapsed ? 'justify-center' : ''}`}
+          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
           title={isCollapsed ? 'Launch Marketo' : ''}
         >
           <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white">
@@ -117,10 +117,10 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
           {!isCollapsed && (
             <>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white">
+                <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
                   Launch Marketo
                 </p>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400">Access Marketo</p>
+                <p className="text-[10px] text-slate-500">Access Marketo</p>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
             </>
@@ -129,7 +129,7 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
 
         <Link
           to={createPageUrl('StudentAITools')}
-          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mt-2 bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 ${isCollapsed ? 'justify-center' : ''}`}
+          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mt-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
           title={isCollapsed ? 'AI Tools' : ''}
         >
           <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-blue-500 to-cyan-500">
@@ -138,10 +138,10 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
           {!isCollapsed && (
             <>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white">
+                <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
                   AI Tools
                 </p>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400">MarTech AI Assistant</p>
+                <p className="text-[10px] text-slate-500">MarTech AI Assistant</p>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
             </>
@@ -149,9 +149,9 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
         </Link>
       </div>
 
-        <nav className="flex-1 p-4 space-y-1 border-t border-slate-300 dark:border-slate-700 overflow-y-auto">
+        <nav className="flex-1 p-4 space-y-1 border-t border-slate-300 overflow-y-auto">
         {!isCollapsed && (
-        <p className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold px-3 mb-3">
+        <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
           Learning
         </p>
         )}
@@ -166,13 +166,13 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
               flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
               ${isActive 
                 ? 'bg-orange-500/10 text-orange-600' 
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-slate-800/70'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
               }
               ${isCollapsed ? 'justify-center' : ''}
             `}
             title={isCollapsed ? item.name : ''}
           >
-            <item.icon className={`w-5 h-5 ${isActive ? 'text-orange-600' : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-white'}`} />
+            <item.icon className={`w-5 h-5 ${isActive ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
             {!isCollapsed && <span className="font-medium text-sm">{item.name}</span>}
             {isActive && !isCollapsed && (
               <motion.div 
