@@ -177,6 +177,7 @@ export default function StudentAssignmentDetail() {
 
   const submitMutation = useMutation({
     mutationFn: async () => {
+      const isResubmission = submission && needsRevision;
       const submissionData = {
         user_id: user.id,
         assignment_template_id: assignmentId,
@@ -186,7 +187,8 @@ export default function StudentAssignmentDetail() {
         file_urls: formData.files,
         status: 'submitted',
         submitted_date: new Date().toISOString(),
-        cohort_id: membership?.cohort_id
+        cohort_id: membership?.cohort_id,
+        attempt_number: isResubmission ? (submission.attempt_number || 1) + 1 : 1,
       };
 
       if (submission) {
