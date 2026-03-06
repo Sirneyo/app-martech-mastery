@@ -101,7 +101,8 @@ export default function TutorQuizGrading() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['quiz-history', selectedCohortId]);
+      queryClient.invalidateQueries({ queryKey: ['quiz-history', selectedCohortId] });
+      queryClient.invalidateQueries({ queryKey: ['quiz-history'] });
       setSelections({ first_place_user_id: '', second_place_user_id: '', third_place_user_id: '' });
       setQuizTitle('');
       setWeekNumber('');

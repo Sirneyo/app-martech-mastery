@@ -123,8 +123,8 @@ export default function TutorAttendance() {
       return Promise.all(promises);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['today-attendance']);
-      queryClient.invalidateQueries(['attendance-history']);
+      queryClient.invalidateQueries({ queryKey: ['today-attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['attendance-history'] });
       setAttendanceData({});
     },
   });
