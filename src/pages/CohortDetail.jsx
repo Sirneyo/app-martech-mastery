@@ -38,6 +38,7 @@ export default function CohortDetail() {
     status: 'upcoming',
   });
   const [selectedUserId, setSelectedUserId] = useState('');
+  const [assignStudentError, setAssignStudentError] = useState('');
 
   const queryClient = useQueryClient();
 
@@ -59,6 +60,16 @@ export default function CohortDetail() {
     queryKey: ['memberships', cohortId],
     queryFn: () => base44.entities.CohortMembership.filter({ cohort_id: cohortId }),
     enabled: !!cohortId,
+  });
+
+  const { data: allMemberships = [] } = useQuery({
+    queryKey: ['memberships'],
+    queryFn: () => base44.entities.CohortMembership.list(),
+  });
+
+  const { data: allCohorts = [] } = useQuery({
+    queryKey: ['cohorts'],
+    queryFn: () => base44.entities.Cohort.list(),
   });
 
   const { data: tutorAssignments = [] } = useQuery({
@@ -148,6 +159,13 @@ export default function CohortDetail() {
 
   const handleAssignStudent = () => {
     if (!selectedUserId) return;
+    setAssignStudentError('');
+    const existingMembership = allMemberships.find(m => m.user_id === selectedUserId);
+    if (existingMembership) {
+      const existingCohort = allCohorts.find(c => c.id === existingMembership.cohort_id);
+      setAssignStudentError(`This student is already assigned to "${existingCohort?.name || 'another cohort'}". Remove them from that cohort first.`);
+      return;
+    }
     assignStudentMutation.mutate({
       user_id: selectedUserId,
       cohort_id: cohortId,
@@ -403,7 +421,7 @@ export default function CohortDetail() {
         </Dialog>
 
         {/* Assign Student Dialog */}
-        <Dialog open={assignStudentDialogOpen} onOpenChange={setAssignStudentDialogOpen}>
+        <Dialog open={assignStudentDialogOpen} onOpenChange={(open) => { setAssignStudentDialogOpen(open); if (!open) { setAssignStudentError(''); setSelectedUserId(''); } }}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Assign Student to Cohort</DialogTitle>
@@ -411,20 +429,29 @@ export default function CohortDetail() {
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label>Select Student</Label>
-                <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                <Select value={selectedUserId} onValueChange={(v) => { setSelectedUserId(v); setAssignStudentError(''); }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose a student" />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableStudents.map((student) => (
-                      <SelectItem key={student.id} value={student.id}>
-                        {student.full_name} ({student.email})
-                      </SelectItem>
-                    ))}
+                    {availableStudents.map((student) => {
+                      const existingMembership = allMemberships.find(m => m.user_id === student.id);
+                      const existingCohort = existingMembership ? allCohorts.find(c => c.id === existingMembership.cohort_id) : null;
+                      return (
+                        <SelectItem key={student.id} value={student.id}>
+                          {student.full_name} ({student.email}){existingCohort ? ` — already in ${existingCohort.name}` : ''}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleAssignStudent} className="w-full" disabled={!selectedUserId}>
+              {assignStudentError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                  {assignStudentError}
+                </div>
+              )}
+              <Button onClick={handleAssignStudent} className="w-full" disabled={!selectedUserId || assignStudentMutation.isPending}>
                 Assign Student
               </Button>
             </div>
