@@ -226,7 +226,21 @@ export default function AdminOverview() {
             <h1 className="text-3xl font-bold text-slate-900">Admin Overview</h1>
             <p className="text-slate-500 mt-1">Operational control and monitoring</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
+            {resetConfirm ? (
+              <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                <span className="text-sm text-red-700 font-medium">Reset all points & logins?</span>
+                <Button size="sm" variant="destructive" onClick={() => resetPointsMutation.mutate()} disabled={resetPointsMutation.isPending}>
+                  {resetPointsMutation.isPending ? 'Resetting...' : 'Confirm'}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setResetConfirm(false)}>Cancel</Button>
+              </div>
+            ) : (
+              <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={() => setResetConfirm(true)}>
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Reset All Points
+              </Button>
+            )}
             <Select value={timeRange} onValueChange={setTimeRange}>
               <SelectTrigger className="w-32">
                 <SelectValue />
