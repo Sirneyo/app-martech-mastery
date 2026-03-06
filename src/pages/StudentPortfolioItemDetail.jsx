@@ -104,6 +104,7 @@ export default function StudentPortfolioItemDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['portfolio-status'] });
       queryClient.invalidateQueries({ queryKey: ['my-portfolio-statuses'] });
+      queryClient.invalidateQueries({ queryKey: ['portfolio-statuses'] });
       refetch();
     },
   });

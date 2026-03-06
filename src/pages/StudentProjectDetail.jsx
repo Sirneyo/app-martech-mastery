@@ -123,6 +123,8 @@ export default function StudentProjectDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-project-submission'] });
       queryClient.invalidateQueries({ queryKey: ['my-project-submissions'] });
+      queryClient.invalidateQueries({ queryKey: ['project-submissions'] });
+      queryClient.invalidateQueries({ queryKey: ['submissions'] });
       refetchSubmission();
     },
   });
@@ -149,6 +151,8 @@ export default function StudentProjectDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-project-submission'] });
       queryClient.invalidateQueries({ queryKey: ['my-project-submissions'] });
+      queryClient.invalidateQueries({ queryKey: ['project-submissions'] });
+      queryClient.invalidateQueries({ queryKey: ['submissions'] });
       refetchSubmission();
     },
   });

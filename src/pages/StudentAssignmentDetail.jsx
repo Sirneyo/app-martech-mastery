@@ -198,6 +198,8 @@ export default function StudentAssignmentDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-submission'] });
       queryClient.invalidateQueries({ queryKey: ['my-submissions'] });
+      queryClient.invalidateQueries({ queryKey: ['assignment-submissions'] });
+      queryClient.invalidateQueries({ queryKey: ['submissions'] });
       refetchSubmission();
     },
   });
