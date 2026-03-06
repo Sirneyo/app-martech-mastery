@@ -68,10 +68,34 @@ export default function MarketoAccess() {
     window.open('https://experience.adobe.com/#/@oadsolutionsltd/marketo', '_blank', 'noopener,noreferrer');
   };
 
+  const isMarketoLocked = (() => {
+    if (!cohort?.start_date) return true;
+    const unlockTime = new Date(cohort.start_date);
+    unlockTime.setHours(11, 0, 0, 0);
+    return new Date() < unlockTime;
+  })();
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-slate-600">Loading...</div>
+      </div>
+    );
+  }
+
+  if (isMarketoLocked) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-8">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-8 h-8 text-slate-400" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Marketo Access Locked</h2>
+          <p className="text-slate-500">
+            Marketo credentials will be available from <span className="font-semibold text-slate-700">11:00am</span> on your cohort start date
+            {cohort?.start_date && <span className="font-semibold text-slate-700"> ({new Date(cohort.start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })})</span>}.
+          </p>
+        </div>
       </div>
     );
   }
