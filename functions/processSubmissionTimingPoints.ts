@@ -43,6 +43,11 @@ Deno.serve(async (req) => {
       return Response.json({ skipped: 'already submitted before' });
     }
 
+    // Skip points for resubmissions (attempt > 1)
+    if (data.attempt_number && data.attempt_number > 1) {
+      return Response.json({ skipped: 'resubmission — no points awarded' });
+    }
+
     const submissionId = event.entity_id;
     const studentId = data.user_id;
     const cohortId = data.cohort_id;
