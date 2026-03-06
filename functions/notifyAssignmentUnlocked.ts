@@ -42,6 +42,7 @@ Deno.serve(async (req) => {
     const templates = await db.entities.AssignmentTemplate.list('week_number');
 
     let totalNotifications = 0;
+    let totalPenalties = 0;
 
     for (const cohort of cohorts) {
       if (!cohort.start_date) continue;
@@ -64,6 +65,10 @@ Deno.serve(async (req) => {
 
         // Check if due in ~24h
         const isDueSoon = dueDate > now && dueDate <= in24h;
+
+        // Check if due date just passed (within this hour window)
+        const dueDateStr = dueDate.toISOString().split('T')[0];
+        const isDueHour = dueDateStr === todayStr && Math.abs(currentHour - dueDate.getHours()) <= 1 && now >= dueDate;
 
         for (const studentId of studentIds) {
           if (isUnlockHour) {
@@ -114,11 +119,51 @@ Deno.serve(async (req) => {
               totalNotifications++;
             }
           }
+
+          // Auto-deduct points when due date passes for students who haven't submitted
+          if (isDueHour) {
+            const penaltyKey = `missed_deadline_${template.id}_${cohort.id}`;
+            const existingPenalty = await db.entities.PointsLedger.filter({
+              user_id: studentId,
+              source_type: 'assignment',
+              source_id: penaltyKey,
+            });
+            if (existingPenalty.length > 0) continue; // already penalised
+
+            // Check if student submitted this assignment
+            const submissions = await db.entities.Submission.filter({
+              user_id: studentId,
+              assignment_template_id: template.id,
+            });
+            const hasSubmitted = submissions.some(s => s.status !== 'draft');
+            if (hasSubmitted) continue; // submitted — no penalty
+
+            // No submission found — deduct points
+            await db.entities.PointsLedger.create({
+              user_id: studentId,
+              points: -15,
+              reason: 'assignment_missed_deadline',
+              source_type: 'assignment',
+              source_id: penaltyKey,
+              awarded_by: 'system',
+            });
+
+            await db.entities.Notification.create({
+              user_id: studentId,
+              type: 'deadline_reminder',
+              title: `⚠️ Missed Deadline — Week ${template.week_number}`,
+              message: `You missed the deadline for "${template.title}". -15 points deducted.`,
+              link_url: `/StudentAssignments`,
+              related_entity_id: penaltyKey,
+            });
+
+            totalPenalties++;
+          }
         }
       }
     }
 
-    return Response.json({ success: true, totalNotifications });
+    return Response.json({ success: true, totalNotifications, totalPenalties });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
