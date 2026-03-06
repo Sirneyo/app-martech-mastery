@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
     });
 
     // Get all points for cohort members
-    const allLedger = await base44.asServiceRole.entities.PointsLedger.list();
+    const allLedger = await base44.asServiceRole.entities.PointsLedger.list('created_date', 10000);
     const memberIds = cohortMembers.map(m => m.user_id);
     
     const pointsByUser = {};
