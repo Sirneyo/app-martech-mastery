@@ -85,9 +85,7 @@ export default function AdminTemplatesStudioPreview() {
             </div>
 
             {template.content_html && (
-              <div className="prose max-w-none mb-8">
-                <div dangerouslySetInnerHTML={{ __html: template.content_html }} />
-              </div>
+              <div className="ql-editor !p-0 !min-h-0 mb-8" dangerouslySetInnerHTML={{ __html: template.content_html }} />
             )}
 
             {downloads.length > 0 && (
