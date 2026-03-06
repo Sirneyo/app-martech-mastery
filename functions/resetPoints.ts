@@ -1,5 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
+async function deleteBatch(db, entityName, records) {
+  for (const record of records) {
+    await db.entities[entityName].delete(record.id);
+  }
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -9,26 +15,20 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Use service role for admin operations
     const db = base44.asServiceRole;
 
-    // Fetch and delete PointsLedger in batches
-    let totalDeletedPoints = 0;
-    let totalDeletedLogins = 0;
+    // Delete PointsLedger records sequentially
+    const ledgerRecords = await db.entities.PointsLedger.list('created_date', 500);
+    await deleteBatch(db, 'PointsLedger', ledgerRecords);
 
-    const ledgerBatch = await db.entities.PointsLedger.list('created_date', 500);
-    await Promise.all(ledgerBatch.map(e => db.entities.PointsLedger.delete(e.id)));
-    totalDeletedPoints = ledgerBatch.length;
-
-    // Delete LoginEvents too so old cached browser code can't bypass dedup and re-create daily_login entries
-    const loginBatch = await db.entities.LoginEvent.list('login_time', 500);
-    await Promise.all(loginBatch.map(e => db.entities.LoginEvent.delete(e.id)));
-    totalDeletedLogins = loginBatch.length;
+    // Delete LoginEvent records sequentially
+    const loginRecords = await db.entities.LoginEvent.list('login_time', 500);
+    await deleteBatch(db, 'LoginEvent', loginRecords);
 
     return Response.json({ 
       success: true, 
-      deleted_points: totalDeletedPoints,
-      deleted_login_events: totalDeletedLogins
+      deleted_points: ledgerRecords.length,
+      deleted_login_events: loginRecords.length
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
