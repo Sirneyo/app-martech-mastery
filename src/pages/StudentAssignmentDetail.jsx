@@ -337,8 +337,14 @@ export default function StudentAssignmentDetail() {
                       <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="font-semibold text-amber-900">Revision Required</p>
-                          <p className="text-sm text-amber-800 mt-1">Please review the feedback below and resubmit your work.</p>
+                          <p className="font-semibold text-amber-900">
+                            {latestGrade?.rubric_grade === 'Fair' ? 'Fair Grade — Resubmission Required' : 'Revision Required'}
+                          </p>
+                          <p className="text-sm text-amber-800 mt-1">
+                            {latestGrade?.rubric_grade === 'Fair'
+                              ? 'Your assignment was graded Fair. Please review the feedback below, improve your work, and resubmit. Note: no additional points will be awarded for resubmissions.'
+                              : 'Your assignment was graded Poor. Please review the feedback below, improve your work, and resubmit. Note: no additional points will be awarded for resubmissions.'}
+                          </p>
                         </div>
                       </div>
                     )}
