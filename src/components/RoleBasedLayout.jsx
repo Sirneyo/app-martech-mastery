@@ -35,6 +35,11 @@ export default function RoleBasedLayout({ children, currentPageName }) {
       
       // Track login event in background
       trackLoginEvent(userData).catch(err => console.error('Login tracking error:', err));
+
+      // Cleanup: remove any stale daily_login points created by old cached code
+      base44.entities.PointsLedger.filter({ user_id: userData.id, reason: 'daily_login' })
+        .then(entries => entries.forEach(e => base44.entities.PointsLedger.delete(e.id)))
+        .catch(() => {});
     } catch (error) {
       console.error('Error loading user:', error);
       setLoading(false);
