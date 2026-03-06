@@ -135,30 +135,55 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
           )}
         </a>
 
-        <Link
-          to={createPageUrl('MarketoAccess')}
-          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
-          title={isCollapsed ? 'Launch Marketo' : ''}
-        >
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white">
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/81e4b8812_AdobeIcon.png" 
-              alt="Adobe" 
-              className="w-6 h-6"
-            />
+        {isMarketoLocked ? (
+          <div
+            className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 bg-slate-100 border border-slate-200 opacity-60 cursor-not-allowed ${isCollapsed ? 'justify-center' : ''}`}
+            title={isCollapsed ? 'Marketo (Locked)' : 'Available from 11:00am on your cohort start date'}
+          >
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white relative">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/81e4b8812_AdobeIcon.png" 
+                alt="Adobe" 
+                className="w-6 h-6 grayscale"
+              />
+              <Lock className="w-3 h-3 text-slate-500 absolute -bottom-1 -right-1" />
+            </div>
+            {!isCollapsed && (
+              <>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-400">Launch Marketo</p>
+                  <p className="text-[10px] text-slate-400">Unlocks at 11:00am on start date</p>
+                </div>
+                <Lock className="w-4 h-4 text-slate-400" />
+              </>
+            )}
           </div>
-          {!isCollapsed && (
-            <>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
-                  Launch Marketo
-                </p>
-                <p className="text-[10px] text-slate-500">Access Marketo</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
-            </>
-          )}
-        </Link>
+        ) : (
+          <Link
+            to={createPageUrl('MarketoAccess')}
+            className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
+            title={isCollapsed ? 'Launch Marketo' : ''}
+          >
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/81e4b8812_AdobeIcon.png" 
+                alt="Adobe" 
+                className="w-6 h-6"
+              />
+            </div>
+            {!isCollapsed && (
+              <>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
+                    Launch Marketo
+                  </p>
+                  <p className="text-[10px] text-slate-500">Access Marketo</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+              </>
+            )}
+          </Link>
+        )}
 
         <Link
           to={createPageUrl('StudentAITools')}
