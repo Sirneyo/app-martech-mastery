@@ -301,7 +301,7 @@ export default function StudentAssignmentDetail() {
                             <div className="mt-6 pt-6 border-t border-slate-100">
                               {assignment.content_html && (
                                 <div
-                                  className="ql-editor !p-0 !min-h-0 mb-6"
+                                  className="rich-content mb-6"
                                   dangerouslySetInnerHTML={{ __html: assignment.content_html }}
                                 />
                               )}
