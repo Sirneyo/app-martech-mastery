@@ -32,6 +32,38 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
     },
   });
 
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const { data: membership } = useQuery({
+    queryKey: ['my-cohort-membership'],
+    queryFn: async () => {
+      if (!currentUser?.id) return null;
+      const memberships = await base44.entities.CohortMembership.filter({ user_id: currentUser.id, status: 'active' });
+      return memberships[0];
+    },
+    enabled: !!currentUser?.id,
+  });
+
+  const { data: cohort } = useQuery({
+    queryKey: ['my-cohort', membership?.cohort_id],
+    queryFn: async () => {
+      if (!membership?.cohort_id) return null;
+      const cohorts = await base44.entities.Cohort.filter({ id: membership.cohort_id });
+      return cohorts[0];
+    },
+    enabled: !!membership?.cohort_id,
+  });
+
+  const isMarketoLocked = (() => {
+    if (!cohort?.start_date) return true;
+    const unlockTime = new Date(cohort.start_date);
+    unlockTime.setHours(11, 0, 0, 0);
+    return new Date() < unlockTime;
+  })();
+
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, page: 'StudentDashboard' },
     { name: 'Assignments', icon: ClipboardList, page: 'StudentAssignments' },
