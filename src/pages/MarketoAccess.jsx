@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Copy, Eye, EyeOff, ExternalLink } from 'lucide-react';
+import { Copy, Eye, EyeOff, ExternalLink, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function MarketoAccess() {
