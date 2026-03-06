@@ -21,52 +21,58 @@
   color: inherit;
 }
 
-.rich-content h1 {
-  margin: 0.75em 0 0.5em 0;
-  font-size: 2em;
-  font-weight: 700;
-  line-height: 1.2;
-  display: block;
+.rich-content h1,
+.rich-content .ql-editor h1 {
+  margin: 0.75em 0 0.5em 0 !important;
+  font-size: 2em !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  display: block !important;
 }
 
-.rich-content h2 {
-  margin: 0.75em 0 0.5em 0;
-  font-size: 1.5em;
-  font-weight: 700;
-  line-height: 1.3;
-  display: block;
+.rich-content h2,
+.rich-content .ql-editor h2 {
+  margin: 0.75em 0 0.5em 0 !important;
+  font-size: 1.5em !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  display: block !important;
 }
 
-.rich-content h3 {
-  margin: 0.5em 0 0.5em 0;
-  font-size: 1.25em;
-  font-weight: 700;
-  line-height: 1.4;
-  display: block;
+.rich-content h3,
+.rich-content .ql-editor h3 {
+  margin: 0.5em 0 0.5em 0 !important;
+  font-size: 1.25em !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
+  display: block !important;
 }
 
-.rich-content h4 {
-  margin: 0.5em 0 0.25em 0;
-  font-size: 1em;
-  font-weight: 700;
-  line-height: 1.4;
-  display: block;
+.rich-content h4,
+.rich-content .ql-editor h4 {
+  margin: 0.5em 0 0.25em 0 !important;
+  font-size: 1em !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
+  display: block !important;
 }
 
-.rich-content h5 {
-  margin: 0.5em 0 0.25em 0;
-  font-size: 0.875em;
-  font-weight: 700;
-  line-height: 1.5;
-  display: block;
+.rich-content h5,
+.rich-content .ql-editor h5 {
+  margin: 0.5em 0 0.25em 0 !important;
+  font-size: 0.875em !important;
+  font-weight: 700 !important;
+  line-height: 1.5 !important;
+  display: block !important;
 }
 
-.rich-content h6 {
-  margin: 0.5em 0 0.25em 0;
-  font-size: 0.75em;
-  font-weight: 700;
-  line-height: 1.5;
-  display: block;
+.rich-content h6,
+.rich-content .ql-editor h6 {
+  margin: 0.5em 0 0.25em 0 !important;
+  font-size: 0.75em !important;
+  font-weight: 700 !important;
+  line-height: 1.5 !important;
+  display: block !important;
 }
 
 .rich-content h1 strong,
