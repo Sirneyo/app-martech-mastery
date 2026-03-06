@@ -16,7 +16,8 @@ import {
   Briefcase,
   ChevronLeft,
   User,
-  LifeBuoy
+  LifeBuoy,
+  Lock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
