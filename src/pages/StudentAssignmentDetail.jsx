@@ -554,16 +554,6 @@ export default function StudentAssignmentDetail() {
                       </Badge>
                     </div>
 
-                    <div>
-                      <p className="text-sm text-slate-500 mb-1">Week</p>
-                      <p className="font-medium text-slate-900">Week {assignment.week_number}</p>
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-slate-500 mb-1">Points</p>
-                      <p className="font-medium text-violet-600">{assignment.points} pts</p>
-                    </div>
-
                     {submission && (
                       <div>
                         <p className="text-sm text-slate-500 mb-1">Attempt</p>
