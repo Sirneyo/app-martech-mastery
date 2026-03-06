@@ -70,24 +70,27 @@ Deno.serve(async (req) => {
       const cohort = cohorts[0];
       const { dueDate } = getAssignmentDates(cohort.start_date, weekNumber);
       isOnTime = submittedAt <= dueDate;
-      points = isOnTime ? 10 : -15;
-      const reason = isOnTime ? 'assignment_submitted_on_time' : 'assignment_submitted_late';
 
-      const existing = await db.entities.PointsLedger.filter({
-        user_id: studentId,
-        source_type: 'assignment',
-        source_id: `submission_timing_${submissionId}`,
-      });
-
-      if (existing.length === 0) {
-        await db.entities.PointsLedger.create({
+      // Only award +10 for on-time submissions.
+      // Late penalty (-15) is handled automatically at deadline by the notifyAssignmentUnlocked scheduler.
+      if (isOnTime) {
+        points = 10;
+        const existing = await db.entities.PointsLedger.filter({
           user_id: studentId,
-          points,
-          reason,
           source_type: 'assignment',
           source_id: `submission_timing_${submissionId}`,
-          awarded_by: 'system',
         });
+
+        if (existing.length === 0) {
+          await db.entities.PointsLedger.create({
+            user_id: studentId,
+            points,
+            reason: 'assignment_submitted_on_time',
+            source_type: 'assignment',
+            source_id: `submission_timing_${submissionId}`,
+            awarded_by: 'system',
+          });
+        }
       }
     }
 
