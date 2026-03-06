@@ -44,35 +44,33 @@ export default function RoleBasedLayout({ children, currentPageName }) {
 
   const trackLoginEvent = async (userData) => {
     const today = new Date().toISOString().split('T')[0];
-    const loginEvents = await base44.entities.LoginEvent.filter({ 
+
+    // Check for existing login points today using source_id (the date string) as the dedup key
+    const existingLoginPoints = await base44.entities.PointsLedger.filter({
       user_id: userData.id,
-      login_time: today
+      source_type: 'bonus',
+      source_id: today,
+      reason: 'daily_login',
     });
-    
-    if (loginEvents.length === 0) {
-      await base44.entities.LoginEvent.create({
-        user_id: userData.id,
-        login_time: new Date().toISOString(),
-        ip_address: '',
-        user_agent: navigator.userAgent
-      });
-      
-      const todayPoints = await base44.entities.PointsLedger.filter({
-        user_id: userData.id,
-        created_date: today
-      });
-      
-      const hasLoginPoints = todayPoints.some(p => p.reason === 'daily_login');
-      if (!hasLoginPoints) {
-        await base44.entities.PointsLedger.create({
-          user_id: userData.id,
-          points: 5,
-          reason: 'daily_login',
-          source_type: 'bonus',
-          source_id: today
-        });
-      }
-    }
+
+    if (existingLoginPoints.length > 0) return; // Already logged in today
+
+    // Record login event
+    await base44.entities.LoginEvent.create({
+      user_id: userData.id,
+      login_time: new Date().toISOString(),
+      ip_address: '',
+      user_agent: navigator.userAgent
+    });
+
+    // Award daily login points
+    await base44.entities.PointsLedger.create({
+      user_id: userData.id,
+      points: 5,
+      reason: 'daily_login',
+      source_type: 'bonus',
+      source_id: today
+    });
   };
 
   const SidebarComponent = user?.app_role === 'admin' ? AdminSidebar : 
