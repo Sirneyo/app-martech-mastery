@@ -96,55 +96,8 @@ export default function TutorSubmissionReview() {
       const newStatus = (rubricGrade === 'Poor' || rubricGrade === 'Fair') ? 'needs_revision' : 'graded';
       await base44.entities.Submission.update(submissionId, { status: newStatus });
 
-      // Only award points on first attempt
-      const isFirstAttempt = submission.attempt_number === 1 || !submission.attempt_number;
-      
-      if (newStatus === 'graded' && isFirstAttempt) {
-        const isProject = submission.submission_kind === 'project';
-        
-        let points = 0;
-        if (isProject) {
-          // Project points (keep existing logic)
-          points = rubricGrade === 'Excellent' ? 60 : 40;
-        } else {
-          // Assignment points (new logic)
-          if (rubricGrade === 'Excellent') points = 100;
-          else if (rubricGrade === 'Good') points = 50;
-          else if (rubricGrade === 'Fair') points = 25;
-          else points = 0; // Poor
-        }
-        
-        const reason = isProject 
-          ? (rubricGrade === 'Excellent' ? 'graded_excellent_project' : 'graded_good_project')
-          : (rubricGrade === 'Excellent' ? 'graded_excellent_assignment' : 
-             rubricGrade === 'Good' ? 'graded_good_assignment' : 
-             rubricGrade === 'Fair' ? 'graded_fair_assignment' : 'graded_poor_assignment');
-
-        if (points > 0) {
-          await base44.entities.PointsLedger.create({
-            user_id: submission.user_id,
-            points: points,
-            reason: reason,
-            source_type: submission.submission_kind,
-            source_id: submissionId,
-            awarded_by: user.id
-          });
-        }
-
-        // Unlock next assignment if this was an assignment submission
-        if (submission.submission_kind === 'assignment' && submission.assignment_template_id) {
-          const allTemplates = await base44.entities.AssignmentTemplate.list('week_number');
-          const currentTemplate = allTemplates.find(t => t.id === submission.assignment_template_id);
-          
-          if (currentTemplate) {
-            const currentIndex = allTemplates.findIndex(t => t.id === currentTemplate.id);
-            const nextTemplate = allTemplates[currentIndex + 1];
-            
-            // Next assignment is automatically unlocked when student views the assignments page
-            // No additional action needed here - the StudentAssignments page checks previous submission status
-          }
-        }
-      }
+      // Points are awarded automatically by the processGradePoints entity automation
+      // when the SubmissionGrade record is created above — no manual award needed here.
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['submission'] });
