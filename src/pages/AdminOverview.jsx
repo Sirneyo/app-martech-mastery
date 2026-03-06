@@ -29,6 +29,16 @@ import { motion } from 'framer-motion';
 export default function AdminOverview() {
   const [selectedCohort, setSelectedCohort] = useState('all');
   const [timeRange, setTimeRange] = useState('30');
+  const [resetConfirm, setResetConfirm] = useState(false);
+  const queryClient = useQueryClient();
+
+  const resetPointsMutation = useMutation({
+    mutationFn: () => base44.functions.invoke('resetPoints'),
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+      setResetConfirm(false);
+    },
+  });
 
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
