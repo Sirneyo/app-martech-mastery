@@ -139,7 +139,13 @@ export default function StudentAssignments() {
               )}
             </div>
             <h3 className={`text-lg font-bold mb-1 ${isCompleted ? 'text-slate-700' : 'text-slate-900'}`}>{assignment.title}</h3>
-            <p className="text-sm text-slate-600 line-clamp-2">{assignment.short_description}</p>
+            {(() => {
+              const raw = assignment.content_html
+                ? assignment.content_html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+                : assignment.short_description || '';
+              const preview = raw.length > 150 ? raw.slice(0, 150).trimEnd() + '…' : raw;
+              return preview ? <p className="text-sm text-slate-500 mt-1">{preview}</p> : null;
+            })()}
             {dueDate && !isCompleted && submissionStatus.status === 'not_started' && (
               <p className={`text-xs mt-1 ${isOverdue ? 'text-red-500 font-medium' : 'text-slate-400'}`}>
                 {isOverdue ? 'Was due' : 'Due'}: {dueDate.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })} at 10:00pm

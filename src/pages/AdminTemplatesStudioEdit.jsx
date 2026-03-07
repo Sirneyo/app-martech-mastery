@@ -11,9 +11,9 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save, Eye, Upload, Plus, Trash2, GripVertical, Copy } from 'lucide-react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 import { toast } from 'react-hot-toast';
+import RichTextEditor from '@/components/RichTextEditor';
+import AudioUploadManager from '@/components/AudioUploadManager';
 
 export default function AdminTemplatesStudioEdit() {
   const queryClient = useQueryClient();
