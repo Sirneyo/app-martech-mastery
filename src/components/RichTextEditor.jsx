@@ -122,6 +122,13 @@ export default function RichTextEditor({ value, onChange, minHeight = '400px', t
           placeholder="<p>Enter HTML here...</p>"
           spellCheck={false}
         />
+      ) : useRawPreview ? (
+        <div className="p-4 bg-slate-50 rounded-b-lg" style={{ minHeight }}>
+          <div className="mb-3 flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+            <span>⚠️ This content contains custom HTML (e.g. buttons) that cannot be edited in the visual editor. Switch to <strong>HTML Source</strong> to make changes.</span>
+          </div>
+          <div className="rich-content" dangerouslySetInnerHTML={{ __html: value || '' }} />
+        </div>
       ) : (
         <>
           <style>{`.rte-editor .ql-editor { min-height: ${minHeight}; font-size: 0.95rem; line-height: 1.6; } .rte-editor .ql-toolbar { border: none; border-bottom: 1px solid #e2e8f0; } .rte-editor .ql-container { border: none; } .rte-editor .ql-editor h1 { font-size: 2em; font-weight: 700; margin-bottom: 0.5em; } .rte-editor .ql-editor h2 { font-size: 1.5em; font-weight: 700; margin-bottom: 0.5em; } .rte-editor .ql-editor h3 { font-size: 1.25em; font-weight: 600; margin-bottom: 0.4em; } .rte-editor .ql-editor h4 { font-size: 1em; font-weight: 600; margin-bottom: 0.3em; } .rte-editor .ql-editor ul { list-style: disc; padding-left: 1.5em; margin-bottom: 0.75em; } .rte-editor .ql-editor ol { list-style: decimal; padding-left: 1.5em; margin-bottom: 0.75em; } .rte-editor .ql-editor blockquote { border-left: 4px solid #cbd5e1; padding-left: 1em; color: #64748b; margin: 0.75em 0; } .rte-editor .ql-editor pre { background: #1e293b; color: #e2e8f0; padding: 1em; border-radius: 0.5em; overflow-x: auto; } .rte-editor .ql-editor a { color: #7c3aed; text-decoration: underline; } .rte-editor .ql-editor strong { font-weight: 700; } .rte-editor .ql-editor em { font-style: italic; }`}</style>
@@ -131,8 +138,6 @@ export default function RichTextEditor({ value, onChange, minHeight = '400px', t
               theme="snow"
               value={value || ''}
               onChange={(v, delta, source) => {
-                // Ignore Quill's onChange when it fires due to us setting value (source === 'api')
-                // This prevents Quill from sanitizing custom HTML added in HTML mode
                 if (source === 'user') onChange(v);
               }}
               modules={modulesWithImageHandler}
