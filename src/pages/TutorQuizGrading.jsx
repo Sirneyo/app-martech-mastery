@@ -200,14 +200,14 @@ export default function TutorQuizGrading() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-slate-700">Week <span className="text-slate-400">(optional)</span></label>
+                    <label className="text-sm font-medium text-slate-700">Week <span className="text-red-500">*</span></label>
                     <input
-                      type="number"
-                      value={weekNumber}
-                      onChange={(e) => setWeekNumber(e.target.value)}
-                      min={1} max={12}
-                      placeholder="1-12"
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg mt-1 text-sm"
+                     type="number"
+                     value={weekNumber}
+                     onChange={(e) => setWeekNumber(e.target.value)}
+                     min={1} max={12}
+                     placeholder="1-12"
+                     className={`w-full px-3 py-2 border rounded-lg mt-1 text-sm ${!weekNumber ? 'border-red-300 bg-red-50' : 'border-slate-300'}`}
                     />
                   </div>
                 </div>
