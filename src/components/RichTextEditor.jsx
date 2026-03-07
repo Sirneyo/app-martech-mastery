@@ -53,7 +53,8 @@ export default function RichTextEditor({ value, onChange, minHeight = '400px', t
   const [htmlMode, setHtmlMode] = useState(false);
   const quillRef = useRef(null);
   // When true, show a read-only HTML preview instead of Quill (to avoid sanitization of custom HTML)
-  const [useRawPreview, setUseRawPreview] = useState(false);
+  const hasCustomHtml = /<button|onclick|style\s*=|<iframe|<script/i.test(value || '');
+  const [useRawPreview, setUseRawPreview] = useState(hasCustomHtml);
 
   const modulesWithImageHandler = useRef({
     ...MODULES,
