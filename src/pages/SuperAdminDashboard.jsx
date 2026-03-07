@@ -39,6 +39,7 @@ export default function SuperAdminDashboard() {
       const res = await base44.functions.invoke('getSuperAdminUsers', {});
       return res.data?.users || [];
     },
+    staleTime: 0,
   });
 
   const { data: ledgerEntries = [] } = useQuery({
