@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, UserPlus, Users, GraduationCap, Trash2, Edit, Search, Mail, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, UserPlus, Users, GraduationCap, Edit, Search, Mail, Clock, XCircle, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
