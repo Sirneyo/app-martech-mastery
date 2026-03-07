@@ -303,7 +303,10 @@ export default function SuperAdminDashboard() {
                       <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50">
                         <td className="p-4 font-medium text-slate-900">{user.full_name}</td>
                         <td className="p-4 text-slate-600 text-sm">{user.email}</td>
-                        <td className="p-4">
+                        <td 
+                          className="p-4 cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => openBreakdown(user)}
+                        >
                           <span className={`font-bold text-lg ${(pointsByUser[user.id] || 0) < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
                             {pointsByUser[user.id] || 0}
                           </span>
