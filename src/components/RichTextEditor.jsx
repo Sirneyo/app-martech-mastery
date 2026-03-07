@@ -87,7 +87,16 @@ export default function RichTextEditor({ value, onChange, minHeight = '400px', t
           type="button"
           size="sm"
           variant={htmlMode ? 'default' : 'outline'}
-          onClick={() => setHtmlMode(!htmlMode)}
+          onClick={() => {
+            if (!htmlMode) {
+              // Switching to HTML: format the raw HTML for readability
+              onChange(formatHtml(value));
+            } else {
+              // Switching back to visual: collapse whitespace between tags
+              onChange((value || '').replace(/\n\s*/g, '').trim());
+            }
+            setHtmlMode(!htmlMode);
+          }}
           className="h-7 text-xs gap-1"
         >
           {htmlMode ? <Eye className="w-3 h-3" /> : <Code className="w-3 h-3" />}
