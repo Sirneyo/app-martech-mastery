@@ -12,6 +12,9 @@ import { format } from 'date-fns';
 
 export default function TutorAssignmentSubmissions() {
   const [statusFilter, setStatusFilter] = useState('submitted');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [cohortFilter, setCohortFilter] = useState('all');
+  const [weekFilter, setWeekFilter] = useState('all');
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
