@@ -52,6 +52,8 @@ function formatHtml(html) {
 export default function RichTextEditor({ value, onChange, minHeight = '400px', title }) {
   const [htmlMode, setHtmlMode] = useState(false);
   const quillRef = useRef(null);
+  // Track whether the last edit was in HTML mode (so we don't let Quill sanitize it away)
+  const htmlModeEditedRef = useRef(false);
 
   const modulesWithImageHandler = useRef({
     ...MODULES,
