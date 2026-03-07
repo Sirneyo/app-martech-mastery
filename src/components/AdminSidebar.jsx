@@ -74,6 +74,7 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
         {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </Button>
 
+      {currentUser?.app_role !== 'super_admin' && (
       <div className="p-4 border-b border-slate-300">
         {!isCollapsed && (
           <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
@@ -150,6 +151,7 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
           )}
         </Link>
       </div>
+      )}
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {currentUser?.app_role === 'super_admin' && (
