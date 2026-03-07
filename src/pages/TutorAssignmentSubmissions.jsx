@@ -198,7 +198,7 @@ export default function TutorAssignmentSubmissions() {
             <p className="text-slate-500">No submissions to review</p>
           </div>
         ) : (
-          submissions.map((submission, index) => (
+          filteredSubmissions.map((submission, index) => (
             <motion.div
               key={submission.id}
               initial={{ opacity: 0, y: 20 }}
