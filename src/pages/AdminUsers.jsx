@@ -35,6 +35,9 @@ export default function AdminUsers() {
   const [cohortFilter, setCohortFilter] = useState('all');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [assignError, setAssignError] = useState('');
+  const [deletionDialogOpen, setDeletionDialogOpen] = useState(false);
+  const [deletionReason, setDeletionReason] = useState('');
+  const [deletionTarget, setDeletionTarget] = useState(null);
 
   const queryClient = useQueryClient();
 
