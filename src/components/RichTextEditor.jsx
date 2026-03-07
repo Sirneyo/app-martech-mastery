@@ -27,6 +27,28 @@ const FORMATS = [
   'link', 'image',
 ];
 
+function formatHtml(html) {
+  if (!html) return '';
+  let indent = 0;
+  const tab = '  ';
+  // Split on tags but keep delimiters
+  const parts = html.replace(/>\s*</g, '><').split(/(?=<)|(?<=>)/g);
+  const lines = [];
+
+  for (const part of parts) {
+    if (!part.trim()) continue;
+    const isClosing = /^<\//.test(part);
+    const isSelfClosing = /\/>$/.test(part) || /^<(br|hr|img|input|meta|link)[\s>]/i.test(part);
+    const isOpening = /^<[^/!]/.test(part) && !isSelfClosing;
+
+    if (isClosing) indent = Math.max(0, indent - 1);
+    lines.push(tab.repeat(indent) + part.trim());
+    if (isOpening) indent += 1;
+  }
+
+  return lines.join('\n');
+}
+
 export default function RichTextEditor({ value, onChange, minHeight = '400px', title }) {
   const [htmlMode, setHtmlMode] = useState(false);
   const quillRef = useRef(null);
