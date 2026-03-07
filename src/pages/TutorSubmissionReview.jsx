@@ -114,9 +114,21 @@ export default function TutorSubmissionReview() {
     },
   });
 
+  const isValidUrl = (val) => {
+    try { new URL(val); return true; } catch { return false; }
+  };
+
   const handleSubmitGrade = () => {
     if (!rubricGrade || !feedbackText) {
       alert('Please select a grade and provide feedback');
+      return;
+    }
+    if (!feedbackUrl.trim()) {
+      alert('Please provide a Feedback Video URL');
+      return;
+    }
+    if (!isValidUrl(feedbackUrl.trim())) {
+      alert('Please enter a valid URL for the Feedback Video URL');
       return;
     }
     gradeMutation.mutate();
