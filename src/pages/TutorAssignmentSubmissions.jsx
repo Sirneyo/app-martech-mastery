@@ -155,10 +155,45 @@ export default function TutorAssignmentSubmissions() {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Search & Filters */}
+        <div className="flex flex-wrap gap-3 mt-4">
+          <div className="relative flex-1 min-w-48">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Search by student or assignment..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Select value={cohortFilter} onValueChange={setCohortFilter}>
+            <SelectTrigger className="w-44">
+              <SelectValue placeholder="All Cohorts" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Cohorts</SelectItem>
+              {cohorts.filter(c => cohortIds.includes(c.id)).map(c => (
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={weekFilter} onValueChange={setWeekFilter}>
+            <SelectTrigger className="w-36">
+              <SelectValue placeholder="All Weeks" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Weeks</SelectItem>
+              {availableWeeks.map(w => (
+                <SelectItem key={w} value={String(w)}>Week {w}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </motion.div>
 
       <div className="space-y-3">
-        {submissions.length === 0 ? (
+        {filteredSubmissions.length === 0 ? (
           <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
             <p className="text-slate-500">No submissions to review</p>
           </div>
