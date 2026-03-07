@@ -412,7 +412,7 @@ export default function StudentAssignmentDetail() {
 
                       {evidenceReqs.allow_link && (
                         <div>
-                          <Label>Link URL</Label>
+                          <Label>Assignment Link URL <span className="text-red-500">*</span></Label>
                           <Input
                             type="url"
                             value={formData.link_url}
