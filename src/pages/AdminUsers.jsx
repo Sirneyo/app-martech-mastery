@@ -364,6 +364,7 @@ export default function AdminUsers() {
                       <SelectItem value="student">Student</SelectItem>
                       <SelectItem value="tutor">Tutor</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
+                      {/* super_admin intentionally excluded — only super admins can assign this role */}
                     </SelectContent>
                   </Select>
                 </div>
