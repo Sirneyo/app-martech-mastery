@@ -31,30 +31,30 @@ export default function RichTextEditor({ value, onChange, minHeight = '400px' })
   const [htmlMode, setHtmlMode] = useState(false);
   const quillRef = useRef(null);
 
-  const handleImageUpload = () => {
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/*');
-    input.click();
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
-      const result = await base44.integrations.Core.UploadFile({ file });
-      const quill = quillRef.current?.getEditor();
-      if (quill) {
-        const range = quill.getSelection(true);
-        quill.insertEmbed(range.index, 'image', result.file_url);
-      }
-    };
-  };
-
-  const modulesWithImageHandler = {
+  const modulesWithImageHandler = useRef({
     ...MODULES,
     toolbar: {
       ...MODULES.toolbar,
-      handlers: { image: handleImageUpload },
+      handlers: {
+        image: () => {
+          const input = document.createElement('input');
+          input.setAttribute('type', 'file');
+          input.setAttribute('accept', 'image/*');
+          input.click();
+          input.onchange = async () => {
+            const file = input.files?.[0];
+            if (!file) return;
+            const result = await base44.integrations.Core.UploadFile({ file });
+            const quill = quillRef.current?.getEditor();
+            if (quill) {
+              const range = quill.getSelection(true);
+              quill.insertEmbed(range.index, 'image', result.file_url);
+            }
+          };
+        },
+      },
     },
-  };
+  }).current;
 
   return (
     <div className="border border-slate-200 rounded-lg">
