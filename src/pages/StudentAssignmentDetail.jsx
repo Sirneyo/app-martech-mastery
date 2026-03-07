@@ -297,6 +297,16 @@ export default function StudentAssignmentDetail() {
                     {/* Full brief — collapsible */}
                     {(assignment.content_html || (assignment.tasks && assignment.tasks.length > 0)) && (
                       <>
+                        {/* Preview snippet */}
+                        {!briefOpen && assignment.content_html && (() => {
+                          const text = assignment.content_html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                          const preview = text.length > 150 ? text.slice(0, 150) : null;
+                          return preview ? (
+                            <p className="mt-4 text-slate-600 text-sm leading-relaxed">
+                              {preview}…
+                            </p>
+                          ) : null;
+                        })()}
                         <Collapsible open={briefOpen} onOpenChange={setBriefOpen}>
                           <CollapsibleContent>
                             <div className="mt-6 pt-6 border-t border-slate-100">
