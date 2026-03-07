@@ -659,8 +659,12 @@ export default function AdminUsers() {
                     <SelectItem value="student">Student</SelectItem>
                     <SelectItem value="tutor">Tutor</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
+                    {/* super_admin intentionally excluded — only super admins can assign this role */}
                   </SelectContent>
                 </Select>
+                {selectedUser?.app_role === 'super_admin' && (
+                  <p className="text-xs text-amber-600 mt-1">⚠ This user is a Super Admin. Role can only be changed by another Super Admin.</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Status</Label>
