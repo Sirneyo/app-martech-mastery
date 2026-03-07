@@ -52,9 +52,15 @@ function formatHtml(html) {
 export default function RichTextEditor({ value, onChange, minHeight = '400px', title }) {
   const [htmlMode, setHtmlMode] = useState(false);
   const quillRef = useRef(null);
-  // When true, show a read-only HTML preview instead of Quill (to avoid sanitization of custom HTML)
-  const hasCustomHtml = /<button|onclick|style\s*=|<iframe|<script/i.test(value || '');
-  const [useRawPreview, setUseRawPreview] = useState(hasCustomHtml);
+  const [useRawPreview, setUseRawPreview] = useState(false);
+
+  // When value loads (async from API), check if it contains custom HTML Quill can't handle
+  useEffect(() => {
+    if (!htmlMode) {
+      const hasCustomHtml = /<button|onclick|style\s*=|<iframe|<script/i.test(value || '');
+      setUseRawPreview(hasCustomHtml);
+    }
+  }, [value]);
 
   const modulesWithImageHandler = useRef({
     ...MODULES,
