@@ -301,10 +301,13 @@ export default function StudentAssignmentDetail() {
                           <CollapsibleContent>
                             <div className="mt-6 pt-6 border-t border-slate-100">
                               {assignment.content_html && (
-                                <div
-                                  className="rich-content mb-6"
-                                  dangerouslySetInnerHTML={{ __html: assignment.content_html }}
-                                />
+                               <div
+                                 className="rich-content mb-6"
+                                 dangerouslySetInnerHTML={{ __html: assignment.content_html }}
+                               />
+                              )}
+                              {assignment.audio_files && assignment.audio_files.length > 0 && (
+                               <AssignmentAudioPlayer audioFiles={assignment.audio_files} />
                               )}
                               {assignment.tasks && assignment.tasks.length > 0 && !assignment.content_html && (
                                 <ul className="space-y-2 mb-6">
