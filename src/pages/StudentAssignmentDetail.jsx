@@ -479,7 +479,7 @@ export default function StudentAssignmentDetail() {
                           <Button
                            onClick={() => submitMutation.mutate()}
                            className="bg-violet-600 hover:bg-violet-700"
-                           disabled={submitMutation.isPending || (evidenceReqs.allow_link && !formData.link_url.trim())}
+                           disabled={submitMutation.isPending || (evidenceReqs.allow_link && (!formData.link_url.trim() || !isValidUrl(formData.link_url.trim())))}
                           >
                             {submitMutation.isPending ? 'Submitting...' : needsRevision ? 'Resubmit' : 'Submit Assignment'}
                           </Button>
