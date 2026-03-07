@@ -59,6 +59,20 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Create in-app notifications for all admin/super_admin users
+    const allUsers = await base44.asServiceRole.entities.User.list();
+    const adminUsers = allUsers.filter(u => u.app_role === 'admin' || u.app_role === 'super_admin');
+    for (const adminUser of adminUsers) {
+      await base44.asServiceRole.entities.Notification.create({
+        user_id: adminUser.id,
+        type: 'achievement',
+        title: `New ${typeLabel} Ticket`,
+        message: `${ticket.student_name}: "${ticket.subject}" — ${ticket.priority} priority`,
+        link_url: '/AdminSupportTickets',
+        is_read: false,
+      });
+    }
+
     return Response.json({ success: true, notified: recipients });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
