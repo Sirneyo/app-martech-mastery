@@ -91,11 +91,15 @@ export default function RichTextEditor({ value, onChange, minHeight = '400px', t
           variant={htmlMode ? 'default' : 'outline'}
           onClick={() => {
             if (!htmlMode) {
-              // Switching to HTML: format the raw HTML for readability
+              // Switching to HTML source: pretty-print for readability
               onChange(formatHtml(value));
+              htmlModeEditedRef.current = false;
             } else {
-              // Switching back to visual: collapse whitespace between tags
-              onChange((value || '').replace(/\n\s*/g, '').trim());
+              // Switching back to visual: collapse whitespace so Quill can parse it
+              // but only if no custom HTML was added (to avoid Quill stripping it)
+              const collapsed = (value || '').replace(/\n\s*/g, '').trim();
+              onChange(collapsed);
+              htmlModeEditedRef.current = false;
             }
             setHtmlMode(!htmlMode);
           }}
