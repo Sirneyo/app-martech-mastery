@@ -27,7 +27,7 @@ const FORMATS = [
   'link', 'image',
 ];
 
-export default function RichTextEditor({ value, onChange, minHeight = '400px' }) {
+export default function RichTextEditor({ value, onChange, minHeight = '400px', title }) {
   const [htmlMode, setHtmlMode] = useState(false);
   const quillRef = useRef(null);
 
@@ -59,7 +59,8 @@ export default function RichTextEditor({ value, onChange, minHeight = '400px' })
   return (
     <div className="border border-slate-200 rounded-lg">
       {/* Toggle bar */}
-      <div className="flex items-center justify-end gap-2 px-3 py-2 bg-slate-50 border-b border-slate-200 rounded-t-lg">
+      <div className="flex items-center justify-between gap-2 px-3 py-2 bg-slate-50 border-b border-slate-200 rounded-t-lg">
+        {title && <span className="text-sm font-semibold text-slate-700">{title}</span>}
         <Button
           type="button"
           size="sm"
@@ -76,7 +77,7 @@ export default function RichTextEditor({ value, onChange, minHeight = '400px' })
         <textarea
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full font-mono text-sm p-4 bg-slate-900 text-green-400 resize-y focus:outline-none rounded-b-lg"
+          className="w-full font-mono text-sm p-4 bg-white text-slate-800 resize-y focus:outline-none rounded-b-lg border-0"
           style={{ minHeight }}
           placeholder="<p>Enter HTML here...</p>"
           spellCheck={false}
