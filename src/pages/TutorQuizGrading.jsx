@@ -112,7 +112,7 @@ export default function TutorQuizGrading() {
   const getStudent = (id) => students.find(s => s.id === id);
 
   const selectedIds = Object.values(selections).filter(Boolean);
-  const canSubmit = !!selections.first_place_user_id;
+  const canSubmit = !!selections.first_place_user_id && !!weekNumber;
 
   const availableStudents = (positionKey) => {
     const otherSelections = Object.entries(selections)
