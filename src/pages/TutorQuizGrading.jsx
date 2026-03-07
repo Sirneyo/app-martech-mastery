@@ -93,7 +93,7 @@ export default function TutorQuizGrading() {
         cohort_id: selectedCohortId,
         quiz_date: quizDate,
         quiz_title: quizTitle || undefined,
-        week_number: weekNumber ? parseInt(weekNumber) : undefined,
+        week_number: parseInt(weekNumber),
         first_place_user_id: selections.first_place_user_id,
         second_place_user_id: selections.second_place_user_id || undefined,
         third_place_user_id: selections.third_place_user_id || undefined,
