@@ -303,24 +303,23 @@ export default function AdminTemplatesStudioEdit() {
                 <p className="text-sm text-slate-500 mb-3">
                   Write the full assignment content here. This is what students will see.
                 </p>
-                <div className="border border-slate-200 rounded-lg overflow-hidden">
-                  <ReactQuill
-                    theme="snow"
-                    value={formData.content_html || ''}
-                    onChange={(value) => setFormData({ ...formData, content_html: value })}
-                    className="min-h-[500px]"
-                    modules={{
-                      toolbar: [
-                        [{ 'header': [1, 2, 3, false] }],
-                        ['bold', 'italic', 'underline'],
-                        [{'list': 'ordered'}, {'list': 'bullet'}],
-                        ['link'],
-                        ['clean']
-                      ]
-                    }}
+                <RichTextEditor
+                  value={formData.content_html || ''}
+                  onChange={(value) => setFormData({ ...formData, content_html: value })}
+                  minHeight="500px"
+                />
+              </div>
+
+              {templateType === 'assignment' && (
+                <div className="border-t border-slate-200 pt-6">
+                  <h3 className="font-semibold text-slate-900 mb-1">Audio Materials</h3>
+                  <p className="text-sm text-slate-500 mb-4">Upload audio files for listening-based assignments.</p>
+                  <AudioUploadManager
+                    audioFiles={formData.audio_files || []}
+                    onChange={(files) => setFormData({ ...formData, audio_files: files })}
                   />
                 </div>
-              </div>
+              )}
 
               {templateType !== 'portfolio' && (
                 <>
