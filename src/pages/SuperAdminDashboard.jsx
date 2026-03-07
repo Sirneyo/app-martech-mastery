@@ -136,6 +136,17 @@ export default function SuperAdminDashboard() {
     setReviewDialogOpen(true);
   };
 
+  const openDeleteConfirm = (user) => {
+    setDeleteTarget(user);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteUser = () => {
+    if (deleteTarget) {
+      deleteUserMutation.mutate(deleteTarget.id);
+    }
+  };
+
   if (currentUser && currentUser.app_role !== 'super_admin') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
