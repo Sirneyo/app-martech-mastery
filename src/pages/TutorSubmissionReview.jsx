@@ -265,7 +265,7 @@ export default function TutorSubmissionReview() {
                   </div>
 
                   <div>
-                    <Label>Feedback Video URL (Optional)</Label>
+                    <Label>Feedback Video URL <span className="text-red-500">*</span></Label>
                     <Input
                       type="url"
                       value={feedbackUrl}
