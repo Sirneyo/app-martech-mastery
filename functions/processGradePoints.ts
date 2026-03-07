@@ -41,14 +41,26 @@ Deno.serve(async (req) => {
 
     if (points === 0) return Response.json({ awarded: 0, reason: 'Poor grade - no points' });
 
-    // Idempotency for create
+    // Block points on resubmissions: check if any points have EVER been awarded
+    // for this submission (regardless of which grade record it came from).
+    // source_id format is either the gradeId or "submission_<submission_id>" — we check both.
+    const existingForSubmission = await db.entities.PointsLedger.filter({
+      user_id: studentId,
+      source_type: 'assignment',
+      source_id: `submission_${submission_id}`,
+    });
+    if (existingForSubmission.length > 0) {
+      return Response.json({ skipped: 'points already awarded for this submission (resubmission)' });
+    }
+
+    // Also guard against duplicate triggers for the same grade record
     if (event.type === 'create') {
-      const existing = await db.entities.PointsLedger.filter({
+      const existingForGrade = await db.entities.PointsLedger.filter({
         user_id: studentId,
         source_type: 'assignment',
         source_id: gradeId,
       });
-      if (existing.length > 0) return Response.json({ skipped: 'already awarded' });
+      if (existingForGrade.length > 0) return Response.json({ skipped: 'already awarded for this grade record' });
     }
 
     await db.entities.PointsLedger.create({
@@ -56,7 +68,8 @@ Deno.serve(async (req) => {
       points,
       reason: `assignment_grade_${rubric_grade.toLowerCase()}`,
       source_type: 'assignment',
-      source_id: gradeId,
+      // Use the submission ID as the canonical key so resubmissions are blocked
+      source_id: `submission_${submission_id}`,
       awarded_by: 'system',
     });
 
