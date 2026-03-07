@@ -116,8 +116,10 @@ export default function AdminTemplatesStudioEdit() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
+      const contentHtml = formData.content_html;
       const dataToSave = {
         ...formData,
+        content_html: (contentHtml === '<p><br></p>' || !contentHtml?.trim()) ? '' : contentHtml,
         evidence_requirements_json: JSON.stringify(evidenceReqs),
         updated_date: new Date().toISOString(),
       };
