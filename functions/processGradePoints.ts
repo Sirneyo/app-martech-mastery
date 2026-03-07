@@ -41,35 +41,28 @@ Deno.serve(async (req) => {
 
     if (points === 0) return Response.json({ awarded: 0, reason: 'Poor grade - no points' });
 
-    // Block points on resubmissions: check if any points have EVER been awarded
-    // for this submission (regardless of which grade record it came from).
-    // source_id format is either the gradeId or "submission_<submission_id>" — we check both.
-    const existingForSubmission = await db.entities.PointsLedger.filter({
-      user_id: studentId,
-      source_type: 'assignment',
-      source_id: `submission_${submission_id}`,
-    });
-    if (existingForSubmission.length > 0) {
-      return Response.json({ skipped: 'points already awarded for this submission (resubmission)' });
+    // Find ALL grade records ever created for this submission
+    const allGradesForSubmission = await db.entities.SubmissionGrade.filter({ submission_id });
+
+    // If there is more than one grade record, this is a resubmission — skip points
+    if (allGradesForSubmission.length > 1) {
+      return Response.json({ skipped: 'resubmission — points already awarded on first grade' });
     }
 
-    // Also guard against duplicate triggers for the same grade record
-    if (event.type === 'create') {
-      const existingForGrade = await db.entities.PointsLedger.filter({
-        user_id: studentId,
-        source_type: 'assignment',
-        source_id: gradeId,
-      });
-      if (existingForGrade.length > 0) return Response.json({ skipped: 'already awarded for this grade record' });
-    }
+    // For the first (and only) grade, guard against duplicate triggers
+    const existingForGrade = await db.entities.PointsLedger.filter({
+      user_id: studentId,
+      source_type: 'assignment',
+      source_id: gradeId,
+    });
+    if (existingForGrade.length > 0) return Response.json({ skipped: 'already awarded for this grade record' });
 
     await db.entities.PointsLedger.create({
       user_id: studentId,
       points,
       reason: `assignment_grade_${rubric_grade.toLowerCase()}`,
       source_type: 'assignment',
-      // Use the submission ID as the canonical key so resubmissions are blocked
-      source_id: `submission_${submission_id}`,
+      source_id: gradeId,
       awarded_by: 'system',
     });
 
