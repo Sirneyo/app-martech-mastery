@@ -513,35 +513,97 @@ export default function SuperAdminDashboard() {
       </Dialog>
 
       {/* Direct Delete Confirmation Dialog */}
-      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-red-700 flex items-center gap-2">
-              <Trash2 className="w-5 h-5" />
-              Delete User
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <p className="text-slate-700">Are you sure you want to permanently delete <strong>{deleteTarget?.full_name}</strong> ({deleteTarget?.email})? This action cannot be undone.</p>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => setDeleteConfirmOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-                disabled={deleteUserMutation.isPending}
-                onClick={handleDeleteUser}
-              >
-                <Trash2 className="w-4 h-4 mr-1" /> {deleteUserMutation.isPending ? 'Deleting...' : 'Delete'}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-      </div>
-      );
-      }
+       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+         <DialogContent>
+           <DialogHeader>
+             <DialogTitle className="text-red-700 flex items-center gap-2">
+               <Trash2 className="w-5 h-5" />
+               Delete User
+             </DialogTitle>
+           </DialogHeader>
+           <div className="space-y-4 py-2">
+             <p className="text-slate-700">Are you sure you want to permanently delete <strong>{deleteTarget?.full_name}</strong> ({deleteTarget?.email})? This action cannot be undone.</p>
+             <div className="flex gap-2">
+               <Button
+                 variant="outline"
+                 className="flex-1"
+                 onClick={() => setDeleteConfirmOpen(false)}
+               >
+                 Cancel
+               </Button>
+               <Button
+                 className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                 disabled={deleteUserMutation.isPending}
+                 onClick={handleDeleteUser}
+               >
+                 <Trash2 className="w-4 h-4 mr-1" /> {deleteUserMutation.isPending ? 'Deleting...' : 'Delete'}
+               </Button>
+             </div>
+           </div>
+         </DialogContent>
+       </Dialog>
+
+       {/* Points Breakdown Modal */}
+       <Dialog open={breakdownOpen} onOpenChange={setBreakdownOpen}>
+         <DialogContent className="max-w-2xl">
+           <DialogHeader>
+             <DialogTitle className="flex items-center gap-2 text-slate-800">
+               <Coins className="w-5 h-5 text-amber-600" />
+               Points Breakdown — {selectedUser?.full_name}
+             </DialogTitle>
+           </DialogHeader>
+           <div className="space-y-4 py-2 max-h-96 overflow-y-auto">
+             <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 flex items-center justify-between">
+               <span className="text-slate-600 font-medium">Total Points:</span>
+               <span className={`text-2xl font-bold ${(pointsByUser[selectedUser?.id] || 0) < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                 {pointsByUser[selectedUser?.id] || 0}
+               </span>
+             </div>
+
+             <div className="space-y-2">
+               {ledgerEntries
+                 .filter(e => e.user_id === selectedUser?.id)
+                 .sort((a, b) => new Date(b.created_date) - new Date(a.created_date))
+                 .map(entry => (
+                   <div key={entry.id} className="border border-slate-200 rounded-lg p-3 hover:bg-slate-50 transition-colors">
+                     <div className="flex items-start justify-between gap-3">
+                       <div className="flex-1 min-w-0">
+                         <div className="flex items-center gap-2 mb-1">
+                           <Badge variant={entry.source_type === 'bonus' || entry.points > 0 ? 'default' : 'destructive'} className="text-xs">
+                             {entry.source_type}
+                           </Badge>
+                           {entry.reason && (
+                             <span className="text-sm font-medium text-slate-800 truncate">{entry.reason}</span>
+                           )}
+                         </div>
+                         <p className="text-xs text-slate-500">
+                           {new Date(entry.created_date).toLocaleDateString()} at {new Date(entry.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                         </p>
+                         {entry.awarded_by && (
+                           <p className="text-xs text-slate-400 mt-1">By: {entry.awarded_by}</p>
+                         )}
+                       </div>
+                       <span className={`text-lg font-bold whitespace-nowrap ml-2 ${entry.points < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                         {entry.points > 0 ? '+' : ''}{entry.points}
+                       </span>
+                     </div>
+                   </div>
+                 ))}
+               {ledgerEntries.filter(e => e.user_id === selectedUser?.id).length === 0 && (
+                 <div className="text-center py-8 text-slate-400">
+                   <Coins className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                   <p className="text-sm">No point entries yet</p>
+                 </div>
+               )}
+             </div>
+           </div>
+           <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
+             <Button variant="outline" onClick={() => setBreakdownOpen(false)}>
+               Close
+             </Button>
+           </div>
+         </DialogContent>
+       </Dialog>
+       </div>
+       );
+       }
