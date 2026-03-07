@@ -150,6 +150,41 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
       </div>
 
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        {currentUser?.app_role === 'super_admin' && (
+          <>
+            {!isCollapsed && (
+              <p className="text-[10px] uppercase tracking-wider text-violet-500 font-semibold px-3 mb-2">
+                Super Admin
+              </p>
+            )}
+            {superAdminItems.map((item) => {
+              const isActive = currentPageName === item.page;
+              return (
+                <Link
+                  key={item.name}
+                  to={createPageUrl(item.page)}
+                  onClick={onNavigate}
+                  className={`
+                    flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group mb-1
+                    ${isActive
+                      ? 'bg-violet-500/10 text-violet-700'
+                      : 'text-violet-600 hover:text-violet-900 hover:bg-violet-50'
+                    }
+                    ${isCollapsed ? 'justify-center' : ''}
+                  `}
+                  title={isCollapsed ? item.name : ''}
+                >
+                  <item.icon className={`w-5 h-5 ${isActive ? 'text-violet-700' : 'text-violet-500'}`} />
+                  {!isCollapsed && <span className="font-medium text-sm">{item.name}</span>}
+                  {isActive && !isCollapsed && (
+                    <motion.div layoutId="activeIndicatorSuper" className="ml-auto w-1.5 h-1.5 rounded-full bg-violet-600" />
+                  )}
+                </Link>
+              );
+            })}
+            {!isCollapsed && <div className="border-t border-slate-200 my-2" />}
+          </>
+        )}
         {!isCollapsed && (
           <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
             Administration
