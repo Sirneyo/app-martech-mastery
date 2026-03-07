@@ -9,6 +9,10 @@ import { Button } from '@/components/ui/button';
 
 export default function AdminSidebar({ currentPageName, onNavigate }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => base44.auth.me(),
+  });
   const { data: settings } = useQuery({
     queryKey: ['app-settings'],
     queryFn: async () => {
