@@ -9,8 +9,9 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        if (user.app_role !== 'super_admin') {
-            return Response.json({ error: 'Forbidden: Super Admin access required' }, { status: 403 });
+        const allowedRoles = ['admin', 'super_admin'];
+        if (!allowedRoles.includes(user.app_role)) {
+            return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
         }
 
         const users = await base44.asServiceRole.entities.User.list();
