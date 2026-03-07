@@ -303,16 +303,42 @@ export default function StudentSupport() {
                         <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Subject</p>
                         <p className="font-semibold text-slate-900 text-lg">{ticket.subject}</p>
                       </div>
-                      <div>
-                        <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Description</p>
-                        <p className="text-slate-700 whitespace-pre-wrap">{ticket.description}</p>
+
+                      {/* Original message */}
+                      <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                        <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Your Message</p>
+                        <p className="text-slate-700 whitespace-pre-wrap text-sm">{ticket.description}</p>
                       </div>
-                      {ticket.admin_reply && (
-                        <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
-                          <p className="text-xs text-violet-400 uppercase tracking-wide mb-1">Support Response</p>
-                          <p className="text-violet-900 whitespace-pre-wrap">{ticket.admin_reply}</p>
+
+                      {/* Reply thread */}
+                      {ticket.replies?.length > 0 && (
+                        <div className="space-y-3">
+                          <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold">Conversation</p>
+                          {ticket.replies.map((reply, i) => {
+                            const isAdmin = reply.author_role !== 'student';
+                            return (
+                              <div key={i} className={`flex ${isAdmin ? 'justify-start' : 'justify-end'}`}>
+                                <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${isAdmin ? 'bg-violet-50 border border-violet-200 text-violet-900' : 'bg-slate-100 text-slate-800'}`}>
+                                  <p className="text-xs font-semibold mb-1 text-slate-500">
+                                    {isAdmin ? 'Support Team' : 'You'}
+                                  </p>
+                                  <p className="whitespace-pre-wrap">{reply.message}</p>
+                                  <p className="text-xs mt-1 text-slate-400">
+                                    {reply.sent_at ? format(new Date(reply.sent_at), 'MMM d · h:mm a') : ''}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
+
+                      {!ticket.replies?.length && !ticket.admin_reply && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-700">
+                          Your ticket has been received. Our team will respond shortly.
+                        </div>
+                      )}
+
                       <div className="pt-3 border-t border-slate-100 text-xs text-slate-400">
                         Submitted {format(new Date(ticket.created_date), 'MMM d, yyyy • h:mm a')}
                       </div>
