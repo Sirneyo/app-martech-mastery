@@ -154,6 +154,11 @@ export default function SuperAdminDashboard() {
     }
   };
 
+  const openBreakdown = (user) => {
+    setSelectedUser(user);
+    setBreakdownOpen(true);
+  };
+
   if (currentUser && currentUser.app_role !== 'super_admin') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
