@@ -235,6 +235,10 @@ export default function StudentAssignmentDetail() {
 
   const [briefOpen, setBriefOpen] = React.useState(false);
 
+  const isValidUrl = (val) => {
+    try { new URL(val); return true; } catch { return false; }
+  };
+
   const isSubmitted = submission?.status === 'submitted' || submission?.status === 'in_review' || submission?.status === 'graded';
   const needsRevision = submission?.status === 'needs_revision';
   const isReadOnly = isSubmitted && !needsRevision;
