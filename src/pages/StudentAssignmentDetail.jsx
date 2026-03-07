@@ -12,6 +12,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ArrowLeft, Upload, Loader2, CheckCircle, Download, FileText, Calendar, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactQuill from 'react-quill';
+import AssignmentAudioPlayer from '@/components/AssignmentAudioPlayer';
 
 export default function StudentAssignmentDetail() {
   const navigate = useNavigate();
