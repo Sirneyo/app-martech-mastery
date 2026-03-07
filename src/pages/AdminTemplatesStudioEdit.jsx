@@ -307,6 +307,7 @@ export default function AdminTemplatesStudioEdit() {
                   value={formData.content_html || ''}
                   onChange={(value) => setFormData({ ...formData, content_html: value })}
                   minHeight="500px"
+                  title={formData.title || ''}
                 />
               </div>
 
