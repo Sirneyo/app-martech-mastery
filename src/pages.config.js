@@ -110,6 +110,7 @@ import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorQuizGrading from './pages/TutorQuizGrading';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import AdminSupportTickets from './pages/AdminSupportTickets';
 import __Layout from './Layout.jsx';
 
 
@@ -177,6 +178,7 @@ export const PAGES = {
     "TutorQuizGrading": TutorQuizGrading,
     "TutorSubmissionReview": TutorSubmissionReview,
     "SuperAdminDashboard": SuperAdminDashboard,
+    "AdminSupportTickets": AdminSupportTickets,
 }
 
 export const pagesConfig = {
