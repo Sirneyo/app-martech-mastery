@@ -98,10 +98,22 @@ export default function AdminUsers() {
     },
   });
 
-  const deleteUserMutation = useMutation({
-    mutationFn: (userId) => base44.entities.User.delete(userId),
+  const requestDeletionMutation = useMutation({
+    mutationFn: ({ user, reason }) => base44.entities.UserDeletionRequest.create({
+      target_user_id: user.id,
+      target_user_name: user.full_name,
+      target_user_email: user.email,
+      target_user_role: user.app_role,
+      requested_by_id: currentUser?.id,
+      requested_by_name: currentUser?.full_name,
+      reason,
+      status: 'pending',
+    }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      setDeletionDialogOpen(false);
+      setDeletionTarget(null);
+      setDeletionReason('');
+      alert('Deletion request submitted. A super admin will review it.');
     },
   });
 
