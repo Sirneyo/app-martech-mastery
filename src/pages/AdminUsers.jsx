@@ -738,6 +738,48 @@ export default function AdminUsers() {
             </div>
           </DialogContent>
         </Dialog>
+      {/* Deletion Request Dialog */}
+      <Dialog open={deletionDialogOpen} onOpenChange={setDeletionDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-red-700 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              Request User Removal
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+              You are requesting removal of <strong>{deletionTarget?.full_name}</strong> ({deletionTarget?.email}). This will be escalated to a Super Admin for approval.
+            </div>
+            <div className="space-y-2">
+              <Label>Reason for removal *</Label>
+              <Textarea
+                value={deletionReason}
+                onChange={(e) => setDeletionReason(e.target.value)}
+                placeholder="Explain why this user should be removed..."
+                rows={3}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => { setDeletionDialogOpen(false); setDeletionReason(''); setDeletionTarget(null); }}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                disabled={!deletionReason.trim() || requestDeletionMutation.isPending}
+                onClick={() => requestDeletionMutation.mutate({ user: deletionTarget, reason: deletionReason })}
+              >
+                {requestDeletionMutation.isPending ? 'Submitting...' : 'Submit Request'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       </div>
     </div>
   );
