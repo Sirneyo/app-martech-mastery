@@ -60,7 +60,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
     });
   };
 
-  const SidebarComponent = user?.app_role === 'admin' ? AdminSidebar : 
+  const SidebarComponent = (user?.app_role === 'admin' || user?.app_role === 'super_admin') ? AdminSidebar : 
                             user?.app_role === 'tutor' ? TutorSidebar : 
                             StudentSidebar;
 
