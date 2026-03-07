@@ -135,7 +135,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem asChild>
                   <Link to={createPageUrl(
-                    user?.app_role === 'admin' ? 'AdminProfile' :
+                    (user?.app_role === 'admin' || user?.app_role === 'super_admin') ? 'AdminProfile' :
                     user?.app_role === 'tutor' ? 'TutorProfile' :
                     'StudentProfile'
                   )}>
