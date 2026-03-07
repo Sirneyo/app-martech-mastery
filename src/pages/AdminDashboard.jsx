@@ -12,7 +12,10 @@ import { motion } from 'framer-motion';
 export default function AdminDashboard() {
   const { data: users = [] } = useQuery({
     queryKey: ['all-users'],
-    queryFn: () => base44.entities.User.list('created_date', 1000),
+    queryFn: async () => {
+      const res = await base44.functions.invoke('getSuperAdminUsers', {});
+      return res.data?.users || [];
+    },
     staleTime: 0,
   });
 
