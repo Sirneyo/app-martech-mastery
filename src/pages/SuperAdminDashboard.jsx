@@ -280,6 +280,14 @@ export default function SuperAdminDashboard() {
                             >
                               <Minus className="w-3 h-3 mr-1" /> Deduct
                             </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-700 border-red-300 hover:bg-red-100"
+                              onClick={() => openDeleteConfirm(user)}
+                            >
+                              <Trash2 className="w-3 h-3 mr-1" /> Delete
+                            </Button>
                           </div>
                         </td>
                       </tr>
