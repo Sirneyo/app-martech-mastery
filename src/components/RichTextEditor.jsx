@@ -93,13 +93,13 @@ export default function RichTextEditor({ value, onChange, minHeight = '400px', t
             if (!htmlMode) {
               // Switching to HTML source: pretty-print for readability
               onChange(formatHtml(value));
-              htmlModeEditedRef.current = false;
             } else {
-              // Switching back to visual: collapse whitespace so Quill can parse it
-              // but only if no custom HTML was added (to avoid Quill stripping it)
+              // Switching back to visual: collapse whitespace
               const collapsed = (value || '').replace(/\n\s*/g, '').trim();
               onChange(collapsed);
-              htmlModeEditedRef.current = false;
+              // Detect if HTML contains tags Quill can't handle (button, style attrs, onclick, etc.)
+              const hasCustomHtml = /<button|onclick|style\s*=|<iframe|<script/i.test(collapsed);
+              setUseRawPreview(hasCustomHtml);
             }
             setHtmlMode(!htmlMode);
           }}
