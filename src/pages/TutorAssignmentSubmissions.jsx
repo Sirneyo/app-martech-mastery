@@ -4,8 +4,9 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronRight, Clock } from 'lucide-react';
+import { ChevronRight, Clock, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
