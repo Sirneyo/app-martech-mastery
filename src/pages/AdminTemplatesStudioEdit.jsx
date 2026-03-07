@@ -305,7 +305,7 @@ export default function AdminTemplatesStudioEdit() {
                 </p>
                 <RichTextEditor
                   value={formData.content_html || ''}
-                  onChange={(value) => setFormData({ ...formData, content_html: value })}
+                  onChange={(value) => setFormData(prev => ({ ...prev, content_html: value }))}
                   minHeight="500px"
                   title={formData.title || ''}
                 />
