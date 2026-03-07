@@ -545,17 +545,20 @@ export default function AdminUsers() {
                           <UserPlus className="w-4 h-4 mr-1" />
                           Assign
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            if (confirm('Delete this user?')) {
-                              deleteUserMutation.mutate(user.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        {user.app_role !== 'super_admin' && (
+                         <Button
+                           size="sm"
+                           variant="outline"
+                           className="text-red-600 border-red-200 hover:bg-red-50"
+                           onClick={() => {
+                             setDeletionTarget(user);
+                             setDeletionDialogOpen(true);
+                           }}
+                         >
+                           <AlertTriangle className="w-4 h-4 mr-1" />
+                           Remove
+                         </Button>
+                        )}
                       </div>
                     </td>
                   </tr>
