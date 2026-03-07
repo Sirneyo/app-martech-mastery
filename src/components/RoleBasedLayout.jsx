@@ -12,7 +12,7 @@ import AIAssistant from '@/components/AIAssistant';
 import NotificationBell from '@/components/NotificationBell';
 import { Toaster } from 'sonner';
 
-export default function RoleBasedLayout({ children, currentPageName }) {
+export default function RoleBasedLayout({ children, currentPageName, overrideSidebarRole }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
