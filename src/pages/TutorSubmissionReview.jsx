@@ -119,8 +119,8 @@ export default function TutorSubmissionReview() {
   };
 
   const handleSubmitGrade = () => {
-    if (!rubricGrade || !feedbackText) {
-      alert('Please select a grade and provide feedback');
+    if (!rubricGrade) {
+      alert('Please select a grade');
       return;
     }
     if (!feedbackUrl.trim()) {
