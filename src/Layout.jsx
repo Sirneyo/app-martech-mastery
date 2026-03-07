@@ -9,8 +9,15 @@ export default function Layout({ children, currentPageName }) {
     return <>{children}</>;
   }
 
+  // Map page names to sidebar roles for super admin view-as functionality
+  const roleOverrideMap = {
+    'StudentDashboard': 'student',
+    'TutorDashboard': 'tutor',
+    'AdminDashboard': 'admin'
+  };
+
   return (
-    <RoleBasedLayout currentPageName={currentPageName}>
+    <RoleBasedLayout currentPageName={currentPageName} overrideSidebarRole={roleOverrideMap[currentPageName]}>
       {children}
     </RoleBasedLayout>
   );
