@@ -34,8 +34,11 @@ export default function SuperAdminDashboard() {
   });
 
   const { data: users = [] } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => base44.entities.User.list(),
+    queryKey: ['super-admin-users'],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('getSuperAdminUsers', {});
+      return res.data?.users || [];
+    },
   });
 
   const { data: ledgerEntries = [] } = useQuery({
