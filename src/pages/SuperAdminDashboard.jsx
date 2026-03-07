@@ -166,13 +166,46 @@ export default function SuperAdminDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center">
             <Shield className="w-5 h-5 text-white" />
           </div>
           <div>
             <h1 className="text-3xl font-bold text-slate-900">Super Admin Dashboard</h1>
             <p className="text-slate-500 mt-0.5">Points management, deletion requests, and system governance</p>
+          </div>
+        </div>
+
+        {/* Role Switch Panel */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
+          <p className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+            <Eye className="w-4 h-4" /> View as Different Role
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(createPageUrl('StudentDashboard'))}
+              className="border-blue-200 text-blue-700 hover:bg-blue-50"
+            >
+              View Student Dashboard
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(createPageUrl('TutorDashboard'))}
+              className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+            >
+              View Tutor Dashboard
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(createPageUrl('AdminDashboard'))}
+              className="border-orange-200 text-orange-700 hover:bg-orange-50"
+            >
+              View Admin Dashboard
+            </Button>
           </div>
         </div>
 
