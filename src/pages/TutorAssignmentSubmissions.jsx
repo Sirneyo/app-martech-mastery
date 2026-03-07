@@ -105,6 +105,36 @@ export default function TutorAssignmentSubmissions() {
     return template?.title || 'Unknown Assignment';
   };
 
+  const getTemplateWeek = (templateId) => {
+    const template = templates.find(t => t.id === templateId);
+    return template?.week_number;
+  };
+
+  const getStudentCohortId = (userId) => {
+    const m = memberships.find(m => m.user_id === userId && cohortIds.includes(m.cohort_id));
+    return m?.cohort_id;
+  };
+
+  const getCohortName = (cohortId) => {
+    const cohort = cohorts.find(c => c.id === cohortId);
+    return cohort?.name || cohortId;
+  };
+
+  const filteredSubmissions = submissions.filter(submission => {
+    const studentName = getStudentName(submission.user_id).toLowerCase();
+    const templateName = getTemplateName(submission.assignment_template_id).toLowerCase();
+    const query = searchQuery.toLowerCase();
+    const studentCohortId = getStudentCohortId(submission.user_id);
+    const week = getTemplateWeek(submission.assignment_template_id);
+
+    if (query && !studentName.includes(query) && !templateName.includes(query)) return false;
+    if (cohortFilter !== 'all' && studentCohortId !== cohortFilter) return false;
+    if (weekFilter !== 'all' && String(week) !== weekFilter) return false;
+    return true;
+  });
+
+  const availableWeeks = [...new Set(templates.map(t => t.week_number).filter(Boolean))].sort((a, b) => a - b);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
