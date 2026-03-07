@@ -80,6 +80,20 @@ export default function TutorAssignmentSubmissions() {
     queryFn: () => base44.entities.AssignmentTemplate.list(),
   });
 
+  const { data: cohorts = [] } = useQuery({
+    queryKey: ['cohorts-for-tutor', cohortIds],
+    queryFn: async () => {
+      if (cohortIds.length === 0) return [];
+      return base44.entities.Cohort.list();
+    },
+    enabled: cohortIds.length > 0,
+  });
+
+  const { data: memberships = [] } = useQuery({
+    queryKey: ['all-memberships'],
+    queryFn: () => base44.entities.CohortMembership.list(),
+  });
+
   const getStudentName = (userId) => {
     if (studentsLoading) return 'Loading...';
     const student = students.find(s => s.id === userId);
