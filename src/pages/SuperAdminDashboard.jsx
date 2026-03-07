@@ -35,6 +35,10 @@ export default function SuperAdminDashboard() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
+  // Points breakdown state
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
