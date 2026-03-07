@@ -101,6 +101,15 @@ export default function SuperAdminDashboard() {
     },
   });
 
+  const deleteUserMutation = useMutation({
+    mutationFn: (userId) => base44.asServiceRole.entities.User.delete(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['super-admin-users'] });
+      setDeleteConfirmOpen(false);
+      setDeleteTarget(null);
+    },
+  });
+
   const handleAdjustPoints = () => {
     const pts = parseInt(adjustAmount);
     if (!pts || !adjustReason.trim() || !adjustTarget) return;
