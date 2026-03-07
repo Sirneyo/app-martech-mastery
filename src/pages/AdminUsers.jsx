@@ -242,6 +242,12 @@ export default function AdminUsers() {
       return;
     }
 
+    // Admins cannot change a super_admin's role
+    if (selectedUser.app_role === 'super_admin' && currentUser?.app_role !== 'super_admin') {
+      alert('Only a Super Admin can change another Super Admin\'s role.');
+      return;
+    }
+
     const oldRole = selectedUser.app_role;
     const newRole = editData.app_role;
     const roleChanged = oldRole !== newRole;
