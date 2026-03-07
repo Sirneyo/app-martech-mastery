@@ -222,7 +222,15 @@ export default function TutorAssignmentSubmissions() {
                         {submission.status}
                       </Badge>
                     </div>
-                    <p className="text-sm text-slate-600 mb-2">{getStudentName(submission.user_id)}</p>
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-sm text-slate-600">{getStudentName(submission.user_id)}</p>
+                      {getStudentCohortId(submission.user_id) && (
+                        <Badge variant="outline" className="text-xs">{getCohortName(getStudentCohortId(submission.user_id))}</Badge>
+                      )}
+                      {getTemplateWeek(submission.assignment_template_id) && (
+                        <Badge variant="outline" className="text-xs">Week {getTemplateWeek(submission.assignment_template_id)}</Badge>
+                      )}
+                    </div>
                     {submission.submitted_date && (
                       <div className="flex items-center gap-2 text-xs text-slate-500">
                         <Clock className="w-3 h-3" />
