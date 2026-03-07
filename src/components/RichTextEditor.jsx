@@ -136,7 +136,11 @@ export default function RichTextEditor({ value, onChange, minHeight = '400px', t
               theme="snow"
               value={value || ''}
               onChange={(v, delta, source) => {
-                if (source === 'user') onChange(v);
+                if (source === 'user') {
+                  // Treat Quill's empty state as truly empty
+                  const isEmpty = v === '<p><br></p>' || v.trim() === '';
+                  onChange(isEmpty ? '' : v);
+                }
               }}
               modules={modulesWithImageHandler}
               formats={FORMATS}
