@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 export default function SuperAdminDashboard() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   // Points management state
