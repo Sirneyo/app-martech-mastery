@@ -114,10 +114,7 @@ export default function RichTextEditor({ value, onChange, minHeight = '400px', t
       {htmlMode ? (
         <textarea
           value={value || ''}
-          onChange={(e) => {
-            htmlModeEditedRef.current = true;
-            onChange(e.target.value);
-          }}
+          onChange={(e) => onChange(e.target.value)}
           className="w-full font-mono text-sm p-4 bg-white text-slate-800 resize-y focus:outline-none rounded-b-lg border-0"
           style={{ minHeight }}
           placeholder="<p>Enter HTML here...</p>"
