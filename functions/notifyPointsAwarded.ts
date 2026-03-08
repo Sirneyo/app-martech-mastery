@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
 
     if (!data || event.type !== 'create') return Response.json({ skipped: 'not a create event' });
 
-    const { user_id, points, reason } = data;
+    const { user_id, points, reason, notification_message } = data;
 
     if (SKIP_REASONS.includes(reason)) return Response.json({ skipped: 'skipped noisy reason' });
 
