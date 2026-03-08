@@ -71,8 +71,9 @@ export default function RoleBasedLayout({ children, currentPageName }) {
     });
   };
 
-  // Super admins can "view as" another role, persisted in sessionStorage
-  const effectiveRole = (user?.app_role === 'super_admin' && viewAsRole) ? viewAsRole : user?.app_role;
+  // Super admins viewing another role's pages use the inferred role for sidebar
+  const isSuperAdminViewing = user?.app_role === 'super_admin' && !!viewAsRole;
+  const effectiveRole = isSuperAdminViewing ? viewAsRole : user?.app_role;
   const roleForSidebar = effectiveRole;
   const SidebarComponent = (roleForSidebar === 'admin' || roleForSidebar === 'super_admin') ? AdminSidebar : 
                             roleForSidebar === 'tutor' ? TutorSidebar : 
