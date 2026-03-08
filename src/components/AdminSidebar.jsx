@@ -34,12 +34,12 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
     { name: 'Exams', icon: Award, page: 'AdminExams' },
     { name: 'Templates', icon: FileText, page: 'AdminTemplates' },
     { name: 'Exam Bank Import', icon: FileText, page: 'AdminExamBankImport' },
-    { name: 'Support Tickets', icon: Ticket, page: 'AdminSupportTickets' },
-    { name: 'Announcements', icon: Megaphone, page: 'AdminAnnouncements' },
   ];
 
   const superAdminItems = [
     { name: 'Super Admin', icon: Shield, page: 'SuperAdminDashboard' },
+    { name: 'Support Tickets', icon: Ticket, page: 'AdminSupportTickets' },
+    { name: 'Announcements', icon: Megaphone, page: 'AdminAnnouncements' },
   ];
 
   return (

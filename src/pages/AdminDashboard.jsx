@@ -368,19 +368,6 @@ export default function AdminDashboard() {
             </motion.div>
           </Link>
 
-          <Link to={createPageUrl('AdminSupportTickets')}>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-              <Card className="bg-gradient-to-br from-violet-500 to-violet-600 text-white border-0 cursor-pointer hover:shadow-xl transition-all">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Support Tickets</CardTitle>
-                  <Ticket className="w-5 h-5 opacity-80" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">View</div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </Link>
         </div>
 
         {/* Leaderboards Section */}
