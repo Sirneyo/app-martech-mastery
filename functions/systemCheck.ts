@@ -51,6 +51,8 @@ Deno.serve(async (req) => {
     addCheck('email', 'Resend Connectivity', 'fail', 'Cannot test — API key missing');
   } else {
     addCheck('email', 'Resend API Key', 'pass', 'API key is configured ✓');
+
+    // Check API connectivity via domains endpoint
     try {
       const resendRes = await fetch('https://api.resend.com/domains', {
         headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
@@ -67,6 +69,50 @@ Deno.serve(async (req) => {
       }
     } catch (emailError) {
       addCheck('email', 'Resend API Connectivity', 'fail', `Cannot reach Resend service: ${emailError.message}`);
+    }
+
+    // Send a real test email to verify full delivery pipeline
+    try {
+      const testEmailRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'System Check <noreply@martech-mastery.com>',
+          to: ['niyi@oadsolutions.com'],
+          subject: `✅ System Check — Email Delivery Test (${new Date().toUTCString()})`,
+          html: `
+            <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;">
+              <h2 style="color:#1e293b;">System Health Check — Email Test</h2>
+              <p style="color:#475569;">This is an automated test email sent by the Super Admin System Check to verify that the email delivery pipeline is fully operational.</p>
+              <div style="background:#f1f5f9;border-radius:8px;padding:16px;margin:16px 0;">
+                <p style="margin:0;font-size:13px;color:#64748b;">
+                  <strong>Checked at:</strong> ${new Date().toUTCString()}<br/>
+                  <strong>Sent to:</strong> niyi@oadsolutions.com<br/>
+                  <strong>Service:</strong> Resend<br/>
+                  <strong>Status:</strong> ✅ Delivered successfully
+                </p>
+              </div>
+              <p style="color:#94a3b8;font-size:12px;">You can ignore this email — it was triggered by a routine system health check.</p>
+            </div>
+          `,
+        }),
+      });
+
+      if (testEmailRes.ok) {
+        const testEmailData = await testEmailRes.json();
+        addCheck('email', 'Test Email Delivery', 'pass',
+          'Test email successfully sent to niyi@oadsolutions.com ✓',
+          { message_id: testEmailData?.id || 'n/a', recipient: 'niyi@oadsolutions.com' }
+        );
+      } else {
+        const errBody = await testEmailRes.json().catch(() => ({}));
+        addCheck('email', 'Test Email Delivery', 'fail',
+          `Failed to send test email — Resend returned HTTP ${testEmailRes.status}`,
+          { error: errBody?.message || 'Unknown error', status: testEmailRes.status }
+        );
+      }
+    } catch (sendError) {
+      addCheck('email', 'Test Email Delivery', 'fail', `Test email send failed: ${sendError.message}`);
     }
   }
 
