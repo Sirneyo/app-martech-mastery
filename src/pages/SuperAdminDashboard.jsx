@@ -128,6 +128,7 @@ export default function SuperAdminDashboard() {
       reason: adjustReason,
       source_type: 'bonus',
       awarded_by: currentUser?.full_name || 'Super Admin',
+      notification_message: adjustMessage.trim() || null,
     });
   };
 
