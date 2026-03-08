@@ -203,26 +203,26 @@ export default function SuperAdminDashboard() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate(createPageUrl('StudentDashboard'))}
+              onClick={() => { sessionStorage.setItem('superAdminViewAs', 'student'); navigate(createPageUrl('StudentDashboard')); }}
               className="border-blue-200 text-blue-700 hover:bg-blue-50"
             >
-              View Student Dashboard
+              View as Student
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate(createPageUrl('TutorDashboard'))}
+              onClick={() => { sessionStorage.setItem('superAdminViewAs', 'tutor'); navigate(createPageUrl('TutorDashboard')); }}
               className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
             >
-              View Tutor Dashboard
+              View as Tutor
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate(createPageUrl('AdminDashboard'))}
+              onClick={() => { sessionStorage.setItem('superAdminViewAs', 'admin'); navigate(createPageUrl('AdminDashboard')); }}
               className="border-orange-200 text-orange-700 hover:bg-orange-50"
             >
-              View Admin Dashboard
+              View as Admin
             </Button>
           </div>
         </div>
