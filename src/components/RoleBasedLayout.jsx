@@ -61,7 +61,9 @@ export default function RoleBasedLayout({ children, currentPageName }) {
     });
   };
 
-  const roleForSidebar = overrideSidebarRole || user?.app_role;
+  // Super admins can "view as" another role, persisted in sessionStorage
+  const effectiveRole = (user?.app_role === 'super_admin' && viewAsRole) ? viewAsRole : user?.app_role;
+  const roleForSidebar = effectiveRole;
   const SidebarComponent = (roleForSidebar === 'admin' || roleForSidebar === 'super_admin') ? AdminSidebar : 
                             roleForSidebar === 'tutor' ? TutorSidebar : 
                             StudentSidebar;
