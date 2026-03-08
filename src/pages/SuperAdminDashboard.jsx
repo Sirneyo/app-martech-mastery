@@ -137,6 +137,7 @@ export default function SuperAdminDashboard() {
     setAdjustType(type);
     setAdjustAmount('');
     setAdjustReason('');
+    setAdjustMessage('');
     setAdjustDialogOpen(true);
   };
 
