@@ -359,6 +359,27 @@ export default function StudentSupport() {
                         </div>
                       )}
 
+                      {ticket.status !== 'closed' && (
+                        <div className="pt-4 border-t border-slate-200 space-y-2">
+                          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Add a reply</p>
+                          <textarea
+                            rows={3}
+                            value={replyText}
+                            onChange={e => setReplyText(e.target.value)}
+                            placeholder="Write your reply..."
+                            className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent resize-none"
+                          />
+                          <button
+                            onClick={() => replyMutation.mutate()}
+                            disabled={!replyText.trim() || replyMutation.isPending}
+                            className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-xl transition-colors text-sm"
+                          >
+                            {replyMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                            {replyMutation.isPending ? 'Sending...' : 'Send Reply'}
+                          </button>
+                        </div>
+                      )}
+
                       <div className="pt-3 border-t border-slate-100 text-xs text-slate-400">
                         Submitted {format(new Date(ticket.created_date), 'MMM d, yyyy • h:mm a')}
                       </div>
