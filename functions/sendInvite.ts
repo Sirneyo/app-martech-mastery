@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
               <h2 style="color: #1a2d5a; font-size: 22px; margin: 0 0 8px;">You're Invited! 🎓</h2>
               <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 16px;">Hi <strong>${full_name}</strong>,</p>
               <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
-                <strong>${user.full_name || user.email}</strong> has invited you to join <strong style="color: #1a2d5a;">MarTech Mastery Academy</strong> — your gateway to mastering modern marketing technology.
+                <strong>${user.full_name || user.email}</strong> has invited you to join the <strong style="color: #1a2d5a;">MarTech Mastery Learning Platform</strong> — your gateway to mastering modern marketing technology.
               </p>
 
               <!-- CTA Button -->
