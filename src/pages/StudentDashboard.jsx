@@ -362,7 +362,17 @@ export default function StudentDashboard() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-600">{cohortStatus === 'Upcoming' ? 'Starts in:' : 'Weeks Remaining:'}</span>
-                  <span className="font-semibold text-blue-600">{weeksRemaining} weeks</span>
+                  <span className="font-semibold text-blue-600">
+                    {cohortStatus === 'Upcoming'
+                      ? (() => {
+                          const daysUntil = differenceInDays(startDate, now);
+                          return daysUntil < 7
+                            ? `${daysUntil} day${daysUntil !== 1 ? 's' : ''}`
+                            : `${weeksRemaining} week${weeksRemaining !== 1 ? 's' : ''}`;
+                        })()
+                      : `${weeksRemaining} week${weeksRemaining !== 1 ? 's' : ''}`
+                    }
+                  </span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2 mt-2">
                   <div
