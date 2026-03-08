@@ -131,6 +131,7 @@ export default function StudentSupport() {
 
   const openTicket = (ticket) => {
     setSelectedTicket(ticket);
+    setReplyText('');
     setView('detail');
   };
 
