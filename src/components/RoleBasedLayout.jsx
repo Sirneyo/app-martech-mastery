@@ -156,9 +156,26 @@ export default function RoleBasedLayout({ children, currentPageName }) {
           </div>
         </div>
 
+        {user?.app_role === 'super_admin' && viewAsRole && (
+          <div className="bg-violet-600 text-white px-6 py-2 flex items-center justify-between text-sm">
+            <span className="flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              Viewing as <strong className="capitalize ml-1">{viewAsRole}</strong>
+            </span>
+            <button
+              onClick={() => {
+                sessionStorage.removeItem('superAdminViewAs');
+                window.location.href = createPageUrl('SuperAdminDashboard');
+              }}
+              className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-md font-medium transition-colors"
+            >
+              Exit View → Super Admin
+            </button>
+          </div>
+        )}
         {children}
       </main>
-      {user?.app_role === 'student' && <AIAssistant />}
+      {effectiveRole === 'student' && <AIAssistant />}
       <Toaster position="top-right" />
     </div>
   );
