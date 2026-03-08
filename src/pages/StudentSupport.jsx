@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Ticket, Wrench, GraduationCap, ChevronRight, 
   CheckCircle, Clock, AlertCircle, Loader2, Plus,
-  ArrowLeft
+  ArrowLeft, Send
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';

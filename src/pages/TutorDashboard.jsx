@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Users, ClipboardCheck, Award, ChevronRight, TrendingUp, Trophy } from 'lucide-react';
+import { Users, ClipboardCheck, Award, ChevronRight, TrendingUp, Trophy, Ticket } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function TutorDashboard() {
