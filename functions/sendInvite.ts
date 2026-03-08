@@ -58,25 +58,41 @@ Deno.serve(async (req) => {
         to: [email],
         subject: 'You\'re Invited to Join MarTech Mastery Academy',
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #f97316;">Welcome to MarTech Mastery Academy!</h2>
-            <p>Hi ${full_name},</p>
-            <p>You've been invited to join MarTech Mastery Academy by ${user.full_name || user.email}.</p>
-            <p>Click the button below to create your account and get started:</p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${invitationLink}" 
-                 style="background-color: #f97316; color: white; padding: 12px 30px; 
-                        text-decoration: none; border-radius: 5px; display: inline-block;">
-                Create Your Account
-              </a>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(30,45,90,0.10);">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #1a2d5a 0%, #2a3f7a 100%); padding: 32px 40px; text-align: center;">
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/5875581de_Fulllogo.png" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto;" />
             </div>
-            <p style="color: #666; font-size: 14px;">
-              Or copy and paste this link into your browser:<br>
-              <a href="${invitationLink}">${invitationLink}</a>
-            </p>
-            <p style="color: #666; font-size: 12px; margin-top: 30px;">
-              This invitation was sent to ${email}. If you didn't expect this invitation, you can safely ignore this email.
-            </p>
+
+            <!-- Body -->
+            <div style="padding: 40px 40px 32px;">
+              <h2 style="color: #1a2d5a; font-size: 22px; margin: 0 0 8px;">You're Invited! 🎓</h2>
+              <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 16px;">Hi <strong>${full_name}</strong>,</p>
+              <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
+                <strong>${user.full_name || user.email}</strong> has invited you to join <strong style="color: #1a2d5a;">MarTech Mastery Academy</strong> — your gateway to mastering modern marketing technology.
+              </p>
+
+              <!-- CTA Button -->
+              <div style="text-align: center; margin: 32px 0;">
+                <a href="${invitationLink}" style="background: linear-gradient(135deg, #f97316, #ea6c0a); color: #ffffff; padding: 14px 36px; text-decoration: none; border-radius: 8px; display: inline-block; font-size: 16px; font-weight: 700; letter-spacing: 0.3px; box-shadow: 0 4px 12px rgba(249,115,22,0.35);">
+                  Create Your Account →
+                </a>
+              </div>
+
+              <!-- Divider -->
+              <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 28px 0;" />
+
+              <p style="color: #94a3b8; font-size: 13px; margin: 0 0 6px;">Or copy and paste this link into your browser:</p>
+              <p style="margin: 0;"><a href="${invitationLink}" style="color: #f97316; font-size: 13px; word-break: break-all;">${invitationLink}</a></p>
+            </div>
+
+            <!-- Footer -->
+            <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px 40px; text-align: center;">
+              <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+                This invitation was sent to <strong>${email}</strong>. If you didn't expect this, you can safely ignore it.
+              </p>
+              <p style="color: #cbd5e1; font-size: 11px; margin: 8px 0 0;">© MarTech Mastery by OAD Solutions</p>
+            </div>
           </div>
         `
       })
