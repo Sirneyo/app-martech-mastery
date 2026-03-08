@@ -401,7 +401,7 @@ export default function StudentDashboard() {
                 )}
                 <div className="flex justify-between text-sm pt-2 border-t border-slate-100 mt-2">
                   <span className="text-slate-500">Your Local Time:</span>
-                  <span className="font-mono text-xs text-slate-700">{now.toLocaleString()}</span>
+                  <span className="font-mono text-xs text-slate-700">{liveTime.toLocaleString()}</span>
                 </div>
               </div>
             </div>
