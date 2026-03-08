@@ -24,6 +24,7 @@ export default function SuperAdminDashboard() {
   const [adjustTarget, setAdjustTarget] = useState(null);
   const [adjustAmount, setAdjustAmount] = useState('');
   const [adjustReason, setAdjustReason] = useState('');
+  const [adjustMessage, setAdjustMessage] = useState('');
   const [adjustType, setAdjustType] = useState('bonus'); // bonus | deduction
 
   // Deletion requests state
