@@ -211,7 +211,7 @@ export default function SuperAdminDashboard() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => { sessionStorage.setItem('superAdminViewAs', 'tutor'); navigate(createPageUrl('TutorDashboard')); }}
+              onClick={() => navigate(createPageUrl('TutorDashboard'))}
               className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
             >
               View as Tutor
