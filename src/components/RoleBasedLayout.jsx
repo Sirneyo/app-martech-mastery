@@ -12,11 +12,21 @@ import AIAssistant from '@/components/AIAssistant';
 import NotificationBell from '@/components/NotificationBell';
 import { Toaster } from 'sonner';
 
+// Infer which role's sidebar a super_admin should see based on the current page name
+function inferViewAsRole(pageName) {
+  if (!pageName) return null;
+  if (pageName.startsWith('Student') || pageName === 'MarketoAccess') return 'student';
+  if (pageName.startsWith('Tutor')) return 'tutor';
+  return null; // admin / super_admin pages
+}
+
 export default function RoleBasedLayout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const viewAsRole = sessionStorage.getItem('superAdminViewAs') || null;
+  // For super admins, infer from page name first; fall back to sessionStorage for mixed pages
+  const pageInferredRole = inferViewAsRole(currentPageName);
+  const viewAsRole = pageInferredRole || sessionStorage.getItem('superAdminViewAs') || null;
 
   useEffect(() => {
     loadUserAndTrackLogin();
