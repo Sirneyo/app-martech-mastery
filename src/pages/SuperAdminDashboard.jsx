@@ -90,6 +90,7 @@ export default function SuperAdminDashboard() {
       setAdjustTarget(null);
       setAdjustAmount('');
       setAdjustReason('');
+      setAdjustMessage('');
     },
   });
 
