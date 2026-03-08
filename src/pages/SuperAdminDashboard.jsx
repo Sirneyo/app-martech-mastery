@@ -278,6 +278,9 @@ export default function SuperAdminDashboard() {
                 <Badge className="bg-red-500 text-white text-xs ml-1">{pendingDeletions.length}</Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="systemcheck" className="flex items-center gap-2">
+              <Activity className="w-4 h-4" /> System Check
+            </TabsTrigger>
           </TabsList>
 
           {/* Points Tab */}
