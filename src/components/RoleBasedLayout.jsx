@@ -167,7 +167,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
           </div>
         </div>
 
-        {user?.app_role === 'super_admin' && viewAsRole && (
+        {isSuperAdminViewing && (
           <div className="bg-violet-600 text-white px-6 py-2 flex items-center justify-between text-sm">
             <span className="flex items-center gap-2">
               <Eye className="w-4 h-4" />
