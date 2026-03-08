@@ -57,7 +57,7 @@ export default function RichTextEditor({ value, onChange, minHeight = '400px', t
   // When value loads (async from API), check if it contains custom HTML Quill can't handle
   useEffect(() => {
     if (!htmlMode) {
-      const hasCustomHtml = /<button|onclick|style\s*=|<iframe|<script/i.test(value || '');
+      const hasCustomHtml = /<button|onclick|<iframe|<script/i.test(value || '');
       setUseRawPreview(hasCustomHtml);
     }
   }, [value]);
@@ -105,7 +105,7 @@ export default function RichTextEditor({ value, onChange, minHeight = '400px', t
               const collapsed = (value || '').replace(/\n\s*/g, '').trim();
               onChange(collapsed);
               // Detect if HTML contains tags Quill can't handle (button, style attrs, onclick, etc.)
-              const hasCustomHtml = /<button|onclick|style\s*=|<iframe|<script/i.test(collapsed);
+              const hasCustomHtml = /<button|onclick|<iframe|<script/i.test(collapsed);
               setUseRawPreview(hasCustomHtml);
             }
             setHtmlMode(!htmlMode);
