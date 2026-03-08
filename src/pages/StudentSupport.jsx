@@ -97,6 +97,25 @@ export default function StudentSupport() {
     },
   });
 
+  const replyMutation = useMutation({
+    mutationFn: async () => {
+      const newReply = {
+        author_id: user.id,
+        author_name: user.full_name,
+        author_role: 'student',
+        message: replyText.trim(),
+        sent_at: new Date().toISOString(),
+      };
+      const updatedReplies = [...(selectedTicket.replies || []), newReply];
+      return base44.entities.SupportTicket.update(selectedTicket.id, { replies: updatedReplies });
+    },
+    onSuccess: (updated) => {
+      setSelectedTicket(updated);
+      setReplyText('');
+      queryClient.invalidateQueries({ queryKey: ['my-tickets'] });
+    },
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
     submitMutation.mutate();
