@@ -517,14 +517,14 @@ export default function SuperAdminDashboard() {
               <Button
                 className="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700"
                 disabled={reviewDeletionMutation.isPending}
-                onClick={() => reviewDeletionMutation.mutate({ id: reviewTarget.id, status: 'rejected', note: reviewNote })}
+                onClick={() => reviewDeletionMutation.mutate({ id: reviewTarget.id, status: 'rejected', note: reviewNote, targetUserId: reviewTarget.target_user_id })}
               >
                 <XCircle className="w-4 h-4 mr-1" /> Reject
               </Button>
               <Button
                 className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
                 disabled={reviewDeletionMutation.isPending}
-                onClick={() => reviewDeletionMutation.mutate({ id: reviewTarget.id, status: 'approved', note: reviewNote })}
+                onClick={() => reviewDeletionMutation.mutate({ id: reviewTarget.id, status: 'approved', note: reviewNote, targetUserId: reviewTarget.target_user_id })}
               >
                 <CheckCircle className="w-4 h-4 mr-1" /> Approve
               </Button>
