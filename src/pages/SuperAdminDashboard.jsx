@@ -425,6 +425,11 @@ export default function SuperAdminDashboard() {
               </div>
             )}
           </TabsContent>
+
+          {/* System Check Tab */}
+          <TabsContent value="systemcheck" className="mt-4">
+            <SystemCheckPanel />
+          </TabsContent>
         </Tabs>
       </div>
 
