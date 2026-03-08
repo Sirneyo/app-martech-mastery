@@ -20,6 +20,13 @@ import { Badge } from '@/components/ui/badge';
 import { format, differenceInWeeks, differenceInDays, isAfter, isWithinInterval } from 'date-fns';
 
 export default function StudentDashboard() {
+  const [liveTime, setLiveTime] = React.useState(new Date());
+
+  React.useEffect(() => {
+    const timer = setInterval(() => setLiveTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
