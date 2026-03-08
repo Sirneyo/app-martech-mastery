@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
     if (resendKey) {
       const resend = new Resend(resendKey);
       const emailResult = await resend.emails.send({
-        from: 'MarTech Mastery <noreply@martech-mastery.com>',
+        from: 'MarTech Mastery <noreply@app.martech-mastery.com>',
         to: student_email,
         subject: `🎉 Welcome to MarTech Mastery Matrix!`,
         html: `

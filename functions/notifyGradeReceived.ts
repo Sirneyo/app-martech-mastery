@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
     if (resendKey && student.email) {
       const resend = new Resend(resendKey);
       const emailResult = await resend.emails.send({
-        from: 'MarTech Mastery <noreply@martech-mastery.com>',
+        from: 'MarTech Mastery <noreply@app.martech-mastery.com>',
         to: student.email,
         subject: `${emoji} Your ${kindLabel} has been graded — ${rubric_grade}`,
         html: `

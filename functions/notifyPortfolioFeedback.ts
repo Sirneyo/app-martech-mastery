@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
     if (resendKey && student?.email) {
       const resend = new Resend(resendKey);
       const emailResult = await resend.emails.send({
-        from: 'MarTech Mastery <noreply@martech-mastery.com>',
+        from: 'MarTech Mastery <noreply@app.martech-mastery.com>',
         to: student.email,
         subject: isApproved ? `✅ Portfolio Item Approved — ${itemTitle}` : `📝 Portfolio Revision Needed — ${itemTitle}`,
         html: `
