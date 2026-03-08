@@ -180,7 +180,7 @@ export default function AdminStudents() {
                       </div>
                       <div className="text-center" style={{ userSelect: 'none' }}>
                         <p className="text-slate-400 text-xs mb-1">Points</p>
-                        <span className="font-bold text-violet-600" style={{ filter: 'blur(6px)', userSelect: 'none' }}>{points}</span>
+                        <span className="font-bold text-violet-600">{points}</span>
                       </div>
                       <div className="text-center">
                         <p className="text-slate-400 text-xs mb-1">Status</p>
