@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(30,45,90,0.10);">
             <!-- Header -->
-            <div style="background: linear-gradient(135deg, #d7dae1ff 0%, rgba(167, 222, 236, 1)ff 100%); padding: 32px 40px; text-align: center;">
+            <div style="background: linear-gradient(135deg, #2c67efff 0%, rgba(167, 222, 236, 1)ff 100%); padding: 32px 40px; text-align: center;">
               <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/5875581de_Fulllogo.png" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto;" />
             </div>
 
