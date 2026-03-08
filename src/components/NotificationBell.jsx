@@ -63,6 +63,15 @@ export default function NotificationBell() {
     },
   });
 
+  const clearAllMutation = useMutation({
+    mutationFn: async () => {
+      await Promise.all(notifications.map(n => base44.entities.Notification.delete(n.id)));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   const getNotificationIcon = (type) => {
