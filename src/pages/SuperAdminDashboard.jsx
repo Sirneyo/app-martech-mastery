@@ -219,7 +219,7 @@ export default function SuperAdminDashboard() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => { sessionStorage.setItem('superAdminViewAs', 'admin'); navigate(createPageUrl('AdminDashboard')); }}
+              onClick={() => navigate(createPageUrl('AdminDashboard'))}
               className="border-orange-200 text-orange-700 hover:bg-orange-50"
             >
               View as Admin
