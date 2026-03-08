@@ -440,13 +440,25 @@ export default function SuperAdminDashboard() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Reason *</Label>
+              <Label>Reason (internal) *</Label>
               <Textarea
                 value={adjustReason}
                 onChange={(e) => setAdjustReason(e.target.value)}
-                placeholder="Explain the reason for this adjustment..."
-                rows={3}
+                placeholder="Internal reason for this adjustment..."
+                rows={2}
               />
+            </div>
+            <div className="space-y-2">
+              <Label>Student notification message</Label>
+              <Textarea
+                value={adjustMessage}
+                onChange={(e) => setAdjustMessage(e.target.value)}
+                placeholder={`e.g. "Excellent completion of Assignment 3"`}
+                rows={2}
+              />
+              <p className="text-xs text-slate-400">
+                The student will see: "You received {adjustAmount || 'X'} points: {adjustMessage || '…'}"
+              </p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1" onClick={() => setAdjustDialogOpen(false)}>
