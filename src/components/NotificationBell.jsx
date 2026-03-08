@@ -171,16 +171,28 @@ export default function NotificationBell() {
                   <h3 className="font-bold text-slate-900">Notifications</h3>
                   <p className="text-xs text-slate-500">{unreadCount} unread</p>
                 </div>
-                {unreadCount > 0 && (
-                  <Button
-                    onClick={() => markAllAsReadMutation.mutate()}
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs"
-                  >
-                    Mark all read
-                  </Button>
-                )}
+                <div className="flex items-center gap-1">
+                  {unreadCount > 0 && (
+                    <Button
+                      onClick={() => markAllAsReadMutation.mutate()}
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs"
+                    >
+                      Mark all read
+                    </Button>
+                  )}
+                  {notifications.length > 0 && (
+                    <Button
+                      onClick={() => clearAllMutation.mutate()}
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-red-500 hover:text-red-600 hover:bg-red-50"
+                    >
+                      Clear all
+                    </Button>
+                  )}
+                </div>
               </div>
 
               <div className="max-h-[500px] overflow-y-auto">
