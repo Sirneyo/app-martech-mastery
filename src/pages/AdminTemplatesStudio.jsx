@@ -83,7 +83,7 @@ export default function AdminTemplatesStudio() {
     },
   });
 
-  if (user?.app_role !== 'admin' && user?.app_role !== 'super_admin') {
+  if (!['admin', 'super_admin'].includes(user?.app_role)) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <p className="text-slate-500">Access restricted to administrators</p>
