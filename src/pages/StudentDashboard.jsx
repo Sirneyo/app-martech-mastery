@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
-import { format, differenceInWeeks, isBefore, isAfter, isWithinInterval } from 'date-fns';
+import { format, differenceInWeeks, differenceInDays, isAfter, isWithinInterval } from 'date-fns';
 
 export default function StudentDashboard() {
   const { data: user } = useQuery({
