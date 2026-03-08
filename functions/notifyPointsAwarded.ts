@@ -70,6 +70,14 @@ Deno.serve(async (req) => {
       message = `Your assignment was submitted after the deadline. ${points} points deducted.`;
       type = 'points_deducted';
       link = `/StudentAssignments`;
+    } else if (notification_message) {
+      const absPoints = Math.abs(points);
+      title = isGain ? `🌟 +${absPoints} Points Awarded` : `⚠️ ${absPoints} Points Deducted`;
+      message = isGain
+        ? `You received ${absPoints} points: ${notification_message}`
+        : `${absPoints} points were deducted: ${notification_message}`;
+      type = isGain ? 'points_awarded' : 'points_deducted';
+      link = `/StudentDashboard`;
     } else {
       title = isGain ? `🌟 +${points} Points Earned` : `⚠️ ${points} Points Deducted`;
       message = `Your points balance has been updated by ${isGain ? '+' : ''}${points} points.`;
