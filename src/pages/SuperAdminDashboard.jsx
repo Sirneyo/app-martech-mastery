@@ -95,15 +95,20 @@ export default function SuperAdminDashboard() {
   });
 
   const reviewDeletionMutation = useMutation({
-    mutationFn: ({ id, status, note }) =>
-      base44.entities.UserDeletionRequest.update(id, {
+    mutationFn: async ({ id, status, note, targetUserId }) => {
+      await base44.entities.UserDeletionRequest.update(id, {
         status,
         reviewed_by_id: currentUser?.id,
         reviewed_at: new Date().toISOString(),
         review_note: note,
-      }),
+      });
+      if (status === 'approved' && targetUserId) {
+        await base44.entities.User.delete(targetUserId);
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['deletion-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['super-admin-users'] });
       setReviewDialogOpen(false);
       setReviewTarget(null);
       setReviewNote('');
