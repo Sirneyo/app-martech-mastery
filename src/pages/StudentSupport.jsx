@@ -50,6 +50,7 @@ export default function StudentSupport() {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [form, setForm] = useState({ subject: '', description: '', priority: 'medium' });
   const [submitted, setSubmitted] = useState(false);
+  const [replyText, setReplyText] = useState('');
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({

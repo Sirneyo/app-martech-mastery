@@ -248,6 +248,17 @@ export default function TutorDashboard() {
               <p className="text-sm text-slate-500">{portfolioReviews?.length || 0} pending</p>
             </div>
           </Link>
+
+          <Link
+            to={createPageUrl('AdminSupportTickets')}
+            className="flex items-center gap-3 p-4 rounded-xl border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition-all group"
+          >
+            <Ticket className="w-8 h-8 text-blue-600" />
+            <div>
+              <h3 className="font-bold text-slate-900">Support Tickets</h3>
+              <p className="text-sm text-slate-500">View & respond to tickets</p>
+            </div>
+          </Link>
         </div>
       </motion.div>
 
