@@ -116,7 +116,7 @@ export default function SuperAdminDashboard() {
   });
 
   const deleteUserMutation = useMutation({
-    mutationFn: (userId) => base44.asServiceRole.entities.User.delete(userId),
+    mutationFn: (userId) => base44.functions.invoke('deleteUserById', { userId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['super-admin-users'] });
       setDeleteConfirmOpen(false);
