@@ -103,7 +103,7 @@ export default function SuperAdminDashboard() {
         review_note: note,
       });
       if (status === 'approved' && targetUserId) {
-        await base44.entities.User.delete(targetUserId);
+        await base44.functions.invoke('deleteUserById', { userId: targetUserId });
       }
     },
     onSuccess: () => {
