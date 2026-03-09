@@ -21,7 +21,10 @@ export default function AdminSubmissions() {
 
   const { data: users = [] } = useQuery({
     queryKey: ['all-users'],
-    queryFn: () => base44.entities.User.list(),
+    queryFn: async () => {
+      const res = await base44.functions.invoke('getSuperAdminUsers', {});
+      return res.data?.users || [];
+    },
   });
 
   const { data: cohorts = [] } = useQuery({
