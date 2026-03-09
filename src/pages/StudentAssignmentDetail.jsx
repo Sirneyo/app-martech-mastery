@@ -448,6 +448,25 @@ export default function StudentAssignmentDetail() {
                         </div>
                       )}
 
+                      {evidenceReqs.allow_text && (
+                        <div>
+                          <Label>Notes <span className="text-slate-400 font-normal">(Optional)</span></Label>
+                          <div className="mt-2">
+                            <ReactQuill
+                              ref={quillRef}
+                              value={formData.text_response}
+                              onChange={(value) => setFormData({ ...formData, text_response: value })}
+                              placeholder="Add any notes, insights, or context (optional)..."
+                              readOnly={isReadOnly}
+                              theme="snow"
+                              modules={quillModules}
+                              style={{ height: '75px', marginBottom: '50px' }}
+                              className="bg-white rounded-md"
+                            />
+                          </div>
+                        </div>
+                      )}
+
                       {!isReadOnly && (
                         <div className="flex gap-3 pt-4 border-t border-slate-200">
                           <Button
