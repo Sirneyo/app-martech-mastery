@@ -83,6 +83,7 @@ import MyCertification from './pages/MyCertification';
 import MyPortfolio from './pages/MyPortfolio';
 import MyProjects from './pages/MyProjects';
 import RoleRedirect from './pages/RoleRedirect';
+import StaffSupport from './pages/StaffSupport';
 import StudentAITools from './pages/StudentAITools';
 import StudentAssignmentDetail from './pages/StudentAssignmentDetail';
 import StudentAssignments from './pages/StudentAssignments';
@@ -112,7 +113,6 @@ import TutorProfile from './pages/TutorProfile';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorQuizGrading from './pages/TutorQuizGrading';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import StaffSupport from './pages/StaffSupport';
 import __Layout from './Layout.jsx';
 
 
@@ -153,6 +153,7 @@ export const PAGES = {
     "MyPortfolio": MyPortfolio,
     "MyProjects": MyProjects,
     "RoleRedirect": RoleRedirect,
+    "StaffSupport": StaffSupport,
     "StudentAITools": StudentAITools,
     "StudentAssignmentDetail": StudentAssignmentDetail,
     "StudentAssignments": StudentAssignments,
@@ -182,7 +183,6 @@ export const PAGES = {
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorQuizGrading": TutorQuizGrading,
     "TutorSubmissionReview": TutorSubmissionReview,
-    "StaffSupport": StaffSupport,
 }
 
 export const pagesConfig = {

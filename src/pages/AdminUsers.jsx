@@ -121,7 +121,7 @@ export default function AdminUsers() {
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: ({ userId, data }) => base44.entities.User.update(userId, data),
+    mutationFn: ({ userId, data }) => base44.functions.invoke('updateUserRole', { target_user_id: userId, ...data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
