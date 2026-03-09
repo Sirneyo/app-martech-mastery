@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
         subject: `✅ ${kindLabel} Submitted — ${itemTitle}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(30,45,90,0.10);">
-            <div style="background: linear-gradient(135deg, #1a2d5a 0%, #2a3f7a 100%); padding: 32px 40px; text-align: center;">
+            <div style="background: #9dc6f0; padding: 32px 40px; text-align: center;">
               <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/5875581de_Fulllogo.png" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto;" />
             </div>
             <div style="padding: 40px 40px 32px;">
@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
             subject: `📥 New ${kindLabel} Submission — ${student.full_name}`,
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(30,45,90,0.10);">
-                <div style="background: linear-gradient(135deg, #1a2d5a 0%, #2a3f7a 100%); padding: 32px 40px; text-align: center;">
+                <div style="background: #9dc6f0; padding: 32px 40px; text-align: center;">
                   <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/5875581de_Fulllogo.png" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto;" />
                 </div>
                 <div style="padding: 40px 40px 32px;">

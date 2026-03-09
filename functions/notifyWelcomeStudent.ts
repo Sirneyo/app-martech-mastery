@@ -28,7 +28,11 @@ Deno.serve(async (req) => {
         to: student_email,
         subject: `🎉 Welcome to MarTech Mastery Matrix!`,
         html: `
-          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 12px;">
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(30,45,90,0.10);">
+            <div style="background: #9dc6f0; padding: 32px 40px; text-align: center;">
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/5875581de_Fulllogo.png" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto;" />
+            </div>
+            <div style="padding: 40px 40px 32px;">
             <h1 style="color:#1e293b; margin-bottom: 8px;">Welcome, ${student_name || 'there'}! 🎉</h1>
             <p style="color:#475569; font-size:16px; line-height:1.6;">
               Your MarTech Mastery Matrix account has been successfully created. You're all set to begin your certification journey!
@@ -48,6 +52,10 @@ Deno.serve(async (req) => {
             <p style="color:#94a3b8; font-size:12px; margin-top:32px;">
               MarTech Mastery Matrix Program · You're receiving this because you accepted an invitation.
             </p>
+            </div>
+            <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px 40px; text-align: center;">
+              <p style="color: #cbd5e1; font-size: 11px; margin: 0;">© MarTech Mastery by OAD Solutions</p>
+            </div>
           </div>
         `
       });
