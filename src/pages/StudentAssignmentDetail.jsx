@@ -395,25 +395,6 @@ export default function StudentAssignmentDetail() {
                     )}
 
                     <div className="space-y-6">
-                      {evidenceReqs.allow_text && (
-                        <div>
-                          <Label>Notes <span className="text-slate-400 font-normal">(Optional)</span></Label>
-                          <div className="mt-2">
-                            <ReactQuill
-                              ref={quillRef}
-                              value={formData.text_response}
-                              onChange={(value) => setFormData({ ...formData, text_response: value })}
-                              placeholder="Add any notes, insights, or context (optional)..."
-                              readOnly={isReadOnly}
-                              theme="snow"
-                              modules={quillModules}
-                              style={{ height: '150px', marginBottom: '50px' }}
-                              className="bg-white rounded-md"
-                            />
-                          </div>
-                        </div>
-                      )}
-
                       {evidenceReqs.allow_link && (
                         <div>
                           <Label>Assignment Link URL <span className="text-red-500">*</span></Label>
