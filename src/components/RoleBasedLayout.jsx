@@ -51,6 +51,24 @@ export default function RoleBasedLayout({ children, currentPageName }) {
       }
 
       setUser(userData);
+
+      // If impersonating, override the 'current-user' query cache so all pages
+      // fetch data for the impersonated user instead of the real super admin
+      const impersonated = (() => {
+        if (userData.app_role !== 'super_admin') return null;
+        try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; }
+      })();
+      if (impersonated) {
+        queryClient.setQueryData(['current-user'], {
+          ...userData,
+          id: impersonated.id,
+          full_name: impersonated.full_name,
+          email: impersonated.email,
+          app_role: impersonated.app_role,
+          _realRole: userData.app_role, // keep real role for banner/access control
+        });
+      }
+
       setLoading(false);
       
       // Track login event in background
