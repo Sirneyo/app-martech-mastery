@@ -31,6 +31,7 @@ export default function StudentGlossary() {
   const markCompleteMutation = useMutation({
     mutationFn: async (itemId) => {
       const existing = progress.find(p => p.glossary_item_id === itemId);
+
       if (existing) {
         return base44.entities.GlossaryProgress.update(existing.id, {
           completed: !existing.completed,
