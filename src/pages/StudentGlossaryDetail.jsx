@@ -113,7 +113,8 @@ export default function StudentGlossaryDetail() {
         )}
         {item.content_html ? (
           <div
-            className="rich-content prose max-w-none text-slate-700"
+            className="ql-editor rich-content"
+            style={{ padding: 0 }}
             dangerouslySetInnerHTML={{ __html: item.content_html }}
           />
         ) : (
