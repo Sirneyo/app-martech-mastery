@@ -49,13 +49,13 @@ Deno.serve(async (req) => {
     if (resendKey && student?.email) {
       const resend = new Resend(resendKey);
       const emailResult = await resend.emails.send({
-        from: 'MarTech Mastery <noreply@app.martech-mastery.com>',
+        from: 'MarTech Mastery <support@app.martech-mastery.com>',
         to: student.email,
         subject: isApproved ? `✅ Portfolio Item Approved — ${itemTitle}` : `📝 Portfolio Revision Needed — ${itemTitle}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(30,45,90,0.10);">
             <div style="background: #9dc6f0; padding: 32px 40px; text-align: center;">
-              <img src="https://app.martech-mastery.com/api/apps/693261f4a46b591b7d38e623/files/public/693261f4a46b591b7d38e623/5875581de_Fulllogo.png" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto;" />
+              <img src="https://res.cloudinary.com/dbckozv27/image/upload/v1773184292/Full_logo_w5hurk.png" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto;" />
             </div>
             <div style="padding: 40px 40px 32px;">
             <h2 style="color:#1e293b; margin-bottom: 8px;">${isApproved ? '✅ Portfolio Item Approved' : '📝 Revision Needed'}</h2>

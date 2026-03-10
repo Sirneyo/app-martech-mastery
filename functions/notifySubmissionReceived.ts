@@ -54,13 +54,13 @@ Deno.serve(async (req) => {
     // ─────────────────────────────────────────────────────────────
     if (resend && student.email) {
       await resend.emails.send({
-        from: 'MarTech Mastery <noreply@app.martech-mastery.com>',
+        from: 'MarTech Mastery <support@app.martech-mastery.com>',
         to: student.email,
         subject: `✅ ${kindLabel} Submitted — ${itemTitle}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(30,45,90,0.10);">
             <div style="background: #9dc6f0; padding: 32px 40px; text-align: center;">
-              <img src="#" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto;" />
+              <img src="https://res.cloudinary.com/dbckozv27/image/upload/v1773184292/Full_logo_w5hurk.png" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto;" />
             </div>
             <div style="padding: 40px 40px 32px;">
               <h2 style="color: #1a2d5a; font-size: 22px; margin: 0 0 8px;">Submission Received ✅</h2>
@@ -93,13 +93,13 @@ Deno.serve(async (req) => {
 
         await Promise.all(tutors.map(tutor =>
           resend.emails.send({
-            from: 'MarTech Mastery <noreply@app.martech-mastery.com>',
+            from: 'MarTech Mastery <support@app.martech-mastery.com>',
             to: tutor.email,
             subject: `📥 New ${kindLabel} Submission — ${student.full_name}`,
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(30,45,90,0.10);">
                 <div style="background: #9dc6f0; padding: 32px 40px; text-align: center;">
-                  <img src="https://app.martech-mastery.com/api/apps/693261f4a46b591b7d38e623/files/public/693261f4a46b591b7d38e623/5875581de_Fulllogo.png" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto;" />
+                  <img src="https://res.cloudinary.com/dbckozv27/image/upload/v1773184292/Full_logo_w5hurk.png" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto;" />
                 </div>
                 <div style="padding: 40px 40px 32px;">
                   <h2 style="color: #1a2d5a; font-size: 22px; margin: 0 0 8px;">New ${kindLabel} to Review 📥</h2>
