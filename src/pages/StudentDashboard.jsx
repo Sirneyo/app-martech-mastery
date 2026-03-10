@@ -13,8 +13,19 @@ import {
   Trophy,
   User,
   Mail,
-  MessageCircle
+  MessageCircle,
+  FileText,
+  ClipboardList,
+  GraduationCap,
+  Video,
+  BarChart2,
+  FolderOpen,
+  Briefcase,
+  Wrench,
+  Library
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { format, differenceInWeeks, differenceInDays, isAfter, isWithinInterval } from 'date-fns';
