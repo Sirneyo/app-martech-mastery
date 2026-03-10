@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
     }
 
     const db = base44.asServiceRole;
-    const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://app.base44.com';
+    const appUrl = 'https://app.martech-mastery.com';
     const resendKey = Deno.env.get('RESEND_API_KEY');
 
     // Send welcome email

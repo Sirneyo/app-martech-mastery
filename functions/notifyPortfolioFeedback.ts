@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     }
 
     const isApproved = newStatus === 'approved';
-    const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://app.base44.com';
+    const appUrl = 'https://app.martech-mastery.com';
 
     // 1. Send email to student
     const resendKey = Deno.env.get('RESEND_API_KEY');

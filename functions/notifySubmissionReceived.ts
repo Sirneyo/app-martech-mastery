@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
       if (templates.length) itemTitle = templates[0].title;
     }
 
-    const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://app.base44.com';
+    const appUrl = 'https://app.martech-mastery.com';
     const resendKey = Deno.env.get('RESEND_API_KEY');
     const resend = resendKey ? new Resend(resendKey) : null;
 

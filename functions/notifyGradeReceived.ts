@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
 
     const gradeEmojis = { Excellent: '🌟', Good: '✅', Fair: '📝', Poor: '⚠️' };
     const emoji = gradeEmojis[rubric_grade] || '📝';
-    const appUrl = Deno.env.get('BASE44_APP_URL') || 'https://app.base44.com';
+    const appUrl = 'https://app.martech-mastery.com';
     const kindLabel = submission.submission_kind === 'project' ? 'Project' : 'Assignment';
 
     // 1. Send email to student
