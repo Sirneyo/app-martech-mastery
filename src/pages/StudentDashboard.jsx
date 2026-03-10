@@ -285,7 +285,7 @@ export default function StudentDashboard() {
               <div className="flex-1 text-center md:text-left">
                 <h2 className="text-4xl font-bold mb-3">Continue Your Learning</h2>
                 <p className="text-white/90 text-lg mb-6">
-                  Access all course materials, videos, and resources on the Growth Academy platform
+                  Access all course materials, videos, and resources.
                 </p>
                 <div className="flex flex-wrap items-center gap-4 text-sm">
                   <span className="flex items-center gap-2">
