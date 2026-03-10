@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
     const emailBody = `
 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
   <div style="background: #9dc6f0; padding: 32px 40px; text-align: center; border-radius: 12px 12px 0 0;">
-    <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/5875581de_Fulllogo.png" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto 12px;" />
+    <img src="https://app.martech-mastery.com/api/apps/693261f4a46b591b7d38e623/files/public/693261f4a46b591b7d38e623/5875581de_Fulllogo.png" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto 12px;" />
     <h2 style="color: #1a2d5a; margin: 0;">New Support Ticket</h2>
   </div>
   <div style="background: #f8fafc; padding: 24px; border-radius: 0 0 12px 12px; border: 1px solid #e2e8f0;">
