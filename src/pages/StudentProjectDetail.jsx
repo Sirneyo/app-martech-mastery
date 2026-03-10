@@ -177,9 +177,18 @@ export default function StudentProjectDetail() {
                 </div>
                 <Badge className="bg-blue-100 text-blue-700">{project.points} points</Badge>
               </div>
-              <p className="text-slate-600 mb-6">{project.description}</p>
+              {project.short_description && (
+                <p className="text-slate-600 mb-6">{project.short_description}</p>
+              )}
+
+              {project.content_html && (
+                <div
+                  className="rich-content mb-6"
+                  dangerouslySetInnerHTML={{ __html: project.content_html }}
+                />
+              )}
               
-              {project.requirements && project.requirements.length > 0 && (
+              {project.requirements && project.requirements.length > 0 && !project.content_html && (
                 <div>
                   <h3 className="font-bold text-slate-900 mb-3">Requirements:</h3>
                   <ul className="space-y-2">
