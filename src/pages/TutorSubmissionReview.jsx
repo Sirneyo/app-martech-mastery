@@ -340,8 +340,8 @@ export default function TutorSubmissionReview() {
                           onClick={() => setRubricGrade(grade)}
                           className={`px-4 py-3 rounded-lg border-2 transition-all font-medium ${
                             rubricGrade === grade
-                              ? 'border-violet-600 bg-violet-50 text-violet-900'
-                              : 'border-slate-200 hover:border-slate-300'
+                              ? 'border-slate-700 bg-slate-100 text-slate-900'
+                              : 'border-slate-200 text-slate-600'
                           }`}
                         >
                           {grade}
@@ -375,7 +375,7 @@ export default function TutorSubmissionReview() {
 
                   <Button
                     onClick={handleSubmitGrade}
-                    className="w-full bg-violet-600 hover:bg-violet-700"
+                    className="w-full bg-slate-900 text-white"
                     disabled={gradeMutation.isPending}
                   >
                     {gradeMutation.isPending ? 'Submitting Grade...' : 'Submit Grade'}
