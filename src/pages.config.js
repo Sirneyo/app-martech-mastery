@@ -115,6 +115,7 @@ import TutorQuizGrading from './pages/TutorQuizGrading';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
 import StudentGlossary from './pages/StudentGlossary';
 import AdminGlossary from './pages/AdminGlossary';
+import StudentGlossaryDetail from './pages/StudentGlossaryDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -187,6 +188,7 @@ export const PAGES = {
     "TutorSubmissionReview": TutorSubmissionReview,
     "StudentGlossary": StudentGlossary,
     "AdminGlossary": AdminGlossary,
+    "StudentGlossaryDetail": StudentGlossaryDetail,
 }
 
 export const pagesConfig = {
