@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { 
   Play, 
   Clock, 
-  TrendingUp, 
   Award, 
   BookOpen,
   ChevronRight,
@@ -13,19 +12,8 @@ import {
   Trophy,
   User,
   Mail,
-  MessageCircle,
-  FileText,
-  ClipboardList,
-  GraduationCap,
-  Video,
-  BarChart2,
-  FolderOpen,
-  Briefcase,
-  Wrench,
-  Library
+  MessageCircle
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { format, differenceInWeeks, differenceInDays, isAfter, isWithinInterval } from 'date-fns';
