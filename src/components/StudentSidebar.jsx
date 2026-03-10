@@ -90,18 +90,14 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
 
     if (isLocked) {
       return (
-        <div
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl opacity-50 cursor-not-allowed ${isCollapsed ? 'justify-center' : ''}`}
-          title={isCollapsed ? `${item.name} (Week ${item.unlock_week})` : `Unlocks at Week ${item.unlock_week}`}
+        <button
+          onClick={() => setLockedItem(item)}
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group text-slate-600 hover:text-slate-900 hover:bg-white/70 ${isCollapsed ? 'justify-center' : ''}`}
+          title={isCollapsed ? item.name : ''}
         >
-          <item.icon className="w-5 h-5 flex-shrink-0 text-slate-400" />
-          {!isCollapsed && (
-            <>
-              <span className="font-medium text-sm flex-1 text-slate-400">{item.name}</span>
-              <Lock className="w-3.5 h-3.5 text-slate-400" />
-            </>
-          )}
-        </div>
+          <item.icon className="w-5 h-5 flex-shrink-0 text-slate-500 group-hover:text-slate-700" />
+          {!isCollapsed && <span className="font-medium text-sm flex-1 text-left">{item.name}</span>}
+        </button>
       );
     }
 
