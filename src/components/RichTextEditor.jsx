@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 import { Button } from '@/components/ui/button';
 import { Code, Eye } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
