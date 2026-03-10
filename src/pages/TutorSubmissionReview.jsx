@@ -21,6 +21,7 @@ export default function TutorSubmissionReview() {
   const [rubricGrade, setRubricGrade] = useState('');
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackUrl, setFeedbackUrl] = useState('');
+  const [showHistory, setShowHistory] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
