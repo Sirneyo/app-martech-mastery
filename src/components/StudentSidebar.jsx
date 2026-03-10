@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/button';
 
 export default function StudentSidebar({ currentPageName, onNavigate }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [lockedItem, setLockedItem] = useState(null);
 
   const { data: settings } = useQuery({
     queryKey: ['app-settings'],
