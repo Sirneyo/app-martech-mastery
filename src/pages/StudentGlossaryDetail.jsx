@@ -120,12 +120,28 @@ export default function StudentGlossaryDetail() {
       </div>
 
       {/* Content */}
+      <style>{`
+        .glossary-content h1 { font-size: 2em !important; font-weight: 700 !important; margin: 0.75em 0 0.5em !important; display: block !important; }
+        .glossary-content h2 { font-size: 1.5em !important; font-weight: 700 !important; margin: 0.75em 0 0.5em !important; display: block !important; }
+        .glossary-content h3 { font-size: 1.25em !important; font-weight: 600 !important; margin: 0.5em 0 0.4em !important; display: block !important; }
+        .glossary-content h4 { font-size: 1em !important; font-weight: 600 !important; margin: 0.5em 0 0.3em !important; display: block !important; }
+        .glossary-content p { margin-bottom: 0.75em; }
+        .glossary-content ul { list-style-type: disc !important; padding-left: 1.5em !important; margin-bottom: 0.75em; }
+        .glossary-content ol { list-style-type: decimal !important; padding-left: 1.5em !important; margin-bottom: 0.75em; }
+        .glossary-content li { display: list-item !important; margin-bottom: 0.25em; }
+        .glossary-content strong { font-weight: 700 !important; }
+        .glossary-content em { font-style: italic !important; }
+        .glossary-content a { color: #7c3aed; text-decoration: underline; }
+        .glossary-content blockquote { border-left: 4px solid #cbd5e1; padding-left: 1em; color: #64748b; margin: 0.75em 0; }
+        .glossary-content pre { background: #1e293b; color: #e2e8f0; padding: 1em; border-radius: 0.5em; overflow-x: auto; margin-bottom: 0.75em; }
+        .glossary-content img { max-width: 100%; height: auto; border-radius: 0.5em; margin: 0.5em 0; }
+      `}</style>
       <div className="max-w-4xl mx-auto px-8 py-8">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-10 py-8">
           {item.content_html ? (
             <div
-              className="ql-editor rich-content"
-              style={{ padding: 0 }}
+              className="glossary-content"
+              style={{ fontSize: '0.95rem', lineHeight: '1.6', color: '#1e293b' }}
               dangerouslySetInnerHTML={{ __html: item.content_html }}
             />
           ) : (
