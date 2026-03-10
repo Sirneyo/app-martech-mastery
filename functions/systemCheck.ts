@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'System Check <noreply@app.martech-mastery.com>',
+          from: 'System Check <support@app.martech-mastery.com>',
           to: ['niyi@oadsolutions.com'],
           subject: `✅ System Check — Email Delivery Test (${new Date().toUTCString()})`,
           html: `
