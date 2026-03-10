@@ -91,14 +91,14 @@ export default function StudentGlossary() {
         )}
         {items.map((item) => {
           const isComplete = completedIds.has(item.id);
-          const isOpen = expandedId === item.id;
 
           return (
-            <div key={item.id} className="bg-white hover:bg-slate-50 transition-colors">
-              <button
-                className="w-full text-left px-8 py-5 flex items-center gap-5"
-                onClick={() => setExpandedId(isOpen ? null : item.id)}
-              >
+            <div
+              key={item.id}
+              className="bg-white hover:bg-slate-50 transition-colors cursor-pointer"
+              onClick={() => navigate(createPageUrl(`StudentGlossaryDetail?id=${item.id}`))}
+            >
+              <div className="px-8 py-5 flex items-center gap-5">
                 {/* Icon */}
                 <div className="flex-shrink-0 text-slate-400">
                   <BookOpen className="w-5 h-5" />
@@ -123,7 +123,7 @@ export default function StudentGlossary() {
                 <div className="flex items-center gap-3 flex-shrink-0">
                   <button
                     onClick={(e) => { e.stopPropagation(); markCompleteMutation.mutate(item.id); }}
-                    className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-green-600 transition-colors"
+                    className="flex items-center gap-1.5 text-sm hover:text-green-600 transition-colors"
                     title={isComplete ? 'Mark incomplete' : 'Mark complete'}
                   >
                     {isComplete
@@ -131,42 +131,9 @@ export default function StudentGlossary() {
                       : <Circle className="w-5 h-5 text-slate-300" />
                     }
                   </button>
-                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
                 </div>
-              </button>
-
-              <AnimatePresence>
-                {isOpen && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-8 pb-8 pt-2">
-                      {item.content_html ? (
-                        <div
-                          className="rich-content prose max-w-none text-slate-700"
-                          dangerouslySetInnerHTML={{ __html: item.content_html }}
-                        />
-                      ) : (
-                        <p className="text-slate-400 italic">No content available.</p>
-                      )}
-                      <div className="mt-5">
-                        <Button
-                          size="sm"
-                          variant={isComplete ? 'outline' : 'default'}
-                          onClick={() => markCompleteMutation.mutate(item.id)}
-                          disabled={markCompleteMutation.isPending}
-                        >
-                          {isComplete ? '✓ Completed' : 'Mark as Complete'}
-                        </Button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              </div>
             </div>
           );
         })}
