@@ -315,10 +315,29 @@ export default function StudentAssignmentDetail() {
                           <CollapsibleContent>
                             <div className="mt-6 pt-6 border-t border-slate-100">
                               {assignment.content_html && (
-                               <div
-                                 className="rich-content mb-6"
-                                 dangerouslySetInnerHTML={{ __html: assignment.content_html }}
-                               />
+                               <>
+                                 <style>{`
+                                   .assignment-brief h1 { font-size: 2em !important; font-weight: 700 !important; margin: 0.75em 0 0.5em !important; display: block !important; }
+                                   .assignment-brief h2 { font-size: 1.5em !important; font-weight: 700 !important; margin: 0.75em 0 0.5em !important; display: block !important; }
+                                   .assignment-brief h3 { font-size: 1.25em !important; font-weight: 600 !important; margin: 0.5em 0 0.4em !important; display: block !important; }
+                                   .assignment-brief h4 { font-size: 1em !important; font-weight: 600 !important; margin: 0.5em 0 0.3em !important; display: block !important; }
+                                   .assignment-brief p { margin-bottom: 0.75em; }
+                                   .assignment-brief ul { list-style-type: disc !important; padding-left: 1.5em !important; margin-bottom: 0.75em; }
+                                   .assignment-brief ol { list-style-type: decimal !important; padding-left: 1.5em !important; margin-bottom: 0.75em; }
+                                   .assignment-brief li { display: list-item !important; margin-bottom: 0.25em; }
+                                   .assignment-brief strong { font-weight: 700 !important; }
+                                   .assignment-brief em { font-style: italic !important; }
+                                   .assignment-brief a { color: #7c3aed; text-decoration: underline; }
+                                   .assignment-brief blockquote { border-left: 4px solid #cbd5e1; padding-left: 1em; color: #64748b; margin: 0.75em 0; }
+                                   .assignment-brief pre { background: #1e293b; color: #e2e8f0; padding: 1em; border-radius: 0.5em; overflow-x: auto; margin-bottom: 0.75em; }
+                                   .assignment-brief img { max-width: 100%; height: auto; border-radius: 0.5em; margin: 0.5em 0; }
+                                 `}</style>
+                                 <div
+                                   className="assignment-brief mb-6"
+                                   style={{ fontSize: '0.95rem', lineHeight: '1.6', color: '#1e293b' }}
+                                   dangerouslySetInnerHTML={{ __html: assignment.content_html }}
+                                 />
+                               </>
                               )}
                               {assignment.audio_files && assignment.audio_files.length > 0 && (
                                <AssignmentAudioPlayer audioFiles={assignment.audio_files} />
