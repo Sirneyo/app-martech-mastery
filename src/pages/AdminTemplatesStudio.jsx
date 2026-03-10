@@ -194,6 +194,7 @@ export default function AdminTemplatesStudio() {
             <TabsTrigger value="assignments">Assignments</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
             <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+            <TabsTrigger value="glossary">Glossary</TabsTrigger>
           </TabsList>
 
           <TabsContent value="assignments" className="space-y-4">
