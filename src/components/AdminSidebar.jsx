@@ -39,6 +39,7 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
 
   const superAdminItems = [
     { name: 'Super Admin', icon: Shield, page: 'SuperAdminDashboard' },
+    { name: 'Media Library', icon: Image, page: 'AdminMediaLibrary' },
     { name: 'Support Tickets', icon: Ticket, page: 'AdminSupportTickets' },
     { name: 'Announcements', icon: Megaphone, page: 'AdminAnnouncements' },
   ];
