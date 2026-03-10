@@ -98,32 +98,40 @@ export default function StudentGlossaryDetail() {
         </Button>
       </div>
 
-      {/* Banner */}
-      {(item.banner_url || item.thumbnail_url) && (
-        <div className="w-full">
-          <img
-            src={item.banner_url || item.thumbnail_url}
-            alt={item.title}
-            className="w-full max-h-72 object-cover"
-          />
+      {/* Hero Section */}
+      <div className="max-w-4xl mx-auto px-8 pt-10 pb-0">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          {(item.banner_url || item.thumbnail_url) && (
+            <div className="w-full bg-slate-100">
+              <img
+                src={item.banner_url || item.thumbnail_url}
+                alt={item.title}
+                className="w-full h-64 object-cover"
+              />
+            </div>
+          )}
+          <div className="px-10 py-8 border-b border-slate-100">
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-3">{item.title}</h1>
+            {item.short_description && (
+              <p className="text-slate-500 text-base leading-relaxed">{item.short_description}</p>
+            )}
+          </div>
         </div>
-      )}
+      </div>
 
       {/* Content */}
-      <div className="max-w-3xl mx-auto px-8 py-10">
-        <h1 className="text-3xl font-bold text-slate-900 mb-3">{item.title}</h1>
-        {item.short_description && (
-          <p className="text-slate-500 text-base mb-8 border-b border-slate-100 pb-8">{item.short_description}</p>
-        )}
-        {item.content_html ? (
-          <div
-            className="ql-editor rich-content"
-            style={{ padding: 0 }}
-            dangerouslySetInnerHTML={{ __html: item.content_html }}
-          />
-        ) : (
-          <p className="text-slate-400 italic">No content available.</p>
-        )}
+      <div className="max-w-4xl mx-auto px-8 py-8">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-10 py-8">
+          {item.content_html ? (
+            <div
+              className="ql-editor rich-content"
+              style={{ padding: 0 }}
+              dangerouslySetInnerHTML={{ __html: item.content_html }}
+            />
+          ) : (
+            <p className="text-slate-400 italic">No content available.</p>
+          )}
+        </div>
       </div>
     </div>
   );
