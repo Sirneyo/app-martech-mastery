@@ -4,7 +4,7 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle2, Circle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 
 export default function StudentGlossaryDetail() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -93,7 +93,7 @@ export default function StudentGlossaryDetail() {
         >
           {isComplete
             ? <><CheckCircle2 className="w-4 h-4 text-green-500" /> Completed</>
-            : <><Circle className="w-4 h-4" /> Mark as Complete</>
+            : <><CheckCircle2 className="w-4 h-4" /> Mark as Complete</>
           }
         </Button>
       </div>
