@@ -133,6 +133,22 @@ export default function StudentGlossaryDetail() {
           )}
         </div>
       </div>
+
+      {/* Bottom complete button */}
+      <div className="max-w-4xl mx-auto px-8 pb-12 flex justify-center">
+        <Button
+          size="lg"
+          variant={isComplete ? 'outline' : 'default'}
+          onClick={() => markCompleteMutation.mutate()}
+          disabled={markCompleteMutation.isPending}
+          className="gap-2 px-8"
+        >
+          {isComplete
+            ? <><CheckCircle2 className="w-5 h-5 text-green-500" /> Completed</>
+            : <><CheckCircle2 className="w-5 h-5" /> Mark as Complete</>
+          }
+        </Button>
+      </div>
     </div>
   );
 }

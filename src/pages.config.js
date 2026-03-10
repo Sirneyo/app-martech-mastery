@@ -59,6 +59,7 @@ import AdminExamBankImport from './pages/AdminExamBankImport';
 import AdminExamDetail from './pages/AdminExamDetail';
 import AdminExams from './pages/AdminExams';
 import AdminGlossary from './pages/AdminGlossary';
+import AdminMediaLibrary from './pages/AdminMediaLibrary';
 import AdminOverview from './pages/AdminOverview';
 import AdminPortfolio from './pages/AdminPortfolio';
 import AdminProfile from './pages/AdminProfile';
@@ -116,7 +117,6 @@ import TutorProfile from './pages/TutorProfile';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorQuizGrading from './pages/TutorQuizGrading';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import AdminMediaLibrary from './pages/AdminMediaLibrary';
 import __Layout from './Layout.jsx';
 
 
@@ -133,6 +133,7 @@ export const PAGES = {
     "AdminExamDetail": AdminExamDetail,
     "AdminExams": AdminExams,
     "AdminGlossary": AdminGlossary,
+    "AdminMediaLibrary": AdminMediaLibrary,
     "AdminOverview": AdminOverview,
     "AdminPortfolio": AdminPortfolio,
     "AdminProfile": AdminProfile,
@@ -190,7 +191,6 @@ export const PAGES = {
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorQuizGrading": TutorQuizGrading,
     "TutorSubmissionReview": TutorSubmissionReview,
-    "AdminMediaLibrary": AdminMediaLibrary,
 }
 
 export const pagesConfig = {
