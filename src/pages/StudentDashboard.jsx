@@ -322,6 +322,72 @@ export default function StudentDashboard() {
         </a>
       </motion.div>
 
+      {/* Two sections: MarTech Mastery Certification & Career Acceleration */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.18 }}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
+      >
+        {/* Section 1: MarTech Mastery Certification */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/50">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-violet-500 flex items-center justify-center">
+              <GraduationCap className="w-5 h-5 text-white" />
+            </div>
+            <h3 className="font-bold text-slate-900 text-base">MarTech Mastery Certification</h3>
+          </div>
+          <div className="space-y-2">
+            {[
+              { label: 'Glossary', icon: Library, page: 'StudentAssignments', external: null },
+              { label: 'Assignments', icon: ClipboardList, page: 'StudentAssignments', external: null },
+              { label: 'Certification Exams', icon: Award, page: 'StudentCertification', external: null },
+              { label: 'Videos & Live Sessions', icon: Video, page: null, external: settings?.kajabi_url || 'https://www.the-growth-academy.co/library' },
+              { label: 'Marketo', icon: BarChart2, page: 'MarketoAccess', external: null },
+            ].map(({ label, icon: Icon, page, external }) => {
+              const cls = "flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 hover:bg-purple-50 hover:border-purple-200 border border-slate-200 transition-all duration-200 group";
+              const inner = (
+                <>
+                  <Icon className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                  <span className="text-sm font-medium text-slate-700 group-hover:text-purple-800 flex-1">{label}</span>
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-purple-500" />
+                </>
+              );
+              if (external) return <a key={label} href={external} target="_blank" rel="noopener noreferrer" className={cls}>{inner}</a>;
+              return <Link key={label} to={createPageUrl(page)} className={cls}>{inner}</Link>;
+            })}
+          </div>
+        </div>
+
+        {/* Section 2: Career Acceleration */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/50">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+              <Target className="w-5 h-5 text-white" />
+            </div>
+            <h3 className="font-bold text-slate-900 text-base">Career Acceleration</h3>
+          </div>
+          <div className="space-y-2">
+            {[
+              { label: 'Projects', icon: FolderOpen, page: 'StudentProjects' },
+              { label: 'Portfolio', icon: Briefcase, page: 'StudentPortfolio' },
+              { label: 'AI Tools', icon: Zap, page: 'StudentAITools' },
+              { label: 'Resources', icon: BookOpen, page: 'StudentAssignments' },
+            ].map(({ label, icon: Icon, page }) => (
+              <Link
+                key={label}
+                to={createPageUrl(page)}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 hover:bg-orange-50 hover:border-orange-200 border border-slate-200 transition-all duration-200 group"
+              >
+                <Icon className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                <span className="text-sm font-medium text-slate-700 group-hover:text-orange-800 flex-1">{label}</span>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-orange-500" />
+              </Link>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
