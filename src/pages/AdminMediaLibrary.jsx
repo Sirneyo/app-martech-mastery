@@ -48,7 +48,8 @@ export default function AdminMediaLibrary() {
         : file.type.startsWith('video/')
         ? 'video'
         : 'other';
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url: raw_url } = await base44.integrations.Core.UploadFile({ file });
+      const file_url = raw_url.replace('https://base44.app', 'https://app.martech-mastery.com');
       await base44.entities.MediaFile.create({
         name: file.name,
         file_url,
