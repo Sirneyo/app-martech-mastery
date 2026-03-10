@@ -315,6 +315,9 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
                 {!isCollapsed && <span className="font-medium text-sm flex-1">Marketo</span>}
               </Link>
             )}
+
+            {/* Certification Exams */}
+            <NavLink item={{ name: 'Certification Exams', icon: Award, page: 'StudentCertification' }} />
           </div>
         </div>
 
