@@ -228,7 +228,28 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
         </div>
 
         {/* Section 1: MarTech Mastery Certification */}
-        <div className="px-4 pb-2">
+        <div className="px-4 pb-2 mt-4 border-t border-slate-300 pt-4">
+          <div className="space-y-1 mb-3">
+            <Link
+              to={createPageUrl('StudentDashboard')}
+              onClick={onNavigate}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
+                currentPageName === 'StudentDashboard' ? 'bg-orange-500/10 text-orange-600' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
+              } ${isCollapsed ? 'justify-center' : ''}`}
+              title={isCollapsed ? 'Dashboard' : ''}
+            >
+              <LayoutDashboard className={`w-5 h-5 flex-shrink-0 ${currentPageName === 'StudentDashboard' ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
+              {!isCollapsed && <span className="font-medium text-sm flex-1">Dashboard</span>}
+              {currentPageName === 'StudentDashboard' && !isCollapsed && (
+                <motion.div layoutId="activeIndicator" className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-600" />
+              )}
+            </Link>
+          </div>
+          {!isCollapsed && (
+            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
+              MarTech Mastery Certification
+            </p>
+          )}
           {!isCollapsed && (
             <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
               MarTech Mastery Certification
