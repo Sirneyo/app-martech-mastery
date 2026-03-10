@@ -25,9 +25,12 @@ export default function RoleBasedLayout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // User-level impersonation (View as User feature)
+  // User-level impersonation — only honoured if the real logged-in user is a super_admin
   const impersonatingUser = (() => {
-    try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; }
+    try {
+      const stored = JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null');
+      return (user?.app_role === 'super_admin' && stored) ? stored : null;
+    } catch { return null; }
   })();
 
   // For super admins, infer from page name first; fall back to sessionStorage for mixed pages
