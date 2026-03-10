@@ -7,7 +7,7 @@ import { CheckCircle2, Circle, BookOpen, ChevronRight } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 export default function StudentGlossary() {
-  const [expandedId, setExpandedId] = useState(null);
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { data: currentUser } = useQuery({
