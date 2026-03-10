@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Coins, Trash2, CheckCircle, XCircle, Search, Plus, Minus, Users, AlertTriangle, Eye, Activity } from 'lucide-react';
+import { Shield, Coins, Trash2, CheckCircle, XCircle, Search, Plus, Minus, Users, AlertTriangle, Eye, Activity, UserCheck } from 'lucide-react';
 import SystemCheckPanel from '@/components/SystemCheckPanel';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -40,6 +40,10 @@ export default function SuperAdminDashboard() {
   // Points breakdown state
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  // View as User state
+  const [viewAsSearch, setViewAsSearch] = useState('');
+  const [auditLogs, setAuditLogs] = useState([]);
 
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
@@ -78,6 +82,12 @@ export default function SuperAdminDashboard() {
     u.full_name?.toLowerCase().includes(pointsSearchTerm.toLowerCase()) ||
     u.email?.toLowerCase().includes(pointsSearchTerm.toLowerCase())
   ).filter(u => u.app_role === 'student');
+
+  const filteredViewAsUsers = users.filter(u =>
+    !viewAsSearch ||
+    u.full_name?.toLowerCase().includes(viewAsSearch.toLowerCase()) ||
+    u.email?.toLowerCase().includes(viewAsSearch.toLowerCase())
+  ).filter(u => u.id !== currentUser?.id);
 
   const pendingDeletions = deletionRequests.filter(r => r.status === 'pending');
   const resolvedDeletions = deletionRequests.filter(r => r.status !== 'pending');
@@ -167,6 +177,38 @@ export default function SuperAdminDashboard() {
   const openBreakdown = (user) => {
     setSelectedUser(user);
     setBreakdownOpen(true);
+  };
+
+  const handleImpersonate = async (targetUser) => {
+    // Log to AdminAuditLog
+    await base44.entities.AdminAuditLog.create({
+      action: 'impersonate_start',
+      admin_id: currentUser?.id,
+      admin_name: currentUser?.full_name || currentUser?.email,
+      target_user_id: targetUser.id,
+      target_user_name: targetUser.full_name,
+      target_user_email: targetUser.email,
+      target_user_role: targetUser.app_role,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Store impersonation data in sessionStorage
+    sessionStorage.setItem('impersonatingUser', JSON.stringify({
+      id: targetUser.id,
+      full_name: targetUser.full_name,
+      email: targetUser.email,
+      app_role: targetUser.app_role,
+    }));
+
+    // Navigate to the appropriate dashboard for that role
+    const rolePageMap = {
+      student: 'StudentDashboard',
+      tutor: 'TutorDashboard',
+      admin: 'AdminDashboard',
+      super_admin: 'SuperAdminDashboard',
+    };
+    const page = rolePageMap[targetUser.app_role] || 'StudentDashboard';
+    navigate(createPageUrl(page));
   };
 
   if (currentUser && currentUser.app_role !== 'super_admin') {
@@ -277,6 +319,9 @@ export default function SuperAdminDashboard() {
               {pendingDeletions.length > 0 && (
                 <Badge className="bg-red-500 text-white text-xs ml-1">{pendingDeletions.length}</Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="viewas" className="flex items-center gap-2">
+              <UserCheck className="w-4 h-4" /> View as User
             </TabsTrigger>
             <TabsTrigger value="systemcheck" className="flex items-center gap-2">
               <Activity className="w-4 h-4" /> System Check
@@ -424,6 +469,75 @@ export default function SuperAdminDashboard() {
                 <p>No deletion requests yet</p>
               </div>
             )}
+          </TabsContent>
+
+          {/* View as User Tab */}
+          <TabsContent value="viewas" className="space-y-4 mt-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+              <Eye className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-amber-800">Impersonation Mode</p>
+                <p className="text-sm text-amber-700 mt-0.5">
+                  Clicking a user will switch your view to see the app exactly as they see it. A banner will be shown so you always know you're in impersonation mode. Click "Exit" in the banner to return here.
+                </p>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                <Input
+                  placeholder="Search users by name or email..."
+                  value={viewAsSearch}
+                  onChange={(e) => setViewAsSearch(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200">
+                    <th className="text-left p-4 font-semibold text-slate-700">Name</th>
+                    <th className="text-left p-4 font-semibold text-slate-700">Email</th>
+                    <th className="text-left p-4 font-semibold text-slate-700">Role</th>
+                    <th className="text-left p-4 font-semibold text-slate-700">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredViewAsUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className="p-8 text-center text-slate-500">No users found</td>
+                    </tr>
+                  ) : (
+                    filteredViewAsUsers.map(user => (
+                      <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50">
+                        <td className="p-4 font-medium text-slate-900">{user.full_name}</td>
+                        <td className="p-4 text-slate-600 text-sm">{user.email}</td>
+                        <td className="p-4">
+                          <Badge className={
+                            user.app_role === 'super_admin' ? 'bg-violet-100 text-violet-700' :
+                            user.app_role === 'admin' ? 'bg-orange-100 text-orange-700' :
+                            user.app_role === 'tutor' ? 'bg-emerald-100 text-emerald-700' :
+                            'bg-blue-100 text-blue-700'
+                          }>
+                            {user.app_role || 'student'}
+                          </Badge>
+                        </td>
+                        <td className="p-4">
+                          <Button
+                            size="sm"
+                            className="bg-violet-600 hover:bg-violet-700 text-white"
+                            onClick={() => handleImpersonate(user)}
+                          >
+                            <Eye className="w-3 h-3 mr-1" /> View as User
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </TabsContent>
 
           {/* System Check Tab */}
