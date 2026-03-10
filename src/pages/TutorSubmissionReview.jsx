@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, User, Calendar, FileText, Link as LinkIcon, Download } from 'lucide-react';
+import { ArrowLeft, User, Calendar, Link as LinkIcon, Download, History, ChevronDown, ChevronUp, Video } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 

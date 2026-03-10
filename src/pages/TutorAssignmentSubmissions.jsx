@@ -53,7 +53,7 @@ export default function TutorAssignmentSubmissions() {
         }
       }
       
-      return filtered.sort((a, b) => new Date(a.submitted_date) - new Date(b.submitted_date));
+      return filtered.sort((a, b) => new Date(b.submitted_date) - new Date(a.submitted_date));
     },
     enabled: cohortIds.length > 0,
   });
