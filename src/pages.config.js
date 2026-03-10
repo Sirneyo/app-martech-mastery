@@ -58,6 +58,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminExamBankImport from './pages/AdminExamBankImport';
 import AdminExamDetail from './pages/AdminExamDetail';
 import AdminExams from './pages/AdminExams';
+import AdminGlossary from './pages/AdminGlossary';
 import AdminOverview from './pages/AdminOverview';
 import AdminPortfolio from './pages/AdminPortfolio';
 import AdminProfile from './pages/AdminProfile';
@@ -95,6 +96,8 @@ import StudentCertificationReady from './pages/StudentCertificationReady';
 import StudentCertificationResults from './pages/StudentCertificationResults';
 import StudentCertificationReview from './pages/StudentCertificationReview';
 import StudentDashboard from './pages/StudentDashboard';
+import StudentGlossary from './pages/StudentGlossary';
+import StudentGlossaryDetail from './pages/StudentGlossaryDetail';
 import StudentPortfolio from './pages/StudentPortfolio';
 import StudentPortfolioItemDetail from './pages/StudentPortfolioItemDetail';
 import StudentProfile from './pages/StudentProfile';
@@ -113,9 +116,7 @@ import TutorProfile from './pages/TutorProfile';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorQuizGrading from './pages/TutorQuizGrading';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import StudentGlossary from './pages/StudentGlossary';
-import AdminGlossary from './pages/AdminGlossary';
-import StudentGlossaryDetail from './pages/StudentGlossaryDetail';
+import AdminMediaLibrary from './pages/AdminMediaLibrary';
 import __Layout from './Layout.jsx';
 
 
@@ -131,6 +132,7 @@ export const PAGES = {
     "AdminExamBankImport": AdminExamBankImport,
     "AdminExamDetail": AdminExamDetail,
     "AdminExams": AdminExams,
+    "AdminGlossary": AdminGlossary,
     "AdminOverview": AdminOverview,
     "AdminPortfolio": AdminPortfolio,
     "AdminProfile": AdminProfile,
@@ -168,6 +170,8 @@ export const PAGES = {
     "StudentCertificationResults": StudentCertificationResults,
     "StudentCertificationReview": StudentCertificationReview,
     "StudentDashboard": StudentDashboard,
+    "StudentGlossary": StudentGlossary,
+    "StudentGlossaryDetail": StudentGlossaryDetail,
     "StudentPortfolio": StudentPortfolio,
     "StudentPortfolioItemDetail": StudentPortfolioItemDetail,
     "StudentProfile": StudentProfile,
@@ -186,9 +190,7 @@ export const PAGES = {
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorQuizGrading": TutorQuizGrading,
     "TutorSubmissionReview": TutorSubmissionReview,
-    "StudentGlossary": StudentGlossary,
-    "AdminGlossary": AdminGlossary,
-    "StudentGlossaryDetail": StudentGlossaryDetail,
+    "AdminMediaLibrary": AdminMediaLibrary,
 }
 
 export const pagesConfig = {
