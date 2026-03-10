@@ -201,7 +201,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
               }}
               className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-md font-medium transition-colors whitespace-nowrap ml-4"
             >
-              Exit Impersonation →
+              Exit
             </button>
           </div>
         ) : isSuperAdminViewing && (
