@@ -68,8 +68,10 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
     return new Date() < unlockTime;
   })();
 
+  const currentWeek = cohort?.current_week || 0;
+
   const certItems = [
-    { name: 'Glossary', icon: Library, page: 'StudentAssignments' },
+    { name: 'Glossary', icon: Library, page: 'StudentAssignments', unlock_week: 8 },
     { name: 'Assignments', icon: ClipboardList, page: 'StudentAssignments' },
     { name: 'Certification Exams', icon: Award, page: 'StudentCertification' },
   ];
@@ -78,7 +80,7 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
     { name: 'Projects', icon: FolderOpen, page: 'StudentProjects' },
     { name: 'Portfolio', icon: Briefcase, page: 'StudentPortfolio' },
     { name: 'AI Tools', icon: Zap, page: 'StudentAITools' },
-    { name: 'Resources', icon: BookOpen, page: 'StudentAssignments' },
+    { name: 'Resources', icon: BookOpen, page: 'StudentAssignments', unlock_week: 8 },
   ];
 
   const NavLink = ({ item }) => {
