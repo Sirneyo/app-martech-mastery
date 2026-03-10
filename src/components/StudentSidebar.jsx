@@ -135,24 +135,6 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
       </Button>
 
       <div className="flex-1 overflow-y-auto">
-        {/* Dashboard */}
-        <div className="p-4">
-          <Link
-            to={createPageUrl('StudentDashboard')}
-            onClick={onNavigate}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
-              currentPageName === 'StudentDashboard' ? 'bg-orange-500/10 text-orange-600' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
-            } ${isCollapsed ? 'justify-center' : ''}`}
-            title={isCollapsed ? 'Dashboard' : ''}
-          >
-            <LayoutDashboard className={`w-5 h-5 flex-shrink-0 ${currentPageName === 'StudentDashboard' ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
-            {!isCollapsed && <span className="font-medium text-sm flex-1">Dashboard</span>}
-            {currentPageName === 'StudentDashboard' && !isCollapsed && (
-              <motion.div layoutId="activeIndicator" className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-600" />
-            )}
-          </Link>
-        </div>
-
         {/* Tools section (original) */}
         <div className="px-4 pb-2 border-t border-slate-300 pt-4">
           {!isCollapsed && (
