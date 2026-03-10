@@ -86,7 +86,7 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
           href="https://live.kajabi.com/admin/"
           target="_blank"
           rel="noopener noreferrer"
-          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
+          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-white/50 border border-slate-200 ${isCollapsed ? 'justify-center' : ''}`}
           title={isCollapsed ? 'GO Live' : ''}
         >
           <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-purple-600 to-violet-500">
@@ -95,19 +95,19 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
           {!isCollapsed && (
             <>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
+                <p className="text-sm font-semibold text-slate-700">
                   GO Live
                 </p>
                 <p className="text-[10px] text-slate-500">Opens in new tab</p>
               </div>
-              <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+              <ExternalLink className="w-4 h-4 text-slate-400" />
             </>
           )}
         </a>
 
         <Link
           to={createPageUrl('MarketoAccess')}
-          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
+          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 border border-slate-200 ${isCollapsed ? 'justify-center' : ''}`}
           title={isCollapsed ? 'Launch Marketo' : ''}
         >
           <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white">
@@ -120,19 +120,19 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
           {!isCollapsed && (
             <>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
+                <p className="text-sm font-semibold text-slate-700">
                   Launch Marketo
                 </p>
                 <p className="text-[10px] text-slate-500">Access Marketo</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+              <ChevronRight className="w-4 h-4 text-slate-400" />
             </>
           )}
         </Link>
 
         <Link
           to={createPageUrl('TutorAITools')}
-          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mt-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
+          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mt-2 bg-white/50 border border-slate-200 ${isCollapsed ? 'justify-center' : ''}`}
           title={isCollapsed ? 'AI Tools' : ''}
         >
           <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-blue-500 to-cyan-500">
@@ -141,12 +141,12 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
           {!isCollapsed && (
             <>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
+                <p className="text-sm font-semibold text-slate-700">
                   AI Tools
                 </p>
                 <p className="text-[10px] text-slate-500">MarTech AI Assistant</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+              <ChevronRight className="w-4 h-4 text-slate-400" />
             </>
           )}
         </Link>
@@ -168,19 +168,19 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
             className={`
               flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
               ${isActive 
-                ? 'bg-orange-500/10 text-orange-600' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
+                ? 'bg-white text-slate-900' 
+                : 'text-slate-600 hover:bg-white/60'
               }
               ${isCollapsed ? 'justify-center' : ''}
             `}
             title={isCollapsed ? item.name : ''}
           >
-            <item.icon className={`w-5 h-5 ${isActive ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
+            <item.icon className={`w-5 h-5 ${isActive ? 'text-slate-800' : 'text-slate-500'}`} />
             {!isCollapsed && <span className="font-medium text-sm">{item.name}</span>}
             {isActive && !isCollapsed && (
               <motion.div 
                 layoutId="activeIndicator"
-                className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-600"
+                className="ml-auto w-1.5 h-1.5 rounded-full bg-slate-500"
               />
             )}
           </Link>
