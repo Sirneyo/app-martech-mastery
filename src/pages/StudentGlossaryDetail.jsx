@@ -75,7 +75,7 @@ export default function StudentGlossaryDetail() {
   return (
     <div className="min-h-screen bg-white">
       {/* Top bar */}
-      <div className="border-b border-slate-200 px-8 py-4 flex items-center justify-between bg-white sticky top-0 z-10">
+      <div className="border-b border-slate-200 px-8 py-4 flex items-center justify-between bg-white sticky top-[61px] z-20">
         <button
           onClick={() => navigate(createPageUrl('StudentGlossary'))}
           className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors"
