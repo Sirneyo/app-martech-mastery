@@ -17,7 +17,10 @@ export default function StudentGlossary() {
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ['glossary-items'],
-    queryFn: () => base44.entities.GlossaryItem.filter({ status: 'published' }, 'sort_order'),
+    queryFn: async () => {
+      const results = await base44.entities.GlossaryItem.filter({ status: 'published' }, 'sort_order');
+      return results.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    },
   });
 
   const { data: progress = [] } = useQuery({
