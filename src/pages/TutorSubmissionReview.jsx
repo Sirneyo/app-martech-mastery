@@ -256,6 +256,76 @@ export default function TutorSubmissionReview() {
               </div>
             </div>
 
+            {submissionHistory.length > 0 && (
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm mb-6 overflow-hidden">
+                <button
+                  onClick={() => setShowHistory(!showHistory)}
+                  className="w-full flex items-center justify-between p-5 hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center">
+                      <History className="w-4 h-4 text-slate-600" />
+                    </div>
+                    <div className="text-left">
+                      <p className="font-bold text-slate-900">Submission History</p>
+                      <p className="text-sm text-slate-500">{submissionHistory.length} previous attempt{submissionHistory.length !== 1 ? 's' : ''} for this assignment</p>
+                    </div>
+                  </div>
+                  {showHistory ? <ChevronUp className="w-5 h-5 text-slate-400" /> : <ChevronDown className="w-5 h-5 text-slate-400" />}
+                </button>
+                {showHistory && (
+                  <div className="border-t border-slate-100 divide-y divide-slate-100">
+                    {submissionHistory.map((past) => (
+                      <div key={past.id} className="p-5">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <Badge className={
+                              past.status === 'graded' ? 'bg-green-100 text-green-700' :
+                              past.status === 'needs_revision' ? 'bg-red-100 text-red-700' :
+                              'bg-amber-100 text-amber-700'
+                            }>
+                              {past.status}
+                            </Badge>
+                            {past.grade && (
+                              <Badge className={
+                                past.grade.rubric_grade === 'Excellent' ? 'bg-violet-100 text-violet-700' :
+                                past.grade.rubric_grade === 'Good' ? 'bg-blue-100 text-blue-700' :
+                                past.grade.rubric_grade === 'Fair' ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-red-100 text-red-700'
+                              }>
+                                {past.grade.rubric_grade}
+                              </Badge>
+                            )}
+                            <span className="text-xs text-slate-400">Attempt #{past.attempt_number || '?'}</span>
+                          </div>
+                          <span className="text-xs text-slate-400">
+                            {past.submitted_date && format(new Date(past.submitted_date), 'MMM d, yyyy')}
+                          </span>
+                        </div>
+                        {past.grade?.feedback_text && (
+                          <div className="bg-slate-50 rounded-lg p-3 mb-2">
+                            <p className="text-xs font-semibold text-slate-500 mb-1">Tutor Feedback</p>
+                            <p className="text-sm text-slate-700 whitespace-pre-wrap">{past.grade.feedback_text}</p>
+                          </div>
+                        )}
+                        {past.grade?.feedback_url && (
+                          <a
+                            href={past.grade.feedback_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs text-violet-600 hover:underline mt-1"
+                          >
+                            <Video className="w-3 h-3" />
+                            View feedback video
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {submission.status !== 'graded' && (
               <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
                 <h2 className="text-xl font-bold text-slate-900 mb-6">Grade Submission</h2>
