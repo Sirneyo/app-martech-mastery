@@ -71,7 +71,7 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
   const currentWeek = cohort?.current_week || 0;
 
   const certItems = [
-    { name: 'Glossary', icon: Library, page: 'StudentGlossary', unlock_week: 8 },
+    { name: 'Glossary', icon: Library, page: 'StudentGlossary' },
     { name: 'Assignments', icon: ClipboardList, page: 'StudentAssignments' },
   ];
 
