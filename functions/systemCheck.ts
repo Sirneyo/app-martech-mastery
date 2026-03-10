@@ -81,18 +81,27 @@ Deno.serve(async (req) => {
           to: ['niyi@oadsolutions.com'],
           subject: `✅ System Check — Email Delivery Test (${new Date().toUTCString()})`,
           html: `
-            <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;">
-              <h2 style="color:#1e293b;">System Health Check — Email Test</h2>
-              <p style="color:#475569;">This is an automated test email sent by the Super Admin System Check to verify that the email delivery pipeline is fully operational.</p>
-              <div style="background:#f1f5f9;border-radius:8px;padding:16px;margin:16px 0;">
-                <p style="margin:0;font-size:13px;color:#64748b;">
-                  <strong>Checked at:</strong> ${new Date().toUTCString()}<br/>
-                  <strong>Sent to:</strong> niyi@oadsolutions.com<br/>
-                  <strong>Service:</strong> Resend<br/>
-                  <strong>Status:</strong> ✅ Delivered successfully
-                </p>
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(30,45,90,0.10);">
+              <div style="background: #9dc6f0; padding: 32px 40px; text-align: center;">
+                <img src="https://res.cloudinary.com/dbckozv27/image/upload/v1773184292/Full_logo_w5hurk.png" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto;" />
               </div>
-              <p style="color:#94a3b8;font-size:12px;">You can ignore this email — it was triggered by a routine system health check.</p>
+              <div style="padding: 40px 40px 32px;">
+                <h2 style="color:#1e293b; margin-bottom: 8px;">System Health Check ✅</h2>
+                <p style="color:#475569; margin-bottom: 16px;">This is an automated test email sent by the Super Admin System Check to verify that the email delivery pipeline is fully operational.</p>
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:20px; margin:20px 0;">
+                  <p style="margin:0; color:#64748b; font-size:14px; text-transform: uppercase; letter-spacing: 0.05em;">Check Details</p>
+                  <p style="margin:12px 0 0; font-size:14px; color:#475569;">
+                    <strong>Checked at:</strong> ${new Date().toUTCString()}<br/>
+                    <strong>Recipient:</strong> niyi@oadsolutions.com<br/>
+                    <strong>Service:</strong> Resend<br/>
+                    <strong>Status:</strong> ✅ Delivered successfully
+                  </p>
+                </div>
+                <p style="color:#94a3b8; font-size:12px; margin-top:24px;">You can safely ignore this email — it was triggered by a routine system health check.</p>
+              </div>
+              <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px 40px; text-align: center;">
+                <p style="color: #cbd5e1; font-size: 11px; margin: 0;">© MarTech Mastery by OAD Solutions</p>
+              </div>
             </div>
           `,
         }),
