@@ -5,8 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { 
   LayoutDashboard, 
-  BookOpen, 
-  GraduationCap, 
   Award, 
   ExternalLink,
   ChevronRight,
@@ -15,15 +13,21 @@ import {
   FolderOpen,
   Briefcase,
   ChevronLeft,
-  User,
   LifeBuoy,
-  Lock
+  Lock,
+  GraduationCap,
+  Video,
+  BarChart2,
+  Library,
+  Target,
+  BookOpen
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
 export default function StudentSidebar({ currentPageName, onNavigate }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+
   const { data: settings } = useQuery({
     queryKey: ['app-settings'],
     queryFn: async () => {
@@ -64,17 +68,42 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
     return new Date() < unlockTime;
   })();
 
-  const navItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, page: 'StudentDashboard' },
+  const certItems = [
+    { name: 'Glossary', icon: Library, page: 'StudentAssignments' },
     { name: 'Assignments', icon: ClipboardList, page: 'StudentAssignments' },
-    { name: 'My Projects', icon: FolderOpen, page: 'StudentProjects' },
-    { name: 'My Certification', icon: Award, page: 'StudentCertification' },
-    { name: 'My Portfolio', icon: Briefcase, page: 'StudentPortfolio' },
-    { name: 'Support', icon: LifeBuoy, page: 'StudentSupport' },
+    { name: 'Certification Exams', icon: Award, page: 'StudentCertification' },
   ];
+
+  const careerItems = [
+    { name: 'Projects', icon: FolderOpen, page: 'StudentProjects' },
+    { name: 'Portfolio', icon: Briefcase, page: 'StudentPortfolio' },
+    { name: 'AI Tools', icon: Zap, page: 'StudentAITools' },
+    { name: 'Resources', icon: BookOpen, page: 'StudentAssignments' },
+  ];
+
+  const NavLink = ({ item }) => {
+    const isActive = currentPageName === item.page;
+    return (
+      <Link
+        to={createPageUrl(item.page)}
+        onClick={onNavigate}
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
+          isActive ? 'bg-orange-500/10 text-orange-600' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
+        } ${isCollapsed ? 'justify-center' : ''}`}
+        title={isCollapsed ? item.name : ''}
+      >
+        <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
+        {!isCollapsed && <span className="font-medium text-sm flex-1">{item.name}</span>}
+        {isActive && !isCollapsed && (
+          <motion.div layoutId="activeIndicator" className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-600" />
+        )}
+      </Link>
+    );
+  };
 
   return (
     <aside className={`${isCollapsed ? 'w-20' : 'w-72'} bg-gradient-to-b from-slate-100 to-slate-200 h-screen flex flex-col border-r border-slate-300 transition-all duration-300 relative overflow-hidden`}>
+      {/* Logo */}
       <div className="p-4 border-b border-slate-300 flex items-center justify-between">
         {!isCollapsed && (
           <Link to={createPageUrl('StudentDashboard')}>
@@ -105,143 +134,107 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
         {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </Button>
 
-      <div className="p-4">
-        {!isCollapsed && (
-          <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
-            Tools
-          </p>
-        )}
-
-        <a
-          href={settings?.kajabi_url || "https://www.the-growth-academy.co/library"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
-          title={isCollapsed ? 'Begin Learning' : ''}
-        >
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-purple-600 to-violet-500">
-            <GraduationCap className="w-4 h-4 text-white" />
-          </div>
-          {!isCollapsed && (
-            <>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
-                  Begin Learning
-                </p>
-                <p className="text-[10px] text-slate-500">Courses & Live Sessions</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
-            </>
-          )}
-        </a>
-
-        {isMarketoLocked ? (
-          <div
-            className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 bg-slate-100 border border-slate-200 opacity-60 cursor-not-allowed ${isCollapsed ? 'justify-center' : ''}`}
-            title={isCollapsed ? 'Marketo (Locked)' : 'Available from 11:00am on your cohort start date'}
-          >
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white relative">
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/81e4b8812_AdobeIcon.png" 
-                alt="Adobe" 
-                className="w-6 h-6 grayscale"
-              />
-              <Lock className="w-3 h-3 text-slate-500 absolute -bottom-1 -right-1" />
-            </div>
-            {!isCollapsed && (
-              <>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-slate-400">Launch Marketo</p>
-                  <p className="text-[10px] text-slate-400">Unlocks at 11:00am on start date</p>
-                </div>
-                <Lock className="w-4 h-4 text-slate-400" />
-              </>
-            )}
-          </div>
-        ) : (
+      <div className="flex-1 overflow-y-auto">
+        {/* Dashboard */}
+        <div className="p-4">
           <Link
-            to={createPageUrl('MarketoAccess')}
-            className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
-            title={isCollapsed ? 'Launch Marketo' : ''}
+            to={createPageUrl('StudentDashboard')}
+            onClick={onNavigate}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
+              currentPageName === 'StudentDashboard' ? 'bg-orange-500/10 text-orange-600' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
+            } ${isCollapsed ? 'justify-center' : ''}`}
+            title={isCollapsed ? 'Dashboard' : ''}
           >
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white">
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/81e4b8812_AdobeIcon.png" 
-                alt="Adobe" 
-                className="w-6 h-6"
-              />
-            </div>
-            {!isCollapsed && (
-              <>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
-                    Launch Marketo
-                  </p>
-                  <p className="text-[10px] text-slate-500">Access Marketo</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
-              </>
+            <LayoutDashboard className={`w-5 h-5 flex-shrink-0 ${currentPageName === 'StudentDashboard' ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
+            {!isCollapsed && <span className="font-medium text-sm flex-1">Dashboard</span>}
+            {currentPageName === 'StudentDashboard' && !isCollapsed && (
+              <motion.div layoutId="activeIndicator" className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-600" />
             )}
           </Link>
-        )}
+        </div>
 
-        <Link
-          to={createPageUrl('StudentAITools')}
-          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mt-2 bg-white/50 hover:bg-white border border-slate-200 hover:border-slate-300 ${isCollapsed ? 'justify-center' : ''}`}
-          title={isCollapsed ? 'AI Tools' : ''}
-        >
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-blue-500 to-cyan-500">
-            <Zap className="w-4 h-4 text-white" />
-          </div>
+        {/* Section 1: MarTech Mastery Certification */}
+        <div className="px-4 pb-2">
           {!isCollapsed && (
-            <>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-slate-700 group-hover:text-slate-900">
-                  AI Tools
-                </p>
-                <p className="text-[10px] text-slate-500">MarTech AI Assistant</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
-            </>
+            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
+              MarTech Mastery Certification
+            </p>
           )}
-        </Link>
+          <div className="space-y-1">
+            {certItems.map(item => <NavLink key={item.name} item={item} />)}
+
+            {/* Videos & Live Sessions — external */}
+            <a
+              href={settings?.kajabi_url || 'https://www.the-growth-academy.co/library'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group text-slate-600 hover:text-slate-900 hover:bg-white/70 ${isCollapsed ? 'justify-center' : ''}`}
+              title={isCollapsed ? 'Videos & Live Sessions' : ''}
+            >
+              <Video className="w-5 h-5 flex-shrink-0 text-slate-500 group-hover:text-slate-700" />
+              {!isCollapsed && (
+                <>
+                  <span className="font-medium text-sm flex-1">Videos &amp; Live Sessions</span>
+                  <ExternalLink className="w-3 h-3 text-slate-400" />
+                </>
+              )}
+            </a>
+
+            {/* Marketo — with lock logic */}
+            {isMarketoLocked ? (
+              <div
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl opacity-50 cursor-not-allowed ${isCollapsed ? 'justify-center' : ''}`}
+                title={isCollapsed ? 'Marketo (Locked)' : 'Available from 11:00am on your cohort start date'}
+              >
+                <div className="relative flex-shrink-0">
+                  <BarChart2 className="w-5 h-5 text-slate-400" />
+                  <Lock className="w-2.5 h-2.5 text-slate-400 absolute -bottom-1 -right-1" />
+                </div>
+                {!isCollapsed && <span className="font-medium text-sm text-slate-400">Marketo</span>}
+              </div>
+            ) : (
+              <Link
+                to={createPageUrl('MarketoAccess')}
+                onClick={onNavigate}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
+                  currentPageName === 'MarketoAccess' ? 'bg-orange-500/10 text-orange-600' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
+                } ${isCollapsed ? 'justify-center' : ''}`}
+                title={isCollapsed ? 'Marketo' : ''}
+              >
+                <BarChart2 className={`w-5 h-5 flex-shrink-0 ${currentPageName === 'MarketoAccess' ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
+                {!isCollapsed && <span className="font-medium text-sm flex-1">Marketo</span>}
+              </Link>
+            )}
+          </div>
+        </div>
+
+        {/* Section 2: Career Acceleration */}
+        <div className="px-4 pb-2 mt-4 border-t border-slate-300 pt-4">
+          {!isCollapsed && (
+            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
+              Career Acceleration
+            </p>
+          )}
+          <div className="space-y-1">
+            {careerItems.map(item => <NavLink key={item.name} item={item} />)}
+          </div>
+        </div>
       </div>
 
-        <nav className="flex-1 p-4 space-y-1 border-t border-slate-300 overflow-y-auto">
-        {!isCollapsed && (
-        <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
-          Learning
-        </p>
-        )}
-        {navItems.map((item) => {
-        const isActive = currentPageName === item.page;
-        return (
-          <Link
-            key={item.name}
-            to={createPageUrl(item.page)}
-            onClick={onNavigate}
-            className={`
-              flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
-              ${isActive 
-                ? 'bg-orange-500/10 text-orange-600' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
-              }
-              ${isCollapsed ? 'justify-center' : ''}
-            `}
-            title={isCollapsed ? item.name : ''}
-          >
-            <item.icon className={`w-5 h-5 ${isActive ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
-            {!isCollapsed && <span className="font-medium text-sm">{item.name}</span>}
-            {isActive && !isCollapsed && (
-              <motion.div 
-                layoutId="activeIndicator"
-                className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-600"
-              />
-            )}
-          </Link>
-        );
-        })}
-        </nav>
+      {/* Support at bottom */}
+      <div className="p-4 border-t border-slate-300">
+        <Link
+          to={createPageUrl('StudentSupport')}
+          onClick={onNavigate}
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
+            currentPageName === 'StudentSupport' ? 'bg-orange-500/10 text-orange-600' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
+          } ${isCollapsed ? 'justify-center' : ''}`}
+          title={isCollapsed ? 'Support' : ''}
+        >
+          <LifeBuoy className={`w-5 h-5 flex-shrink-0 ${currentPageName === 'StudentSupport' ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
+          {!isCollapsed && <span className="font-medium text-sm">Support</span>}
+        </Link>
+      </div>
     </aside>
   );
 }
