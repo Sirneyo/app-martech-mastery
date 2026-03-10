@@ -43,7 +43,8 @@ export default function SuperAdminDashboard() {
 
   // View as User state
   const [viewAsSearch, setViewAsSearch] = useState('');
-  const [auditLogs, setAuditLogs] = useState([]);
+  const [viewAsRoleFilter, setViewAsRoleFilter] = useState('');
+  const [activeTab, setActiveTab] = useState('points');
 
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
@@ -83,11 +84,14 @@ export default function SuperAdminDashboard() {
     u.email?.toLowerCase().includes(pointsSearchTerm.toLowerCase())
   ).filter(u => u.app_role === 'student');
 
-  const filteredViewAsUsers = users.filter(u =>
-    !viewAsSearch ||
-    u.full_name?.toLowerCase().includes(viewAsSearch.toLowerCase()) ||
-    u.email?.toLowerCase().includes(viewAsSearch.toLowerCase())
-  ).filter(u => u.id !== currentUser?.id);
+  const filteredViewAsUsers = users
+    .filter(u => u.id !== currentUser?.id)
+    .filter(u => !viewAsRoleFilter || u.app_role === viewAsRoleFilter)
+    .filter(u =>
+      !viewAsSearch ||
+      u.full_name?.toLowerCase().includes(viewAsSearch.toLowerCase()) ||
+      u.email?.toLowerCase().includes(viewAsSearch.toLowerCase())
+    );
 
   const pendingDeletions = deletionRequests.filter(r => r.status === 'pending');
   const resolvedDeletions = deletionRequests.filter(r => r.status !== 'pending');
@@ -243,30 +247,25 @@ export default function SuperAdminDashboard() {
             <Eye className="w-4 h-4" /> View as Different Role
           </p>
           <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(createPageUrl('StudentDashboard'))}
-              className="border-blue-200 text-blue-700 hover:bg-blue-50"
-            >
-              View as Student
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(createPageUrl('TutorDashboard'))}
-              className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-            >
-              View as Tutor
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(createPageUrl('AdminDashboard'))}
-              className="border-orange-200 text-orange-700 hover:bg-orange-50"
-            >
-              View as Admin
-            </Button>
+            {[
+              { role: 'student', label: 'View as Student', cls: 'border-blue-200 text-blue-700 hover:bg-blue-50' },
+              { role: 'tutor', label: 'View as Tutor', cls: 'border-emerald-200 text-emerald-700 hover:bg-emerald-50' },
+              { role: 'admin', label: 'View as Admin', cls: 'border-orange-200 text-orange-700 hover:bg-orange-50' },
+            ].map(({ role, label, cls }) => (
+              <Button
+                key={role}
+                variant="outline"
+                size="sm"
+                className={cls}
+                onClick={() => {
+                  setViewAsRoleFilter(role);
+                  setViewAsSearch('');
+                  setActiveTab('viewas');
+                }}
+              >
+                {label}
+              </Button>
+            ))}
           </div>
         </div>
 
@@ -308,7 +307,7 @@ export default function SuperAdminDashboard() {
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="points">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="bg-white border border-slate-200">
             <TabsTrigger value="points" className="flex items-center gap-2">
               <Coins className="w-4 h-4" /> Points Ledger
@@ -482,8 +481,8 @@ export default function SuperAdminDashboard() {
                 </p>
               </div>
             </div>
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-              <div className="relative">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex gap-3 items-center flex-wrap">
+              <div className="relative flex-1 min-w-48">
                 <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
                 <Input
                   placeholder="Search users by name or email..."
@@ -491,6 +490,17 @@ export default function SuperAdminDashboard() {
                   onChange={(e) => setViewAsSearch(e.target.value)}
                   className="pl-10"
                 />
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {['', 'student', 'tutor', 'admin'].map(r => (
+                  <button
+                    key={r}
+                    onClick={() => setViewAsRoleFilter(r)}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${viewAsRoleFilter === r ? 'bg-violet-600 text-white border-violet-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                  >
+                    {r === '' ? 'All' : r.charAt(0).toUpperCase() + r.slice(1)}
+                  </button>
+                ))}
               </div>
             </div>
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
