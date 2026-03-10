@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -27,7 +27,6 @@ import { Button } from '@/components/ui/button';
 
 export default function StudentSidebar({ currentPageName, onNavigate }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [lockedItem, setLockedItem] = useState(null);
 
   const { data: settings } = useQuery({
     queryKey: ['app-settings'],
@@ -90,14 +89,18 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
 
     if (isLocked) {
       return (
-        <button
-          onClick={() => setLockedItem(item)}
-          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group text-slate-600 hover:text-slate-900 hover:bg-white/70 ${isCollapsed ? 'justify-center' : ''}`}
-          title={isCollapsed ? item.name : ''}
+        <div
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl opacity-50 cursor-not-allowed ${isCollapsed ? 'justify-center' : ''}`}
+          title={isCollapsed ? `${item.name} (Week ${item.unlock_week})` : `Unlocks at Week ${item.unlock_week}`}
         >
-          <item.icon className="w-5 h-5 flex-shrink-0 text-slate-500 group-hover:text-slate-700" />
-          {!isCollapsed && <span className="font-medium text-sm flex-1 text-left">{item.name}</span>}
-        </button>
+          <item.icon className="w-5 h-5 flex-shrink-0 text-slate-400" />
+          {!isCollapsed && (
+            <>
+              <span className="font-medium text-sm flex-1 text-slate-400">{item.name}</span>
+              <Lock className="w-3.5 h-3.5 text-slate-400" />
+            </>
+          )}
+        </div>
       );
     }
 
@@ -328,20 +331,6 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
           </div>
         </div>
       </div>
-
-      {/* Lock modal */}
-      {lockedItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setLockedItem(null)}>
-          <div className="bg-white rounded-2xl p-8 max-w-sm mx-4 text-center shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-8 h-8 text-orange-500" />
-            </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-2">{lockedItem.name} is Locked</h3>
-            <p className="text-slate-500 text-sm mb-6">This section unlocks at <span className="font-semibold text-slate-700">Week {lockedItem.unlock_week}</span>. Keep going — you're making great progress!</p>
-            <button onClick={() => setLockedItem(null)} className="w-full py-2.5 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors">Got it</button>
-          </div>
-        </div>
-      )}
 
       {/* Support at bottom */}
       <div className="p-4 border-t border-slate-300">
