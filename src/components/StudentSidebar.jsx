@@ -85,6 +85,25 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
 
   const NavLink = ({ item }) => {
     const isActive = currentPageName === item.page;
+    const isLocked = item.unlock_week && currentWeek < item.unlock_week;
+
+    if (isLocked) {
+      return (
+        <div
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl opacity-50 cursor-not-allowed ${isCollapsed ? 'justify-center' : ''}`}
+          title={isCollapsed ? `${item.name} (Week ${item.unlock_week})` : `Unlocks at Week ${item.unlock_week}`}
+        >
+          <item.icon className="w-5 h-5 flex-shrink-0 text-slate-400" />
+          {!isCollapsed && (
+            <>
+              <span className="font-medium text-sm flex-1 text-slate-400">{item.name}</span>
+              <Lock className="w-3.5 h-3.5 text-slate-400" />
+            </>
+          )}
+        </div>
+      );
+    }
+
     return (
       <Link
         to={createPageUrl(item.page)}
