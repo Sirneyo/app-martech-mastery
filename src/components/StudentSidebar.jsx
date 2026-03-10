@@ -108,14 +108,14 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
         to={createPageUrl(item.page)}
         onClick={onNavigate}
         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
-          isActive ? 'bg-orange-500/10 text-orange-600' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
+          isActive ? 'bg-white text-slate-900' : 'text-slate-600 hover:bg-white/60'
         } ${isCollapsed ? 'justify-center' : ''}`}
         title={isCollapsed ? item.name : ''}
       >
-        <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
+        <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-slate-800' : 'text-slate-500'}`} />
         {!isCollapsed && <span className="font-medium text-sm flex-1">{item.name}</span>}
         {isActive && !isCollapsed && (
-          <motion.div layoutId="activeIndicator" className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-600" />
+          <motion.div layoutId="activeIndicator" className="ml-auto w-1.5 h-1.5 rounded-full bg-slate-500" />
         )}
       </Link>
     );
@@ -254,14 +254,14 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
               to={createPageUrl('StudentDashboard')}
               onClick={onNavigate}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
-                currentPageName === 'StudentDashboard' ? 'bg-orange-500/10 text-orange-600' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
+                currentPageName === 'StudentDashboard' ? 'bg-white text-slate-900' : 'text-slate-600 hover:bg-white/60'
               } ${isCollapsed ? 'justify-center' : ''}`}
               title={isCollapsed ? 'Dashboard' : ''}
             >
-              <LayoutDashboard className={`w-5 h-5 flex-shrink-0 ${currentPageName === 'StudentDashboard' ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
+              <LayoutDashboard className={`w-5 h-5 flex-shrink-0 ${currentPageName === 'StudentDashboard' ? 'text-slate-800' : 'text-slate-500'}`} />
               {!isCollapsed && <span className="font-medium text-sm flex-1">Dashboard</span>}
               {currentPageName === 'StudentDashboard' && !isCollapsed && (
-                <motion.div layoutId="activeIndicator" className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-600" />
+                <motion.div layoutId="activeIndicator" className="ml-auto w-1.5 h-1.5 rounded-full bg-slate-500" />
               )}
             </Link>
           </div>
@@ -307,11 +307,11 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
                 to={createPageUrl('MarketoAccess')}
                 onClick={onNavigate}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
-                  currentPageName === 'MarketoAccess' ? 'bg-orange-500/10 text-orange-600' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
+                  currentPageName === 'MarketoAccess' ? 'bg-white text-slate-900' : 'text-slate-600 hover:bg-white/60'
                 } ${isCollapsed ? 'justify-center' : ''}`}
                 title={isCollapsed ? 'Marketo' : ''}
               >
-                <BarChart2 className={`w-5 h-5 flex-shrink-0 ${currentPageName === 'MarketoAccess' ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
+                <BarChart2 className={`w-5 h-5 flex-shrink-0 ${currentPageName === 'MarketoAccess' ? 'text-slate-800' : 'text-slate-500'}`} />
                 {!isCollapsed && <span className="font-medium text-sm flex-1">Marketo</span>}
               </Link>
             )}
