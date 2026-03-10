@@ -46,6 +46,32 @@ export default function TutorSubmissionReview() {
     enabled: !!submission?.user_id,
   });
 
+  // Fetch past submissions for the same student + assignment (history)
+  const { data: submissionHistory = [] } = useQuery({
+    queryKey: ['submission-history', submission?.user_id, submission?.assignment_template_id, submission?.project_template_id],
+    queryFn: async () => {
+      const allSubs = await base44.entities.Submission.filter({
+        user_id: submission.user_id,
+        submission_kind: submission.submission_kind,
+      });
+      const templateId = submission.assignment_template_id || submission.project_template_id;
+      const related = allSubs
+        .filter(s => {
+          const sId = s.assignment_template_id || s.project_template_id;
+          return sId === templateId && s.id !== submissionId && s.status !== 'draft';
+        })
+        .sort((a, b) => new Date(b.submitted_date) - new Date(a.submitted_date));
+
+      // Fetch grades for each past submission
+      const withGrades = await Promise.all(related.map(async (s) => {
+        const grades = await base44.entities.SubmissionGrade.filter({ submission_id: s.id });
+        return { ...s, grade: grades[grades.length - 1] || null };
+      }));
+      return withGrades;
+    },
+    enabled: !!(submission?.user_id && (submission?.assignment_template_id || submission?.project_template_id)),
+  });
+
   const { data: template } = useQuery({
     queryKey: ['template', submission?.assignment_template_id || submission?.project_template_id],
     queryFn: async () => {
