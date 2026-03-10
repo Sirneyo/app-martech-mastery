@@ -98,15 +98,19 @@ export default function StudentGlossaryDetail() {
         </Button>
       </div>
 
+      {/* Banner */}
+      {(item.banner_url || item.thumbnail_url) && (
+        <div className="w-full">
+          <img
+            src={item.banner_url || item.thumbnail_url}
+            alt={item.title}
+            className="w-full max-h-72 object-cover"
+          />
+        </div>
+      )}
+
       {/* Content */}
       <div className="max-w-3xl mx-auto px-8 py-10">
-        {item.thumbnail_url && (
-          <img
-            src={item.thumbnail_url}
-            alt={item.title}
-            className="w-full max-h-56 object-cover rounded-xl mb-8 border border-slate-200"
-          />
-        )}
         <h1 className="text-3xl font-bold text-slate-900 mb-3">{item.title}</h1>
         {item.short_description && (
           <p className="text-slate-500 text-base mb-8 border-b border-slate-100 pb-8">{item.short_description}</p>
