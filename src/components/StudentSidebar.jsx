@@ -250,11 +250,6 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
               MarTech Mastery Certification
             </p>
           )}
-          {!isCollapsed && (
-            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
-              MarTech Mastery Certification
-            </p>
-          )}
           <div className="space-y-1">
             {certItems.map(item => <NavLink key={item.name} item={item} />)}
 
