@@ -433,7 +433,7 @@ export default function StudentDashboard() {
               <p className="text-xs text-slate-400 mb-2">{tutor.email}</p>
               <a 
                 href={`mailto:${tutor.email}?subject=Question from ${user?.full_name || 'Student'}`}
-                className="w-full flex items-center justify-center gap-2 border border-slate-300 text-slate-700 bg-white px-4 py-2.5 rounded-xl text-sm font-medium"
+                className="w-full flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
               >
                 <Mail className="w-4 h-4" />
                 Contact Tutor
