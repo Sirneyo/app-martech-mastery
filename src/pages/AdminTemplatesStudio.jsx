@@ -232,6 +232,24 @@ export default function AdminTemplatesStudio() {
             </div>
             <TemplateTable templates={latestPortfolio} type="portfolio" />
           </TabsContent>
+
+          <TabsContent value="glossary" className="space-y-4">
+            <div className="flex justify-end">
+              <Link to={createPageUrl('AdminGlossary')}>
+                <Button className="bg-violet-600 hover:bg-violet-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Manage Glossary
+                </Button>
+              </Link>
+            </div>
+            <div className="bg-white rounded-lg border border-slate-200 p-8 text-center text-slate-500">
+              <p className="font-medium text-slate-700 mb-1">Glossary Content Management</p>
+              <p className="text-sm mb-4">Create and manage glossary lessons that students can access after Week 8.</p>
+              <Link to={createPageUrl('AdminGlossary')}>
+                <Button className="bg-violet-600 hover:bg-violet-700">Open Glossary Editor</Button>
+              </Link>
+            </div>
+          </TabsContent>
         </Tabs>
 
         <AlertDialog open={!!deleteDialog} onOpenChange={() => setDeleteDialog(null)}>
