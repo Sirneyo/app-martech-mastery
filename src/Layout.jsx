@@ -1,4 +1,5 @@
 import React from 'react';
+import 'react-quill/dist/quill.snow.css';
 import RoleBasedLayout from '@/components/RoleBasedLayout';
 
 export default function Layout({ children, currentPageName }) {
