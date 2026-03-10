@@ -24,9 +24,15 @@ export default function RoleBasedLayout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // User-level impersonation (View as User feature)
+  const impersonatingUser = (() => {
+    try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; }
+  })();
+
   // For super admins, infer from page name first; fall back to sessionStorage for mixed pages
   const pageInferredRole = inferViewAsRole(currentPageName);
-  const viewAsRole = pageInferredRole || sessionStorage.getItem('superAdminViewAs') || null;
+  const viewAsRole = impersonatingUser?.app_role || pageInferredRole || sessionStorage.getItem('superAdminViewAs') || null;
 
   useEffect(() => {
     loadUserAndTrackLogin();
@@ -167,7 +173,38 @@ export default function RoleBasedLayout({ children, currentPageName }) {
           </div>
         </div>
 
-        {isSuperAdminViewing && (
+        {impersonatingUser ? (
+          <div className="bg-amber-500 text-white px-6 py-2.5 flex items-center justify-between text-sm">
+            <span className="flex items-center gap-2">
+              <Eye className="w-4 h-4 shrink-0" />
+              Viewing as <strong className="ml-1">{impersonatingUser.full_name || impersonatingUser.email}</strong>
+              <span className="opacity-75">({impersonatingUser.email})</span>
+            </span>
+            <button
+              onClick={async () => {
+                // Log exit
+                try {
+                  const me = await base44.auth.me();
+                  await base44.entities.AdminAuditLog.create({
+                    action: 'impersonate_end',
+                    admin_id: me?.id,
+                    admin_name: me?.full_name || me?.email,
+                    target_user_id: impersonatingUser.id,
+                    target_user_name: impersonatingUser.full_name,
+                    target_user_email: impersonatingUser.email,
+                    target_user_role: impersonatingUser.app_role,
+                    timestamp: new Date().toISOString(),
+                  });
+                } catch(e) { /* silent */ }
+                sessionStorage.removeItem('impersonatingUser');
+                window.location.href = createPageUrl('SuperAdminDashboard');
+              }}
+              className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-md font-medium transition-colors whitespace-nowrap ml-4"
+            >
+              Exit Impersonation →
+            </button>
+          </div>
+        ) : isSuperAdminViewing && (
           <div className="bg-violet-600 text-white px-6 py-2 flex items-center justify-between text-sm">
             <span className="flex items-center gap-2">
               <Eye className="w-4 h-4" />
