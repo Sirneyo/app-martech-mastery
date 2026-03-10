@@ -25,6 +25,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   // User-level impersonation (View as User feature) — super_admin only
   const impersonatingUser = (() => {
