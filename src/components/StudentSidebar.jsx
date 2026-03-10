@@ -73,7 +73,6 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
   const certItems = [
     { name: 'Glossary', icon: Library, page: 'StudentGlossary', unlock_week: 8 },
     { name: 'Assignments', icon: ClipboardList, page: 'StudentAssignments' },
-    { name: 'Certification Exams', icon: Award, page: 'StudentCertification' },
   ];
 
   const careerItems = [
