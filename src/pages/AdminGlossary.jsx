@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Edit, Trash2, GripVertical } from 'lucide-react';
+import { Plus, Edit, Trash2, Upload, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import RichTextEditor from '@/components/RichTextEditor';
 
@@ -32,6 +32,7 @@ const EMPTY_FORM = {
   short_description: '',
   content_html: '',
   thumbnail_url: '',
+  banner_url: '',
   sort_order: 0,
   status: 'draft',
 };
@@ -85,6 +86,7 @@ export default function AdminGlossary() {
       short_description: item.short_description || '',
       content_html: item.content_html || '',
       thumbnail_url: item.thumbnail_url || '',
+      banner_url: item.banner_url || '',
       sort_order: item.sort_order ?? 0,
       status: item.status || 'draft',
     });
