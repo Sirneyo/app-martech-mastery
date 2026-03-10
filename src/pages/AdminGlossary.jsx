@@ -39,9 +39,19 @@ const EMPTY_FORM = {
 
 export default function AdminGlossary() {
   const queryClient = useQueryClient();
-  const [editItem, setEditItem] = useState(null); // null = closed, {} = new, {...} = editing
+  const [editItem, setEditItem] = useState(null);
   const [deleteItem, setDeleteItem] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [uploadingThumb, setUploadingThumb] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+
+  const handleUpload = async (file, field, setLoading) => {
+    setLoading(true);
+    const { file_url: raw } = await base44.integrations.Core.UploadFile({ file });
+    const file_url = raw.replace('https://base44.app', 'https://app.martech-mastery.com');
+    setForm(f => ({ ...f, [field]: file_url }));
+    setLoading(false);
+  };
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ['glossary-items-admin'],
@@ -186,11 +196,59 @@ export default function AdminGlossary() {
               <Label>Short Description (shown on card)</Label>
               <Textarea rows={2} value={form.short_description} onChange={e => setForm({ ...form, short_description: e.target.value })} />
             </div>
-            <div className="space-y-1">
-              <Label>Thumbnail URL</Label>
-              <Input value={form.thumbnail_url} onChange={e => setForm({ ...form, thumbnail_url: e.target.value })} placeholder="https://..." />
+            {/* Thumbnail */}
+            <div className="space-y-2">
+              <Label>Thumbnail <span className="text-slate-400 font-normal text-xs">(shown on glossary card)</span></Label>
+              <div className="flex gap-2 items-start">
+                <div className="flex-1">
+                  <Input
+                    value={form.thumbnail_url}
+                    onChange={e => setForm({ ...form, thumbnail_url: e.target.value })}
+                    placeholder="https://... or upload →"
+                  />
+                </div>
+                <label className="cursor-pointer">
+                  <input type="file" accept="image/*" className="hidden" onChange={e => e.target.files[0] && handleUpload(e.target.files[0], 'thumbnail_url', setUploadingThumb)} />
+                  <Button type="button" variant="outline" size="sm" disabled={uploadingThumb} asChild>
+                    <span><Upload className="w-4 h-4 mr-1" />{uploadingThumb ? 'Uploading...' : 'Upload'}</span>
+                  </Button>
+                </label>
+              </div>
               {form.thumbnail_url && (
-                <img src={form.thumbnail_url} alt="preview" className="mt-2 h-20 rounded-lg object-cover border border-slate-200" />
+                <div className="relative inline-block">
+                  <img src={form.thumbnail_url} alt="thumbnail" className="h-20 rounded-lg object-cover border border-slate-200" />
+                  <button onClick={() => setForm(f => ({ ...f, thumbnail_url: '' }))} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-600">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Banner */}
+            <div className="space-y-2">
+              <Label>Banner Image <span className="text-slate-400 font-normal text-xs">(hero banner on the detail page)</span></Label>
+              <div className="flex gap-2 items-start">
+                <div className="flex-1">
+                  <Input
+                    value={form.banner_url}
+                    onChange={e => setForm({ ...form, banner_url: e.target.value })}
+                    placeholder="https://... or upload →"
+                  />
+                </div>
+                <label className="cursor-pointer">
+                  <input type="file" accept="image/*" className="hidden" onChange={e => e.target.files[0] && handleUpload(e.target.files[0], 'banner_url', setUploadingBanner)} />
+                  <Button type="button" variant="outline" size="sm" disabled={uploadingBanner} asChild>
+                    <span><Upload className="w-4 h-4 mr-1" />{uploadingBanner ? 'Uploading...' : 'Upload'}</span>
+                  </Button>
+                </label>
+              </div>
+              {form.banner_url && (
+                <div className="relative inline-block w-full">
+                  <img src={form.banner_url} alt="banner" className="w-full h-32 rounded-lg object-cover border border-slate-200" />
+                  <button onClick={() => setForm(f => ({ ...f, banner_url: '' }))} className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-600">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
               )}
             </div>
             <div className="space-y-1">
