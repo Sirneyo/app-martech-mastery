@@ -370,6 +370,9 @@ export default function SuperAdminDashboard() {
             <TabsTrigger value="viewas" className="flex items-center gap-2">
               <UserCheck className="w-4 h-4" /> View as User
             </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart2 className="w-4 h-4" /> Analytics
+            </TabsTrigger>
             <TabsTrigger value="systemcheck" className="flex items-center gap-2">
               <Activity className="w-4 h-4" /> System Check
             </TabsTrigger>
