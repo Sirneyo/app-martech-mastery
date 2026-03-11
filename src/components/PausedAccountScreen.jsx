@@ -60,7 +60,7 @@ export default function PausedAccountScreen() {
           color: 'rgba(255,255,255,0.45)',
           marginBottom: '28px'
         }}>
-          support@app.martech-mastery.com
+          admin@app.martech-mastery.com
         </p>
 
         <button
