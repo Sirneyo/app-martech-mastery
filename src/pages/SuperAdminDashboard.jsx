@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Coins, Trash2, CheckCircle, XCircle, Search, Plus, Minus, Users, AlertTriangle, Eye, Activity, UserCheck, Wifi } from 'lucide-react';
+import { Shield, Coins, Trash2, CheckCircle, XCircle, Search, Plus, Minus, Users, AlertTriangle, Eye, Activity, UserCheck, Wifi, BarChart2 } from 'lucide-react';
 import SystemCheckPanel from '@/components/SystemCheckPanel';
 import SuperAdminAnalytics from '@/components/SuperAdminAnalytics';
 import { useNavigate } from 'react-router-dom';
