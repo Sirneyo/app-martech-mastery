@@ -3,7 +3,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const payload = await req.json();
-    const { token, user_id } = payload;
+    const { token, user_id, full_name: submittedFullName } = payload;
     const base44 = createClientFromRequest(req);
 
     if (!token || !user_id) {
