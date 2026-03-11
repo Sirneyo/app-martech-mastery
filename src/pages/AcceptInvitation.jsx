@@ -90,7 +90,8 @@ export default function AcceptInvitation() {
       // Register user using frontend auth
       await base44.auth.register({
         email: invitation.email,
-        password: password
+        password: password,
+        full_name: fullName.trim() || invitation.full_name || ''
       });
 
       // Go straight to verification step
