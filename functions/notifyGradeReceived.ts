@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
       const emailResult = await resend.emails.send({
         from: 'MarTech Mastery <support@app.martech-mastery.com>',
         to: student.email,
-        subject: `${emoji} Your ${kindLabel} has been graded — ${rubric_grade}`,
+        subject: `Your ${kindLabel} has been graded — log in to see your results`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(30,45,90,0.10);">
             <div style="background: #9dc6f0; padding: 32px 40px; text-align: center;">
@@ -66,16 +66,10 @@ Deno.serve(async (req) => {
             <div style="padding: 40px 40px 32px;">
             <h2 style="color:#1e293b; margin-bottom: 8px;">${kindLabel} Graded ${emoji}</h2>
             <p style="color:#475569;">Hi ${student.full_name || 'there'},</p>
-            <p style="color:#475569;">Your submission for <strong>${itemTitle}</strong> has been reviewed.</p>
-            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:20px; margin:20px 0;">
-              <p style="margin:0; color:#64748b; font-size:14px;">GRADE</p>
-              <p style="margin:4px 0 0; font-size:24px; font-weight:700; color:#1e293b;">${emoji} ${rubric_grade}</p>
-              ${score != null && max_score != null ? `<p style="margin:8px 0 0; color:#475569; font-size:14px;"><strong>Score:</strong> ${score} / ${max_score}</p>` : ''}
-              ${feedback_text ? `<p style="margin:12px 0 0; color:#475569; font-size:14px;">${feedback_text}</p>` : ''}
-              ${feedback_url ? `<p style="margin:12px 0 0;"><a href="${feedback_url}" style="color:#7c3aed; font-weight:600;">🎥 Watch Video Feedback</a></p>` : ''}
-            </div>
+            <p style="color:#475569;">Your submission for <strong>${itemTitle}</strong> has been reviewed and graded by your tutor.</p>
+            <p style="color:#475569;">Log in to your dashboard to see your grade and feedback.</p>
             <a href="${appUrl}${reviewUrl}" style="display:inline-block; background:#7c3aed; color:#fff; text-decoration:none; padding:12px 24px; border-radius:8px; font-weight:600; margin-top:8px;">
-              View Full Feedback →
+              View My Results →
             </a>
             <p style="color:#94a3b8; font-size:12px; margin-top:24px;">MarTech Mastery Matrix Program</p>
             </div>
