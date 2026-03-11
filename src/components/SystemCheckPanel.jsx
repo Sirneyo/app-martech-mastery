@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   CheckCircle, XCircle, AlertTriangle, Activity,
   Database, Mail, Shield, Key, Bell, RefreshCw,
-  Server, Zap, ChevronDown, ChevronUp, Clock, Cpu
+  Server, Zap, ChevronDown, ChevronUp, Clock, Cpu, History
 } from 'lucide-react';
 
 const STATUS = {
@@ -114,16 +115,26 @@ function CategoryCard({ categoryKey, checks }) {
   );
 }
 
+const STATUS_COLORS = {
+  pass: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  warn: 'bg-amber-100 text-amber-700 border-amber-200',
+  fail: 'bg-red-100 text-red-700 border-red-200',
+};
+
 export default function SystemCheckPanel() {
   const [results, setResults] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [error, setError] = useState(null);
+  const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
+
+  const { data: scanHistory = [] } = useQuery({
+    queryKey: ['system-check-history', historyRefreshKey],
+    queryFn: () => base44.entities.SystemCheckHistory.list('-created_date', 20),
+  });
 
   const runCheck = async () => {
     setIsRunning(true);
     setProgress(0);
-    setError(null);
 
     const ticker = setInterval(() => {
       setProgress(prev => Math.min(prev + 6, 88));
@@ -136,6 +147,7 @@ export default function SystemCheckPanel() {
       setResults(res.data);
       setIsRunning(false);
       setProgress(0);
+      setHistoryRefreshKey(k => k + 1);
     }, 400);
   };
 
