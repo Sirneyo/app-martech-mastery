@@ -116,8 +116,8 @@ import TutorPortfolioReviews from './pages/TutorPortfolioReviews';
 import TutorProfile from './pages/TutorProfile';
 import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorQuizGrading from './pages/TutorQuizGrading';
-import TutorSubmissionReview from './pages/TutorSubmissionReview';
 import TutorStudents from './pages/TutorStudents';
+import TutorSubmissionReview from './pages/TutorSubmissionReview';
 import __Layout from './Layout.jsx';
 
 
@@ -191,8 +191,8 @@ export const PAGES = {
     "TutorProfile": TutorProfile,
     "TutorProjectSubmissions": TutorProjectSubmissions,
     "TutorQuizGrading": TutorQuizGrading,
-    "TutorSubmissionReview": TutorSubmissionReview,
     "TutorStudents": TutorStudents,
+    "TutorSubmissionReview": TutorSubmissionReview,
 }
 
 export const pagesConfig = {
