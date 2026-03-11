@@ -5,26 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import {
-  GraduationCap, Search, BookOpen, Award, TrendingUp,
-  Clock, CheckCircle, XCircle, AlertCircle, User
-} from 'lucide-react';
-
-const gradeColors = {
-  Excellent: 'bg-emerald-100 text-emerald-700',
-  Good: 'bg-blue-100 text-blue-700',
-  Fair: 'bg-amber-100 text-amber-700',
-  Poor: 'bg-red-100 text-red-700',
-};
-
-const statusIcons = {
-  graded: <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />,
-  submitted: <Clock className="w-3.5 h-3.5 text-blue-500" />,
-  in_review: <Clock className="w-3.5 h-3.5 text-violet-500" />,
-  needs_revision: <AlertCircle className="w-3.5 h-3.5 text-amber-500" />,
-  draft: <XCircle className="w-3.5 h-3.5 text-slate-400" />,
-};
+import StudentProfileModal from '@/components/StudentProfileModal';
+import { GraduationCap, Search, BookOpen, TrendingUp, User } from 'lucide-react';
 
 export default function TutorStudents() {
   const [selectedStudent, setSelectedStudent] = useState(null);
