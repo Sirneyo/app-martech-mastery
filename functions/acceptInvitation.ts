@@ -10,6 +10,22 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Token, full name, and password are required' }, { status: 400 });
     }
 
+    // --- Input Validation ---
+    if (typeof token !== 'string' || token.trim().length < 10) {
+      return Response.json({ error: 'Invalid token format' }, { status: 400 });
+    }
+    if (typeof full_name !== 'string' || full_name.trim().length < 2 || full_name.trim().length > 100) {
+      return Response.json({ error: 'full_name must be between 2 and 100 characters' }, { status: 400 });
+    }
+    // Sanitize full_name: strip HTML/script tags
+    const sanitizedName = full_name.replace(/<[^>]*>/g, '').trim();
+    if (sanitizedName !== full_name.trim()) {
+      return Response.json({ error: 'full_name contains invalid characters' }, { status: 400 });
+    }
+    if (typeof password !== 'string' || password.length < 8) {
+      return Response.json({ error: 'Password must be at least 8 characters' }, { status: 400 });
+    }
+
     // Fetch and validate invitation
     const invitations = await base44.asServiceRole.entities.Invitation.filter({ token: token });
 
