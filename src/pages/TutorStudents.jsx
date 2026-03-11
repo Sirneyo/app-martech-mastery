@@ -62,29 +62,6 @@ export default function TutorStudents() {
     enabled: students.length > 0,
   });
 
-  // Journey queries — only fire when dialog is open
-  const { data: studentSubmissions = [], isLoading: loadingSubmissions } = useQuery({
-    queryKey: ['journey-submissions', selectedStudent?.id],
-    queryFn: () => base44.entities.Submission.filter({ user_id: selectedStudent.id }),
-    enabled: !!selectedStudent?.id && journeyOpen,
-  });
-
-  const { data: studentAttendance = [] } = useQuery({
-    queryKey: ['journey-attendance', selectedStudent?.id],
-    queryFn: () => base44.entities.Attendance.filter({ student_user_id: selectedStudent.id }),
-    enabled: !!selectedStudent?.id && journeyOpen,
-  });
-
-  const { data: studentGrades = [] } = useQuery({
-    queryKey: ['journey-grades', selectedStudent?.id],
-    queryFn: async () => {
-      const submissionIds = studentSubmissions.map(s => s.id);
-      const all = await base44.entities.SubmissionGrade.list('-created_date', 200);
-      return all.filter(g => submissionIds.includes(g.submission_id));
-    },
-    enabled: !!selectedStudent?.id && journeyOpen && studentSubmissions.length > 0,
-  });
-
   const getStudentCohort = (studentId) => {
     const membership = memberships.find(m => m.user_id === studentId);
     if (!membership) return null;
