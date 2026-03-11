@@ -73,7 +73,7 @@ export default function TutorStudents() {
 
   const openJourney = (student) => {
     setSelectedStudent(student);
-    setJourneyOpen(true);
+    setModalOpen(true);
   };
 
   const filteredStudents = students
