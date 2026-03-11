@@ -285,7 +285,7 @@ export default function SuperAdminDashboard() {
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="border-violet-200 bg-violet-50/50">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
@@ -293,6 +293,17 @@ export default function SuperAdminDashboard() {
                 <div>
                   <p className="text-2xl font-bold text-violet-900">{users.filter(u => u.app_role === 'student').length}</p>
                   <p className="text-sm text-violet-600">Students</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="border-emerald-200 bg-emerald-50/50">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <Wifi className="w-8 h-8 text-emerald-600" />
+                <div>
+                  <p className="text-2xl font-bold text-emerald-900">{onlineUsers.length}</p>
+                  <p className="text-sm text-emerald-600">Online Now</p>
                 </div>
               </div>
             </CardContent>
@@ -314,12 +325,33 @@ export default function SuperAdminDashboard() {
                 <AlertTriangle className="w-8 h-8 text-red-600" />
                 <div>
                   <p className="text-2xl font-bold text-red-900">{pendingDeletions.length}</p>
-                  <p className="text-sm text-red-600">Pending Deletion Requests</p>
+                  <p className="text-sm text-red-600">Pending Deletions</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Online Users Panel */}
+        {onlineUsers.length > 0 && (
+          <Card className="border-emerald-200">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="font-semibold text-sm text-slate-800">{onlineUsers.length} user{onlineUsers.length !== 1 ? 's' : ''} online in the last 15 minutes</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {onlineUsers.map(u => (
+                  <div key={u.id} className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span className="text-xs font-medium text-emerald-800">{u.full_name || u.email}</span>
+                    <span className="text-xs text-emerald-500 capitalize">({u.app_role})</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
