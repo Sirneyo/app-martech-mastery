@@ -186,108 +186,14 @@ export default function TutorStudents() {
         )}
       </div>
 
-      {/* Journey Dialog */}
-      <Dialog open={journeyOpen} onOpenChange={setJourneyOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-slate-800">
-              <GraduationCap className="w-5 h-5 text-violet-600" />
-              {selectedStudent?.full_name} — Learning Journey
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-5 py-2">
-            {/* Stats Row */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
-                <p className="text-xl font-bold text-amber-700">{journeyPoints}</p>
-                <p className="text-xs text-amber-600 mt-0.5">Total Points</p>
-              </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
-                <p className="text-xl font-bold text-blue-700">{studentSubmissions.length}</p>
-                <p className="text-xs text-blue-600 mt-0.5">Submissions</p>
-              </div>
-              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center">
-                <p className="text-xl font-bold text-emerald-700">{attendancePct}%</p>
-                <p className="text-xs text-emerald-600 mt-0.5">Attendance</p>
-              </div>
-            </div>
-
-            {/* Submissions */}
-            <div>
-              <h3 className="font-semibold text-slate-700 text-sm mb-2 flex items-center gap-1.5">
-                <Award className="w-4 h-4 text-slate-500" /> Submissions
-              </h3>
-              {loadingSubmissions ? (
-                <p className="text-xs text-slate-400 text-center py-4">Loading...</p>
-              ) : studentSubmissions.length === 0 ? (
-                <p className="text-xs text-slate-400 text-center py-4">No submissions yet</p>
-              ) : (
-                <div className="space-y-2 max-h-56 overflow-y-auto">
-                  {studentSubmissions
-                    .sort((a, b) => new Date(b.created_date) - new Date(a.created_date))
-                    .map(sub => {
-                      const grade = studentGrades.find(g => g.submission_id === sub.id);
-                      return (
-                        <div key={sub.id} className="border border-slate-200 rounded-lg p-2.5 bg-slate-50">
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2">
-                              {statusIcons[sub.status] || statusIcons.draft}
-                              <div>
-                                <p className="text-xs font-medium text-slate-800 capitalize">
-                                  {sub.submission_kind} submission
-                                </p>
-                                <p className="text-[10px] text-slate-400">
-                                  {new Date(sub.created_date).toLocaleDateString()}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              {grade?.rubric_grade && (
-                                <Badge className={`text-xs border-0 ${gradeColors[grade.rubric_grade] || 'bg-slate-100 text-slate-600'}`}>
-                                  {grade.rubric_grade}
-                                </Badge>
-                              )}
-                              <Badge variant="outline" className="text-xs capitalize">{sub.status}</Badge>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
-            </div>
-
-            {/* Recent Points */}
-            <div>
-              <h3 className="font-semibold text-slate-700 text-sm mb-2 flex items-center gap-1.5">
-                <TrendingUp className="w-4 h-4 text-slate-500" /> Recent Points Activity
-              </h3>
-              {allLedgerEntries.filter(e => e.user_id === selectedStudent?.id).length === 0 ? (
-                <p className="text-xs text-slate-400 text-center py-4">No points activity yet</p>
-              ) : (
-                <div className="space-y-1.5 max-h-44 overflow-y-auto">
-                  {allLedgerEntries
-                    .filter(e => e.user_id === selectedStudent?.id)
-                    .sort((a, b) => new Date(b.created_date) - new Date(a.created_date))
-                    .slice(0, 10)
-                    .map(entry => (
-                      <div key={entry.id} className="flex items-center justify-between border border-slate-100 rounded-md px-2.5 py-1.5 bg-slate-50">
-                        <span className="text-xs text-slate-600 capitalize">{entry.reason?.replace(/_/g, ' ')}</span>
-                        <span className={`text-xs font-bold ${entry.points < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-                          {entry.points > 0 ? '+' : ''}{entry.points}
-                        </span>
-                      </div>
-                    ))}
-                </div>
-              )}
-            </div>
-
-            <div className="flex justify-end pt-2 border-t border-slate-200">
-              <Button variant="outline" onClick={() => setJourneyOpen(false)}>Close</Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <StudentProfileModal
+        student={selectedStudent}
+        isOpen={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedStudent(null);
+        }}
+      />
     </div>
   );
 }
