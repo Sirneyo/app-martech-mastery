@@ -37,20 +37,12 @@ Deno.serve(async (req) => {
   </div>
 </div>`;
 
-    const recipients = ['admin@oadsolutions.com', 'niyi@oadsolutions.com'];
+    // Only notify super_admin users (no admins, no tutors)
+    const allUsers = await base44.asServiceRole.entities.User.list();
+    const superAdmins = allUsers.filter(u => u.app_role === 'super_admin');
+    const recipients = superAdmins.map(u => u.email).filter(Boolean);
 
-    // For program support, also notify the assigned tutor
-    if (ticket.ticket_type === 'program' && ticket.cohort_id) {
-      const assignments = await base44.asServiceRole.entities.TutorCohortAssignment.filter({ cohort_id: ticket.cohort_id });
-      for (const assignment of assignments) {
-        const tutors = await base44.asServiceRole.entities.User.filter({ id: assignment.tutor_id });
-        if (tutors[0]?.email && !recipients.includes(tutors[0].email)) {
-          recipients.push(tutors[0].email);
-        }
-      }
-    }
-
-    // Send emails
+    // Send emails to super admins only
     for (const email of recipients) {
       await base44.asServiceRole.integrations.Core.SendEmail({
         to: email,
@@ -59,12 +51,10 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Create in-app notifications for all admin/super_admin users
-    const allUsers = await base44.asServiceRole.entities.User.list();
-    const adminUsers = allUsers.filter(u => u.app_role === 'admin' || u.app_role === 'super_admin');
-    for (const adminUser of adminUsers) {
+    // Create in-app notifications for super_admin users only
+    for (const superAdmin of superAdmins) {
       await base44.asServiceRole.entities.Notification.create({
-        user_id: adminUser.id,
+        user_id: superAdmin.id,
         type: 'achievement',
         title: `New ${typeLabel} Ticket`,
         message: `${ticket.student_name}: "${ticket.subject}" — ${ticket.priority} priority`,
