@@ -30,18 +30,20 @@ export default function Layout({ children, currentPageName }) {
     return null;
   }
 
-  // Show paused screen if user is paused (except on public pages)
-  if (user?.status === 'paused' && !publicPages.includes(currentPageName)) {
-    return <PausedAccountScreen />;
-  }
+  const isPaused = user?.status === 'paused' && !publicPages.includes(currentPageName);
 
   if (publicPages.includes(currentPageName)) {
     return <>{children}</>;
   }
 
   return (
-    <RoleBasedLayout currentPageName={currentPageName}>
-      {children}
-    </RoleBasedLayout>
+    <>
+      <div style={{ pointerEvents: isPaused ? 'none' : 'auto', userSelect: isPaused ? 'none' : 'auto' }}>
+        <RoleBasedLayout currentPageName={currentPageName}>
+          {children}
+        </RoleBasedLayout>
+      </div>
+      {isPaused && <PausedAccountScreen />}
+    </>
   );
 }
