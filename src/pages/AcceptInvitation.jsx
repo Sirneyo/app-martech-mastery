@@ -128,7 +128,8 @@ export default function AcceptInvitation() {
       // Complete invitation process (update role, cohort, etc)
       const response = await base44.functions.invoke('completeInvitation', {
         token,
-        user_id: currentUser.id
+        user_id: currentUser.id,
+        full_name: fullName.trim() || null
       });
 
       if (!response?.data?.success) {
