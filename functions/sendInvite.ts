@@ -12,8 +12,26 @@ Deno.serve(async (req) => {
     const payload = await req.json();
     const { email, full_name, app_role, cohort_id } = payload;
 
-    if (!email || !full_name) {
-      return Response.json({ error: 'Email and full name required' }, { status: 400 });
+    // --- Input Validation ---
+    if (!email || typeof email !== 'string') {
+      return Response.json({ error: 'Email is required' }, { status: 400 });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return Response.json({ error: 'Invalid email format' }, { status: 400 });
+    }
+    if (!full_name || typeof full_name !== 'string' || full_name.trim().length < 2) {
+      return Response.json({ error: 'full_name is required and must be at least 2 characters' }, { status: 400 });
+    }
+    if (full_name.trim().length > 100) {
+      return Response.json({ error: 'full_name must not exceed 100 characters' }, { status: 400 });
+    }
+    const VALID_ROLES = ['student', 'tutor', 'admin'];
+    if (app_role !== undefined && !VALID_ROLES.includes(app_role)) {
+      return Response.json({ error: `Invalid app_role. Must be one of: ${VALID_ROLES.join(', ')}` }, { status: 400 });
+    }
+    if (cohort_id !== undefined && cohort_id !== null && typeof cohort_id !== 'string') {
+      return Response.json({ error: 'cohort_id must be a string if provided' }, { status: 400 });
     }
 
     // Generate unique secure token

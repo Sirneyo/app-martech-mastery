@@ -12,6 +12,11 @@ Deno.serve(async (req) => {
 
     const { certificate_id } = await req.json();
 
+    // --- Input Validation ---
+    if (!certificate_id || typeof certificate_id !== 'string') {
+      return Response.json({ error: 'certificate_id is required' }, { status: 400 });
+    }
+
     // Fetch certificate record
     const certificates = await base44.asServiceRole.entities.Certificate.filter({ id: certificate_id });
     if (certificates.length === 0) {
@@ -19,6 +24,11 @@ Deno.serve(async (req) => {
     }
 
     const certificate = certificates[0];
+
+    // Ownership check: student can only generate their own certificate
+    if (user.app_role !== 'admin' && user.app_role !== 'super_admin' && certificate.student_user_id !== user.id) {
+      return Response.json({ error: 'Forbidden: You can only generate your own certificate' }, { status: 403 });
+    }
 
     // Fetch student details
     const students = await base44.asServiceRole.entities.User.filter({ id: certificate.student_user_id });
