@@ -10,7 +10,7 @@ import { GraduationCap, Search, BookOpen, TrendingUp, User } from 'lucide-react'
 
 export default function TutorStudents() {
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [journeyOpen, setJourneyOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCohort, setSelectedCohort] = useState('all');
 
