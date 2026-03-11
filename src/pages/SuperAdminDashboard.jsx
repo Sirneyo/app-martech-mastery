@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Coins, Trash2, CheckCircle, XCircle, Search, Plus, Minus, Users, AlertTriangle, Eye, Activity, UserCheck, Wifi } from 'lucide-react';
 import SystemCheckPanel from '@/components/SystemCheckPanel';
+import SuperAdminAnalytics from '@/components/SuperAdminAnalytics';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
