@@ -35,6 +35,7 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard, page: 'TutorDashboard' },
     { name: 'My Cohorts', icon: Users, page: 'TutorCohorts' },
+    { name: 'My Students', icon: User, page: 'TutorStudents' },
     { name: 'Mark Attendance', icon: CheckCircle, page: 'TutorAttendance' },
     { name: 'Quiz Grading', icon: Trophy, page: 'TutorQuizGrading' },
     { name: 'Submissions (Assignments)', icon: ClipboardCheck, page: 'TutorAssignmentSubmissions' },
