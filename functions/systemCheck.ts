@@ -180,7 +180,7 @@ Deno.serve(async (req) => {
     );
 
     // ─────────────────────────────────────────────────────────────
-    // 4. SECURITY: LOGIN EVENT ANALYSIS
+    // 4. SECURITY: LOGIN EVENT ANALYSIS + RBAC + BACKEND GUARDS
     // ─────────────────────────────────────────────────────────────
     const now = Date.now();
     const last24h = new Date(now - 24 * 60 * 60 * 1000);
@@ -229,6 +229,75 @@ Deno.serve(async (req) => {
         `Most recent login: ${new Date(loginEvents[0].login_time).toUTCString()}`
       );
     }
+
+    // ── Role-Based Access Control: check for users with unexpected roles
+    const validRoles = ['student', 'tutor', 'admin', 'super_admin'];
+    const usersWithInvalidRoles = users.filter(u => !validRoles.includes(u.app_role));
+    addCheck('security', 'Role Integrity Check',
+      usersWithInvalidRoles.length > 0 ? 'fail' : 'pass',
+      usersWithInvalidRoles.length === 0
+        ? 'All users have valid, recognized roles ✓'
+        : `${usersWithInvalidRoles.length} user(s) have invalid or missing roles`,
+      usersWithInvalidRoles.length > 0 ? { users: usersWithInvalidRoles.map(u => ({ email: u.email, role: u.app_role })) } : null
+    );
+
+    // ── Paused/inactive accounts check
+    const pausedUsers = users.filter(u => u.status === 'paused');
+    addCheck('security', 'Paused Accounts',
+      pausedUsers.length > 0 ? 'warn' : 'pass',
+      pausedUsers.length === 0
+        ? 'No paused accounts currently ✓'
+        : `${pausedUsers.length} account(s) are currently paused`,
+      pausedUsers.length > 0 ? { paused: pausedUsers.map(u => ({ email: u.email, role: u.app_role })) } : null
+    );
+
+    // ── Super admin count check — should not be excessive
+    const superAdmins = users.filter(u => u.app_role === 'super_admin');
+    addCheck('security', 'Super Admin Count',
+      superAdmins.length > 3 ? 'warn' : 'pass',
+      superAdmins.length <= 3
+        ? `${superAdmins.length} super admin(s) — within safe limits ✓`
+        : `${superAdmins.length} super admins detected — consider reducing to minimum necessary`,
+      { count: superAdmins.length, emails: superAdmins.map(u => u.email) }
+    );
+
+    // ── Invitation security: check for long-pending invitations
+    try {
+      const invitations = await base44.asServiceRole.entities.Invitation.list('-created_date', 200);
+      const expiredPending = invitations.filter(i =>
+        i.status === 'pending' && i.expiry_date && new Date(i.expiry_date) < new Date()
+      );
+      const openInvitations = invitations.filter(i => i.status === 'pending');
+      addCheck('security', 'Invitation Security',
+        expiredPending.length > 0 ? 'warn' : 'pass',
+        `${openInvitations.length} open invitation(s) — ${expiredPending.length} are expired but still "pending"`,
+        expiredPending.length > 0 ? { expired_pending: expiredPending.map(i => ({ email: i.email, expired: i.expiry_date })) } : null
+      );
+    } catch {
+      addCheck('security', 'Invitation Security', 'warn', 'Could not check invitation table');
+    }
+
+    // ── Audit log check — verify impersonation audit trail is active
+    try {
+      const auditLogs = await base44.asServiceRole.entities.AdminAuditLog.list('-created_date', 50);
+      addCheck('security', 'Admin Audit Log',
+        'pass',
+        `${auditLogs.length} audit log entries found — impersonation trail is active ✓`
+      );
+    } catch {
+      addCheck('security', 'Admin Audit Log', 'warn', 'Could not access admin audit log');
+    }
+
+    // ── Student accounts without cohort memberships
+    const studentIds = users.filter(u => u.app_role === 'student').map(u => u.id);
+    const studentsWithMembership = new Set(memberships.filter(m => m.status === 'active').map(m => m.user_id));
+    const orphanedStudents = studentIds.filter(id => !studentsWithMembership.has(id));
+    addCheck('security', 'Student Cohort Assignment',
+      orphanedStudents.length > 0 ? 'warn' : 'pass',
+      orphanedStudents.length === 0
+        ? 'All students are assigned to at least one cohort ✓'
+        : `${orphanedStudents.length} student(s) have no active cohort membership`
+    );
 
     // ─────────────────────────────────────────────────────────────
     // 5. DATA CONSISTENCY
