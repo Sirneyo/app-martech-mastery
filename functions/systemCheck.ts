@@ -406,5 +406,28 @@ Deno.serve(async (req) => {
   }
 
   results.duration_ms = Date.now() - checkStart;
+
+  // ── Save scan history
+  try {
+    const allChecks = Object.values(results.checks).flat();
+    const failedChecks = allChecks.filter(c => c.status === 'fail').map(c => c.name);
+    const warnedChecks = allChecks.filter(c => c.status === 'warn').map(c => c.name);
+    const overall = results.summary.fail > 0 ? 'fail' : results.summary.warn > 0 ? 'warn' : 'pass';
+    await base44.asServiceRole.entities.SystemCheckHistory.create({
+      scanned_by_id: user.id,
+      scanned_by_name: user.full_name || user.email,
+      overall_status: overall,
+      pass_count: results.summary.pass || 0,
+      warn_count: results.summary.warn || 0,
+      fail_count: results.summary.fail || 0,
+      total_checks: (results.summary.pass || 0) + (results.summary.warn || 0) + (results.summary.fail || 0),
+      duration_ms: results.duration_ms,
+      failed_checks: JSON.stringify(failedChecks),
+      warned_checks: JSON.stringify(warnedChecks),
+    });
+  } catch (historyErr) {
+    console.warn('Could not save scan history:', historyErr.message);
+  }
+
   return Response.json(results);
 });
