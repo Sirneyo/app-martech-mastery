@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Coins, Trash2, CheckCircle, XCircle, Search, Plus, Minus, Users, AlertTriangle, Eye, Activity, UserCheck } from 'lucide-react';
+import { Shield, Coins, Trash2, CheckCircle, XCircle, Search, Plus, Minus, Users, AlertTriangle, Eye, Activity, UserCheck, Wifi } from 'lucide-react';
 import SystemCheckPanel from '@/components/SystemCheckPanel';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -69,6 +69,21 @@ export default function SuperAdminDashboard() {
     queryKey: ['deletion-requests'],
     queryFn: () => base44.entities.UserDeletionRequest.list('-created_date'),
   });
+
+  // Online users: logged in within the last 15 minutes
+  const { data: recentLoginEvents = [] } = useQuery({
+    queryKey: ['recent-login-events'],
+    queryFn: () => base44.entities.LoginEvent.list('-login_time', 200),
+    refetchInterval: 60000, // refresh every minute
+  });
+
+  const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+  const onlineUserIds = [...new Set(
+    recentLoginEvents
+      .filter(e => new Date(e.login_time) > fifteenMinutesAgo)
+      .map(e => e.user_id)
+  )];
+  const onlineUsers = users.filter(u => onlineUserIds.includes(u.id));
 
   // Aggregate points per user
   const pointsByUser = users.reduce((acc, user) => {
