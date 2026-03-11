@@ -601,6 +601,11 @@ export default function SuperAdminDashboard() {
             </div>
           </TabsContent>
 
+          {/* Analytics Tab */}
+          <TabsContent value="analytics">
+            <SuperAdminAnalytics />
+          </TabsContent>
+
           {/* System Check Tab */}
           <TabsContent value="systemcheck" className="mt-4">
             <SystemCheckPanel />
