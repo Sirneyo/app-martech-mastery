@@ -26,10 +26,11 @@ Deno.serve(async (req) => {
       user_id: user_id
     });
 
-    // Update user with role and full name
+    // Update user with role and full name (prefer user-entered name over invite name)
+    const resolvedFullName = submittedFullName || invitation.full_name || '';
     await base44.asServiceRole.entities.User.update(user_id, {
       app_role: invitation.intended_app_role || 'student',
-      full_name: invitation.full_name || ''
+      full_name: resolvedFullName
     });
 
     // If cohort_id is specified, create cohort membership
