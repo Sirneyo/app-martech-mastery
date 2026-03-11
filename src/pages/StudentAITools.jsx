@@ -30,18 +30,25 @@ export default function StudentAITools() {
 
   if (isLocked) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-gray-50">
-        <div className="text-center max-w-md px-6">
-          <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Lock className="w-10 h-10 text-purple-600" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8 flex items-center justify-center">
+        <div className="max-w-2xl w-full">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-gradient-to-r from-violet-600 to-purple-600 px-8 py-10 text-center text-white">
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                <Lock className="w-8 h-8 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold mb-1">AI Tools</h1>
+              <p className="text-white/80 text-sm">Unlocks at Week {UNLOCK_WEEK} of your cohort</p>
+            </div>
+            <div className="px-8 py-8 text-center">
+              <p className="text-slate-600 mb-2">
+                You are currently on <span className="font-semibold">Week {currentWeek}</span>.
+              </p>
+              <p className="text-slate-500 text-sm">
+                Keep going — only {UNLOCK_WEEK - currentWeek} week{UNLOCK_WEEK - currentWeek !== 1 ? 's' : ''} to go!
+              </p>
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">AI Tools Locked</h2>
-          <p className="text-gray-600 mb-2">
-            AI Tools unlock at <span className="font-semibold text-purple-700">Week {UNLOCK_WEEK}</span> of your program.
-          </p>
-          <p className="text-gray-500 text-sm">
-            You are currently on <span className="font-semibold">Week {currentWeek}</span>. Keep going — only {UNLOCK_WEEK - currentWeek} week{UNLOCK_WEEK - currentWeek !== 1 ? 's' : ''} to go!
-          </p>
         </div>
       </div>
     );
