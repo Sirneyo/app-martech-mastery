@@ -18,11 +18,24 @@ Deno.serve(async (req) => {
     const payload = await req.json();
     const { event_type, data } = payload;
 
+    // --- Input Validation ---
+    const VALID_EVENT_TYPES = ['attendance', 'quiz', 'assignment_grade', 'login_streak'];
+    if (!event_type || !VALID_EVENT_TYPES.includes(event_type)) {
+      return Response.json({ error: `Invalid event_type. Must be one of: ${VALID_EVENT_TYPES.join(', ')}` }, { status: 400 });
+    }
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      return Response.json({ error: 'data is required and must be an object' }, { status: 400 });
+    }
+
     const db = base44.asServiceRole;
 
     if (event_type === 'attendance') {
       // data: { student_user_id, cohort_id, date, status, record_id }
       const { student_user_id, cohort_id, date, status, record_id } = data;
+      const VALID_STATUSES = ['present', 'absent', 'late'];
+      if (!student_user_id || typeof student_user_id !== 'string') return Response.json({ error: 'student_user_id is required' }, { status: 400 });
+      if (!record_id || typeof record_id !== 'string') return Response.json({ error: 'record_id is required' }, { status: 400 });
+      if (!status || !VALID_STATUSES.includes(status)) return Response.json({ error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` }, { status: 400 });
 
       let points = 0;
       if (status === 'present') points = 10;
@@ -54,6 +67,8 @@ Deno.serve(async (req) => {
     if (event_type === 'quiz') {
       // data: { quiz_result_id, cohort_id, week_number, first_place_user_id, second_place_user_id, third_place_user_id }
       const { quiz_result_id, week_number, first_place_user_id, second_place_user_id, third_place_user_id } = data;
+      if (!quiz_result_id || typeof quiz_result_id !== 'string') return Response.json({ error: 'quiz_result_id is required' }, { status: 400 });
+      if (week_number !== undefined && (typeof week_number !== 'number' || week_number < 1 || week_number > 12)) return Response.json({ error: 'week_number must be a number between 1 and 12' }, { status: 400 });
 
       const isFinalQuiz = week_number === 8;
       const prizes = isFinalQuiz
@@ -94,6 +109,11 @@ Deno.serve(async (req) => {
     if (event_type === 'assignment_grade') {
       // data: { submission_id, student_user_id, rubric_grade, grade_id }
       const { submission_id, student_user_id, rubric_grade, grade_id } = data;
+      const VALID_GRADES = ['Poor', 'Fair', 'Good', 'Excellent'];
+      if (!submission_id || typeof submission_id !== 'string') return Response.json({ error: 'submission_id is required' }, { status: 400 });
+      if (!student_user_id || typeof student_user_id !== 'string') return Response.json({ error: 'student_user_id is required' }, { status: 400 });
+      if (!rubric_grade || !VALID_GRADES.includes(rubric_grade)) return Response.json({ error: `Invalid rubric_grade. Must be one of: ${VALID_GRADES.join(', ')}` }, { status: 400 });
+      if (!grade_id || typeof grade_id !== 'string') return Response.json({ error: 'grade_id is required' }, { status: 400 });
 
       const gradePoints = { Poor: 0, Fair: 25, Good: 50, Excellent: 100 };
       const points = gradePoints[rubric_grade] ?? 0;
@@ -122,6 +142,7 @@ Deno.serve(async (req) => {
     if (event_type === 'login_streak') {
       // data: { user_id }
       const { user_id } = data;
+      if (!user_id || typeof user_id !== 'string') return Response.json({ error: 'user_id is required' }, { status: 400 });
 
       const loginEvents = await db.entities.LoginEvent.filter({ user_id });
       const dates = [...new Set(loginEvents.map(e => e.login_time.split('T')[0]))].sort().reverse();
