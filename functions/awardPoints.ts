@@ -15,6 +15,10 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
+    if (user.app_role !== 'super_admin') {
+      return Response.json({ error: 'Forbidden: Super Admin access required' }, { status: 403 });
+    }
+
     const payload = await req.json();
     const { event_type, data } = payload;
 

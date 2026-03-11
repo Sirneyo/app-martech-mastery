@@ -9,6 +9,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    if (!['admin', 'super_admin'].includes(user.app_role)) {
+      return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+    }
+
     const payload = await req.json();
     const { email, full_name, app_role, cohort_id } = payload;
 
