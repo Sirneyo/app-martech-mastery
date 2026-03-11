@@ -246,8 +246,56 @@ export default function SystemCheckPanel() {
           <Server className="w-12 h-12 mx-auto mb-4 text-slate-300" />
           <p className="text-slate-600 font-semibold text-base">No diagnostic data yet</p>
           <p className="text-slate-400 text-sm mt-1 max-w-md mx-auto">
-            Click "Run System Check" to analyse database health, email service, secrets, login & IP security, data consistency, notifications, and automation pipelines.
+            Click "Run System Check" to analyse database health, email service, secrets, login & IP security (role integrity, audit logs, paused accounts, invitation security), data consistency, notifications, and automation pipelines.
           </p>
+        </div>
+      )}
+
+      {/* Scan History */}
+      {scanHistory.length > 0 && (
+        <div className="bg-white rounded-xl border border-slate-200 p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <History className="w-4 h-4 text-slate-500" />
+            <h3 className="font-semibold text-slate-800 text-sm">Scan History</h3>
+            <span className="text-xs text-slate-400 ml-auto">Last {scanHistory.length} scans</span>
+          </div>
+          <div className="space-y-2">
+            {scanHistory.map((scan) => {
+              const failedChecks = (() => { try { return JSON.parse(scan.failed_checks || '[]'); } catch { return []; } })();
+              const warnedChecks = (() => { try { return JSON.parse(scan.warned_checks || '[]'); } catch { return []; } })();
+              return (
+                <div key={scan.id} className="flex items-center gap-3 border border-slate-100 rounded-lg px-3 py-2.5 hover:bg-slate-50 transition-colors">
+                  <Badge className={`text-xs border shrink-0 ${STATUS_COLORS[scan.overall_status] || STATUS_COLORS.pass}`}>
+                    {scan.overall_status?.toUpperCase()}
+                  </Badge>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-xs text-slate-500">
+                        {new Date(scan.created_date).toLocaleString()}
+                      </span>
+                      <span className="text-xs font-medium text-slate-700">
+                        {scan.total_checks} checks — <span className="text-emerald-600">{scan.pass_count}P</span>{' '}
+                        <span className="text-amber-600">{scan.warn_count}W</span>{' '}
+                        <span className="text-red-600">{scan.fail_count}F</span>
+                      </span>
+                      <span className="text-xs text-slate-400">{scan.duration_ms}ms</span>
+                    </div>
+                    {failedChecks.length > 0 && (
+                      <p className="text-xs text-red-600 mt-0.5 truncate">
+                        Failed: {failedChecks.join(', ')}
+                      </p>
+                    )}
+                    {failedChecks.length === 0 && warnedChecks.length > 0 && (
+                      <p className="text-xs text-amber-600 mt-0.5 truncate">
+                        Warned: {warnedChecks.join(', ')}
+                      </p>
+                    )}
+                  </div>
+                  <span className="text-xs text-slate-400 shrink-0 hidden sm:block">by {scan.scanned_by_name}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
