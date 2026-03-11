@@ -47,6 +47,10 @@ export default function SuperAdminDashboard() {
   const [viewAsRoleFilter, setViewAsRoleFilter] = useState('');
   const [activeTab, setActiveTab] = useState('points');
 
+  // Fix names state
+  const [fixNamesLoading, setFixNamesLoading] = useState(false);
+  const [fixNamesResult, setFixNamesResult] = useState(null);
+
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
