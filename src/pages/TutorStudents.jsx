@@ -88,13 +88,7 @@ export default function TutorStudents() {
       return m?.cohort_id === selectedCohort;
     });
 
-  // Journey stats
-  const journeyPoints = selectedStudent
-    ? allLedgerEntries.filter(e => e.user_id === selectedStudent.id).reduce((s, e) => s + (e.points || 0), 0)
-    : 0;
-  const attended = studentAttendance.filter(a => a.status === 'present').length;
-  const totalSessions = studentAttendance.length;
-  const attendancePct = totalSessions > 0 ? Math.round((attended / totalSessions) * 100) : 0;
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
