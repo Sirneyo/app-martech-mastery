@@ -3,11 +3,6 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-
-    if (user?.app_role !== 'super_admin') {
-      return Response.json({ error: 'Forbidden: Super admin access required' }, { status: 403 });
-    }
 
     // Fetch all users and all accepted invitations
     const allUsers = await base44.asServiceRole.entities.User.list();
@@ -19,7 +14,6 @@ Deno.serve(async (req) => {
       const d = inv.data || {};
       if (d.email && d.full_name && d.full_name.trim() && d.status === 'accepted') {
         const key = d.email.toLowerCase();
-        // Keep the most recent accepted invitation name
         if (!inviteNameByEmail[key]) {
           inviteNameByEmail[key] = d.full_name.trim();
         }
@@ -39,7 +33,6 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Consider it email-derived if it matches the email prefix
       const emailPrefix = u.email?.split('@')[0] || '';
       const currentName = u.full_name || '';
       const normalise = (s) => s.toLowerCase().replace(/[._\-+]/g, '');
