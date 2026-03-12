@@ -452,6 +452,14 @@ export default function SuperAdminDashboard() {
                             <Button
                               size="sm"
                               variant="outline"
+                              className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                              onClick={() => { setResetTarget(user); setResetConfirmOpen(true); }}
+                            >
+                              <RotateCcw className="w-3 h-3 mr-1" /> Reset
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
                               className="text-red-700 border-red-300 hover:bg-red-100"
                               onClick={() => openDeleteConfirm(user)}
                             >
