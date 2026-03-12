@@ -69,7 +69,12 @@ Deno.serve(async (req) => {
       const todayDate = new Date(today);
       const daysSince = Math.round((todayDate - lastLogin) / (1000 * 60 * 60 * 24));
 
-      if (daysSince === 3) {
+      // Only apply penalty if student's cohort has started
+      const studentMembership = allMemberships.find(m => m.user_id === student.id && m.status === 'active');
+      const studentCohort = studentMembership ? cohortMap[studentMembership.cohort_id] : null;
+      const cohortStarted = studentCohort && studentCohort.start_date && studentCohort.start_date <= today;
+
+      if (daysSince === 3 && cohortStarted) {
         const penaltyKey = `absence_3day_${today}_${student.id}`;
         const existingPenalty = await db.entities.PointsLedger.filter({
           user_id: student.id,
