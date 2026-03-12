@@ -58,7 +58,7 @@ export default function StudentProfile() {
   });
 
   const handleSave = () => {
-    updateProfileMutation.mutate(formData);
+    updateProfileMutation.mutate({ ...formData, full_name: formData.display_name });
   };
 
   const handleCVUpload = async (e) => {
