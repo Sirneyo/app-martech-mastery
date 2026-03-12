@@ -858,13 +858,25 @@ export default function SuperAdminDashboard() {
                            <p className="text-xs text-slate-400 mt-1">By: {entry.awarded_by}</p>
                          )}
                        </div>
-                       <span className={`text-lg font-bold whitespace-nowrap ml-2 ${entry.points < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-                         {entry.points > 0 ? '+' : ''}{entry.points}
-                       </span>
-                     </div>
-                   </div>
-                 ))}
-               {ledgerEntries.filter(e => e.user_id === selectedUser?.id).length === 0 && (
+                       <div className="flex items-center gap-3 ml-2">
+                         <span className={`text-lg font-bold whitespace-nowrap ${entry.points < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                           {entry.points > 0 ? '+' : ''}{entry.points}
+                         </span>
+                         <Button
+                           size="sm"
+                           variant="outline"
+                           className="text-red-600 border-red-200 hover:bg-red-50 h-7 w-7 p-0 shrink-0"
+                           disabled={deleteLedgerEntryMutation.isPending}
+                           onClick={() => deleteLedgerEntryMutation.mutate(entry.id)}
+                           title="Delete entry & clear notification"
+                         >
+                           <Trash2 className="w-3 h-3" />
+                         </Button>
+                       </div>
+                       </div>
+                       </div>
+                       ))}
+                       {ledgerEntries.filter(e => e.user_id === selectedUser?.id).length === 0 && (
                  <div className="text-center py-8 text-slate-400">
                    <Coins className="w-8 h-8 mx-auto mb-2 opacity-40" />
                    <p className="text-sm">No point entries yet</p>
