@@ -82,6 +82,16 @@ export default function RoleBasedLayout({ children, currentPageName }) {
     });
   };
 
+  // User-level impersonation (View as User feature) — super_admin only
+  const impersonatingUser = (() => {
+    if (user?.app_role !== 'super_admin' && user?._realRole !== 'super_admin') return null;
+    try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; }
+  })();
+
+  // For super admins, infer from page name first; fall back to sessionStorage for mixed pages
+  const pageInferredRole = inferViewAsRole(currentPageName);
+  const viewAsRole = impersonatingUser?.app_role || pageInferredRole || sessionStorage.getItem('superAdminViewAs') || null;
+
   // Super admins viewing another role's pages use the inferred role for sidebar
   const isSuperAdminViewing = user?.app_role === 'super_admin' && !!viewAsRole;
   const effectiveRole = isSuperAdminViewing ? viewAsRole : user?.app_role;
