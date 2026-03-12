@@ -29,7 +29,13 @@ export default function RoleBasedLayout({ children, currentPageName }) {
   const { data: user, isLoading: loading } = useQuery({
     queryKey: ['current-user'],
     queryFn: async () => {
-      const userData = await base44.auth.me();
+      let userData;
+      try {
+        userData = await base44.auth.me();
+      } catch {
+        base44.auth.redirectToLogin(window.location.pathname);
+        return null;
+      }
       if (!userData) {
         base44.auth.redirectToLogin(window.location.pathname);
         return null;
