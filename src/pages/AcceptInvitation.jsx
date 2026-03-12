@@ -123,6 +123,11 @@ export default function AcceptInvitation() {
       // Log in the user
       await base44.auth.loginViaEmailPassword(invitation.email, password);
 
+      // Update full_name via auth (the only way to set the built-in full_name field)
+      if (fullName.trim()) {
+        await base44.auth.updateMe({ full_name: fullName.trim() });
+      }
+
       // Get the logged-in user to retrieve user_id
       const currentUser = await base44.auth.me();
 
