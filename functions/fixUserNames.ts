@@ -36,9 +36,9 @@ Deno.serve(async (req) => {
       if (!inviteName) { skipped++; continue; }
 
       const emailPrefix = u.email?.split('@')[0] || '';
-      const currentName = u.full_name || '';
+      const currentName = u.display_name || u.full_name || '';
       const normalise = (s) => s.toLowerCase().replace(/[._\-+]/g, '');
-      const nameIsEmailDerived = normalise(currentName) === normalise(emailPrefix);
+      const nameIsEmailDerived = normalise(currentName) === normalise(emailPrefix) || !currentName.trim();
 
       if (nameIsEmailDerived && inviteName !== currentName) {
         await base44.asServiceRole.entities.User.update(u.id, { display_name: inviteName });
