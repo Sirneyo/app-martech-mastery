@@ -39,7 +39,7 @@ export default function AdminProfile() {
   });
 
   const handleSave = () => {
-    updateProfileMutation.mutate(formData);
+    updateProfileMutation.mutate({ ...formData, full_name: formData.display_name });
   };
 
   const handleProfilePictureUpload = async (e) => {
