@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
         // Normalize: prefer display_name over full_name for display purposes
         const users = rawUsers.map(u => ({
           ...u,
-          full_name: u.display_name || u.full_name || u.email?.split('@')[0] || ''
+          full_name: u.display_name || u.full_name || ''
         }));
 
         return Response.json({ users });

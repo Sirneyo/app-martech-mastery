@@ -66,9 +66,9 @@ Deno.serve(async (req) => {
     
     const userId = users[0].id;
 
-    // Update user with full name and status
+    // Update user with display_name and status
     await base44.asServiceRole.entities.User.update(userId, {
-      full_name: full_name,
+      display_name: full_name,
       status: 'active'
     });
 
