@@ -45,6 +45,11 @@ Deno.serve(async (req) => {
       reviewUrl = '/StudentProjects';
     }
 
+    const getFirstName = (user) => {
+      const name = user.display_name || user.full_name || '';
+      return name.split(' ')[0] || 'there';
+    };
+
     const gradeEmojis = { Excellent: '🌟', Good: '✅', Fair: '📝', Poor: '⚠️' };
     const emoji = gradeEmojis[rubric_grade] || '📝';
     const appUrl = 'https://app.martech-mastery.com';

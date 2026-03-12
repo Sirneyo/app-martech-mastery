@@ -45,6 +45,11 @@ Deno.serve(async (req) => {
       if (templates.length) itemTitle = templates[0].title;
     }
 
+    const getFirstName = (user) => {
+      const name = user.display_name || user.full_name || '';
+      return name.split(' ')[0] || 'there';
+    };
+
     const appUrl = 'https://app.martech-mastery.com';
     const resendKey = Deno.env.get('RESEND_API_KEY');
     const resend = resendKey ? new Resend(resendKey) : null;

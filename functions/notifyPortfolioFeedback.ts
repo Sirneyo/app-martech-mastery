@@ -41,6 +41,11 @@ Deno.serve(async (req) => {
       }
     }
 
+    const getFirstName = (user) => {
+      const name = user.display_name || user.full_name || '';
+      return name.split(' ')[0] || 'there';
+    };
+
     const isApproved = newStatus === 'approved';
     const appUrl = 'https://app.martech-mastery.com';
 
