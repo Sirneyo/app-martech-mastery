@@ -159,6 +159,15 @@ export default function SuperAdminDashboard() {
     },
   });
 
+  const resetPointsMutation = useMutation({
+    mutationFn: (userId) => base44.functions.invoke('resetPoints', { userId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['points-ledger'] });
+      setResetConfirmOpen(false);
+      setResetTarget(null);
+    },
+  });
+
   const handleAdjustPoints = () => {
     const pts = parseInt(adjustAmount);
     if (!pts || !adjustReason.trim() || !adjustTarget) return;
