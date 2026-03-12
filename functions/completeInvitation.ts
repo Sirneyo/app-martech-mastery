@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
         const student = await base44.asServiceRole.entities.User.get(user_id);
         await base44.asServiceRole.functions.invoke('notifyWelcomeStudent', {
           student_user_id: user_id,
-          student_name: student?.full_name || resolvedFullName || '',
+          student_name: resolvedFullName || student?.display_name || student?.full_name || '',
           student_email: student?.email || '',
         });
       } catch (e) {
