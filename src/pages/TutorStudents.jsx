@@ -156,7 +156,7 @@ export default function TutorStudents() {
                         <User className="w-5 h-5 text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-slate-900 truncate">{student.full_name}</p>
+                        <p className="font-semibold text-slate-900 truncate">{student.display_name || student.full_name}</p>
                         <p className="text-xs text-slate-500 truncate">{student.email}</p>
                         {cohort && (
                           <Badge className="mt-1 text-xs bg-violet-100 text-violet-700 border-0">{cohort.name}</Badge>

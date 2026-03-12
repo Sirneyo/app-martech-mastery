@@ -34,7 +34,9 @@ Deno.serve(async (req) => {
 
     // Use service role to fetch student data
     const allUsers = await base44.asServiceRole.entities.User.list();
-    const students = allUsers.filter(u => studentUserIds.includes(u.id));
+    const students = allUsers
+      .filter(u => studentUserIds.includes(u.id))
+      .map(u => ({ ...u, full_name: u.display_name || u.full_name || '' }));
 
     return Response.json({ students });
   } catch (error) {

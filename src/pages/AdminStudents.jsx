@@ -159,12 +159,12 @@ export default function AdminStudents() {
                 >
                   <div className="p-4 flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0">
-                      {student.full_name?.charAt(0) || 'S'}
+                      {(student.display_name || student.full_name)?.charAt(0) || 'S'}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-slate-900 truncate">
-                        {student.full_name || 'Unnamed Student'}
+                        {student.display_name || student.full_name || 'Unnamed Student'}
                       </h3>
                       <p className="text-sm text-slate-500 truncate">{student.email}</p>
                     </div>

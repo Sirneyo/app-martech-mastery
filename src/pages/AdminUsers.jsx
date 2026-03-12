@@ -523,7 +523,7 @@ export default function AdminUsers() {
                 ) : (
                   filteredUsers.map((user) => (
                   <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50">
-                    <td className="p-4 font-medium text-slate-900">{user.full_name}</td>
+                    <td className="p-4 font-medium text-slate-900">{user.display_name || user.full_name}</td>
                     <td className="p-4 text-slate-600">{user.email}</td>
                     <td className="p-4">
                       <Badge variant={user.app_role === 'admin' ? 'default' : 'secondary'}>
