@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
     const leaderboard = students
       .map(student => ({
         id: student.id,
-        name: student.full_name,
+        name: student.display_name || student.full_name,
         points: pointsByUser[student.id] || 0,
         isMe: student.id === user.id,
       }))
