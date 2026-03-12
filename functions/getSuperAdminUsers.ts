@@ -14,7 +14,13 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
         }
 
-        const users = await base44.asServiceRole.entities.User.list();
+        const rawUsers = await base44.asServiceRole.entities.User.list();
+
+        // Normalize: prefer display_name over full_name for display purposes
+        const users = rawUsers.map(u => ({
+          ...u,
+          full_name: u.display_name || u.full_name || u.email?.split('@')[0] || ''
+        }));
 
         return Response.json({ users });
     } catch (error) {
