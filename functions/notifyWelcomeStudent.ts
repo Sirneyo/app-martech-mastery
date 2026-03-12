@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
               <img src="https://res.cloudinary.com/dbckozv27/image/upload/v1773184292/Full_logo_w5hurk.png" alt="MarTech Mastery" style="max-width: 150px; height: auto; display: block; margin: 0 auto;" />
             </div>
             <div style="padding: 40px 40px 32px;">
-            <h1 style="color:#1e293b; margin-bottom: 8px;">Welcome, ${student_name || 'there'}! 🎉</h1>
+            <h1 style="color:#1e293b; margin-bottom: 8px;">Welcome, ${firstName}! 🎉</h1>
             <p style="color:#475569; font-size:16px; line-height:1.6;">
               Your MarTech Mastery Matrix account has been successfully created. You're all set to begin your certification journey!
             </p>
