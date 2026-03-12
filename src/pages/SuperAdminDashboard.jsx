@@ -203,17 +203,6 @@ export default function SuperAdminDashboard() {
     setBreakdownOpen(true);
   };
 
-  const handleFixNames = async () => {
-    setFixNamesLoading(true);
-    setFixNamesResult(null);
-    const res = await base44.functions.invoke('fixUserNames', {});
-    setFixNamesResult(res.data);
-    setFixNamesLoading(false);
-    if (res.data?.updated > 0) {
-      queryClient.invalidateQueries({ queryKey: ['super-admin-users'] });
-    }
-  };
-
   const handleImpersonate = async (targetUser) => {
     // Log to AdminAuditLog
     await base44.entities.AdminAuditLog.create({
