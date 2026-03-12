@@ -159,7 +159,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
                   )}
                   <div className="text-left hidden sm:block">
                     <p className="text-sm font-medium text-slate-700">
-                      {user?.full_name || 'Loading...'}
+                      {user?.display_name || user?.full_name || 'Loading...'}
                     </p>
                     <p className="text-[10px] text-slate-500 capitalize">
                       {user?.app_role || 'student'}
