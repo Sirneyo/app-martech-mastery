@@ -42,6 +42,10 @@ export default function SuperAdminDashboard() {
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  // Reset points state
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+  const [resetTarget, setResetTarget] = useState(null);
+
   // View as User state
   const [viewAsSearch, setViewAsSearch] = useState('');
   const [viewAsRoleFilter, setViewAsRoleFilter] = useState('');
