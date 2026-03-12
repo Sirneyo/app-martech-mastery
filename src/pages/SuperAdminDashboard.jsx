@@ -243,7 +243,7 @@ export default function SuperAdminDashboard() {
     // Store impersonation data in sessionStorage
     sessionStorage.setItem('impersonatingUser', JSON.stringify({
       id: targetUser.id,
-      full_name: targetUser.full_name,
+      full_name: targetUser.display_name || targetUser.full_name,
       email: targetUser.email,
       app_role: targetUser.app_role,
     }));
@@ -373,7 +373,7 @@ export default function SuperAdminDashboard() {
                 {onlineUsers.map(u => (
                   <div key={u.id} className="flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    <span className="text-xs font-medium text-emerald-800">{u.full_name || u.email}</span>
+                    <span className="text-xs font-medium text-emerald-800">{u.display_name || u.full_name || u.email}</span>
                     <span className="text-xs text-emerald-500 capitalize">({u.app_role})</span>
                   </div>
                 ))}
@@ -437,7 +437,7 @@ export default function SuperAdminDashboard() {
                   ) : (
                     filteredUsers.map(user => (
                       <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50">
-                        <td className="p-4 font-medium text-slate-900">{user.full_name}</td>
+                        <td className="p-4 font-medium text-slate-900">{user.display_name || user.full_name}</td>
                         <td className="p-4 text-slate-600 text-sm">{user.email}</td>
                         <td 
                           className="p-4 cursor-pointer hover:opacity-80 transition-opacity"
@@ -608,7 +608,7 @@ export default function SuperAdminDashboard() {
                   ) : (
                     filteredViewAsUsers.map(user => (
                       <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50">
-                        <td className="p-4 font-medium text-slate-900">{user.full_name}</td>
+                        <td className="p-4 font-medium text-slate-900">{user.display_name || user.full_name}</td>
                         <td className="p-4 text-slate-600 text-sm">{user.email}</td>
                         <td className="p-4">
                           <Badge className={
@@ -655,7 +655,7 @@ export default function SuperAdminDashboard() {
           <DialogHeader>
             <DialogTitle className={`flex items-center gap-2 ${adjustType === 'bonus' ? 'text-emerald-700' : 'text-red-700'}`}>
               {adjustType === 'bonus' ? <Plus className="w-5 h-5" /> : <Minus className="w-5 h-5" />}
-              {adjustType === 'bonus' ? 'Award Points' : 'Deduct Points'} — {adjustTarget?.full_name}
+              {adjustType === 'bonus' ? 'Award Points' : 'Deduct Points'} — {adjustTarget?.display_name || adjustTarget?.full_name}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
@@ -768,7 +768,7 @@ export default function SuperAdminDashboard() {
              </DialogTitle>
            </DialogHeader>
            <div className="space-y-4 py-2">
-             <p className="text-slate-700">Are you sure you want to permanently delete <strong>{deleteTarget?.full_name}</strong> ({deleteTarget?.email})? This action cannot be undone.</p>
+             <p className="text-slate-700">Are you sure you want to permanently delete <strong>{deleteTarget?.display_name || deleteTarget?.full_name}</strong> ({deleteTarget?.email})? This action cannot be undone.</p>
              <div className="flex gap-2">
                <Button
                  variant="outline"
@@ -800,7 +800,7 @@ export default function SuperAdminDashboard() {
            </DialogHeader>
            <div className="space-y-4 py-2">
              <p className="text-slate-700">
-               Are you sure you want to reset all points for <strong>{resetTarget?.full_name}</strong>? This will permanently delete all their ledger entries and their total will return to 0.
+               Are you sure you want to reset all points for <strong>{resetTarget?.display_name || resetTarget?.full_name}</strong>? This will permanently delete all their ledger entries and their total will return to 0.
              </p>
              <div className="flex gap-2">
                <Button variant="outline" className="flex-1" onClick={() => setResetConfirmOpen(false)}>
@@ -824,7 +824,7 @@ export default function SuperAdminDashboard() {
            <DialogHeader>
              <DialogTitle className="flex items-center gap-2 text-slate-800">
                <Coins className="w-5 h-5 text-amber-600" />
-               Points Breakdown — {selectedUser?.full_name}
+               Points Breakdown — {selectedUser?.display_name || selectedUser?.full_name}
              </DialogTitle>
            </DialogHeader>
            <div className="space-y-4 py-2 max-h-96 overflow-y-auto">

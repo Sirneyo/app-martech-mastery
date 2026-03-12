@@ -111,10 +111,10 @@ export default function StudentProfileModal({ student, isOpen, onClose }) {
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white text-xl font-bold">
-                {student.full_name?.charAt(0) || 'S'}
+                {(student.display_name || student.full_name)?.charAt(0) || 'S'}
               </div>
               <div>
-                <h2 className="text-2xl font-bold">{student.full_name}</h2>
+                <h2 className="text-2xl font-bold">{student.display_name || student.full_name}</h2>
                 <p className="text-sm text-slate-500">{student.email}</p>
               </div>
             </DialogTitle>
