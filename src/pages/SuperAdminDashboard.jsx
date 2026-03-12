@@ -272,36 +272,6 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
 
-        {/* Fix Names Panel */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-2">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <p className="text-sm font-semibold text-slate-700">Fix Email-Derived Names</p>
-              <p className="text-xs text-slate-500 mt-0.5">Updates users whose displayed name is just their email prefix, replacing it with the name from their invitation.</p>
-            </div>
-            <div className="flex items-center gap-3">
-              {fixNamesResult && (
-                <p className="text-sm text-slate-600">
-                  {fixNamesResult.updated > 0
-                    ? <span className="text-emerald-600 font-medium">✓ Updated {fixNamesResult.updated} user{fixNamesResult.updated !== 1 ? 's' : ''}</span>
-                    : <span className="text-slate-500">No email-derived names found</span>
-                  }
-                </p>
-              )}
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-violet-200 text-violet-700 hover:bg-violet-50"
-                disabled={fixNamesLoading}
-                onClick={handleFixNames}
-              >
-                <RefreshCw className={`w-4 h-4 mr-1 ${fixNamesLoading ? 'animate-spin' : ''}`} />
-                {fixNamesLoading ? 'Fixing...' : 'Fix Names Now'}
-              </Button>
-            </div>
-          </div>
-        </div>
-
         {/* Role Switch Panel */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
           <p className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
