@@ -9,15 +9,20 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Super admin access required' }, { status: 403 });
     }
 
-    // Fetch all users and all invitations
+    // Fetch all users and all accepted invitations
     const allUsers = await base44.asServiceRole.entities.User.list();
-    const allInvitations = await base44.asServiceRole.entities.Invitation.list();
+    const allInvitations = await base44.asServiceRole.entities.Invitation.list('', 500);
 
-    // Build a map of email -> invitation full_name
+    // Build a map of email -> invitation full_name (fields are inside .data)
     const inviteNameByEmail = {};
     for (const inv of allInvitations) {
-      if (inv.email && inv.full_name && inv.full_name.trim()) {
-        inviteNameByEmail[inv.email.toLowerCase()] = inv.full_name.trim();
+      const d = inv.data || {};
+      if (d.email && d.full_name && d.full_name.trim() && d.status === 'accepted') {
+        const key = d.email.toLowerCase();
+        // Keep the most recent accepted invitation name
+        if (!inviteNameByEmail[key]) {
+          inviteNameByEmail[key] = d.full_name.trim();
+        }
       }
     }
 
@@ -34,11 +39,9 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Check if current name looks email-derived (matches email prefix)
+      // Consider it email-derived if it matches the email prefix
       const emailPrefix = u.email?.split('@')[0] || '';
       const currentName = u.full_name || '';
-
-      // Consider it email-derived if it matches the prefix (with common transformations)
       const normalise = (s) => s.toLowerCase().replace(/[._\-+]/g, '');
       const nameIsEmailDerived = normalise(currentName) === normalise(emailPrefix);
 

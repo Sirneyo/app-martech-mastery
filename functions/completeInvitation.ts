@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 Deno.serve(async (req) => {
   try {
@@ -18,6 +18,7 @@ Deno.serve(async (req) => {
     }
 
     const invitation = invitations[0];
+    const inv = invitation.data || {};
 
     // Update invitation status
     await base44.asServiceRole.entities.Invitation.update(invitation.id, {
@@ -27,31 +28,31 @@ Deno.serve(async (req) => {
     });
 
     // Update user with role and full name (prefer user-entered name over invite name)
-    const resolvedFullName = submittedFullName || invitation.full_name || '';
+    const resolvedFullName = submittedFullName?.trim() || inv.full_name || '';
     await base44.asServiceRole.entities.User.update(user_id, {
-      app_role: invitation.intended_app_role || 'student',
+      app_role: inv.intended_app_role || 'student',
       full_name: resolvedFullName
     });
 
     // If cohort_id is specified, create cohort membership
-    if (invitation.cohort_id && invitation.intended_app_role === 'student') {
+    if (inv.cohort_id && inv.intended_app_role === 'student') {
       await base44.asServiceRole.entities.CohortMembership.create({
         user_id: user_id,
-        cohort_id: invitation.cohort_id,
+        cohort_id: inv.cohort_id,
         enrollment_date: new Date().toISOString().split('T')[0],
         status: 'active'
       });
-    } else if (invitation.cohort_id && invitation.intended_app_role === 'tutor') {
+    } else if (inv.cohort_id && inv.intended_app_role === 'tutor') {
       await base44.asServiceRole.entities.TutorCohortAssignment.create({
         tutor_id: user_id,
-        cohort_id: invitation.cohort_id,
+        cohort_id: inv.cohort_id,
         assigned_date: new Date().toISOString().split('T')[0],
         is_primary: true
       });
     }
 
     // Send welcome email + in-app notification for students
-    if ((invitation.intended_app_role || 'student') === 'student') {
+    if ((inv.intended_app_role || 'student') === 'student') {
       try {
         const student = await base44.asServiceRole.entities.User.get(user_id);
         await base44.asServiceRole.functions.invoke('notifyWelcomeStudent', {
@@ -66,7 +67,7 @@ Deno.serve(async (req) => {
 
     return Response.json({
       success: true,
-      redirect_role: invitation.intended_app_role || 'student'
+      redirect_role: inv.intended_app_role || 'student'
     });
   } catch (error) {
     console.error('Complete invitation error:', error);

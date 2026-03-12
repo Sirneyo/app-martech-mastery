@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 Deno.serve(async (req) => {
   try {
@@ -17,32 +17,33 @@ Deno.serve(async (req) => {
     }
 
     const invitation = invitations[0];
+    const inv = invitation.data || {};
 
     // Check if expired
-    if (invitation.expiry_date && new Date(invitation.expiry_date) < new Date()) {
+    if (inv.expiry_date && new Date(inv.expiry_date) < new Date()) {
       return Response.json({ error: 'This invitation has expired' }, { status: 400 });
     }
 
-    if (invitation.status === 'accepted') {
+    if (inv.status === 'accepted') {
       return Response.json({ error: 'This invitation has already been used' }, { status: 400 });
     }
 
-    if (invitation.status === 'cancelled') {
+    if (inv.status === 'cancelled') {
       return Response.json({ error: 'This invitation has been cancelled' }, { status: 400 });
     }
 
     // Check if user already exists
-    const users = await base44.asServiceRole.entities.User.filter({ email: invitation.email });
+    const users = await base44.asServiceRole.entities.User.filter({ email: inv.email });
     const userExists = users && users.length > 0;
 
     return Response.json({
       success: true,
       invitation: {
         id: invitation.id,
-        email: invitation.email,
-        full_name: invitation.full_name,
-        intended_app_role: invitation.intended_app_role,
-        cohort_id: invitation.cohort_id
+        email: inv.email,
+        full_name: inv.full_name,
+        intended_app_role: inv.intended_app_role,
+        cohort_id: inv.cohort_id
       },
       userExists
     });
