@@ -774,6 +774,35 @@ export default function SuperAdminDashboard() {
          </DialogContent>
        </Dialog>
 
+       {/* Reset Points Confirmation Dialog */}
+       <Dialog open={resetConfirmOpen} onOpenChange={setResetConfirmOpen}>
+         <DialogContent>
+           <DialogHeader>
+             <DialogTitle className="text-orange-700 flex items-center gap-2">
+               <RotateCcw className="w-5 h-5" />
+               Reset Points
+             </DialogTitle>
+           </DialogHeader>
+           <div className="space-y-4 py-2">
+             <p className="text-slate-700">
+               Are you sure you want to reset all points for <strong>{resetTarget?.full_name}</strong>? This will permanently delete all their ledger entries and their total will return to 0.
+             </p>
+             <div className="flex gap-2">
+               <Button variant="outline" className="flex-1" onClick={() => setResetConfirmOpen(false)}>
+                 Cancel
+               </Button>
+               <Button
+                 className="flex-1 bg-orange-600 hover:bg-orange-700 text-white"
+                 disabled={resetPointsMutation.isPending}
+                 onClick={() => resetPointsMutation.mutate(resetTarget?.id)}
+               >
+                 <RotateCcw className="w-4 h-4 mr-1" /> {resetPointsMutation.isPending ? 'Resetting...' : 'Reset Points'}
+               </Button>
+             </div>
+           </div>
+         </DialogContent>
+       </Dialog>
+
        {/* Points Breakdown Modal */}
        <Dialog open={breakdownOpen} onOpenChange={setBreakdownOpen}>
          <DialogContent className="max-w-2xl">
