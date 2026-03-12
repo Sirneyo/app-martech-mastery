@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
       const nameIsEmailDerived = normalise(currentName) === normalise(emailPrefix);
 
       if (nameIsEmailDerived && inviteName !== currentName) {
-        await base44.asServiceRole.entities.User.update(u.id, { full_name: inviteName });
+        await base44.asServiceRole.entities.User.update(u.id, { display_name: inviteName });
         changes.push({ email: u.email, old: currentName, new: inviteName });
         updated++;
       } else {
