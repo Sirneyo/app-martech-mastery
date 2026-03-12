@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
             </div>
             <div style="padding: 40px 40px 32px;">
               <h2 style="color: #1a2d5a; font-size: 22px; margin: 0 0 8px;">Submission Received ✅</h2>
-              <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 20px;">Hi ${student.full_name || 'there'},</p>
+              <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 20px;">Hi ${getFirstName(student)},</p>
               <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
                 Your <strong>${kindLabel.toLowerCase()}</strong> for <strong>${itemTitle}</strong> has been successfully submitted and is now in the review queue. Your tutor will grade it shortly.
               </p>
@@ -100,7 +100,7 @@ Deno.serve(async (req) => {
           resend.emails.send({
             from: 'MarTech Mastery <support@app.martech-mastery.com>',
             to: tutor.email,
-            subject: `📥 New ${kindLabel} Submission — ${student.full_name}`,
+            subject: `📥 New ${kindLabel} Submission — ${student.display_name || student.full_name}`,
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(30,45,90,0.10);">
                 <div style="background: #9dc6f0; padding: 32px 40px; text-align: center;">
@@ -108,14 +108,14 @@ Deno.serve(async (req) => {
                 </div>
                 <div style="padding: 40px 40px 32px;">
                   <h2 style="color: #1a2d5a; font-size: 22px; margin: 0 0 8px;">New ${kindLabel} to Review 📥</h2>
-                  <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 20px;">Hi ${tutor.full_name || 'there'},</p>
+                  <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 20px;">Hi ${getFirstName(tutor)},</p>
                   <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0 0 8px;">
-                    <strong>${student.full_name}</strong> has submitted their ${kindLabel.toLowerCase()} and it is ready for review.
+                    <strong>${student.display_name || student.full_name}</strong> has submitted their ${kindLabel.toLowerCase()} and it is ready for review.
                   </p>
                   <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0;">
                     <p style="margin: 0; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Submission Details</p>
                     <table style="width: 100%; border-collapse: collapse; margin-top: 12px;">
-                      <tr><td style="padding: 6px 0; color: #64748b; font-size: 14px; width: 100px;">Student:</td><td style="padding: 6px 0; color: #1a2d5a; font-size: 14px; font-weight: 600;">${student.full_name}</td></tr>
+                      <tr><td style="padding: 6px 0; color: #64748b; font-size: 14px; width: 100px;">Student:</td><td style="padding: 6px 0; color: #1a2d5a; font-size: 14px; font-weight: 600;">${student.display_name || student.full_name}</td></tr>
                       <tr><td style="padding: 6px 0; color: #64748b; font-size: 14px;">${kindLabel}:</td><td style="padding: 6px 0; color: #1a2d5a; font-size: 14px; font-weight: 600;">${itemTitle}</td></tr>
                       <tr><td style="padding: 6px 0; color: #64748b; font-size: 14px;">Type:</td><td style="padding: 6px 0; color: #1a2d5a; font-size: 14px; font-weight: 600;">${kindLabel}</td></tr>
                     </table>

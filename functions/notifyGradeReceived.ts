@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
             </div>
             <div style="padding: 40px 40px 32px;">
             <h2 style="color:#1e293b; margin-bottom: 8px;">${kindLabel} Graded ${emoji}</h2>
-            <p style="color:#475569;">Hi ${student.full_name || 'there'},</p>
+            <p style="color:#475569;">Hi ${getFirstName(student)},</p>
             <p style="color:#475569;">Your submission for <strong>${itemTitle}</strong> has been reviewed and graded by your tutor.</p>
             <p style="color:#475569;">Log in to your dashboard to see your grade and feedback.</p>
             <a href="${appUrl}${reviewUrl}" style="display:inline-block; background:#7c3aed; color:#fff; text-decoration:none; padding:12px 24px; border-radius:8px; font-weight:600; margin-top:8px;">

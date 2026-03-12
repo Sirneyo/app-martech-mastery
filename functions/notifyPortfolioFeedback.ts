@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
             </div>
             <div style="padding: 40px 40px 32px;">
             <h2 style="color:#1e293b; margin-bottom: 8px;">${isApproved ? '✅ Portfolio Item Approved' : '📝 Revision Needed'}</h2>
-            <p style="color:#475569;">Hi ${student.full_name || 'there'},</p>
+            <p style="color:#475569;">Hi ${getFirstName(student)},</p>
             <p style="color:#475569;">Your portfolio item <strong>"${itemTitle}"</strong> has been reviewed.</p>
             <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:20px; margin:20px 0;">
               <p style="margin:0; color:#64748b; font-size:14px;">STATUS</p>
