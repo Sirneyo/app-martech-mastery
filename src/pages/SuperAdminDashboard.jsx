@@ -168,6 +168,21 @@ export default function SuperAdminDashboard() {
     },
   });
 
+  const deleteLedgerEntryMutation = useMutation({
+    mutationFn: async (entryId) => {
+      // Delete the ledger entry
+      await base44.entities.PointsLedger.delete(entryId);
+      // Delete any linked notification (related_entity_id = entryId)
+      const linked = await base44.entities.Notification.filter({ related_entity_id: entryId });
+      for (const n of linked) {
+        await base44.entities.Notification.delete(n.id);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['points-ledger'] });
+    },
+  });
+
   const handleAdjustPoints = () => {
     const pts = parseInt(adjustAmount);
     if (!pts || !adjustReason.trim() || !adjustTarget) return;
