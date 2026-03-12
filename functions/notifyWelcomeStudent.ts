@@ -11,6 +11,7 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const payload = await req.json();
     const { student_user_id, student_name, student_email } = payload;
+    const firstName = (student_name || '').split(' ')[0] || 'there';
 
     if (!student_user_id || !student_email) {
       return Response.json({ error: 'student_user_id and student_email are required' }, { status: 400 });
