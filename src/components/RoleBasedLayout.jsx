@@ -23,34 +23,17 @@ function inferViewAsRole(pageName) {
 
 export default function RoleBasedLayout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loginTracked, setLoginTracked] = useState(false);
   const queryClient = useQueryClient();
 
-  // User-level impersonation (View as User feature) — super_admin only
-  const impersonatingUser = (() => {
-    if (user?.app_role !== 'super_admin') return null;
-    try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; }
-  })();
-
-  // For super admins, infer from page name first; fall back to sessionStorage for mixed pages
-  const pageInferredRole = inferViewAsRole(currentPageName);
-  const viewAsRole = impersonatingUser?.app_role || pageInferredRole || sessionStorage.getItem('superAdminViewAs') || null;
-
-  useEffect(() => {
-    loadUserAndTrackLogin();
-  }, []);
-
-  const loadUserAndTrackLogin = async () => {
-    try {
+  const { data: user, isLoading: loading } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async () => {
       const userData = await base44.auth.me();
       if (!userData) {
-        setLoading(false);
         base44.auth.redirectToLogin(window.location.pathname);
-        return;
+        return null;
       }
-
-      setUser(userData);
 
       // If impersonating, override the 'current-user' query cache so all pages
       // fetch data for the impersonated user instead of the real super admin
@@ -59,31 +42,32 @@ export default function RoleBasedLayout({ children, currentPageName }) {
         try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; }
       })();
       if (impersonated) {
-        queryClient.setQueryData(['current-user'], {
+        return {
           ...userData,
           id: impersonated.id,
           full_name: impersonated.full_name,
           email: impersonated.email,
           app_role: impersonated.app_role,
-          _realRole: userData.app_role, // keep real role for banner/access control
-        });
+          _realRole: userData.app_role,
+        };
       }
 
-      setLoading(false);
-      
-      // Track login event in background
-      trackLoginEvent(userData).catch(err => console.error('Login tracking error:', err));
+      return userData;
+    },
+    staleTime: 0,
+  });
 
+  useEffect(() => {
+    if (user && !loginTracked) {
+      setLoginTracked(true);
+      // Track login event in background
+      trackLoginEvent(user).catch(err => console.error('Login tracking error:', err));
       // Cleanup: remove any stale daily_login points created by old cached code
-      base44.entities.PointsLedger.filter({ user_id: userData.id, reason: 'daily_login' })
+      base44.entities.PointsLedger.filter({ user_id: user.id, reason: 'daily_login' })
         .then(entries => entries.forEach(e => base44.entities.PointsLedger.delete(e.id)))
         .catch(() => {});
-    } catch (error) {
-      console.error('Error loading user:', error);
-      setLoading(false);
-      base44.auth.redirectToLogin(window.location.pathname);
     }
-  };
+  }, [user, loginTracked]);
 
   const trackLoginEvent = async (userData) => {
     const today = new Date().toISOString().split('T')[0];
