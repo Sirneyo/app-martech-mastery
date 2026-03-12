@@ -100,13 +100,15 @@ export default function RoleBasedLayout({ children, currentPageName }) {
                             roleForSidebar === 'tutor' ? TutorSidebar : 
                             StudentSidebar;
 
-  if (loading || !user) {
+  if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <LoadingLogo />
       </div>
     );
   }
+
+  if (!user) return null;
 
   return (
     <div className="flex min-h-screen bg-slate-100">
@@ -179,7 +181,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
                     Profile Settings
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => base44.auth.logout()}>
+                <DropdownMenuItem onClick={() => { queryClient.clear(); base44.auth.logout(); }}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
                 </DropdownMenuItem>
