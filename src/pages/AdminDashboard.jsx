@@ -10,38 +10,45 @@ import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
 
 export default function AdminDashboard() {
+  const STALE_5_MIN = 5 * 60 * 1000;
+
   const { data: users = [] } = useQuery({
-    queryKey: ['all-users'],
+    queryKey: ['users'],
     queryFn: async () => {
       const res = await base44.functions.invoke('getSuperAdminUsers', {});
       return res.data?.users || [];
     },
-    staleTime: 0,
+    staleTime: STALE_5_MIN,
   });
 
   const { data: cohorts = [] } = useQuery({
     queryKey: ['all-cohorts'],
     queryFn: () => base44.entities.Cohort.list(),
+    staleTime: STALE_5_MIN,
   });
 
   const { data: pointsLedger = [] } = useQuery({
     queryKey: ['all-points'],
-    queryFn: () => base44.entities.PointsLedger.list(),
+    queryFn: () => base44.entities.PointsLedger.list('-created_date', 5000),
+    staleTime: STALE_5_MIN,
   });
 
   const { data: submissions = [] } = useQuery({
     queryKey: ['all-submissions'],
-    queryFn: () => base44.entities.Submission.list(),
+    queryFn: () => base44.entities.Submission.list('-submitted_date', 1000),
+    staleTime: STALE_5_MIN,
   });
 
   const { data: portfolioStatuses = [] } = useQuery({
     queryKey: ['all-portfolio-statuses'],
-    queryFn: () => base44.entities.PortfolioItemStatus.list(),
+    queryFn: () => base44.entities.PortfolioItemStatus.list('-updated_date', 1000),
+    staleTime: STALE_5_MIN,
   });
 
   const { data: examAttempts = [] } = useQuery({
     queryKey: ['all-exam-attempts'],
-    queryFn: () => base44.entities.ExamAttempt.list(),
+    queryFn: () => base44.entities.ExamAttempt.list('-created_date', 1000),
+    staleTime: STALE_5_MIN,
   });
 
   const { data: settings } = useQuery({
@@ -50,27 +57,31 @@ export default function AdminDashboard() {
       const result = await base44.entities.AppSettings.list();
       return result[0] || {};
     },
+    staleTime: STALE_5_MIN,
   });
 
   const { data: memberships = [] } = useQuery({
     queryKey: ['all-memberships'],
     queryFn: () => base44.entities.CohortMembership.list('created_date', 1000),
-    staleTime: 0,
+    staleTime: STALE_5_MIN,
   });
 
   const { data: tutorAssignments = [] } = useQuery({
     queryKey: ['tutor-assignments'],
     queryFn: () => base44.entities.TutorCohortAssignment.list(),
+    staleTime: STALE_5_MIN,
   });
 
   const { data: loginEvents = [] } = useQuery({
     queryKey: ['login-events'],
-    queryFn: () => base44.entities.LoginEvent.list('-login_time'),
+    queryFn: () => base44.entities.LoginEvent.list('-login_time', 500),
+    staleTime: STALE_5_MIN,
   });
 
   const { data: portfolioTemplates = [] } = useQuery({
     queryKey: ['portfolio-templates'],
     queryFn: () => base44.entities.PortfolioItemTemplate.list(),
+    staleTime: STALE_5_MIN,
   });
 
   // Calculate overall leaderboard
