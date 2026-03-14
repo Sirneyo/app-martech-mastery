@@ -262,57 +262,71 @@ export default function TutorDashboard() {
         </div>
       </motion.div>
 
-      {cohortIds.length > 0 && cohortLeaderboards && (
+      {cohortIds.length > 0 && (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="space-y-6"
         >
-          {cohortIds.map((cohortId) => {
-            const cohort = cohorts?.find(c => c.id === cohortId);
-            const leaderboard = cohortLeaderboards[cohortId] || [];
-            
-            if (!cohort || leaderboard.length === 0) return null;
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-md">
+              <Trophy className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Cohort Leaderboards</h2>
+              <p className="text-sm text-slate-500">Top 10 students by points in your cohorts</p>
+            </div>
+          </div>
 
-            return (
-              <div key={cohortId} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                    <Trophy className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-slate-900 text-lg">{cohort.name} Leaderboard</h3>
-                    <p className="text-sm text-slate-500">Top 10 students by points</p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  {leaderboard.map((student, index) => (
-                    <div 
-                      key={student.id}
-                      className="flex items-center gap-4 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
-                    >
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
-                        index === 0 ? 'bg-amber-500 text-white' :
-                        index === 1 ? 'bg-slate-400 text-white' :
-                        index === 2 ? 'bg-orange-400 text-white' :
-                        'bg-slate-200 text-slate-700'
-                      }`}>
-                        {index + 1}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-slate-900">{student.name}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Award className="w-4 h-4 text-slate-400" />
-                        <span className="font-bold text-slate-900">{student.points}</span>
-                      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {cohortIds.map((cohortId) => {
+              const cohort = cohorts?.find(c => c.id === cohortId);
+              const leaderboard = cohortLeaderboards?.[cohortId] || [];
+              if (!cohort) return null;
+
+              return (
+                <div key={cohortId} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-100 px-5 py-4 flex items-center justify-between">
+                    <div>
+                      <h3 className="font-bold text-slate-900">{cohort.name}</h3>
+                      <p className="text-xs text-slate-500 mt-0.5 capitalize">{cohort.status} · Week {cohort.current_week || 1}</p>
                     </div>
-                  ))}
+                    <TrendingUp className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <div className="p-4">
+                    {leaderboard.length === 0 ? (
+                      <div className="text-center py-8 text-slate-400">
+                        <Trophy className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                        <p className="text-sm">No points data yet</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {leaderboard.map((student, index) => (
+                          <div
+                            key={student.id}
+                            className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition-colors"
+                          >
+                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs flex-shrink-0 ${
+                              index === 0 ? 'bg-amber-500 text-white' :
+                              index === 1 ? 'bg-slate-400 text-white' :
+                              index === 2 ? 'bg-orange-400 text-white' :
+                              'bg-slate-100 text-slate-600'
+                            }`}>
+                              {index + 1}
+                            </div>
+                            <p className="flex-1 font-medium text-sm text-slate-900 truncate">{student.name}</p>
+                            <span className="font-bold text-sm text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                              {student.points.toLocaleString()}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </motion.div>
       )}
     </div>
