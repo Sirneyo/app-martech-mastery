@@ -84,7 +84,7 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
         )}
 
         <a
-          href="https://live.kajabi.com/admin/"
+          href="https://www.the-growth-academy.co/login"
           target="_blank"
           rel="noopener noreferrer"
           className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group mb-2 bg-white/50 border border-slate-200 ${isCollapsed ? 'justify-center' : ''}`}
