@@ -33,8 +33,11 @@ export default function TutorDashboard() {
   });
 
   const { data: allUsers } = useQuery({
-    queryKey: ['all-users'],
-    queryFn: () => base44.entities.User.list(),
+    queryKey: ['tutor-students'],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('getTutorStudents', {});
+      return res.data?.students || [];
+    },
   });
 
   const { data: cohortLeaderboards } = useQuery({
