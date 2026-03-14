@@ -44,39 +44,10 @@ export default function TutorDashboard() {
     queryKey: ['cohort-leaderboards', cohortIds],
     queryFn: async () => {
       if (cohortIds.length === 0) return {};
-
-      const memberships = await base44.entities.CohortMembership.list();
-      const points = await base44.entities.PointsLedger.list();
-
-      const leaderboards = {};
-      
-      for (const cohortId of cohortIds) {
-        const cohortMemberIds = memberships
-          .filter(m => m.cohort_id === cohortId && m.status === 'active')
-          .map(m => m.user_id);
-
-        const studentPoints = cohortMemberIds.map(userId => {
-          const userPoints = points
-            .filter(p => p.user_id === userId)
-            .reduce((sum, p) => sum + p.points, 0);
-          
-          const userData = allUsers?.find(u => u.id === userId);
-          
-          return {
-            id: userId,
-            name: userData?.display_name || userData?.full_name || 'Unknown',
-            points: userPoints,
-          };
-        });
-
-        leaderboards[cohortId] = studentPoints
-          .sort((a, b) => b.points - a.points)
-          .slice(0, 10);
-      }
-
-      return leaderboards;
+      const res = await base44.functions.invoke('getTutorLeaderboards', { cohortIds });
+      return res.data?.leaderboards || {};
     },
-    enabled: cohortIds.length > 0 && !!allUsers,
+    enabled: cohortIds.length > 0,
   });
 
   const { data: assignmentSubmissions } = useQuery({
