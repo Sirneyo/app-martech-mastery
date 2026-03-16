@@ -32,14 +32,6 @@ export default function TutorDashboard() {
     enabled: cohortIds.length > 0,
   });
 
-  const { data: allUsers } = useQuery({
-    queryKey: ['tutor-students'],
-    queryFn: async () => {
-      const res = await base44.functions.invoke('getTutorStudents', {});
-      return res.data?.students || [];
-    },
-  });
-
   const { data: cohortLeaderboards } = useQuery({
     queryKey: ['cohort-leaderboards', cohortIds],
     queryFn: async () => {
@@ -50,94 +42,24 @@ export default function TutorDashboard() {
     enabled: cohortIds.length > 0,
   });
 
-  const { data: assignmentSubmissions } = useQuery({
-    queryKey: ['pending-assignment-submissions', cohortIds],
+  // Consolidated pending counts from one backend call instead of 3 separate heavy queries
+  const { data: dashboardData } = useQuery({
+    queryKey: ['tutor-dashboard-data', cohortIds],
     queryFn: async () => {
-      if (cohortIds.length === 0) return [];
-      
-      const memberships = await base44.entities.CohortMembership.list();
-      const studentIds = memberships
-        .filter(m => cohortIds.includes(m.cohort_id))
-        .map(m => m.user_id);
-      
-      const submissions = await base44.entities.Submission.filter({ submission_kind: 'assignment' });
-      const filtered = submissions.filter(s => 
-        studentIds.includes(s.user_id) && 
-        ['submitted', 'in_review'].includes(s.status)
-      );
-      
-      // Fetch templates and users for display
-      const templateIds = [...new Set(filtered.map(s => s.assignment_template_id).filter(Boolean))];
-      const templates = templateIds.length > 0 
-        ? await base44.entities.AssignmentTemplate.list()
-        : [];
-      const users = allUsers || await base44.entities.User.list();
-      
-      return filtered.map(s => ({
-        ...s,
-        template: templates.find(t => t.id === s.assignment_template_id),
-        student: users.find(u => u.id === s.user_id),
-      }));
+      if (cohortIds.length === 0) return { pending: { assignments: 0, projects: 0, portfolio: 0 } };
+      const res = await base44.functions.invoke('getTutorDashboardData', {});
+      return res.data || { pending: { assignments: 0, projects: 0, portfolio: 0 } };
     },
     enabled: cohortIds.length > 0,
   });
 
-  const { data: projectSubmissions } = useQuery({
-    queryKey: ['pending-project-submissions', cohortIds],
-    queryFn: async () => {
-      if (cohortIds.length === 0) return [];
-      
-      const memberships = await base44.entities.CohortMembership.list();
-      const studentIds = memberships
-        .filter(m => cohortIds.includes(m.cohort_id))
-        .map(m => m.user_id);
-      
-      const submissions = await base44.entities.Submission.filter({ submission_kind: 'project' });
-      const filtered = submissions.filter(s => 
-        studentIds.includes(s.user_id) && 
-        ['submitted', 'in_review'].includes(s.status)
-      );
-      
-      // Fetch templates and users for display
-      const templateIds = [...new Set(filtered.map(s => s.project_template_id).filter(Boolean))];
-      const templates = templateIds.length > 0 
-        ? await base44.entities.ProjectTemplate.list()
-        : [];
-      const users = allUsers || await base44.entities.User.list();
-      
-      return filtered.map(s => ({
-        ...s,
-        template: templates.find(t => t.id === s.project_template_id),
-        student: users.find(u => u.id === s.user_id),
-      }));
-    },
-    enabled: cohortIds.length > 0,
-  });
-
-  const { data: portfolioReviews } = useQuery({
-    queryKey: ['pending-portfolio-reviews', cohortIds],
-    queryFn: async () => {
-      if (cohortIds.length === 0) return [];
-      
-      const memberships = await base44.entities.CohortMembership.list();
-      const studentIds = memberships
-        .filter(m => cohortIds.includes(m.cohort_id))
-        .map(m => m.user_id);
-      
-      const items = await base44.entities.PortfolioItemStatus.list();
-      return items.filter(i => 
-        studentIds.includes(i.user_id) && 
-        ['submitted', 'in_review'].includes(i.status)
-      );
-    },
-    enabled: cohortIds.length > 0,
-  });
+  const pending = dashboardData?.pending || { assignments: 0, projects: 0, portfolio: 0 };
 
   const stats = [
     { label: 'Assigned Cohorts', value: cohortIds.length, icon: Users, color: 'from-blue-500 to-cyan-500', page: 'TutorCohorts' },
-    { label: 'Assignment Submissions', value: assignmentSubmissions?.length || 0, icon: ClipboardCheck, color: 'from-violet-500 to-purple-500', page: 'TutorAssignmentSubmissions' },
-    { label: 'Project Submissions', value: projectSubmissions?.length || 0, icon: ClipboardCheck, color: 'from-amber-500 to-orange-500', page: 'TutorProjectSubmissions' },
-    { label: 'Portfolio Reviews', value: portfolioReviews?.length || 0, icon: Award, color: 'from-emerald-500 to-teal-500', page: 'TutorPortfolioReviews' },
+    { label: 'Assignment Submissions', value: pending.assignments, icon: ClipboardCheck, color: 'from-violet-500 to-purple-500', page: 'TutorAssignmentSubmissions' },
+    { label: 'Project Submissions', value: pending.projects, icon: ClipboardCheck, color: 'from-amber-500 to-orange-500', page: 'TutorProjectSubmissions' },
+    { label: 'Portfolio Reviews', value: pending.portfolio, icon: Award, color: 'from-emerald-500 to-teal-500', page: 'TutorPortfolioReviews' },
   ];
 
   return (
