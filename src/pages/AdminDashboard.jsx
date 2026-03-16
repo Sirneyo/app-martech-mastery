@@ -3,286 +3,40 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Trophy, TrendingUp, Users, CheckCircle, Clock, Award, BookOpen, ExternalLink, Zap, ChevronRight, GraduationCap, FileText, FolderCheck, ClipboardList, Ticket } from 'lucide-react';
+import { Trophy, TrendingUp, Users, CheckCircle, Clock, Award, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
 
 export default function AdminDashboard() {
-  const STALE_5_MIN = 5 * 60 * 1000;
-
-  const { data: users = [] } = useQuery({
-    queryKey: ['users'],
-    queryFn: async () => {
-      const res = await base44.functions.invoke('getSuperAdminUsers', {});
-      return res.data?.users || [];
-    },
-    staleTime: STALE_5_MIN,
-  });
-
-  const { data: cohorts = [] } = useQuery({
-    queryKey: ['all-cohorts'],
-    queryFn: () => base44.entities.Cohort.list(),
-    staleTime: STALE_5_MIN,
-  });
-
-  const { data: pointsLedger = [] } = useQuery({
-    queryKey: ['all-points'],
-    queryFn: () => base44.entities.PointsLedger.list('-created_date', 5000),
-    staleTime: STALE_5_MIN,
-  });
-
-  const { data: submissions = [] } = useQuery({
-    queryKey: ['all-submissions'],
-    queryFn: () => base44.entities.Submission.list('-submitted_date', 1000),
-    staleTime: STALE_5_MIN,
-  });
-
-  const { data: portfolioStatuses = [] } = useQuery({
-    queryKey: ['all-portfolio-statuses'],
-    queryFn: () => base44.entities.PortfolioItemStatus.list('-updated_date', 1000),
-    staleTime: STALE_5_MIN,
-  });
-
-  const { data: examAttempts = [] } = useQuery({
-    queryKey: ['all-exam-attempts'],
-    queryFn: () => base44.entities.ExamAttempt.list('-created_date', 1000),
-    staleTime: STALE_5_MIN,
-  });
-
-  const { data: settings } = useQuery({
-    queryKey: ['app-settings'],
-    queryFn: async () => {
-      const result = await base44.entities.AppSettings.list();
-      return result[0] || {};
-    },
-    staleTime: STALE_5_MIN,
-  });
-
-  const { data: memberships = [] } = useQuery({
-    queryKey: ['all-memberships'],
-    queryFn: () => base44.entities.CohortMembership.list('created_date', 1000),
-    staleTime: STALE_5_MIN,
-  });
-
-  const { data: tutorAssignments = [] } = useQuery({
-    queryKey: ['tutor-assignments'],
-    queryFn: () => base44.entities.TutorCohortAssignment.list(),
-    staleTime: STALE_5_MIN,
-  });
-
-  const { data: loginEvents = [] } = useQuery({
-    queryKey: ['login-events'],
-    queryFn: () => base44.entities.LoginEvent.list('-login_time', 500),
-    staleTime: STALE_5_MIN,
-  });
-
-  const { data: portfolioTemplates = [] } = useQuery({
-    queryKey: ['portfolio-templates'],
-    queryFn: () => base44.entities.PortfolioItemTemplate.list(),
-    staleTime: STALE_5_MIN,
-  });
-
-  // Calculate overall leaderboard
-  const overallLeaderboard = useMemo(() => {
-    const studentPoints = {};
-    
-    pointsLedger.forEach(entry => {
-      if (!studentPoints[entry.user_id]) {
-        studentPoints[entry.user_id] = 0;
-      }
-      studentPoints[entry.user_id] += entry.points || 0;
-    });
-
-    const leaderboard = Object.entries(studentPoints)
-      .map(([userId, points]) => {
-        const user = users.find(u => u.id === userId);
-        return {
-          userId,
-          name: user?.full_name || 'Unknown',
-          email: user?.email || '',
-          points,
-        };
-      })
-      .sort((a, b) => b.points - a.points)
-      .slice(0, 5);
-
-    return leaderboard;
-  }, [pointsLedger, users]);
-
-  // Calculate cohort leaderboards
-  const cohortLeaderboards = useMemo(() => {
-    return [...cohorts].sort((a, b) => new Date(a.start_date) - new Date(b.start_date)).map(cohort => {
-      const userIdSet = new Set(users.map(u => u.id));
-      const cohortMemberIds = new Set(
-        memberships
-          .filter(m => m.cohort_id === cohort.id && m.status === 'active' && userIdSet.has(m.user_id))
-          .map(m => m.user_id)
-      );
-
-      const cohortPoints = {};
-      pointsLedger.forEach(entry => {
-        if (cohortMemberIds.has(entry.user_id)) {
-          if (!cohortPoints[entry.user_id]) {
-            cohortPoints[entry.user_id] = 0;
-          }
-          cohortPoints[entry.user_id] += entry.points || 0;
-        }
-      });
-
-      const leaderboard = Object.entries(cohortPoints)
-        .map(([userId, points]) => {
-          const user = users.find(u => u.id === userId);
-          return {
-            userId,
-            name: user?.full_name || 'Unknown',
-            points,
-          };
-        })
-        .sort((a, b) => b.points - a.points)
-        .slice(0, 5);
-
-      return {
-        cohort,
-        leaderboard,
-      };
-    });
-  }, [cohorts, pointsLedger, users, memberships]);
-
-  // Calculate statistics
-  const stats = useMemo(() => {
-    const totalStudents = users.filter(u => u.app_role === 'student').length;
-    const totalTutors = users.filter(u => u.app_role === 'tutor').length;
-    const activeCohorts = cohorts.filter(c => c.status === 'active').length;
-    
-    const pendingSubmissions = submissions.filter(s => 
-      s.status === 'submitted' || s.status === 'in_review'
-    ).length;
-    
-    const pendingPortfolioReviews = portfolioStatuses.filter(p => 
-      p.status === 'submitted' || p.status === 'in_review'
-    ).length;
-    
-    const completedExams = examAttempts.filter(a => 
-      a.attempt_status === 'submitted' && a.pass_flag === true
-    ).length;
-
-    return {
-      totalStudents,
-      totalTutors,
-      activeCohorts,
-      pendingSubmissions,
-      pendingPortfolioReviews,
-      completedExams,
-    };
-  }, [users, cohorts, submissions, portfolioStatuses, examAttempts]);
-
-  // Cohort health data
-  const cohortHealthData = useMemo(() => {
-    return [...cohorts].sort((a, b) => new Date(a.start_date) - new Date(b.start_date)).map(cohort => {
-      const allUserIds = new Set(users.map(u => u.id));
-      const cohortMembers = memberships.filter(m => m.cohort_id === cohort.id && m.status === 'active' && allUserIds.has(m.user_id));
-      const cohortTutors = tutorAssignments.filter(ta => ta.cohort_id === cohort.id && ta.is_primary);
-      const cohortPendingSubmissions = submissions.filter(s => 
-        s.cohort_id === cohort.id && ['submitted', 'in_review'].includes(s.status)
-      );
-      const cohortNeedsRevision = submissions.filter(s => 
-        s.cohort_id === cohort.id && s.status === 'needs_revision'
-      );
-      const cohortPendingPortfolio = portfolioStatuses.filter(ps => 
-        ps.cohort_id === cohort.id && ['submitted', 'in_review'].includes(ps.status)
-      );
-      const cohortPasses = examAttempts.filter(ea => 
-        ea.cohort_id === cohort.id && ea.pass_flag
-      );
-      const cohortSubmittedAttempts = examAttempts.filter(ea => 
-        ea.cohort_id === cohort.id && ea.submitted_at
-      );
-      const cohortPassRate = cohortSubmittedAttempts.length > 0 
-        ? Math.round((cohortPasses.length / cohortSubmittedAttempts.length) * 100) 
-        : 0;
-
-      return {
-        cohort,
-        activeStudents: cohortMembers.length,
-        tutors: cohortTutors.length,
-        pendingSubmissions: cohortPendingSubmissions.length,
-        needsRevision: cohortNeedsRevision.length,
-        pendingPortfolio: cohortPendingPortfolio.length,
-        certPasses: cohortPasses.length,
-        certPassRate: cohortPassRate,
-      };
-    });
-  }, [cohorts, memberships, tutorAssignments, submissions, portfolioStatuses, examAttempts]);
-
-  // Oldest ungraded submissions
-  const oldestSubmissions = useMemo(() => {
-    return submissions
-      .filter(s => ['submitted', 'in_review'].includes(s.status))
-      .sort((a, b) => new Date(a.submitted_date) - new Date(b.submitted_date))
-      .slice(0, 10)
-      .map(s => {
-        const student = users.find(u => u.id === s.user_id);
-        const cohort = cohorts.find(c => c.id === s.cohort_id);
-        const ageHours = s.submitted_date 
-          ? Math.floor((new Date() - new Date(s.submitted_date)) / (1000 * 60 * 60))
-          : 0;
-        return { ...s, student, cohort, ageHours };
-      });
-  }, [submissions, users, cohorts]);
-
-  // Oldest pending portfolio
-  const oldestPortfolio = useMemo(() => {
-    return portfolioStatuses
-      .filter(ps => ['submitted', 'in_review'].includes(ps.status))
-      .sort((a, b) => new Date(a.updated_date) - new Date(b.updated_date))
-      .slice(0, 10)
-      .map(ps => {
-        const student = users.find(u => u.id === ps.user_id);
-        const cohort = cohorts.find(c => c.id === ps.cohort_id);
-        const template = portfolioTemplates.find(pt => pt.id === ps.portfolio_item_id);
-        const ageHours = ps.updated_date 
-          ? Math.floor((new Date() - new Date(ps.updated_date)) / (1000 * 60 * 60))
-          : 0;
-        return { ...ps, student, cohort, template, ageHours };
-      });
-  }, [portfolioStatuses, users, cohorts, portfolioTemplates]);
-
-  // Tutor workload
-  const tutorWorkload = useMemo(() => {
-    const activeTutors = users.filter(u => u.app_role === 'tutor');
-    return activeTutors.map(tutor => {
-      const assignedCohortIds = tutorAssignments
-        .filter(ta => ta.tutor_id === tutor.id)
-        .map(ta => ta.cohort_id);
-      const assignedCount = assignedCohortIds.length;
-      const submissionsWaiting = submissions.filter(s => 
-        assignedCohortIds.includes(s.cohort_id) && ['submitted', 'in_review'].includes(s.status)
-      ).length;
-      const portfolioWaiting = portfolioStatuses.filter(ps => 
-        assignedCohortIds.includes(ps.cohort_id) && ['submitted', 'in_review'].includes(ps.status)
-      ).length;
-      const totalWaiting = submissionsWaiting + portfolioWaiting;
-      return { tutor, assignedCount, submissionsWaiting, portfolioWaiting, totalWaiting };
-    }).sort((a, b) => b.totalWaiting - a.totalWaiting);
-  }, [users, tutorAssignments, submissions, portfolioStatuses]);
-
-  // Engagement
-  const engagement = useMemo(() => {
-    const today = new Date().toISOString().split('T')[0];
-    const loginsToday = loginEvents.filter(le => le.login_time && le.login_time.startsWith(today)).length;
-    
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const recentLogins = loginEvents.filter(le => le.login_time && new Date(le.login_time) >= sevenDaysAgo);
-    const uniqueUsers = new Set(recentLogins.map(le => le.user_id)).size;
-
-    return { loginsToday, uniqueUsers };
-  }, [loginEvents]);
-
   const [showAllCohorts, setShowAllCohorts] = React.useState(false);
   const [showAllHealthCohorts, setShowAllHealthCohorts] = React.useState(false);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin-dashboard'],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('getAdminDashboardData', {});
+      return res.data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const stats = data?.stats || {};
+  const overallLeaderboard = data?.overallLeaderboard || [];
+  const cohortLeaderboards = data?.cohortLeaderboards || [];
+  const cohortHealthData = data?.cohortHealthData || [];
+  const oldestSubmissions = data?.oldestSubmissions || [];
+  const oldestPortfolio = data?.oldestPortfolio || [];
+  const tutorWorkload = data?.tutorWorkload || [];
+  const engagement = data?.engagement || {};
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-violet-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
@@ -303,7 +57,7 @@ export default function AdminDashboard() {
                   <Users className="w-5 h-5 opacity-80" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">{stats.totalStudents}</div>
+                  <div className="text-3xl font-bold">{stats.totalStudents ?? '—'}</div>
                 </CardContent>
               </Card>
             </motion.div>
@@ -317,7 +71,7 @@ export default function AdminDashboard() {
                   <Award className="w-5 h-5 opacity-80" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">{stats.totalTutors}</div>
+                  <div className="text-3xl font-bold">{stats.totalTutors ?? '—'}</div>
                 </CardContent>
               </Card>
             </motion.div>
@@ -331,7 +85,7 @@ export default function AdminDashboard() {
                   <TrendingUp className="w-5 h-5 opacity-80" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">{stats.activeCohorts}</div>
+                  <div className="text-3xl font-bold">{stats.activeCohorts ?? '—'}</div>
                 </CardContent>
               </Card>
             </motion.div>
@@ -345,7 +99,7 @@ export default function AdminDashboard() {
                   <Clock className="w-5 h-5 opacity-80" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">{stats.pendingSubmissions}</div>
+                  <div className="text-3xl font-bold">{stats.pendingSubmissions ?? '—'}</div>
                 </CardContent>
               </Card>
             </motion.div>
@@ -359,7 +113,7 @@ export default function AdminDashboard() {
                   <Clock className="w-5 h-5 opacity-80" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">{stats.pendingPortfolioReviews}</div>
+                  <div className="text-3xl font-bold">{stats.pendingPortfolioReviews ?? '—'}</div>
                 </CardContent>
               </Card>
             </motion.div>
@@ -373,12 +127,11 @@ export default function AdminDashboard() {
                   <CheckCircle className="w-5 h-5 opacity-80" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">{stats.completedExams}</div>
+                  <div className="text-3xl font-bold">{stats.completedExams ?? '—'}</div>
                 </CardContent>
               </Card>
             </motion.div>
           </Link>
-
         </div>
 
         {/* Leaderboards Section */}
@@ -394,10 +147,7 @@ export default function AdminDashboard() {
             <CardContent className="pt-4">
               <div className="space-y-2">
                 {overallLeaderboard.map((student, index) => (
-                  <div
-                    key={student.userId}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-slate-50 to-white border border-slate-200"
-                  >
+                  <div key={student.userId} className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-slate-50 to-white border border-slate-200">
                     <div className="flex-shrink-0">
                       {index === 0 && <Trophy className="w-6 h-6 text-yellow-500" />}
                       {index === 1 && <Trophy className="w-6 h-6 text-slate-400" />}
@@ -411,9 +161,7 @@ export default function AdminDashboard() {
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm text-slate-900 truncate">{student.name}</p>
                     </div>
-                    <Badge className="bg-orange-500 text-white text-sm px-2 py-0.5">
-                      {student.points}
-                    </Badge>
+                    <Badge className="bg-orange-500 text-white text-sm px-2 py-0.5">{student.points}</Badge>
                   </div>
                 ))}
               </div>
@@ -426,28 +174,19 @@ export default function AdminDashboard() {
               <CardHeader className="bg-slate-50 border-b border-slate-200">
                 <CardTitle className="flex items-center justify-between text-lg">
                   <span className="truncate">{cohort.name}</span>
-                  <Badge variant={cohort.status === 'active' ? 'default' : 'secondary'} className="text-xs">
-                    {cohort.status}
-                  </Badge>
+                  <Badge variant={cohort.status === 'active' ? 'default' : 'secondary'} className="text-xs">{cohort.status}</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4">
                 {leaderboard.length > 0 ? (
                   <div className="space-y-2">
                     {leaderboard.map((student, index) => (
-                      <div
-                        key={student.userId}
-                        className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50"
-                      >
+                      <div key={student.userId} className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50">
                         <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <span className="text-sm font-bold text-slate-600 w-5">
-                            {index + 1}.
-                          </span>
+                          <span className="text-sm font-bold text-slate-600 w-5">{index + 1}.</span>
                           <span className="font-medium text-sm text-slate-900 truncate">{student.name}</span>
                         </div>
-                        <Badge variant="outline" className="bg-white text-xs">
-                          {student.points}
-                        </Badge>
+                        <Badge variant="outline" className="bg-white text-xs">{student.points}</Badge>
                       </div>
                     ))}
                   </div>
@@ -496,10 +235,7 @@ export default function AdminDashboard() {
                   {(showAllHealthCohorts ? cohortHealthData : cohortHealthData.slice(0, 3)).map((data) => (
                     <tr key={data.cohort.id} className="border-b border-slate-100 hover:bg-slate-50">
                       <td className="p-3">
-                        <Link 
-                          to={createPageUrl(`AdminCohortOverview?id=${data.cohort.id}`)} 
-                          className="font-medium text-violet-600 hover:text-violet-700"
-                        >
+                        <Link to={createPageUrl(`AdminCohortOverview?id=${data.cohort.id}`)} className="font-medium text-violet-600 hover:text-violet-700">
                           {data.cohort.name}
                         </Link>
                       </td>
@@ -508,33 +244,19 @@ export default function AdminDashboard() {
                         {' - '}
                         {data.cohort.end_date && new Date(data.cohort.end_date).toLocaleDateString()}
                       </td>
+                      <td className="text-center p-3"><Badge variant="secondary">{data.activeStudents}</Badge></td>
+                      <td className="text-center p-3"><Badge variant="secondary">{data.tutors}</Badge></td>
                       <td className="text-center p-3">
-                        <Badge variant="secondary">{data.activeStudents}</Badge>
+                        <Badge className={data.pendingSubmissions > 0 ? 'bg-amber-100 text-amber-700' : ''}>{data.pendingSubmissions}</Badge>
                       </td>
                       <td className="text-center p-3">
-                        <Badge variant="secondary">{data.tutors}</Badge>
+                        <Badge className={data.needsRevision > 0 ? 'bg-red-100 text-red-700' : ''}>{data.needsRevision}</Badge>
                       </td>
                       <td className="text-center p-3">
-                        <Badge className={data.pendingSubmissions > 0 ? 'bg-amber-100 text-amber-700' : ''}>
-                          {data.pendingSubmissions}
-                        </Badge>
+                        <Badge className={data.pendingPortfolio > 0 ? 'bg-cyan-100 text-cyan-700' : ''}>{data.pendingPortfolio}</Badge>
                       </td>
-                      <td className="text-center p-3">
-                        <Badge className={data.needsRevision > 0 ? 'bg-red-100 text-red-700' : ''}>
-                          {data.needsRevision}
-                        </Badge>
-                      </td>
-                      <td className="text-center p-3">
-                        <Badge className={data.pendingPortfolio > 0 ? 'bg-cyan-100 text-cyan-700' : ''}>
-                          {data.pendingPortfolio}
-                        </Badge>
-                      </td>
-                      <td className="text-center p-3">
-                        <Badge className="bg-green-100 text-green-700">{data.certPasses}</Badge>
-                      </td>
-                      <td className="text-center p-3">
-                        <span className="font-semibold text-slate-900">{data.certPassRate}%</span>
-                      </td>
+                      <td className="text-center p-3"><Badge className="bg-green-100 text-green-700">{data.certPasses}</Badge></td>
+                      <td className="text-center p-3"><span className="font-semibold text-slate-900">{data.certPassRate}%</span></td>
                     </tr>
                   ))}
                 </tbody>
@@ -575,9 +297,7 @@ export default function AdminDashboard() {
                       <Badge variant="secondary">{sub.submission_kind}</Badge>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-slate-500">
-                        {sub.submitted_date && new Date(sub.submitted_date).toLocaleDateString()}
-                      </span>
+                      <span className="text-slate-500">{sub.submitted_date && new Date(sub.submitted_date).toLocaleDateString()}</span>
                       <span className="font-semibold text-amber-600">{sub.ageHours}h ago</span>
                     </div>
                   </div>
@@ -606,9 +326,7 @@ export default function AdminDashboard() {
                       <Badge variant="secondary">{ps.template?.title}</Badge>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-slate-500">
-                        {ps.updated_date && new Date(ps.updated_date).toLocaleDateString()}
-                      </span>
+                      <span className="text-slate-500">{ps.updated_date && new Date(ps.updated_date).toLocaleDateString()}</span>
                       <span className="font-semibold text-cyan-600">{ps.ageHours}h ago</span>
                     </div>
                   </div>
@@ -639,23 +357,15 @@ export default function AdminDashboard() {
                   {tutorWorkload.map((tw) => (
                     <tr key={tw.tutor.id} className="border-b border-slate-100 hover:bg-slate-50">
                       <td className="p-3 font-medium text-slate-900">{tw.tutor.full_name}</td>
+                      <td className="text-center p-3"><Badge variant="secondary">{tw.assignedCount}</Badge></td>
                       <td className="text-center p-3">
-                        <Badge variant="secondary">{tw.assignedCount}</Badge>
+                        <Badge className={tw.submissionsWaiting > 0 ? 'bg-amber-100 text-amber-700' : ''}>{tw.submissionsWaiting}</Badge>
                       </td>
                       <td className="text-center p-3">
-                        <Badge className={tw.submissionsWaiting > 0 ? 'bg-amber-100 text-amber-700' : ''}>
-                          {tw.submissionsWaiting}
-                        </Badge>
+                        <Badge className={tw.portfolioWaiting > 0 ? 'bg-cyan-100 text-cyan-700' : ''}>{tw.portfolioWaiting}</Badge>
                       </td>
                       <td className="text-center p-3">
-                        <Badge className={tw.portfolioWaiting > 0 ? 'bg-cyan-100 text-cyan-700' : ''}>
-                          {tw.portfolioWaiting}
-                        </Badge>
-                      </td>
-                      <td className="text-center p-3">
-                        <span className={`font-bold ${tw.totalWaiting > 10 ? 'text-red-600' : 'text-slate-900'}`}>
-                          {tw.totalWaiting}
-                        </span>
+                        <span className={`font-bold ${tw.totalWaiting > 10 ? 'text-red-600' : 'text-slate-900'}`}>{tw.totalWaiting}</span>
                       </td>
                     </tr>
                   ))}
@@ -674,11 +384,11 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-2 gap-6">
               <div className="bg-slate-50 rounded-xl p-6">
                 <p className="text-sm text-slate-600 mb-2">Logins Today</p>
-                <p className="text-4xl font-bold text-slate-900">{engagement.loginsToday}</p>
+                <p className="text-4xl font-bold text-slate-900">{engagement.loginsToday ?? '—'}</p>
               </div>
               <div className="bg-slate-50 rounded-xl p-6">
                 <p className="text-sm text-slate-600 mb-2">7-Day Active Users</p>
-                <p className="text-4xl font-bold text-slate-900">{engagement.uniqueUsers}</p>
+                <p className="text-4xl font-bold text-slate-900">{engagement.uniqueUsers ?? '—'}</p>
               </div>
             </div>
           </CardContent>
