@@ -109,6 +109,21 @@ export default function Layout({ children, currentPageName }) {
     return <>{children}</>;
   }
 
+  // Role-based access check
+  // super_admin is always allowed everywhere
+  // If impersonating, check against the impersonated user's role
+  const impersonatingUser = (() => {
+    if (user?.app_role !== 'super_admin') return null;
+    try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; }
+  })();
+  const effectiveRole = impersonatingUser?.app_role || user?.app_role;
+  const allowedRoles = PAGE_ACCESS[currentPageName];
+  const isSuperAdmin = user?.app_role === 'super_admin';
+
+  if (allowedRoles && !isSuperAdmin && !allowedRoles.includes(effectiveRole)) {
+    return <AccessDenied />;
+  }
+
   return (
     <>
       <div style={{ pointerEvents: isPaused ? 'none' : 'auto', userSelect: isPaused ? 'none' : 'auto' }}>
