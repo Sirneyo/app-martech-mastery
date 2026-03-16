@@ -32,18 +32,25 @@ export default function TutorAssignmentSubmissions() {
 
   const cohortIds = assignments.map(a => a.cohort_id);
 
+  // Use getTutorStudents to get all students in one call (avoids N+1 getStudentInfo calls)
+  const { data: students = [], isLoading: studentsLoading } = useQuery({
+    queryKey: ['tutor-students'],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('getTutorStudents', {});
+      return res.data?.students || [];
+    },
+    enabled: !!user?.id,
+  });
+
+  const cohortStudentIds = students.map(s => s.id);
+
   const { data: submissions = [] } = useQuery({
     queryKey: ['assignment-submissions', cohortIds, statusFilter],
     queryFn: async () => {
-      if (cohortIds.length === 0) return [];
-      
-      const memberships = await base44.entities.CohortMembership.list();
-      const studentIds = memberships
-        .filter(m => cohortIds.includes(m.cohort_id))
-        .map(m => m.user_id);
+      if (cohortIds.length === 0 || cohortStudentIds.length === 0) return [];
       
       const allSubmissions = await base44.entities.Submission.filter({ submission_kind: 'assignment' });
-      let filtered = allSubmissions.filter(s => studentIds.includes(s.user_id));
+      let filtered = allSubmissions.filter(s => cohortStudentIds.includes(s.user_id));
       
       if (statusFilter !== 'all') {
         if (statusFilter === 'submitted') {
@@ -55,24 +62,7 @@ export default function TutorAssignmentSubmissions() {
       
       return filtered.sort((a, b) => new Date(b.submitted_date) - new Date(a.submitted_date));
     },
-    enabled: cohortIds.length > 0,
-  });
-
-  const studentIds = submissions.map(s => s.user_id).filter((id, index, self) => self.indexOf(id) === index);
-
-  const { data: students = [], isLoading: studentsLoading } = useQuery({
-    queryKey: ['students', studentIds],
-    queryFn: async () => {
-      if (studentIds.length === 0) return [];
-      const studentPromises = studentIds.map(id => 
-        base44.functions.invoke('getStudentInfo', { userId: id })
-          .then(res => res.data.student)
-          .catch(() => null)
-      );
-      const results = await Promise.all(studentPromises);
-      return results.filter(s => s !== null);
-    },
-    enabled: studentIds.length > 0,
+    enabled: cohortIds.length > 0 && cohortStudentIds.length > 0,
   });
 
   const { data: templates = [] } = useQuery({
