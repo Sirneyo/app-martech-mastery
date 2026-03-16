@@ -79,10 +79,11 @@ export default function TutorAssignmentSubmissions() {
     enabled: cohortIds.length > 0,
   });
 
-  const { data: memberships = [] } = useQuery({
-    queryKey: ['all-memberships'],
-    queryFn: () => base44.entities.CohortMembership.list(),
-  });
+  // Filter memberships from already-fetched student list instead of fetching all memberships again
+  const memberships = React.useMemo(() => {
+    // Build a lightweight membership lookup from students (each student belongs to one cohort in tutor's set)
+    return students.map(s => ({ user_id: s.id, cohort_id: s.cohort_id })).filter(m => m.cohort_id);
+  }, [students]);
 
   const getStudentName = (userId) => {
     if (studentsLoading) return 'Loading...';
