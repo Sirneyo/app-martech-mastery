@@ -66,12 +66,16 @@ export default function RoleBasedLayout({ children, currentPageName }) {
   useEffect(() => {
     if (user && !loginTracked) {
       setLoginTracked(true);
-      // Track login event in background
-      trackLoginEvent(user).catch(err => console.error('Login tracking error:', err));
-      // Cleanup: remove any stale daily_login points created by old cached code
-      base44.entities.PointsLedger.filter({ user_id: user.id, reason: 'daily_login' })
-        .then(entries => entries.forEach(e => base44.entities.PointsLedger.delete(e.id)))
-        .catch(() => {});
+      // Only run once per browser session using sessionStorage flag
+      const sessionKey = `login_tracked_${user.id}`;
+      if (!sessionStorage.getItem(sessionKey)) {
+        sessionStorage.setItem(sessionKey, '1');
+        trackLoginEvent(user).catch(err => console.error('Login tracking error:', err));
+        // Cleanup: remove stale daily_login points — only needs to run once per session
+        base44.entities.PointsLedger.filter({ user_id: user.id, reason: 'daily_login' })
+          .then(entries => entries.forEach(e => base44.entities.PointsLedger.delete(e.id)))
+          .catch(() => {});
+      }
     }
   }, [user, loginTracked]);
 
