@@ -2,7 +2,80 @@ import React, { useState, useEffect } from 'react';
 import 'react-quill/dist/quill.snow.css';
 import RoleBasedLayout from '@/components/RoleBasedLayout';
 import PausedAccountScreen from '@/components/PausedAccountScreen';
+import AccessDenied from '@/pages/AccessDenied';
 import { base44 } from '@/api/base44Client';
+
+// Central page access map — list of allowed roles per page.
+// super_admin is always allowed everywhere (handled separately).
+const PAGE_ACCESS = {
+  // Student-only pages
+  StudentDashboard: ['student'],
+  StudentAssignments: ['student'],
+  StudentAssignmentDetail: ['student'],
+  StudentProjects: ['student'],
+  StudentProjectDetail: ['student'],
+  StudentPortfolio: ['student'],
+  StudentPortfolioItemDetail: ['student'],
+  StudentCertification: ['student'],
+  StudentCertificationAttempt: ['student'],
+  StudentCertificationConfirm: ['student'],
+  StudentCertificationReady: ['student'],
+  StudentCertificationResults: ['student'],
+  StudentCertificationLoading: ['student'],
+  StudentCertificationReview: ['student'],
+  StudentGlossary: ['student'],
+  StudentGlossaryDetail: ['student'],
+  StudentSupport: ['student'],
+  StudentAITools: ['student'],
+  MyCertification: ['student'],
+  MyPortfolio: ['student'],
+  MyProjects: ['student'],
+  StudentProfile: ['student'],
+
+  // Tutor-only pages
+  TutorDashboard: ['tutor'],
+  TutorStudents: ['tutor'],
+  TutorCohorts: ['tutor'],
+  TutorAssignmentSubmissions: ['tutor'],
+  TutorProjectSubmissions: ['tutor'],
+  TutorSubmissionReview: ['tutor'],
+  TutorPortfolioReviews: ['tutor'],
+  TutorPortfolioReview: ['tutor'],
+  TutorAITools: ['tutor'],
+  TutorAttendance: ['tutor'],
+  TutorQuizGrading: ['tutor'],
+  TutorProfile: ['tutor'],
+
+  // Admin-only pages
+  AdminDashboard: ['admin'],
+  AdminUsers: ['admin'],
+  AdminStudents: ['admin'],
+  AdminSupportTickets: ['admin'],
+  AdminCohortOverview: ['admin'],
+  AdminCohorts: ['admin'],
+  AdminExams: ['admin'],
+  AdminPortfolio: ['admin'],
+  AdminSubmissions: ['admin'],
+  AdminSubmissionDetail: ['admin'],
+  AdminGlossary: ['admin'],
+  AdminMediaLibrary: ['admin'],
+  AdminTemplates: ['admin'],
+  AdminTemplatesStudio: ['admin'],
+  AdminTemplatesStudioDuplicate: ['admin'],
+  AdminTemplatesStudioEdit: ['admin'],
+  AdminTemplatesStudioPreview: ['admin'],
+  AdminAnnouncements: ['admin'],
+  AdminAttendance: ['admin'],
+  AdminCredentials: ['admin'],
+  AdminExamBankImport: ['admin'],
+  AdminExamDetail: ['admin'],
+  AdminOverview: ['admin'],
+  AdminQuizResults: ['admin'],
+  AdminProfile: ['admin'],
+  SuperAdminDashboard: ['admin'],
+  MarketoAccess: ['admin'],
+  StaffSupport: ['admin'],
+};
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
