@@ -45,12 +45,15 @@ export default function StudentAssignments() {
   });
 
   const { data: grades = [] } = useQuery({
-    queryKey: ['my-grades'],
+    queryKey: ['my-grades', submissions.map(s => s.id).join(',')],
     queryFn: async () => {
-      if (!user?.id) return [];
-      const allGrades = await base44.entities.SubmissionGrade.list();
-      const mySubmissionIds = submissions.map(s => s.id);
-      return allGrades.filter(g => mySubmissionIds.includes(g.submission_id));
+      if (!user?.id || submissions.length === 0) return [];
+      // Fetch only grades for this student's submissions, not all grades platform-wide
+      const gradePromises = submissions.map(s =>
+        base44.entities.SubmissionGrade.filter({ submission_id: s.id })
+      );
+      const results = await Promise.all(gradePromises);
+      return results.flat();
     },
     enabled: !!user?.id && submissions.length > 0,
   });
