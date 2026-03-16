@@ -56,9 +56,20 @@ export default function TutorStudents() {
     enabled: cohortAssignments.length > 0,
   });
 
-  const { data: allLedgerEntries = [] } = useQuery({
-    queryKey: ['tutor-students-points'],
-    queryFn: () => base44.entities.PointsLedger.list('-created_date', 1000),
+  const { data: pointsByStudent = {} } = useQuery({
+    queryKey: ['tutor-students-points', students.map(s => s.id).join(',')],
+    queryFn: async () => {
+      if (students.length === 0) return {};
+      // Fetch each student's ledger in parallel — scoped, not platform-wide
+      const results = await Promise.all(
+        students.map(s => base44.entities.PointsLedger.filter({ user_id: s.id }))
+      );
+      const map = {};
+      students.forEach((s, i) => {
+        map[s.id] = results[i].reduce((sum, e) => sum + (e.points || 0), 0);
+      });
+      return map;
+    },
     enabled: students.length > 0,
   });
 
@@ -68,8 +79,7 @@ export default function TutorStudents() {
     return cohorts.find(c => c.id === membership.cohort_id);
   };
 
-  const getStudentPoints = (studentId) =>
-    allLedgerEntries.filter(e => e.user_id === studentId).reduce((s, e) => s + (e.points || 0), 0);
+  const getStudentPoints = (studentId) => pointsByStudent[studentId] ?? 0;
 
   const openJourney = (student) => {
     setSelectedStudent(student);
