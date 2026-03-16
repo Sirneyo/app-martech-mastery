@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
 
     // Fetch everything in parallel
     const [
-      usersRes,
+      users,
       cohorts,
       submissions,
       portfolioStatuses,
@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
       loginEvents,
       portfolioTemplates,
     ] = await Promise.all([
-      base44.asServiceRole.functions.invoke('getSuperAdminUsers', {}),
+      base44.asServiceRole.entities.User.list(),
       base44.asServiceRole.entities.Cohort.list(),
       base44.asServiceRole.entities.Submission.list('-submitted_date', 1000),
       base44.asServiceRole.entities.PortfolioItemStatus.list('-updated_date', 1000),
@@ -30,8 +30,6 @@ Deno.serve(async (req) => {
       base44.asServiceRole.entities.LoginEvent.list('-login_time', 500),
       base44.asServiceRole.entities.PortfolioItemTemplate.list(),
     ]);
-
-    const users = usersRes?.users || [];
 
     // --- Stats ---
     const totalStudents = users.filter(u => u.app_role === 'student').length;
