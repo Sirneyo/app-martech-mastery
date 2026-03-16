@@ -34,8 +34,11 @@ export default function TutorPortfolioReviews() {
     queryFn: async () => {
       if (cohortIds.length === 0) return [];
       
-      const allStatuses = await base44.entities.PortfolioItemStatus.list();
-      let filtered = allStatuses.filter(s => cohortIds.includes(s.cohort_id));
+      // Filter by cohort_id to avoid loading all platform statuses
+      const allStatuses = await Promise.all(
+        cohortIds.map(cid => base44.entities.PortfolioItemStatus.filter({ cohort_id: cid }))
+      );
+      let filtered = allStatuses.flat();
       
       if (statusFilter !== 'all') {
         if (statusFilter === 'submitted') {
@@ -50,9 +53,14 @@ export default function TutorPortfolioReviews() {
     enabled: cohortIds.length > 0,
   });
 
+  // Use tutor students (already scoped) instead of User.list() (all platform users)
   const { data: students = [] } = useQuery({
-    queryKey: ['students'],
-    queryFn: () => base44.entities.User.list(),
+    queryKey: ['tutor-students'],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('getTutorStudents', {});
+      return res.data?.students || [];
+    },
+    enabled: cohortIds.length > 0,
   });
 
   const { data: templates = [] } = useQuery({
