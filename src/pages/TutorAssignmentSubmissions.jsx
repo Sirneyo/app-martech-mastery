@@ -45,7 +45,7 @@ export default function TutorAssignmentSubmissions() {
   const cohortStudentIds = students.map(s => s.id);
 
   const { data: submissions = [] } = useQuery({
-    queryKey: ['assignment-submissions', cohortIds, statusFilter],
+    queryKey: ['assignment-submissions', cohortIds, cohortStudentIds, statusFilter],
     queryFn: async () => {
       if (cohortIds.length === 0 || cohortStudentIds.length === 0) return [];
       
