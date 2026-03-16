@@ -30,7 +30,7 @@ export default function TutorAssignmentSubmissions() {
     enabled: !!user?.id,
   });
 
-  const cohortIds = assignments.map(a => a.cohort_id);
+  const cohortIds = React.useMemo(() => assignments.map(a => a.cohort_id), [assignments]);
 
   // Use getTutorStudents to get all students in one call (avoids N+1 getStudentInfo calls)
   const { data: students = [], isLoading: studentsLoading } = useQuery({
