@@ -71,72 +71,13 @@ export default function StudentDashboard() {
 
   const tutor = dashboardData?.tutor;
 
-  const { data: streak } = useQuery({
-    queryKey: ['login-streak'],
-    queryFn: async () => {
-      if (!user?.id) return 0;
-      const events = await base44.entities.LoginEvent.filter({ user_id: user.id });
-      
-      const dates = events.map(e => e.login_time.split('T')[0]).sort().reverse();
-      const uniqueDates = [...new Set(dates)];
-      
-      let streakCount = 0;
-      const today = new Date().toISOString().split('T')[0];
-      
-      for (let i = 0; i < uniqueDates.length; i++) {
-        const expectedDate = new Date();
-        expectedDate.setDate(expectedDate.getDate() - i);
-        const expected = expectedDate.toISOString().split('T')[0];
-        
-        if (uniqueDates[i] === expected) {
-          streakCount++;
-        } else {
-          break;
-        }
-      }
-      
-      return streakCount;
-    },
-    enabled: !!user?.id,
-  });
-
-  const { data: myPoints } = useQuery({
-    queryKey: ['my-points'],
-    queryFn: async () => {
-      if (!user?.id) return 0;
-      const ledger = await base44.entities.PointsLedger.filter({ user_id: user.id });
-      return ledger.reduce((sum, entry) => sum + entry.points, 0);
-    },
-    enabled: !!user?.id,
-  });
-
-
-
-  const { data: mySubmissions } = useQuery({
-    queryKey: ['my-submissions-count'],
-    queryFn: async () => {
-      if (!user?.id) return { total: 0, graded: 0 };
-      const submissions = await base44.entities.Submission.filter({ user_id: user.id });
-      return {
-        total: submissions.length,
-        graded: submissions.filter(s => s.status === 'graded').length,
-      };
-    },
-    enabled: !!user?.id,
-  });
-
-  const { data: attendance } = useQuery({
-    queryKey: ['my-attendance'],
-    queryFn: async () => {
-      if (!user?.id) return { total: 0, present: 0 };
-      const records = await base44.entities.Attendance.filter({ student_user_id: user.id });
-      return {
-        total: records.length,
-        present: records.filter(r => r.status === 'present').length,
-      };
-    },
-    enabled: !!user?.id,
-  });
+  // Stats (points, streak, submissions, attendance) are now returned by getStudentDashboardData
+  // to avoid 4 extra round trips on the dashboard
+  const stats = dashboardData?.stats;
+  const streak = stats?.streak ?? 0;
+  const myPoints = stats?.points ?? 0;
+  const mySubmissions = stats?.submissions ?? { total: 0, graded: 0 };
+  const attendance = stats?.attendance ?? { total: 0, present: 0 };
 
   const { data: portfolioStatuses = [] } = useQuery({
     queryKey: ['my-portfolio-statuses'],
