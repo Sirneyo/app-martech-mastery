@@ -9,12 +9,31 @@ Deno.serve(async (req) => {
     const { cohortIds } = await req.json();
     if (!cohortIds || cohortIds.length === 0) return Response.json({ leaderboards: {} });
 
-    // Fetch memberships and points with service role
-    const [memberships, allPoints, allUsers] = await Promise.all([
+    // Fetch memberships (active only) and users in parallel
+    const [memberships, allUsers] = await Promise.all([
       base44.asServiceRole.entities.CohortMembership.filter({ status: 'active' }),
-      base44.asServiceRole.entities.PointsLedger.list(),
-      base44.asServiceRole.entities.User.list(),
+      base44.asServiceRole.entities.User.list('created_date', 1000),
     ]);
+
+    // Collect all member IDs across all cohorts
+    const allMemberIds = [...new Set(
+      memberships
+        .filter(m => cohortIds.includes(m.cohort_id))
+        .map(m => m.user_id)
+    )];
+
+    // Fetch ledger only for these members in parallel batches
+    const batchSize = 10;
+    const batches = [];
+    for (let i = 0; i < allMemberIds.length; i += batchSize) {
+      batches.push(allMemberIds.slice(i, i + batchSize));
+    }
+    const ledgerResults = await Promise.all(
+      batches.map(batch =>
+        Promise.all(batch.map(uid => base44.asServiceRole.entities.PointsLedger.filter({ user_id: uid })))
+      )
+    );
+    const allPoints = ledgerResults.flat(2);
 
     const leaderboards = {};
 
@@ -35,7 +54,7 @@ Deno.serve(async (req) => {
           const userData = allUsers.find(u => u.id === userId);
           return {
             id: userId,
-            name: userData?.full_name || 'Unknown',
+            name: userData?.display_name || userData?.full_name || 'Unknown',
             points,
           };
         })
