@@ -130,7 +130,7 @@ export default function TutorDashboard() {
             <ClipboardCheck className="w-8 h-8 text-orange-600" />
             <div>
               <h3 className="font-bold text-slate-900">Review Projects</h3>
-              <p className="text-sm text-slate-500">{projectSubmissions?.length || 0} pending</p>
+              <p className="text-sm text-slate-500">{pending.projects} pending</p>
             </div>
           </Link>
 
