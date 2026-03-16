@@ -141,7 +141,7 @@ export default function TutorDashboard() {
             <Award className="w-8 h-8 text-emerald-600" />
             <div>
               <h3 className="font-bold text-slate-900">Portfolio Reviews</h3>
-              <p className="text-sm text-slate-500">{portfolioReviews?.length || 0} pending</p>
+              <p className="text-sm text-slate-500">{pending.portfolio} pending</p>
             </div>
           </Link>
 
