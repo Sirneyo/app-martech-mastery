@@ -73,7 +73,7 @@ const PAGE_ACCESS = {
   AdminQuizResults: ['admin'],
   AdminProfile: ['admin'],
   SuperAdminDashboard: ['admin'],
-  MarketoAccess: ['admin'],
+  MarketoAccess: ['admin', 'student'],
   StaffSupport: ['admin'],
 };
 
