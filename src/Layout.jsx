@@ -74,7 +74,7 @@ const PAGE_ACCESS = {
   AdminProfile: ['admin'],
   SuperAdminDashboard: ['admin'],
   MarketoAccess: ['admin', 'student'],
-  StaffSupport: ['admin'],
+  StaffSupport: ['admin', 'tutor'],
 };
 
 export default function Layout({ children, currentPageName }) {
