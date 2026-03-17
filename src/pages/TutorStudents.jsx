@@ -162,12 +162,19 @@ export default function TutorStudents() {
                 <Card key={student.id} className="border-slate-200 hover:shadow-md transition-shadow">
                   <CardContent className="pt-4 pb-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shrink-0">
-                        <User className="w-5 h-5 text-white" />
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shrink-0 overflow-hidden text-white font-bold text-lg">
+                        {student.profile_picture ? (
+                          <img src={student.profile_picture} alt={student.display_name || student.full_name} className="w-full h-full object-cover" />
+                        ) : (
+                          (student.display_name || student.full_name)?.charAt(0)?.toUpperCase() || <User className="w-5 h-5" />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-slate-900 truncate">{student.display_name || student.full_name}</p>
                         <p className="text-xs text-slate-500 truncate">{student.email}</p>
+                        {student.professional_bio && (
+                          <p className="text-xs text-slate-400 truncate mt-0.5">{student.professional_bio}</p>
+                        )}
                         {cohort && (
                           <Badge className="mt-1 text-xs bg-violet-100 text-violet-700 border-0">{cohort.name}</Badge>
                         )}
