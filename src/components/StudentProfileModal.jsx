@@ -241,6 +241,12 @@ export default function StudentProfileModal({ student, isOpen, onClose }) {
                     {loginEvents[0] ? new Date(loginEvents[0].login_time).toLocaleDateString() : 'N/A'}
                   </p>
                 </div>
+                {student.professional_bio && (
+                  <div className="col-span-2">
+                    <p className="text-sm text-slate-500 mb-1">Professional Bio</p>
+                    <p className="text-sm text-slate-700 leading-relaxed">{student.professional_bio}</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
