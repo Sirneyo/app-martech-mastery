@@ -110,12 +110,19 @@ export default function StudentProfileModal({ student, isOpen, onClose }) {
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white text-xl font-bold">
-                {(student.display_name || student.full_name)?.charAt(0) || 'S'}
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white text-xl font-bold shrink-0 overflow-hidden">
+                {student.profile_picture ? (
+                  <img src={student.profile_picture} alt={student.display_name || student.full_name} className="w-full h-full object-cover" />
+                ) : (
+                  (student.display_name || student.full_name)?.charAt(0) || 'S'
+                )}
               </div>
               <div>
                 <h2 className="text-2xl font-bold">{student.display_name || student.full_name}</h2>
                 <p className="text-sm text-slate-500">{student.email}</p>
+                {student.professional_bio && (
+                  <p className="text-sm text-slate-600 mt-1 leading-snug line-clamp-2">{student.professional_bio}</p>
+                )}
               </div>
             </DialogTitle>
             <Button
