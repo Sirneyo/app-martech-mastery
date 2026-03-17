@@ -158,8 +158,12 @@ export default function AdminStudents() {
                   onClick={() => handleStudentClick(student)}
                 >
                   <div className="p-4 flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0">
-                      {(student.display_name || student.full_name)?.charAt(0) || 'S'}
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-600 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden text-lg">
+                      {student.profile_picture ? (
+                        <img src={student.profile_picture} alt={student.display_name || student.full_name} className="w-full h-full object-cover" />
+                      ) : (
+                        (student.display_name || student.full_name)?.charAt(0) || 'S'
+                      )}
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -167,6 +171,9 @@ export default function AdminStudents() {
                         {student.display_name || student.full_name || 'Unnamed Student'}
                       </h3>
                       <p className="text-sm text-slate-500 truncate">{student.email}</p>
+                      {student.professional_bio && (
+                        <p className="text-xs text-slate-400 truncate mt-0.5">{student.professional_bio}</p>
+                      )}
                     </div>
 
                     <div className="hidden md:flex items-center gap-6 text-sm">
