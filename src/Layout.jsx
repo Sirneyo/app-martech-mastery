@@ -72,6 +72,8 @@ const PAGE_ACCESS = {
   AdminOverview: ['admin'],
   AdminQuizResults: ['admin'],
   AdminProfile: ['admin'],
+  AdminProjects: ['admin'],
+  AdminProjectDetail: ['admin'],
   SuperAdminDashboard: ['admin'],
   MarketoAccess: ['admin', 'student'],
   StaffSupport: ['admin', 'tutor'],
