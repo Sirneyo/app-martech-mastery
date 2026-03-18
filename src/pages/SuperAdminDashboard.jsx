@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Coins, Trash2, CheckCircle, XCircle, Search, Plus, Minus, Users, AlertTriangle, Eye, Activity, UserCheck, Wifi, BarChart2, RotateCcw } from 'lucide-react';
 import SystemCheckPanel from '@/components/SystemCheckPanel';
 import SuperAdminAnalytics from '@/components/SuperAdminAnalytics';
+import ProjectWorkspacePreview from '@/components/superadmin/ProjectWorkspacePreview';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
