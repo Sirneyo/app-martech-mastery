@@ -32,6 +32,7 @@ export default function AdminSidebar({ currentPageName, onNavigate }) {
     { name: 'Submissions', icon: ClipboardList, page: 'AdminSubmissions' },
     { name: 'Portfolio', icon: FolderCheck, page: 'AdminPortfolio' },
     { name: 'Exams', icon: Award, page: 'AdminExams' },
+    { name: 'Projects', icon: FolderKanban, page: 'AdminProjects' },
     { name: 'Templates', icon: FileText, page: 'AdminTemplates' },
     { name: 'Exam Bank Import', icon: FileText, page: 'AdminExamBankImport' },
     { name: 'Technical Support', icon: Wrench, page: 'StaffSupport' },

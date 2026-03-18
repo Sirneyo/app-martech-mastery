@@ -127,6 +127,8 @@ export const PAGES = {
     "AITools": AITools,
     "AcceptInvitation": AcceptInvitation,
     "AdminAnnouncements": AdminAnnouncements,
+    "AdminProjects": AdminProjects,
+    "AdminProjectDetail": AdminProjectDetail,
     "AdminAttendance": AdminAttendance,
     "AdminCohortOverview": AdminCohortOverview,
     "AdminCohorts": AdminCohorts,
