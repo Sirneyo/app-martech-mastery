@@ -207,7 +207,7 @@ export default function ProjectOnboarding({ project, enrollment, user, onComplet
                       className="mt-1 w-4 h-4 rounded accent-violet-600"
                     />
                     <span className="text-sm text-slate-600">
-                      I have read and agree to the participation agreement. I understand this is a professional simulation and I will conduct myself accordingly.
+                      I have read and agree to the participation agreement. I understand this is a professional project and I will conduct myself accordingly.
                     </span>
                   </label>
                 </div>
