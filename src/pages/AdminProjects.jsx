@@ -69,7 +69,7 @@ export default function AdminProjects() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">Projects</h1>
-            <p className="text-slate-500 mt-1">Manage simulation projects and student enrolments</p>
+            <p className="text-slate-500 mt-1">Manage projects and student enrolments</p>
           </div>
           <Button onClick={() => setShowForm(true)} className="gap-2">
             <Plus className="w-4 h-4" /> New Project
@@ -102,7 +102,7 @@ export default function AdminProjects() {
           <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-16 text-center">
             <FolderKanban className="w-12 h-12 text-slate-300 mx-auto mb-3" />
             <p className="text-slate-500 font-medium">No projects yet</p>
-            <p className="text-slate-400 text-sm mb-4">Create your first simulation project</p>
+            <p className="text-slate-400 text-sm mb-4">Create your first project</p>
             <Button onClick={() => setShowForm(true)} variant="outline" className="gap-2">
               <Plus className="w-4 h-4" /> Create Project
             </Button>

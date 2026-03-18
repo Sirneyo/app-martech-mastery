@@ -85,7 +85,7 @@ export default function StudentSimProjects() {
             <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
               <Lock className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-bold mb-1">Simulation Projects</h1>
+            <h1 className="text-2xl font-bold mb-1">Projects</h1>
             <p className="text-white/80 text-sm">Unlocks at Week {UNLOCK_WEEK} of your cohort</p>
           </div>
           <div className="px-8 py-8 text-center">
@@ -113,7 +113,7 @@ export default function StudentSimProjects() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <div className="max-w-4xl mx-auto">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">Simulation Projects</h1>
+          <h1 className="text-3xl font-bold text-slate-900">Projects</h1>
           <p className="text-slate-500 mt-1">Real-world marketing projects in a professional environment</p>
         </motion.div>
 
