@@ -52,8 +52,6 @@ import AcceptInvitation from './pages/AcceptInvitation';
 import AdminAnnouncements from './pages/AdminAnnouncements';
 import AdminProjects from './pages/AdminProjects';
 import AdminProjectDetail from './pages/AdminProjectDetail';
-import StudentSimProjects from './pages/StudentSimProjects';
-import StudentSimProjectDetail from './pages/StudentSimProjectDetail';
 import AdminAttendance from './pages/AdminAttendance';
 import AdminCohortOverview from './pages/AdminCohortOverview';
 import AdminCohorts from './pages/AdminCohorts';
@@ -131,8 +129,6 @@ export const PAGES = {
     "AdminAnnouncements": AdminAnnouncements,
     "AdminProjects": AdminProjects,
     "AdminProjectDetail": AdminProjectDetail,
-    "StudentSimProjects": StudentSimProjects,
-    "StudentSimProjectDetail": StudentSimProjectDetail,
     "AdminAttendance": AdminAttendance,
     "AdminCohortOverview": AdminCohortOverview,
     "AdminCohorts": AdminCohorts,

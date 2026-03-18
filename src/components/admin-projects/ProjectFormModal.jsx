@@ -47,8 +47,8 @@ export default function ProjectFormModal({ project, onClose, onSaved }) {
               <Input value={form.title} onChange={e => set('title', e.target.value)} placeholder="e.g. CRM Migration Campaign" />
             </div>
             <div className="space-y-1.5">
-              <Label>Company Name</Label>
-              <Input value={form.company_name} onChange={e => set('company_name', e.target.value)} placeholder="e.g. SaaSly" />
+              <Label>Company Simulation Name</Label>
+              <Input value={form.company_name} onChange={e => set('company_name', e.target.value)} placeholder="e.g. SaaSly — CRM Migration" />
             </div>
           </div>
 
