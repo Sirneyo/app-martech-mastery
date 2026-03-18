@@ -11,6 +11,7 @@ import {
   Zap,
   ClipboardList,
   FolderOpen,
+  FolderKanban,
   Briefcase,
   ChevronLeft,
   LifeBuoy,
@@ -77,9 +78,9 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
 
   const careerItems = [
     { name: 'Projects', icon: FolderOpen, page: 'StudentProjects' },
+    { name: 'Sim Projects', icon: FolderKanban, page: 'StudentSimProjects', unlock_week: 8 },
     { name: 'Portfolio', icon: Briefcase, page: 'StudentPortfolio' },
     { name: 'AI Tools', icon: Zap, page: 'StudentAITools' },
-    { name: 'Resources', icon: BookOpen, page: 'StudentAssignments', unlock_week: 8 },
   ];
 
   const NavLink = ({ item }) => {
