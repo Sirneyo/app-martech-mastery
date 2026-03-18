@@ -131,6 +131,8 @@ export const PAGES = {
     "AdminAnnouncements": AdminAnnouncements,
     "AdminProjects": AdminProjects,
     "AdminProjectDetail": AdminProjectDetail,
+    "StudentSimProjects": StudentSimProjects,
+    "StudentSimProjectDetail": StudentSimProjectDetail,
     "AdminAttendance": AdminAttendance,
     "AdminCohortOverview": AdminCohortOverview,
     "AdminCohorts": AdminCohorts,
