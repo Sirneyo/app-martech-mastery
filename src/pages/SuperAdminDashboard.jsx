@@ -650,6 +650,11 @@ export default function SuperAdminDashboard() {
           <TabsContent value="systemcheck" className="mt-4">
             <SystemCheckPanel />
           </TabsContent>
+
+          {/* Project Workspace Preview Tab */}
+          <TabsContent value="projectworkspace" className="mt-4">
+            <ProjectWorkspacePreview />
+          </TabsContent>
         </Tabs>
       </div>
 
