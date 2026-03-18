@@ -76,9 +76,10 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
   ];
 
   const careerItems = [
-    { name: 'Projects', icon: FolderOpen, page: 'StudentSimProjects', unlock_week: 8 },
+    { name: 'Projects', icon: FolderOpen, page: 'StudentSimProjects' },
     { name: 'Portfolio', icon: Briefcase, page: 'StudentPortfolio' },
     { name: 'AI Tools', icon: Zap, page: 'StudentAITools' },
+    { name: 'Resources', icon: BookOpen, page: 'StudentAssignments', unlock_week: 8 },
   ];
 
   const NavLink = ({ item }) => {
