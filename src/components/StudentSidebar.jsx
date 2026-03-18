@@ -11,7 +11,6 @@ import {
   Zap,
   ClipboardList,
   FolderOpen,
-  FolderKanban,
   Briefcase,
   ChevronLeft,
   LifeBuoy,
