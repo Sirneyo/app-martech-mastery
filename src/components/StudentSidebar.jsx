@@ -78,7 +78,7 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
 
   const careerItems = [
     { name: 'Projects', icon: FolderOpen, page: 'StudentProjects' },
-    { name: 'Sim Projects', icon: FolderKanban, page: 'StudentSimProjects', unlock_week: 8 },
+    { name: 'Live Projects', icon: FolderKanban, page: 'StudentSimProjects', unlock_week: 8 },
     { name: 'Portfolio', icon: Briefcase, page: 'StudentPortfolio' },
     { name: 'AI Tools', icon: Zap, page: 'StudentAITools' },
   ];
