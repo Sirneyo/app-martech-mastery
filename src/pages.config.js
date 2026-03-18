@@ -106,6 +106,7 @@ import StudentPortfolioItemDetail from './pages/StudentPortfolioItemDetail';
 import StudentProfile from './pages/StudentProfile';
 import StudentProjectDetail from './pages/StudentProjectDetail';
 import StudentProjects from './pages/StudentProjects';
+import StudentSimProjects from './pages/StudentSimProjects';
 import StudentSupport from './pages/StudentSupport';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import TutorAITools from './pages/TutorAITools';
@@ -183,6 +184,7 @@ export const PAGES = {
     "StudentProfile": StudentProfile,
     "StudentProjectDetail": StudentProjectDetail,
     "StudentProjects": StudentProjects,
+    "StudentSimProjects": StudentSimProjects,
     "StudentSupport": StudentSupport,
     "SuperAdminDashboard": SuperAdminDashboard,
     "TutorAITools": TutorAITools,

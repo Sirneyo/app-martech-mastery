@@ -31,6 +31,8 @@ const PAGE_ACCESS = {
   MyPortfolio: ['student'],
   MyProjects: ['student'],
   StudentProfile: ['student'],
+  StudentSimProjects: ['student'],
+  StudentSimProjectDetail: ['student'],
 
   // Tutor-only pages
   TutorDashboard: ['tutor'],
