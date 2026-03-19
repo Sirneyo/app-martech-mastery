@@ -266,7 +266,7 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
               )}
             </Link>
           </div>
-          {!isCollapsed && (
+          {!collapsed && (
             <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
               MarTech Mastery Certification
             </p>
