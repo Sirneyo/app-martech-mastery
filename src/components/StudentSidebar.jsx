@@ -256,12 +256,12 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
               onClick={onNavigate}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
                 currentPageName === 'StudentDashboard' ? 'bg-white text-slate-900' : 'text-slate-600 hover:bg-white/60'
-              } ${isCollapsed ? 'justify-center' : ''}`}
-              title={isCollapsed ? 'Dashboard' : ''}
+              } ${collapsed ? 'justify-center' : ''}`}
+              title={collapsed ? 'Dashboard' : ''}
             >
               <LayoutDashboard className={`w-5 h-5 flex-shrink-0 ${currentPageName === 'StudentDashboard' ? 'text-slate-800' : 'text-slate-500'}`} />
-              {!isCollapsed && <span className="font-medium text-sm flex-1">Dashboard</span>}
-              {currentPageName === 'StudentDashboard' && !isCollapsed && (
+              {!collapsed && <span className="font-medium text-sm flex-1">Dashboard</span>}
+              {currentPageName === 'StudentDashboard' && !collapsed && (
                 <motion.div layoutId="activeIndicator" className="ml-auto w-1.5 h-1.5 rounded-full bg-slate-500" />
               )}
             </Link>
