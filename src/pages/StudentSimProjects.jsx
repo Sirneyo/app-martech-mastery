@@ -5,56 +5,103 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Lock, FolderKanban, ChevronRight, PlayCircle, FileText, ArrowRight } from 'lucide-react';
+import { Lock, FolderKanban, ChevronRight, PlayCircle, FileText, ArrowRight, Briefcase } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+const MARTECH_LOGO = 'https://storage.googleapis.com/msgsndr/DVqsiywKVWkfZ4I0mXQ1/media/693348610439b8283bf88818.svg';
+const OPSBASE_LOGO = 'https://media.base44.com/images/public/693261f4a46b591b7d38e623/6610419bc_5e2c44538_OpsbaseLogo500x100px.png';
+
 const STATUS_STYLES = {
-  onboarding: 'bg-blue-100 text-blue-700',
-  active: 'bg-green-100 text-green-700',
-  completed: 'bg-violet-100 text-violet-700',
-  withdrawn: 'bg-slate-100 text-slate-500',
+  onboarding: 'bg-cyan-50 text-cyan-700 border border-cyan-200',
+  active: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+  completed: 'bg-teal-50 text-teal-700 border border-teal-200',
+  withdrawn: 'bg-slate-100 text-slate-500 border border-slate-200',
 };
+
+const STATUS_LABELS = {
+  onboarding: 'Onboarding',
+  active: 'Active',
+  completed: 'Completed',
+  withdrawn: 'Withdrawn',
+};
+
+// Partnership header used on intro + agreement pages
+function PartnershipHeader({ subtitle }) {
+  return (
+    <div className="bg-white border-b border-slate-200 px-8 py-6">
+      <div className="max-w-3xl mx-auto flex flex-col items-center gap-4">
+        <div className="flex items-center gap-6">
+          <img src={MARTECH_LOGO} alt="MarTech Mastery" className="h-8 w-auto" />
+          <div className="flex items-center gap-2 text-slate-300">
+            <div className="w-px h-8 bg-slate-200" />
+            <span className="text-xs font-medium text-slate-400 uppercase tracking-widest px-2">In partnership with</span>
+            <div className="w-px h-8 bg-slate-200" />
+          </div>
+          <img src={OPSBASE_LOGO} alt="Opsbase" className="h-8 w-auto" />
+        </div>
+        {subtitle && (
+          <p className="text-slate-500 text-sm text-center">{subtitle}</p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // Step 1: Intro Video
 function IntroStep({ projects, onContinue }) {
-  // Use the first enrolled project's intro video if available
   const videoUrl = projects[0]?.intro_video_url;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-      <div className="max-w-3xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-violet-600 to-purple-600 px-8 py-10 text-white text-center">
-            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <PlayCircle className="w-8 h-8" />
-            </div>
-            <h1 className="text-2xl font-bold mb-1">Welcome to Projects</h1>
-            <p className="text-white/80 text-sm">Real-world client simulations to build your portfolio</p>
-          </div>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <PartnershipHeader subtitle="A real-world client project experience, brought to you in collaboration with Opsbase." />
 
-          <div className="p-8">
-            {videoUrl ? (
-              <>
-                <h2 className="text-lg font-semibold text-slate-900 mb-4">Project Briefing Video</h2>
-                <div className="aspect-video rounded-xl overflow-hidden bg-slate-100 mb-6">
+      <div className="flex-1 flex items-start justify-center px-6 py-12">
+        <div className="w-full max-w-3xl">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+
+            {/* Title block */}
+            <div className="mb-8 text-center">
+              <div className="inline-flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-700 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest mb-4">
+                <PlayCircle className="w-3.5 h-3.5" />
+                Project Briefing
+              </div>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">Welcome to Your Client Project</h1>
+              <p className="text-slate-500 text-base max-w-xl mx-auto">
+                Watch the briefing video below to understand the project scope, expectations and deliverables before getting started.
+              </p>
+            </div>
+
+            {/* Video card */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+              {videoUrl ? (
+                <div className="aspect-video">
                   <iframe src={videoUrl} className="w-full h-full" allowFullScreen title="Project Introduction" />
                 </div>
-              </>
-            ) : (
-              <div className="aspect-video rounded-xl bg-slate-100 flex flex-col items-center justify-center mb-6 border border-dashed border-slate-300">
-                <PlayCircle className="w-12 h-12 text-slate-300 mb-2" />
-                <p className="text-slate-400 text-sm">Intro video coming soon</p>
+              ) : (
+                <div className="aspect-video flex flex-col items-center justify-center bg-slate-50 border-b border-slate-100">
+                  <div className="w-16 h-16 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-3">
+                    <PlayCircle className="w-8 h-8 text-teal-500" />
+                  </div>
+                  <p className="text-slate-400 text-sm font-medium">Briefing video coming soon</p>
+                  <p className="text-slate-300 text-xs mt-1">Your coordinator will add this shortly</p>
+                </div>
+              )}
+              <div className="px-6 py-4 bg-slate-50 border-t border-slate-100">
+                <p className="text-xs text-slate-400 text-center">
+                  This video has been produced in partnership with <span className="font-semibold text-slate-600">Opsbase</span> and <span className="font-semibold text-slate-600">MarTech Mastery</span>
+                </p>
               </div>
-            )}
-            <p className="text-slate-600 text-sm mb-6 text-center">
-              Watch the briefing above to understand what to expect from the project experience.
-            </p>
-            <Button className="w-full" onClick={onContinue}>
-              Continue to Agreement <ArrowRight className="w-4 h-4 ml-1" />
+            </div>
+
+            <Button
+              className="w-full h-12 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-sm"
+              onClick={onContinue}
+            >
+              Continue to Participation Agreement
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
@@ -65,33 +112,50 @@ function AgreementStep({ projects, onContinue }) {
   const agreementText = projects[0]?.agreement_text;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-      <div className="max-w-3xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-violet-600 to-purple-600 px-8 py-10 text-white text-center">
-            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <FileText className="w-8 h-8" />
-            </div>
-            <h1 className="text-2xl font-bold mb-1">Participation Agreement</h1>
-            <p className="text-white/80 text-sm">Please read and accept the terms before proceeding</p>
-          </div>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <PartnershipHeader />
 
-          <div className="p-8">
-            {agreementText ? (
-              <div className="bg-slate-50 rounded-xl p-5 text-sm text-slate-600 whitespace-pre-wrap border border-slate-200 max-h-72 overflow-y-auto mb-6 leading-relaxed">
-                {agreementText}
+      <div className="flex-1 flex items-start justify-center px-6 py-12">
+        <div className="w-full max-w-3xl">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+
+            <div className="mb-8 text-center">
+              <div className="inline-flex items-center gap-2 bg-slate-100 border border-slate-200 text-slate-600 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest mb-4">
+                <FileText className="w-3.5 h-3.5" />
+                Participation Agreement
               </div>
-            ) : (
-              <div className="bg-slate-50 rounded-xl p-5 text-sm text-slate-500 border border-dashed border-slate-200 mb-6 text-center">
-                Agreement text will be added here by your program coordinator.
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">Before You Begin</h1>
+              <p className="text-slate-500 text-base max-w-xl mx-auto">
+                Please read through the participation agreement carefully. By proceeding, you confirm your commitment to the project expectations.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+              <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-slate-400" />
+                <span className="text-sm font-semibold text-slate-700">Participation Agreement</span>
               </div>
-            )}
-            <Button className="w-full" onClick={onContinue}>
-              I Agree — View My Projects <ArrowRight className="w-4 h-4 ml-1" />
+              <div className="px-6 py-5 max-h-80 overflow-y-auto">
+                {agreementText ? (
+                  <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{agreementText}</p>
+                ) : (
+                  <div className="text-center py-8">
+                    <FileText className="w-10 h-10 text-slate-200 mx-auto mb-2" />
+                    <p className="text-slate-400 text-sm">Agreement text will be added by your program coordinator.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <Button
+              className="w-full h-12 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-sm"
+              onClick={onContinue}
+            >
+              I Agree — View My Projects
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );
@@ -102,36 +166,66 @@ function ProjectListStep({ projects, enrollments }) {
   const getEnrollment = (projectId) => enrollments.find(e => e.project_id === projectId);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-slate-900">My Projects</h1>
-        <p className="text-slate-500 mt-1">Your assigned client simulation projects</p>
-      </motion.div>
+    <div className="min-h-screen bg-slate-50">
+      {/* Page header */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-5xl mx-auto px-8 py-8">
+          <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center">
+                <Briefcase className="w-4 h-4 text-teal-600" />
+              </div>
+              <h1 className="text-2xl font-bold text-slate-900">My Projects</h1>
+            </div>
+            <p className="text-slate-500 text-sm ml-12">Your assigned client projects — delivered in partnership with Opsbase</p>
+          </motion.div>
+        </div>
+      </div>
 
-      <div className="max-w-4xl mx-auto space-y-4">
+      {/* Project cards */}
+      <div className="max-w-5xl mx-auto px-8 py-8 space-y-4">
         {projects.map((project, i) => {
           const enrollment = getEnrollment(project.id);
           if (!enrollment) return null;
+          const status = enrollment.status;
           return (
-            <motion.div key={project.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+            <motion.div key={project.id}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.07, duration: 0.35 }}
+            >
               <Link
                 to={createPageUrl(`StudentSimProjectDetail?id=${project.id}`)}
-                className="block bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all group"
+                className="group flex items-center gap-6 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:border-teal-200 transition-all duration-200"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
-                    <FolderKanban className="w-6 h-6 text-violet-600" />
-                  </div>
-                  <div className="flex-1">
-                    {project.company_name && <p className="text-xs text-slate-400 font-medium mb-0.5">{project.company_name}</p>}
-                    <h3 className="text-lg font-bold text-slate-900">{project.title}</h3>
-                    {project.overview && <p className="text-sm text-slate-500 line-clamp-1 mt-0.5">{project.overview}</p>}
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <Badge className={STATUS_STYLES[enrollment.status] || 'bg-slate-100 text-slate-500'}>
-                      {enrollment.status}
+                {/* Icon */}
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <FolderKanban className="w-7 h-7 text-white" />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  {project.company_name && (
+                    <p className="text-xs font-semibold text-teal-600 uppercase tracking-wider mb-1">{project.company_name}</p>
+                  )}
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-teal-700 transition-colors truncate">{project.title}</h3>
+                  {project.overview && (
+                    <p className="text-sm text-slate-500 line-clamp-1 mt-0.5">{project.overview}</p>
+                  )}
+                  <div className="flex items-center gap-3 mt-2">
+                    <Badge className={`text-xs ${STATUS_STYLES[status] || 'bg-slate-100 text-slate-500'}`}>
+                      {STATUS_LABELS[status] || status}
                     </Badge>
-                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+                    <div className="flex items-center gap-1 text-xs text-slate-400">
+                      <img src={OPSBASE_LOGO} alt="Opsbase" className="h-3.5 w-auto opacity-60" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <div className="flex-shrink-0">
+                  <div className="w-9 h-9 rounded-xl border border-slate-200 group-hover:border-teal-200 group-hover:bg-teal-50 flex items-center justify-center transition-all">
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-600 group-hover:translate-x-0.5 transition-all" />
                   </div>
                 </div>
               </Link>
@@ -146,29 +240,28 @@ function ProjectListStep({ projects, enrollments }) {
 // Not assigned screen
 function NotAssignedScreen() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-      <div className="max-w-2xl mx-auto">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-slate-500 to-slate-700 px-8 py-10 text-center text-white">
-            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-8 h-8" />
-            </div>
-            <h1 className="text-2xl font-bold mb-1">Projects</h1>
-            <p className="text-white/80 text-sm">Not yet available</p>
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-6">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-2xl border border-slate-200 shadow-sm max-w-md w-full overflow-hidden text-center">
+        <div className="bg-gradient-to-br from-slate-700 to-slate-900 px-8 py-10">
+          <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-7 h-7 text-white/80" />
           </div>
-          <div className="px-8 py-8 text-center">
-            <p className="text-slate-600 mb-2">You haven't been assigned to a project yet.</p>
-            <p className="text-slate-400 text-sm">Your program coordinator will assign you a project when you're ready. Check back soon!</p>
-          </div>
-        </motion.div>
-      </div>
+          <h2 className="text-xl font-bold text-white mb-1">Projects</h2>
+          <p className="text-white/60 text-sm">Not yet assigned</p>
+        </div>
+        <div className="px-8 py-8">
+          <p className="text-slate-600 text-sm mb-1 font-medium">You haven't been assigned to a project yet.</p>
+          <p className="text-slate-400 text-sm leading-relaxed">
+            Your program coordinator will assign you a project when you're ready. Check back here soon!
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 }
 
 export default function StudentSimProjects() {
-  // step: 'intro' | 'agreement' | 'list'
   const [step, setStep] = useState('intro');
 
   const { data: user } = useQuery({ queryKey: ['current-user'], queryFn: () => base44.auth.me() });
@@ -189,27 +282,22 @@ export default function StudentSimProjects() {
 
   if (loadingEnrollments || (enrolledProjectIds.length > 0 && loadingProjects)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-teal-100 border-t-teal-600 rounded-full animate-spin" />
+          <p className="text-slate-400 text-sm">Loading your projects…</p>
+        </div>
       </div>
     );
   }
 
-  // Only show projects the student is enrolled in
   const myProjects = allActiveProjects.filter(p => enrolledProjectIds.includes(p.id));
 
-  // If no enrollments at all, show not-assigned screen
   if (enrollments.length === 0 || myProjects.length === 0) {
     return <NotAssignedScreen />;
   }
 
-  if (step === 'intro') {
-    return <IntroStep projects={myProjects} onContinue={() => setStep('agreement')} />;
-  }
-
-  if (step === 'agreement') {
-    return <AgreementStep projects={myProjects} onContinue={() => setStep('list')} />;
-  }
-
+  if (step === 'intro') return <IntroStep projects={myProjects} onContinue={() => setStep('agreement')} />;
+  if (step === 'agreement') return <AgreementStep projects={myProjects} onContinue={() => setStep('list')} />;
   return <ProjectListStep projects={myProjects} enrollments={enrollments} />;
 }
