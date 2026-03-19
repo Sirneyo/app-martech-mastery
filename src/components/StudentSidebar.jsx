@@ -31,11 +31,11 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
   const [userHasToggled, setUserHasToggled] = useState(false);
 
   // Auto-collapse on project pages only if the user hasn't manually toggled
-  React.useEffect(() => {
+  useEffect(() => {
     if (!userHasToggled) {
       setIsCollapsed(isProjectPage);
     }
-  }, [currentPageName]);
+  }, [currentPageName]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const collapsed = isCollapsed;
 
