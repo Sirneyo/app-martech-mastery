@@ -186,6 +186,7 @@ export const PAGES = {
     "StudentProjectDetail": StudentProjectDetail,
     "StudentProjects": StudentProjects,
     "StudentSimProjects": StudentSimProjects,
+    "StudentSimProjectDetail": StudentSimProjectDetail,
     "StudentSupport": StudentSupport,
     "SuperAdminDashboard": SuperAdminDashboard,
     "TutorAITools": TutorAITools,
