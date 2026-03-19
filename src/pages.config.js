@@ -49,8 +49,9 @@
  */
 import AITools from './pages/AITools';
 import AcceptInvitation from './pages/AcceptInvitation';
-import AccessDenied from './pages/AccessDenied';
 import AdminAnnouncements from './pages/AdminAnnouncements';
+import AdminProjects from './pages/AdminProjects';
+import AdminProjectDetail from './pages/AdminProjectDetail';
 import AdminAttendance from './pages/AdminAttendance';
 import AdminCohortOverview from './pages/AdminCohortOverview';
 import AdminCohorts from './pages/AdminCohorts';
@@ -64,8 +65,6 @@ import AdminMediaLibrary from './pages/AdminMediaLibrary';
 import AdminOverview from './pages/AdminOverview';
 import AdminPortfolio from './pages/AdminPortfolio';
 import AdminProfile from './pages/AdminProfile';
-import AdminProjectDetail from './pages/AdminProjectDetail';
-import AdminProjects from './pages/AdminProjects';
 import AdminQuizResults from './pages/AdminQuizResults';
 import AdminStudents from './pages/AdminStudents';
 import AdminSubmissionDetail from './pages/AdminSubmissionDetail';
@@ -108,6 +107,7 @@ import StudentProfile from './pages/StudentProfile';
 import StudentProjectDetail from './pages/StudentProjectDetail';
 import StudentProjects from './pages/StudentProjects';
 import StudentSimProjects from './pages/StudentSimProjects';
+import StudentSimProjectDetail from './pages/StudentSimProjectDetail';
 import StudentSupport from './pages/StudentSupport';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import TutorAITools from './pages/TutorAITools';
@@ -122,15 +122,15 @@ import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorQuizGrading from './pages/TutorQuizGrading';
 import TutorStudents from './pages/TutorStudents';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import StudentSimProjectDetail from './pages/StudentSimProjectDetail';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AITools": AITools,
     "AcceptInvitation": AcceptInvitation,
-    "AccessDenied": AccessDenied,
     "AdminAnnouncements": AdminAnnouncements,
+    "AdminProjects": AdminProjects,
+    "AdminProjectDetail": AdminProjectDetail,
     "AdminAttendance": AdminAttendance,
     "AdminCohortOverview": AdminCohortOverview,
     "AdminCohorts": AdminCohorts,
@@ -144,8 +144,6 @@ export const PAGES = {
     "AdminOverview": AdminOverview,
     "AdminPortfolio": AdminPortfolio,
     "AdminProfile": AdminProfile,
-    "AdminProjectDetail": AdminProjectDetail,
-    "AdminProjects": AdminProjects,
     "AdminQuizResults": AdminQuizResults,
     "AdminStudents": AdminStudents,
     "AdminSubmissionDetail": AdminSubmissionDetail,
@@ -202,7 +200,6 @@ export const PAGES = {
     "TutorQuizGrading": TutorQuizGrading,
     "TutorStudents": TutorStudents,
     "TutorSubmissionReview": TutorSubmissionReview,
-    "StudentSimProjectDetail": StudentSimProjectDetail,
 }
 
 export const pagesConfig = {
