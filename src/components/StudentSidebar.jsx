@@ -26,7 +26,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
 export default function StudentSidebar({ currentPageName, onNavigate }) {
-  const isProjectPage = currentPageName === 'StudentSimProjects' || currentPageName === 'StudentSimProjectDetail';
+  const isProjectPage = currentPageName === 'StudentClientProjects' || currentPageName === 'StudentClientProjectDetail';
   const [isCollapsed, setIsCollapsed] = useState(isProjectPage);
   const [userHasToggled, setUserHasToggled] = useState(false);
 
@@ -92,7 +92,7 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
   ];
 
   const careerItems = [
-    { name: 'Projects', icon: FolderOpen, page: 'StudentSimProjects' },
+    { name: 'Projects', icon: FolderOpen, page: 'StudentClientProjects' },
     { name: 'Portfolio', icon: Briefcase, page: 'StudentPortfolio' },
     { name: 'AI Tools', icon: Zap, page: 'StudentAITools' },
     { name: 'Resources', icon: BookOpen, page: 'StudentAssignments', unlock_week: 8 },

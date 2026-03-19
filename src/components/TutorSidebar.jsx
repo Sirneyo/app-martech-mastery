@@ -42,7 +42,7 @@ export default function TutorSidebar({ currentPageName, onNavigate }) {
     { name: 'Submissions (Assignments)', icon: ClipboardCheck, page: 'TutorAssignmentSubmissions' },
     { name: 'Submissions (Projects)', icon: FolderCheck, page: 'TutorProjectSubmissions' },
     { name: 'Portfolio Reviews', icon: Award, page: 'TutorPortfolioReviews' },
-    { name: 'Client Projects', icon: FolderKanban, page: 'TutorSimProjects' },
+    { name: 'Client Projects', icon: FolderKanban, page: 'TutorClientProjects' },
     { name: 'Technical Support', icon: Wrench, page: 'StaffSupport' },
   ];
 

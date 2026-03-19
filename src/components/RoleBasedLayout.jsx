@@ -203,11 +203,11 @@ export default function RoleBasedLayout({ children, currentPageName }) {
             </DropdownMenu>
           </div>
           {/* Partnership header — separate, distinct bar */}
-          {(currentPageName === 'StudentSimProjectDetail' || currentPageName === 'StudentSimProjects' || currentPageName === 'TutorSimProjectDetail' || currentPageName === 'TutorSimProjects') && (
+          {(currentPageName === 'StudentClientProjectDetail' || currentPageName === 'StudentClientProjects' || currentPageName === 'TutorClientProjectDetail' || currentPageName === 'TutorClientProjects') && (
             <div className="border-b-2 border-slate-300 shadow-md">
               <ProjectPartnershipBar
-                showBack={currentPageName === 'StudentSimProjectDetail' || currentPageName === 'TutorSimProjectDetail'}
-                backTo={currentPageName === 'TutorSimProjectDetail' ? 'TutorSimProjects' : 'StudentSimProjects'}
+                showBack={currentPageName === 'StudentClientProjectDetail' || currentPageName === 'TutorClientProjectDetail'}
+                backTo={currentPageName === 'TutorClientProjectDetail' ? 'TutorClientProjects' : 'StudentClientProjects'}
               />
             </div>
           )}
