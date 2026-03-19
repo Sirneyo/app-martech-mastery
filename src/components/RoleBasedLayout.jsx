@@ -155,8 +155,9 @@ export default function RoleBasedLayout({ children, currentPageName }) {
       </div>
 
       <main className="flex-1 h-screen overflow-y-auto lg:ml-0">
-        <div className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
-          <div className="px-6 py-3 flex items-center justify-end gap-2">
+        <div className="sticky top-0 z-40">
+          {/* Main nav header */}
+          <div className="bg-white border-b border-slate-200 shadow-sm px-6 py-3 flex items-center justify-end gap-2">
             <NotificationBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -201,11 +202,14 @@ export default function RoleBasedLayout({ children, currentPageName }) {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+          {/* Partnership header — separate, distinct bar */}
           {(currentPageName === 'StudentSimProjectDetail' || currentPageName === 'StudentSimProjects') && (
-            <ProjectPartnershipBar
-              showBack={currentPageName === 'StudentSimProjectDetail'}
-              backTo="StudentSimProjects"
-            />
+            <div className="border-b-2 border-slate-300 shadow-md">
+              <ProjectPartnershipBar
+                showBack={currentPageName === 'StudentSimProjectDetail'}
+                backTo="StudentSimProjects"
+              />
+            </div>
           )}
         </div>
         {impersonatingUser ? (
