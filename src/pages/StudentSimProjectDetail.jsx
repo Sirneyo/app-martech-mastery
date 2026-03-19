@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, FolderKanban, CheckCircle, Clock, AlertCircle,
-  ChevronRight, Lock, PlayCircle, FileText
+  PlayCircle
 } from 'lucide-react';
 
 const TASK_STATUS_STYLES = {
@@ -31,11 +30,10 @@ export default function StudentSimProjectDetail() {
   const navigate = useNavigate();
   const params = new URLSearchParams(window.location.search);
   const projectId = params.get('id');
-  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({ queryKey: ['current-user'], queryFn: () => base44.auth.me() });
 
-  const { data: project } = useQuery({
+  const { data: project, isLoading: loadingProject } = useQuery({
     queryKey: ['sim-project', projectId],
     queryFn: async () => {
       const list = await base44.entities.SimProject.filter({ id: projectId });
@@ -56,7 +54,7 @@ export default function StudentSimProjectDetail() {
     enabled: !!projectId,
   });
 
-  const { data: enrollment } = useQuery({
+  const { data: enrollment, isLoading: loadingEnrollment } = useQuery({
     queryKey: ['my-enrollment', projectId, user?.id],
     queryFn: async () => {
       const list = await base44.entities.SimProjectEnrollment.filter({
@@ -77,21 +75,12 @@ export default function StudentSimProjectDetail() {
     enabled: !!projectId && !!user?.id,
   });
 
-  const agreeMutation = useMutation({
-    mutationFn: () => base44.entities.SimProjectEnrollment.update(enrollment.id, {
-      onboarding_agreement_signed: true,
-      agreement_signed_date: new Date().toISOString(),
-      status: 'active',
-    }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['my-enrollment', projectId, user?.id] }),
-  });
-
   if (!projectId) {
     navigate(createPageUrl('StudentSimProjects'));
     return null;
   }
 
-  if (!project || !enrollment) {
+  if (loadingProject || loadingEnrollment) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
@@ -99,58 +88,19 @@ export default function StudentSimProjectDetail() {
     );
   }
 
-  // Show onboarding if not yet agreed
-  if (!enrollment.onboarding_agreement_signed) {
+  if (!project || !enrollment) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-        <div className="max-w-2xl mx-auto">
-          <button onClick={() => navigate(createPageUrl('StudentSimProjects'))}
-            className="flex items-center gap-2 text-slate-500 hover:text-slate-700 mb-6 text-sm">
-            <ArrowLeft className="w-4 h-4" /> Back to Projects
-          </button>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-violet-600 to-purple-600 px-8 py-10 text-white">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4">
-                <FileText className="w-6 h-6" />
-              </div>
-              <h1 className="text-2xl font-bold">{project.title}</h1>
-              {project.company_name && <p className="text-white/80 mt-1">{project.company_name}</p>}
-            </div>
-            <div className="p-8">
-              {project.intro_video_url && (
-                <div className="mb-6">
-                  <h2 className="text-lg font-semibold text-slate-900 mb-3">Project Briefing</h2>
-                  <div className="aspect-video rounded-xl overflow-hidden bg-slate-100">
-                    <iframe src={project.intro_video_url} className="w-full h-full" allowFullScreen />
-                  </div>
-                </div>
-              )}
-              {project.agreement_text && (
-                <div className="mb-6">
-                  <h2 className="text-lg font-semibold text-slate-900 mb-3">Participation Agreement</h2>
-                  <div className="bg-slate-50 rounded-xl p-4 text-sm text-slate-600 whitespace-pre-wrap border border-slate-200 max-h-48 overflow-y-auto">
-                    {project.agreement_text}
-                  </div>
-                </div>
-              )}
-              <Button
-                className="w-full"
-                onClick={() => agreeMutation.mutate()}
-                disabled={agreeMutation.isPending}
-              >
-                {agreeMutation.isPending ? 'Signing...' : 'I agree — Start Project'}
-              </Button>
-            </div>
-          </motion.div>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center gap-4">
+        <p className="text-slate-500">Project not found or you're not enrolled.</p>
+        <button onClick={() => navigate(createPageUrl('StudentSimProjects'))}
+          className="text-violet-600 text-sm hover:underline flex items-center gap-1">
+          <ArrowLeft className="w-4 h-4" /> Back to Projects
+        </button>
       </div>
     );
   }
 
-  // Sort phases and tasks
   const sortedPhases = [...phases].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-
   const getSubmission = (taskId) => submissions.find(s => s.task_id === taskId);
 
   return (
@@ -209,7 +159,7 @@ export default function StudentSimProjectDetail() {
                             <p className="font-medium text-slate-900">{task.title}</p>
                             {task.brief && <p className="text-sm text-slate-500 line-clamp-1 mt-0.5">{task.brief}</p>}
                           </div>
-                          <Badge className={TASK_STATUS_STYLES[status]}>{status.replace('_', ' ')}</Badge>
+                          <Badge className={TASK_STATUS_STYLES[status]}>{status.replace(/_/g, ' ')}</Badge>
                         </div>
                       );
                     })}
@@ -222,7 +172,6 @@ export default function StudentSimProjectDetail() {
             })}
           </div>
         ) : (
-          // Tasks without phases
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="divide-y divide-slate-100">
               {tasks.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map(task => {
@@ -236,7 +185,7 @@ export default function StudentSimProjectDetail() {
                       <p className="font-medium text-slate-900">{task.title}</p>
                       {task.brief && <p className="text-sm text-slate-500 line-clamp-1 mt-0.5">{task.brief}</p>}
                     </div>
-                    <Badge className={TASK_STATUS_STYLES[status]}>{status.replace('_', ' ')}</Badge>
+                    <Badge className={TASK_STATUS_STYLES[status]}>{status.replace(/_/g, ' ')}</Badge>
                   </div>
                 );
               })}
