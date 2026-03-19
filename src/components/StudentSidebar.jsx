@@ -229,13 +229,13 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
             <Link
               to={createPageUrl('StudentAITools')}
               onClick={onNavigate}
-              className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 border border-slate-200 ${isCollapsed ? 'justify-center' : ''}`}
-              title={isCollapsed ? 'AI Tools' : ''}
+              className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 border border-slate-200 ${collapsed ? 'justify-center' : ''}`}
+              title={collapsed ? 'AI Tools' : ''}
             >
               <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-blue-500 to-cyan-500 flex-shrink-0">
                 <Zap className="w-4 h-4 text-white" />
               </div>
-              {!isCollapsed && (
+              {!collapsed && (
                 <>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-slate-700">AI Tools</p>
