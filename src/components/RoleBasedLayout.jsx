@@ -150,7 +150,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
           >
             <X className="w-5 h-5" />
           </button>
-          <SidebarComponent currentPageName={currentPageName} onNavigate={() => setSidebarOpen(false)} />
+          <SidebarComponent currentPageName={currentPageName} onNavigate={() => setSidebarOpen(false)} forceCollapsed={isProjectPage} />
         </div>
       </div>
 
