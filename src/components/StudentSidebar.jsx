@@ -123,10 +123,10 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
   };
 
   return (
-    <aside className={`${isCollapsed ? 'w-20' : 'w-72'} bg-gradient-to-b from-slate-100 to-slate-200 h-screen flex flex-col border-r border-slate-300 transition-all duration-300 relative overflow-hidden`}>
+    <aside className={`${collapsed ? 'w-20' : 'w-72'} bg-gradient-to-b from-slate-100 to-slate-200 h-screen flex flex-col border-r border-slate-300 transition-all duration-300 relative overflow-hidden`}>
       {/* Logo */}
       <div className="p-4 border-b border-slate-300 flex items-center justify-between">
-        {!isCollapsed && (
+        {!collapsed && (
           <Link to={createPageUrl('StudentDashboard')}>
             <img 
               src="https://storage.googleapis.com/msgsndr/DVqsiywKVWkfZ4I0mXQ1/media/693348610439b8283bf88818.svg" 
