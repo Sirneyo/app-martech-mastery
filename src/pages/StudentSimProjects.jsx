@@ -152,13 +152,8 @@ function ProjectListStep({ projects, enrollments }) {
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-5xl mx-auto px-8 py-8">
           <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-            <div className="flex items-center gap-3 mb-1">
-              <div className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center">
-                <Briefcase className="w-4 h-4 text-teal-600" />
-              </div>
-              <h1 className="text-2xl font-bold text-slate-900">My Projects</h1>
-            </div>
-            <p className="text-slate-500 text-sm ml-12">Your assigned client projects — delivered in partnership with Opsbase</p>
+            <h1 className="text-2xl font-bold text-slate-900 mb-1">My Projects</h1>
+            <p className="text-slate-500 text-sm">Your assigned client projects — delivered in partnership with Opsbase</p>
           </motion.div>
         </div>
       </div>
