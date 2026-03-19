@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -164,7 +164,7 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => setIsCollapsed(prev => !prev)}
+        onClick={handleToggle}
         className="absolute -right-3 bottom-8 z-50 h-6 w-6 rounded-full bg-white border border-slate-300 hover:bg-slate-100"
       >
         {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
