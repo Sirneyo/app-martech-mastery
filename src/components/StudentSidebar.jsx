@@ -25,8 +25,9 @@ import {
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
-export default function StudentSidebar({ currentPageName, onNavigate }) {
+export default function StudentSidebar({ currentPageName, onNavigate, forceCollapsed = false }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const collapsed = forceCollapsed || isCollapsed;
 
   const { data: settings } = useQuery({
     queryKey: ['app-settings'],
