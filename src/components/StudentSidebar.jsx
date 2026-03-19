@@ -25,8 +25,11 @@ import {
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
+const PROJECT_PAGES = ['StudentSimProjects', 'StudentSimProjectDetail'];
+
 export default function StudentSidebar({ currentPageName, onNavigate }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const isProjectPage = PROJECT_PAGES.includes(currentPageName);
+  const [isCollapsed, setIsCollapsed] = useState(isProjectPage);
 
   const { data: settings } = useQuery({
     queryKey: ['app-settings'],
