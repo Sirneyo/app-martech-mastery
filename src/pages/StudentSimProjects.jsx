@@ -31,8 +31,6 @@ function IntroStep({ projects, onContinue }) {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <ProjectPartnershipBar />
-
       <div className="flex-1 flex items-start justify-center px-6 py-12">
         <div className="w-full max-w-3xl">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
