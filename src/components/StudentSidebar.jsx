@@ -324,7 +324,7 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
 
         {/* Section 2: Career Acceleration */}
         <div className="px-4 pb-2 mt-4 border-t border-slate-300 pt-4">
-          {!isCollapsed && (
+          {!collapsed && (
             <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
               Career Acceleration
             </p>
