@@ -47,6 +47,8 @@ const PAGE_ACCESS = {
   TutorAttendance: ['tutor'],
   TutorQuizGrading: ['tutor'],
   TutorProfile: ['tutor'],
+  TutorSimProjects: ['tutor'],
+  TutorSimProjectDetail: ['tutor'],
 
   // Admin-only pages
   AdminDashboard: ['admin'],
