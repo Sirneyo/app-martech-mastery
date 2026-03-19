@@ -6,22 +6,24 @@ import { useQuery } from '@tanstack/react-query';
 import { Users, CheckCircle2, Circle, ArrowUpCircle, Clock, AlertCircle, ChevronDown, ChevronRight, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
+import TutorTaskReviewPanel from '@/components/client-project/TutorTaskReviewPanel';
 
 const urlParams = new URLSearchParams(window.location.search);
 const PROJECT_ID = urlParams.get('id');
 
 const STATUS_CONFIG = {
-  not_started:  { label: 'Not Started',  icon: Circle,        color: 'text-slate-400', bg: 'bg-slate-50 border-slate-200',   badge: 'bg-slate-100 text-slate-500' },
-  in_progress:  { label: 'In Progress',  icon: ArrowUpCircle, color: 'text-blue-500',  bg: 'bg-blue-50 border-blue-200',     badge: 'bg-blue-100 text-blue-700' },
-  in_review:    { label: 'In Review',    icon: Clock,         color: 'text-amber-500', bg: 'bg-amber-50 border-amber-200',   badge: 'bg-amber-100 text-amber-700' },
-  approved:     { label: 'Approved',     icon: CheckCircle2,  color: 'text-emerald-500', bg: 'bg-emerald-50 border-emerald-200', badge: 'bg-emerald-100 text-emerald-700' },
-  rejected:     { label: 'Needs Revision', icon: AlertCircle, color: 'text-red-500',   bg: 'bg-red-50 border-red-200',       badge: 'bg-red-100 text-red-700' },
+  not_started:  { label: 'Not Started',    icon: Circle,        color: 'text-slate-400', bg: 'bg-slate-50 border-slate-200',       badge: 'bg-slate-100 text-slate-500' },
+  in_progress:  { label: 'In Progress',    icon: ArrowUpCircle, color: 'text-blue-500',  bg: 'bg-blue-50 border-blue-200',         badge: 'bg-blue-100 text-blue-700' },
+  in_review:    { label: 'In Review',      icon: Clock,         color: 'text-amber-500', bg: 'bg-amber-50 border-amber-200',       badge: 'bg-amber-100 text-amber-700' },
+  approved:     { label: 'Approved',       icon: CheckCircle2,  color: 'text-emerald-500',bg: 'bg-emerald-50 border-emerald-200',  badge: 'bg-emerald-100 text-emerald-700' },
+  rejected:     { label: 'Needs Revision', icon: AlertCircle,   color: 'text-red-500',   bg: 'bg-red-50 border-red-200',           badge: 'bg-red-100 text-red-700' },
 };
 
-function StudentRow({ student, tasks, submissions }) {
+function StudentRow({ student, tasks, submissions, onTaskClick }) {
   const [expanded, setExpanded] = useState(false);
 
-  const getSubmission = (taskId) => submissions.find(s => s.task_id === taskId && s.student_user_id === student.student_user_id);
+  const getSubmission = (taskId) =>
+    submissions.find(s => s.task_id === taskId && s.student_user_id === student.student_user_id);
 
   const totalTasks = tasks.length;
   const approved = tasks.filter(t => getSubmission(t.id)?.status === 'approved').length;
@@ -43,17 +45,14 @@ function StudentRow({ student, tasks, submissions }) {
         </div>
         <div className="flex items-center gap-4 flex-shrink-0">
           {inReview > 0 && (
-            <Badge className="bg-amber-100 text-amber-700 text-xs">{inReview} in review</Badge>
+            <Badge className="bg-amber-100 text-amber-700 text-xs border-0">{inReview} in review</Badge>
           )}
           <div className="text-right">
             <p className="text-sm font-bold text-slate-900">{approved}/{totalTasks}</p>
             <p className="text-xs text-slate-400">tasks approved</p>
           </div>
           <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-teal-500 rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
+            <div className="h-full bg-teal-500 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
           </div>
           <span className="text-xs font-semibold text-slate-600 w-10 text-right">{progress}%</span>
           {expanded ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
@@ -75,17 +74,21 @@ function StudentRow({ student, tasks, submissions }) {
                 const status = sub?.status || 'not_started';
                 const cfg = STATUS_CONFIG[status];
                 const Icon = cfg.icon;
+                const isClickable = !!sub;
                 return (
-                  <div key={task.id} className={`flex items-center gap-3 p-3 rounded-lg border ${cfg.bg}`}>
+                  <button
+                    key={task.id}
+                    onClick={() => isClickable && onTaskClick(task, sub, student)}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${cfg.bg}
+                      ${isClickable ? 'hover:shadow-sm hover:scale-[1.005] cursor-pointer' : 'cursor-default opacity-70'}`}
+                  >
                     <Icon className={`w-4 h-4 flex-shrink-0 ${cfg.color}`} />
                     <span className="flex-1 text-sm text-slate-700 font-medium truncate">{task.title}</span>
-                    <Badge className={`text-xs ${cfg.badge}`}>{cfg.label}</Badge>
-                    {sub?.tutor_feedback && (
-                      <span className="text-xs text-slate-400 italic truncate max-w-[120px]" title={sub.tutor_feedback}>
-                        "{sub.tutor_feedback.slice(0, 40)}…"
-                      </span>
+                    <Badge className={`text-xs border-0 ${cfg.badge}`}>{cfg.label}</Badge>
+                    {status === 'in_review' && (
+                      <span className="text-xs text-amber-600 font-semibold ml-1">Review →</span>
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -98,6 +101,7 @@ function StudentRow({ student, tasks, submissions }) {
 
 export default function TutorClientProjectDetail() {
   const navigate = useNavigate();
+  const [selectedReview, setSelectedReview] = useState(null); // { task, submission, student }
 
   const { data: user } = useQuery({ queryKey: ['current-user'], queryFn: () => base44.auth.me() });
 
@@ -112,6 +116,12 @@ export default function TutorClientProjectDetail() {
   const { data: project, isLoading: loadingProject } = useQuery({
     queryKey: ['project', PROJECT_ID],
     queryFn: () => base44.entities.Project.filter({ id: PROJECT_ID }).then(r => r[0]),
+    enabled: !!PROJECT_ID && isAssigned,
+  });
+
+  const { data: phases = [] } = useQuery({
+    queryKey: ['project-phases', PROJECT_ID],
+    queryFn: () => base44.entities.ProjectPhase.filter({ project_id: PROJECT_ID }),
     enabled: !!PROJECT_ID && isAssigned,
   });
 
@@ -137,6 +147,7 @@ export default function TutorClientProjectDetail() {
     queryKey: ['task-submissions-project', PROJECT_ID],
     queryFn: () => base44.entities.TaskSubmission.filter({ project_id: PROJECT_ID }),
     enabled: !!PROJECT_ID && isAssigned,
+    refetchInterval: 30000,
   });
 
   const isLoading = checkingAccess || loadingProject || loadingEnrollments;
@@ -197,9 +208,9 @@ export default function TutorClientProjectDetail() {
 
   const sortedTasks = [...tasks].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
 
-  const totalSubmissions = submissions.filter(s => enrollments.some(e => e.student_user_id === s.student_user_id));
-  const inReviewCount = totalSubmissions.filter(s => s.status === 'in_review').length;
-  const approvedCount = totalSubmissions.filter(s => s.status === 'approved').length;
+  const mySubmissions = submissions.filter(s => enrollments.some(e => e.student_user_id === s.student_user_id));
+  const inReviewCount = mySubmissions.filter(s => s.status === 'in_review').length;
+  const approvedCount = mySubmissions.filter(s => s.status === 'approved').length;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -241,7 +252,10 @@ export default function TutorClientProjectDetail() {
         <div>
           <div className="flex items-center gap-2 mb-4">
             <h2 className="text-lg font-bold text-slate-900">Student Progress</h2>
-            <Badge className="bg-slate-100 text-slate-600 text-xs">{students.length} students</Badge>
+            <Badge className="bg-slate-100 text-slate-600 text-xs border-0">{students.length} students</Badge>
+            {inReviewCount > 0 && (
+              <Badge className="bg-amber-100 text-amber-700 text-xs border-0">{inReviewCount} awaiting review</Badge>
+            )}
           </div>
 
           {students.length === 0 ? (
@@ -263,6 +277,7 @@ export default function TutorClientProjectDetail() {
                     student={student}
                     tasks={sortedTasks}
                     submissions={submissions}
+                    onTaskClick={(task, sub, stu) => setSelectedReview({ task, submission: sub, student: stu })}
                   />
                 </motion.div>
               ))}
@@ -270,6 +285,18 @@ export default function TutorClientProjectDetail() {
           )}
         </div>
       </div>
+
+      {selectedReview && (
+        <TutorTaskReviewPanel
+          task={selectedReview.task}
+          submission={selectedReview.submission}
+          student={selectedReview.student}
+          phases={phases}
+          tutorId={user?.id}
+          projectId={PROJECT_ID}
+          onClose={() => setSelectedReview(null)}
+        />
+      )}
     </div>
   );
 }
