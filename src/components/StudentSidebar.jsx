@@ -90,11 +90,11 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
     if (isLocked) {
       return (
         <div
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl opacity-50 cursor-not-allowed ${isCollapsed ? 'justify-center' : ''}`}
-          title={isCollapsed ? `${item.name} (Week ${item.unlock_week})` : `Unlocks at Week ${item.unlock_week}`}
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl opacity-50 cursor-not-allowed ${collapsed ? 'justify-center' : ''}`}
+          title={collapsed ? `${item.name} (Week ${item.unlock_week})` : `Unlocks at Week ${item.unlock_week}`}
         >
           <item.icon className="w-5 h-5 flex-shrink-0 text-slate-400" />
-          {!isCollapsed && (
+          {!collapsed && (
             <>
               <span className="font-medium text-sm flex-1 text-slate-400">{item.name}</span>
               <Lock className="w-3.5 h-3.5 text-slate-400" />
@@ -110,12 +110,12 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
         onClick={onNavigate}
         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
           isActive ? 'bg-white text-slate-900' : 'text-slate-600 hover:bg-white/60'
-        } ${isCollapsed ? 'justify-center' : ''}`}
-        title={isCollapsed ? item.name : ''}
+        } ${collapsed ? 'justify-center' : ''}`}
+        title={collapsed ? item.name : ''}
       >
         <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-slate-800' : 'text-slate-500'}`} />
-        {!isCollapsed && <span className="font-medium text-sm flex-1">{item.name}</span>}
-        {isActive && !isCollapsed && (
+        {!collapsed && <span className="font-medium text-sm flex-1">{item.name}</span>}
+        {isActive && !collapsed && (
           <motion.div layoutId="activeIndicator" className="ml-auto w-1.5 h-1.5 rounded-full bg-slate-500" />
         )}
       </Link>
