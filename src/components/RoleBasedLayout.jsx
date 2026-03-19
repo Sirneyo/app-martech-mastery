@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import StudentSidebar from '@/components/StudentSidebar';
+import ProjectPartnershipBar from '@/components/ProjectPartnershipBar';
 import TutorSidebar from '@/components/TutorSidebar';
 import AdminSidebar from '@/components/AdminSidebar';
 import LoadingLogo from '@/components/LoadingLogo';
