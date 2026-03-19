@@ -33,7 +33,7 @@ function IntroStep({ projects, onContinue }) {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <StickyPartnershipBar />
+      <ProjectPartnershipBar />
 
       <div className="flex-1 flex items-start justify-center px-6 py-12">
         <div className="w-full max-w-3xl">
@@ -93,7 +93,7 @@ function AgreementStep({ projects, onContinue }) {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <StickyPartnershipBar />
+      <ProjectPartnershipBar />
 
       <div className="flex-1 flex items-start justify-center px-6 py-12">
         <div className="w-full max-w-3xl">
@@ -147,7 +147,7 @@ function ProjectListStep({ projects, enrollments }) {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <StickyPartnershipBar />
+      <ProjectPartnershipBar />
       {/* Page header */}
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-5xl mx-auto px-8 py-8">
