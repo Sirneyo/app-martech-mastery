@@ -10,8 +10,8 @@ export default function TutorsTab({ project }) {
   const queryClient = useQueryClient();
 
   const { data: assignments = [] } = useQuery({
-    queryKey: ['sim-tutor-assignments', project.id],
-    queryFn: () => base44.entities.SimProjectTutorAssignment.filter({ project_id: project.id }),
+    queryKey: ['project-tutor-assignments', project.id],
+    queryFn: () => base44.entities.ProjectTutorAssignment.filter({ project_id: project.id }),
   });
 
   const { data: allUsers = [] } = useQuery({
@@ -24,20 +24,20 @@ export default function TutorsTab({ project }) {
   const availableTutors = tutors.filter(t => !assignedIds.has(t.id));
 
   const assignMutation = useMutation({
-    mutationFn: (tutorId) => base44.entities.SimProjectTutorAssignment.create({
+    mutationFn: (tutorId) => base44.entities.ProjectTutorAssignment.create({
       project_id: project.id,
       tutor_user_id: tutorId,
       assigned_date: new Date().toISOString(),
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sim-tutor-assignments', project.id] });
+      queryClient.invalidateQueries({ queryKey: ['project-tutor-assignments', project.id] });
       setSelectedTutor('');
     },
   });
 
   const removeMutation = useMutation({
-    mutationFn: (assignmentId) => base44.entities.SimProjectTutorAssignment.delete(assignmentId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sim-tutor-assignments', project.id] }),
+    mutationFn: (assignmentId) => base44.entities.ProjectTutorAssignment.delete(assignmentId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['project-tutor-assignments', project.id] }),
   });
 
   const getTutorName = (id) => allUsers.find(u => u.id === id)?.full_name || 'Unknown';

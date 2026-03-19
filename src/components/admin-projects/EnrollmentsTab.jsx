@@ -22,8 +22,8 @@ export default function EnrollmentsTab({ project }) {
   const queryClient = useQueryClient();
 
   const { data: enrollments = [] } = useQuery({
-    queryKey: ['sim-enrollments', project.id],
-    queryFn: () => base44.entities.SimProjectEnrollment.filter({ project_id: project.id }),
+    queryKey: ['project-enrollments', project.id],
+    queryFn: () => base44.entities.ProjectEnrollment.filter({ project_id: project.id }),
   });
 
   const { data: allUsers = [] } = useQuery({
@@ -42,8 +42,8 @@ export default function EnrollmentsTab({ project }) {
   });
 
   const { data: tutorAssignments = [] } = useQuery({
-    queryKey: ['sim-tutor-assignments', project.id],
-    queryFn: () => base44.entities.SimProjectTutorAssignment.filter({ project_id: project.id }),
+    queryKey: ['project-tutor-assignments', project.id],
+    queryFn: () => base44.entities.ProjectTutorAssignment.filter({ project_id: project.id }),
   });
 
   const students = allUsers.filter(u => u.app_role === 'student');
@@ -55,7 +55,7 @@ export default function EnrollmentsTab({ project }) {
   const enrollMutation = useMutation({
     mutationFn: async ({ studentIds, tutorId }) => {
       return Promise.all(studentIds.map(sid =>
-        base44.entities.SimProjectEnrollment.create({
+        base44.entities.ProjectEnrollment.create({
           project_id: project.id,
           student_user_id: sid,
           reviewer_tutor_id: tutorId,
@@ -65,7 +65,7 @@ export default function EnrollmentsTab({ project }) {
       ));
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sim-enrollments', project.id] });
+      queryClient.invalidateQueries({ queryKey: ['project-enrollments', project.id] });
       setSelectedStudent('');
       setSelectedTutor('');
       setSelectedCohort('');
@@ -73,8 +73,8 @@ export default function EnrollmentsTab({ project }) {
   });
 
   const removeMutation = useMutation({
-    mutationFn: (id) => base44.entities.SimProjectEnrollment.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sim-enrollments', project.id] }),
+    mutationFn: (id) => base44.entities.ProjectEnrollment.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['project-enrollments', project.id] }),
   });
 
   const handleEnrollIndividual = () => {

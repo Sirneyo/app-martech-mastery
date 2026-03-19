@@ -18,8 +18,8 @@ export default function MonitoringTab({ project }) {
   const [expandedStudent, setExpandedStudent] = useState(null);
 
   const { data: enrollments = [] } = useQuery({
-    queryKey: ['sim-enrollments', project.id],
-    queryFn: () => base44.entities.SimProjectEnrollment.filter({ project_id: project.id }),
+    queryKey: ['project-enrollments', project.id],
+    queryFn: () => base44.entities.ProjectEnrollment.filter({ project_id: project.id }),
   });
 
   const { data: allUsers = [] } = useQuery({
@@ -28,18 +28,18 @@ export default function MonitoringTab({ project }) {
   });
 
   const { data: phases = [] } = useQuery({
-    queryKey: ['sim-phases', project.id],
-    queryFn: () => base44.entities.SimProjectPhase.filter({ project_id: project.id }),
+    queryKey: ['project-phases', project.id],
+    queryFn: () => base44.entities.ProjectPhase.filter({ project_id: project.id }),
   });
 
   const { data: tasks = [] } = useQuery({
-    queryKey: ['sim-tasks', project.id],
-    queryFn: () => base44.entities.SimProjectTask.filter({ project_id: project.id }),
+    queryKey: ['project-tasks', project.id],
+    queryFn: () => base44.entities.ProjectTask.filter({ project_id: project.id }),
   });
 
   const { data: submissions = [] } = useQuery({
-    queryKey: ['sim-task-submissions', project.id],
-    queryFn: () => base44.entities.SimTaskSubmission.filter({ project_id: project.id }),
+    queryKey: ['task-submissions', project.id],
+    queryFn: () => base44.entities.TaskSubmission.filter({ project_id: project.id }),
   });
 
   const getName = (id) => allUsers.find(u => u.id === id)?.full_name || 'Unknown';
