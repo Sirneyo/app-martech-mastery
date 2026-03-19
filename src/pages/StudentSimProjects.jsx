@@ -27,23 +27,6 @@ const STATUS_LABELS = {
 
 
 
-// Sticky partnership bar — shown at top of all steps
-function StickyPartnershipBar() {
-  return (
-    <div className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
-      <div className="max-w-5xl mx-auto px-8 py-3 flex items-center justify-center gap-6">
-        <img src={MARTECH_LOGO} alt="MarTech Mastery" className="h-7 w-auto" />
-        <div className="flex items-center gap-3 text-slate-300">
-          <div className="w-px h-6 bg-slate-200" />
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">In partnership with</span>
-          <div className="w-px h-6 bg-slate-200" />
-        </div>
-        <img src={OPSBASE_LOGO} alt="Opsbase" className="h-7 w-auto" />
-      </div>
-    </div>
-  );
-}
-
 // Step 1: Intro Video
 function IntroStep({ projects, onContinue }) {
   const videoUrl = projects[0]?.intro_video_url;
