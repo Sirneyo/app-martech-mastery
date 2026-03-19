@@ -10,7 +10,7 @@ export default function ProjectPartnershipBar({ showBack = false, backTo = 'Stud
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white border-b border-slate-200">
+    <div className="bg-slate-50">
       <div className="px-6 py-3 flex items-center justify-between">
         {/* Back arrow only — no text */}
         <div className="w-10">
