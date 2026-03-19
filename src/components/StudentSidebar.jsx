@@ -25,11 +25,8 @@ import {
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
-const PROJECT_PAGES = ['StudentSimProjects', 'StudentSimProjectDetail'];
-
 export default function StudentSidebar({ currentPageName, onNavigate }) {
-  const isProjectPage = PROJECT_PAGES.includes(currentPageName);
-  const [isCollapsed, setIsCollapsed] = useState(isProjectPage);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const { data: settings } = useQuery({
     queryKey: ['app-settings'],
@@ -106,11 +103,10 @@ export default function StudentSidebar({ currentPageName, onNavigate }) {
       );
     }
 
-    const isProjectNav = PROJECT_PAGES.includes(item.page);
     return (
       <Link
         to={createPageUrl(item.page)}
-        onClick={() => { if (isProjectNav) setIsCollapsed(true); if (onNavigate) onNavigate(); }}
+        onClick={onNavigate}
         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
           isActive ? 'bg-white text-slate-900' : 'text-slate-600 hover:bg-white/60'
         } ${isCollapsed ? 'justify-center' : ''}`}
