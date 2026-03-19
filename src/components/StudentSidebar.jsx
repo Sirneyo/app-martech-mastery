@@ -309,11 +309,11 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
                 onClick={onNavigate}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
                   currentPageName === 'MarketoAccess' ? 'bg-white text-slate-900' : 'text-slate-600 hover:bg-white/60'
-                } ${isCollapsed ? 'justify-center' : ''}`}
-                title={isCollapsed ? 'Marketo' : ''}
+                } ${collapsed ? 'justify-center' : ''}`}
+                title={collapsed ? 'Marketo' : ''}
               >
                 <BarChart2 className={`w-5 h-5 flex-shrink-0 ${currentPageName === 'MarketoAccess' ? 'text-slate-800' : 'text-slate-500'}`} />
-                {!isCollapsed && <span className="font-medium text-sm flex-1">Marketo</span>}
+                {!collapsed && <span className="font-medium text-sm flex-1">Marketo</span>}
               </Link>
             )}
 
