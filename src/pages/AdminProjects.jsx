@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, FolderKanban, Users, Clock, CheckCircle, BarChart3, Archive, Eye, Pencil, Trash2 } from 'lucide-react';
+import { Plus, FolderKanban, Users, Clock, CheckCircle, BarChart3, Archive, Eye, Pencil, Trash2, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ProjectFormModal from '@/components/admin-projects/ProjectFormModal';
 
