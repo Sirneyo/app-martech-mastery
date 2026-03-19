@@ -31,8 +31,8 @@ function TaskForm({ projectId, phaseId, allTasks, task, onClose, onSaved }) {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const mutation = useMutation({
     mutationFn: async (data) => task?.id
-      ? base44.entities.SimProjectTask.update(task.id, data)
-      : base44.entities.SimProjectTask.create(data),
+      ? base44.entities.ProjectTask.update(task.id, data)
+      : base44.entities.ProjectTask.create(data),
     onSuccess: onSaved,
   });
 
@@ -134,8 +134,8 @@ function PhaseCard({ phase, allTasks, projectId, onDeletePhase }) {
   const tasks = allTasks.filter(t => t.phase_id === phase.id).sort((a, b) => a.sort_order - b.sort_order);
 
   const deleteTaskMutation = useMutation({
-    mutationFn: (id) => base44.entities.SimProjectTask.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sim-tasks', projectId] }),
+    mutationFn: (id) => base44.entities.ProjectTask.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['project-tasks', projectId] }),
   });
 
   return (
@@ -166,7 +166,7 @@ function PhaseCard({ phase, allTasks, projectId, onDeletePhase }) {
                   task={task}
                   onClose={() => setEditingTask(null)}
                   onSaved={() => {
-                    queryClient.invalidateQueries({ queryKey: ['sim-tasks', projectId] });
+                    queryClient.invalidateQueries({ queryKey: ['project-tasks', projectId] });
                     setEditingTask(null);
                   }}
                 />
@@ -207,7 +207,7 @@ function PhaseCard({ phase, allTasks, projectId, onDeletePhase }) {
               allTasks={allTasks}
               onClose={() => setShowTaskForm(false)}
               onSaved={() => {
-                queryClient.invalidateQueries({ queryKey: ['sim-tasks', projectId] });
+                queryClient.invalidateQueries({ queryKey: ['project-tasks', projectId] });
                 setShowTaskForm(false);
               }}
             />
@@ -230,27 +230,27 @@ export default function PhasesTab({ project }) {
   const queryClient = useQueryClient();
 
   const { data: phases = [] } = useQuery({
-    queryKey: ['sim-phases', project.id],
-    queryFn: () => base44.entities.SimProjectPhase.filter({ project_id: project.id }),
+    queryKey: ['project-phases', project.id],
+    queryFn: () => base44.entities.ProjectPhase.filter({ project_id: project.id }),
   });
 
   const { data: tasks = [] } = useQuery({
-    queryKey: ['sim-tasks', project.id],
-    queryFn: () => base44.entities.SimProjectTask.filter({ project_id: project.id }),
+    queryKey: ['project-tasks', project.id],
+    queryFn: () => base44.entities.ProjectTask.filter({ project_id: project.id }),
   });
 
   const createPhaseMutation = useMutation({
-    mutationFn: (data) => base44.entities.SimProjectPhase.create({ ...data, project_id: project.id }),
+    mutationFn: (data) => base44.entities.ProjectPhase.create({ ...data, project_id: project.id }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sim-phases', project.id] });
+      queryClient.invalidateQueries({ queryKey: ['project-phases', project.id] });
       setPhaseForm({ title: '', description: '', sort_order: 0 });
       setShowPhaseForm(false);
     },
   });
 
   const deletePhaseMutation = useMutation({
-    mutationFn: (id) => base44.entities.SimProjectPhase.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sim-phases', project.id] }),
+    mutationFn: (id) => base44.entities.ProjectPhase.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['project-phases', project.id] }),
   });
 
   const sortedPhases = [...phases].sort((a, b) => a.sort_order - b.sort_order);
