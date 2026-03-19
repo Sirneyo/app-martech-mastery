@@ -6,9 +6,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, FolderKanban, CheckCircle, Clock, AlertCircle,
+  FolderKanban, CheckCircle, Clock, AlertCircle,
   PlayCircle
 } from 'lucide-react';
+import ProjectPartnershipBar from '@/components/ProjectPartnershipBar';
 
 const TASK_STATUS_STYLES = {
   not_started: 'bg-slate-100 text-slate-500',
