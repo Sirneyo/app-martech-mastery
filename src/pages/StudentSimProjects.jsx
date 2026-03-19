@@ -164,6 +164,7 @@ function ProjectListStep({ projects, enrollments }) {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <StickyPartnershipBar />
       {/* Page header */}
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-5xl mx-auto px-8 py-8">
