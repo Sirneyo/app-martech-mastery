@@ -6,7 +6,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { FolderKanban, Clock } from 'lucide-react';
-import ProjectPartnershipBar from '@/components/ProjectPartnershipBar';
 import KanbanBoard from '@/components/sim-project/KanbanBoard';
 import TaskDetailPanel from '@/components/sim-project/TaskDetailPanel';
 
