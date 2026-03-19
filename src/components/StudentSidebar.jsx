@@ -342,11 +342,11 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
           onClick={onNavigate}
           className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group ${
             currentPageName === 'StudentSupport' ? 'bg-orange-500/10 text-orange-600' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
-          } ${isCollapsed ? 'justify-center' : ''}`}
-          title={isCollapsed ? 'Support' : ''}
+          } ${collapsed ? 'justify-center' : ''}`}
+          title={collapsed ? 'Support' : ''}
         >
           <LifeBuoy className={`w-5 h-5 flex-shrink-0 ${currentPageName === 'StudentSupport' ? 'text-orange-600' : 'text-slate-500 group-hover:text-slate-700'}`} />
-          {!isCollapsed && <span className="font-medium text-sm">Support</span>}
+          {!collapsed && <span className="font-medium text-sm">Support</span>}
         </Link>
       </div>
     </aside>
