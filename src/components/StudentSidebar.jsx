@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/button';
 
 export default function StudentSidebar({ currentPageName, onNavigate, forceCollapsed = false }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  // forceCollapsed only kicks in when true; user's own toggle is always respected when forceCollapsed is false
   const collapsed = forceCollapsed || isCollapsed;
 
   const { data: settings } = useQuery({
