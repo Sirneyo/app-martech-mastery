@@ -93,9 +93,6 @@ export default function StudentSimProjectDetail() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Partnership bar sticks right below the main header */}
-      <ProjectPartnershipBar showBack backTo="StudentSimProjects" />
-
       <div className="p-6 max-w-[1400px] mx-auto">
         {/* Project header card */}
         <motion.div
