@@ -110,6 +110,9 @@ export default function RoleBasedLayout({ children, currentPageName }) {
                             roleForSidebar === 'tutor' ? TutorSidebar : 
                             StudentSidebar;
 
+  // Auto-collapse sidebar on project pages for full workspace view
+  const isProjectPage = currentPageName === 'StudentSimProjects' || currentPageName === 'StudentSimProjectDetail';
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
