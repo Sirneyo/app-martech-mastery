@@ -279,11 +279,11 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
               href={settings?.kajabi_url || 'https://www.the-growth-academy.co/library'}
               target="_blank"
               rel="noopener noreferrer"
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group text-slate-600 hover:bg-white/60 ${isCollapsed ? 'justify-center' : ''}`}
-              title={isCollapsed ? 'Videos & Live Sessions' : ''}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group text-slate-600 hover:bg-white/60 ${collapsed ? 'justify-center' : ''}`}
+              title={collapsed ? 'Videos & Live Sessions' : ''}
             >
               <Video className="w-5 h-5 flex-shrink-0 text-slate-500 group-hover:text-slate-700" />
-              {!isCollapsed && (
+              {!collapsed && (
                 <>
                   <span className="font-medium text-sm flex-1">Videos &amp; Live Sessions</span>
                   <ExternalLink className="w-3 h-3 text-slate-400" />
