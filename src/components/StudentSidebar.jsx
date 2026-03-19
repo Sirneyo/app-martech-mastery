@@ -168,13 +168,13 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
               href={settings?.kajabi_url || 'https://www.the-growth-academy.co/library'}
               target="_blank"
               rel="noopener noreferrer"
-              className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 border border-slate-200 ${isCollapsed ? 'justify-center' : ''}`}
-              title={isCollapsed ? 'Begin Learning' : ''}
+              className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 border border-slate-200 ${collapsed ? 'justify-center' : ''}`}
+              title={collapsed ? 'Begin Learning' : ''}
             >
               <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-purple-600 to-violet-500 flex-shrink-0">
                 <GraduationCap className="w-4 h-4 text-white" />
               </div>
-              {!isCollapsed && (
+              {!collapsed && (
                 <>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-slate-700">Begin Learning</p>
