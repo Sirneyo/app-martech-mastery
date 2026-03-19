@@ -40,6 +40,11 @@ export default function AdminProjects() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sim-projects'] }),
   });
 
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }) => base44.entities.SimProject.update(id, { status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sim-projects'] }),
+  });
+
   const getProjectStats = (projectId) => {
     const enrolled = enrollments.filter(e => e.project_id === projectId);
     const projectSubs = submissions.filter(s => s.project_id === projectId);
