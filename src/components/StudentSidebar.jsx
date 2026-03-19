@@ -158,7 +158,7 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
       <div className="flex-1 overflow-y-auto">
         {/* Tools section (original) */}
         <div className="px-4 pb-2 border-t border-slate-300 pt-4">
-          {!isCollapsed && (
+          {!collapsed && (
             <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold px-3 mb-3">
               Tools
             </p>
