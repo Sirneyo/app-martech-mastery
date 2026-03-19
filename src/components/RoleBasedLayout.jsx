@@ -204,10 +204,10 @@ export default function RoleBasedLayout({ children, currentPageName }) {
         </div>
 
         {(currentPageName === 'StudentSimProjectDetail' || currentPageName === 'StudentSimProjects') && (
-          (() => {
-            const ProjectPartnershipBar = require('@/components/ProjectPartnershipBar').default;
-            return <ProjectPartnershipBar showBack={currentPageName === 'StudentSimProjectDetail'} backTo="StudentSimProjects" />;
-          })()
+          <ProjectPartnershipBar
+            showBack={currentPageName === 'StudentSimProjectDetail'}
+            backTo="StudentSimProjects"
+          />
         )}
         {impersonatingUser ? (
           <div className="bg-amber-500 text-white px-6 py-2.5 flex items-center justify-between text-sm">
