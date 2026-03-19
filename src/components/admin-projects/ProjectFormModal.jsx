@@ -24,9 +24,9 @@ export default function ProjectFormModal({ project, onClose, onSaved }) {
   const mutation = useMutation({
     mutationFn: async (data) => {
       if (project?.id) {
-        return base44.entities.SimProject.update(project.id, data);
+        return base44.entities.Project.update(project.id, data);
       }
-      return base44.entities.SimProject.create(data);
+      return base44.entities.Project.create(data);
     },
     onSuccess: onSaved,
   });

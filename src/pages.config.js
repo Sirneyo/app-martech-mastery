@@ -107,8 +107,8 @@ import StudentPortfolioItemDetail from './pages/StudentPortfolioItemDetail';
 import StudentProfile from './pages/StudentProfile';
 import StudentProjectDetail from './pages/StudentProjectDetail';
 import StudentProjects from './pages/StudentProjects';
-import StudentSimProjectDetail from './pages/StudentSimProjectDetail';
-import StudentSimProjects from './pages/StudentSimProjects';
+import StudentClientProjectDetail from './pages/StudentClientProjectDetail';
+import StudentClientProjects from './pages/StudentClientProjects';
 import StudentSupport from './pages/StudentSupport';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import TutorAITools from './pages/TutorAITools';
@@ -123,8 +123,8 @@ import TutorProjectSubmissions from './pages/TutorProjectSubmissions';
 import TutorQuizGrading from './pages/TutorQuizGrading';
 import TutorStudents from './pages/TutorStudents';
 import TutorSubmissionReview from './pages/TutorSubmissionReview';
-import TutorSimProjects from './pages/TutorSimProjects';
-import TutorSimProjectDetail from './pages/TutorSimProjectDetail';
+import TutorClientProjects from './pages/TutorClientProjects';
+import TutorClientProjectDetail from './pages/TutorClientProjectDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -189,8 +189,8 @@ export const PAGES = {
     "StudentProfile": StudentProfile,
     "StudentProjectDetail": StudentProjectDetail,
     "StudentProjects": StudentProjects,
-    "StudentSimProjectDetail": StudentSimProjectDetail,
-    "StudentSimProjects": StudentSimProjects,
+    "StudentClientProjectDetail": StudentClientProjectDetail,
+    "StudentClientProjects": StudentClientProjects,
     "StudentSupport": StudentSupport,
     "SuperAdminDashboard": SuperAdminDashboard,
     "TutorAITools": TutorAITools,
@@ -205,8 +205,8 @@ export const PAGES = {
     "TutorQuizGrading": TutorQuizGrading,
     "TutorStudents": TutorStudents,
     "TutorSubmissionReview": TutorSubmissionReview,
-    "TutorSimProjects": TutorSimProjects,
-    "TutorSimProjectDetail": TutorSimProjectDetail,
+    "TutorClientProjects": TutorClientProjects,
+    "TutorClientProjectDetail": TutorClientProjectDetail,
 }
 
 export const pagesConfig = {
