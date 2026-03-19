@@ -7,8 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Lock, FolderKanban, ChevronRight, PlayCircle, FileText, ArrowRight, Briefcase } from 'lucide-react';
 import { motion } from 'framer-motion';
-import ProjectPartnershipBar from '@/components/ProjectPartnershipBar';
-
 const OPSBASE_LOGO = 'https://media.base44.com/images/public/693261f4a46b591b7d38e623/6610419bc_5e2c44538_OpsbaseLogo500x100px.png';
 
 const STATUS_STYLES = {
