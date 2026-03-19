@@ -135,7 +135,7 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
             />
           </Link>
         )}
-        {isCollapsed && (
+        {collapsed && (
           <Link to={createPageUrl('StudentDashboard')} className="mx-auto">
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/96938fb06_OADSolutionsRebrand1.png" 
