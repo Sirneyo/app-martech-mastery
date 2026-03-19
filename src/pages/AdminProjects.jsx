@@ -146,6 +146,28 @@ export default function AdminProjects() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
+                      {project.status === 'draft' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-1 text-green-600 border-green-300 hover:bg-green-50"
+                          onClick={() => statusMutation.mutate({ id: project.id, status: 'active' })}
+                          disabled={statusMutation.isPending}
+                        >
+                          <Zap className="w-3.5 h-3.5" /> Publish
+                        </Button>
+                      )}
+                      {project.status === 'active' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-1 text-slate-500"
+                          onClick={() => statusMutation.mutate({ id: project.id, status: 'draft' })}
+                          disabled={statusMutation.isPending}
+                        >
+                          <Archive className="w-3.5 h-3.5" /> Unpublish
+                        </Button>
+                      )}
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(project)} title="Edit">
                         <Pencil className="w-4 h-4 text-slate-400" />
                       </Button>
