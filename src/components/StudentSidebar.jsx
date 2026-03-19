@@ -208,13 +208,13 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
               <Link
                 to={createPageUrl('MarketoAccess')}
                 onClick={onNavigate}
-                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 border border-slate-200 ${isCollapsed ? 'justify-center' : ''}`}
-                title={isCollapsed ? 'Launch Marketo' : ''}
+                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group bg-white/50 border border-slate-200 ${collapsed ? 'justify-center' : ''}`}
+                title={collapsed ? 'Launch Marketo' : ''}
                 >
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white flex-shrink-0">
                   <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/81e4b8812_AdobeIcon.png" alt="Adobe" className="w-6 h-6" />
                 </div>
-                {!isCollapsed && (
+                {!collapsed && (
                   <>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-slate-700">Launch Marketo</p>
