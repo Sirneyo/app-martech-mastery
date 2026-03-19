@@ -206,8 +206,8 @@ export default function RoleBasedLayout({ children, currentPageName }) {
           {(currentPageName === 'StudentSimProjectDetail' || currentPageName === 'StudentSimProjects' || currentPageName === 'TutorSimProjectDetail' || currentPageName === 'TutorSimProjects') && (
             <div className="border-b-2 border-slate-300 shadow-md">
               <ProjectPartnershipBar
-                showBack={currentPageName === 'StudentSimProjectDetail'}
-                backTo="StudentSimProjects"
+                showBack={currentPageName === 'StudentSimProjectDetail' || currentPageName === 'TutorSimProjectDetail'}
+                backTo={currentPageName === 'TutorSimProjectDetail' ? 'TutorSimProjects' : 'StudentSimProjects'}
               />
             </div>
           )}
