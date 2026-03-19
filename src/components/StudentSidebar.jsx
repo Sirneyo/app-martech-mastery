@@ -25,10 +25,24 @@ import {
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
-export default function StudentSidebar({ currentPageName, onNavigate, forceCollapsed = false }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  // forceCollapsed only kicks in when true; user's own toggle is always respected when forceCollapsed is false
-  const collapsed = forceCollapsed || isCollapsed;
+export default function StudentSidebar({ currentPageName, onNavigate }) {
+  const isProjectPage = currentPageName === 'StudentSimProjects' || currentPageName === 'StudentSimProjectDetail';
+  const [isCollapsed, setIsCollapsed] = useState(isProjectPage);
+  const [userHasToggled, setUserHasToggled] = useState(false);
+
+  // Auto-collapse on project pages only if the user hasn't manually toggled
+  React.useEffect(() => {
+    if (!userHasToggled) {
+      setIsCollapsed(isProjectPage);
+    }
+  }, [currentPageName]);
+
+  const collapsed = isCollapsed;
+
+  const handleToggle = () => {
+    setUserHasToggled(true);
+    setIsCollapsed(prev => !prev);
+  };
 
   const { data: settings } = useQuery({
     queryKey: ['app-settings'],
