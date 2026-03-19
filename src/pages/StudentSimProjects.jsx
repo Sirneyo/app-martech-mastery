@@ -25,27 +25,7 @@ const STATUS_LABELS = {
   withdrawn: 'Withdrawn',
 };
 
-// Partnership header used on intro + agreement pages
-function PartnershipHeader({ subtitle }) {
-  return (
-    <div className="bg-white border-b border-slate-200 px-8 py-6">
-      <div className="max-w-3xl mx-auto flex flex-col items-center gap-4">
-        <div className="flex items-center gap-6">
-          <img src={MARTECH_LOGO} alt="MarTech Mastery" className="h-8 w-auto" />
-          <div className="flex items-center gap-2 text-slate-300">
-            <div className="w-px h-8 bg-slate-200" />
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-widest px-2">In partnership with</span>
-            <div className="w-px h-8 bg-slate-200" />
-          </div>
-          <img src={OPSBASE_LOGO} alt="Opsbase" className="h-8 w-auto" />
-        </div>
-        {subtitle && (
-          <p className="text-slate-500 text-sm text-center">{subtitle}</p>
-        )}
-      </div>
-    </div>
-  );
-}
+
 
 // Sticky partnership bar — shown at top of all steps
 function StickyPartnershipBar() {
