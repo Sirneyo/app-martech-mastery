@@ -187,14 +187,14 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
 
             {isMarketoLocked ? (
               <div
-                className={`flex items-center gap-3 px-3 py-3 rounded-xl bg-slate-100 border border-slate-200 opacity-60 cursor-not-allowed ${isCollapsed ? 'justify-center' : ''}`}
-                title={isCollapsed ? 'Marketo (Locked)' : 'Available from 11:00am on your cohort start date'}
+                className={`flex items-center gap-3 px-3 py-3 rounded-xl bg-slate-100 border border-slate-200 opacity-60 cursor-not-allowed ${collapsed ? 'justify-center' : ''}`}
+                title={collapsed ? 'Marketo (Locked)' : 'Available from 11:00am on your cohort start date'}
               >
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-white relative flex-shrink-0">
                   <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/693261f4a46b591b7d38e623/81e4b8812_AdobeIcon.png" alt="Adobe" className="w-6 h-6 grayscale" />
                   <Lock className="w-3 h-3 text-slate-500 absolute -bottom-1 -right-1" />
                 </div>
-                {!isCollapsed && (
+                {!collapsed && (
                   <>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-slate-400">Launch Marketo</p>
