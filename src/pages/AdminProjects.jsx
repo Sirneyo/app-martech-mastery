@@ -21,28 +21,28 @@ export default function AdminProjects() {
   const queryClient = useQueryClient();
 
   const { data: projects = [], isLoading } = useQuery({
-    queryKey: ['sim-projects'],
-    queryFn: () => base44.entities.SimProject.list('sort_order'),
+    queryKey: ['projects'],
+    queryFn: () => base44.entities.Project.list('sort_order'),
   });
 
   const { data: enrollments = [] } = useQuery({
-    queryKey: ['sim-enrollments-all'],
-    queryFn: () => base44.entities.SimProjectEnrollment.list(),
+    queryKey: ['enrollments-all'],
+    queryFn: () => base44.entities.ProjectEnrollment.list(),
   });
 
   const { data: submissions = [] } = useQuery({
-    queryKey: ['sim-task-submissions-all'],
-    queryFn: () => base44.entities.SimTaskSubmission.list(),
+    queryKey: ['task-submissions-all'],
+    queryFn: () => base44.entities.TaskSubmission.list(),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.SimProject.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sim-projects'] }),
+    mutationFn: (id) => base44.entities.Project.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['projects'] }),
   });
 
   const statusMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.SimProject.update(id, { status }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sim-projects'] }),
+    mutationFn: ({ id, status }) => base44.entities.Project.update(id, { status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['projects'] }),
   });
 
   const getProjectStats = (projectId) => {
@@ -198,7 +198,7 @@ export default function AdminProjects() {
           project={editingProject}
           onClose={handleCloseForm}
           onSaved={() => {
-            queryClient.invalidateQueries({ queryKey: ['sim-projects'] });
+            queryClient.invalidateQueries({ queryKey: ['projects'] });
             handleCloseForm();
           }}
         />

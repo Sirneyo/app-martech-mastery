@@ -17,9 +17,9 @@ export default function AdminProjectDetail() {
   const projectId = params.get('id');
 
   const { data: project, isLoading } = useQuery({
-    queryKey: ['sim-project', projectId],
+    queryKey: ['project', projectId],
     queryFn: async () => {
-      const results = await base44.entities.SimProject.filter({ id: projectId });
+      const results = await base44.entities.Project.filter({ id: projectId });
       return results[0] || null;
     },
     enabled: !!projectId,
