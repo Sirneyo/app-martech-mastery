@@ -294,14 +294,14 @@ export default function StudentSidebar({ currentPageName, onNavigate, forceColla
             {/* Marketo — with lock logic */}
             {isMarketoLocked ? (
               <div
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl opacity-50 cursor-not-allowed ${isCollapsed ? 'justify-center' : ''}`}
-                title={isCollapsed ? 'Marketo (Locked)' : 'Available from 11:00am on your cohort start date'}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl opacity-50 cursor-not-allowed ${collapsed ? 'justify-center' : ''}`}
+                title={collapsed ? 'Marketo (Locked)' : 'Available from 11:00am on your cohort start date'}
               >
                 <div className="relative flex-shrink-0">
                   <BarChart2 className="w-5 h-5 text-slate-400" />
                   <Lock className="w-2.5 h-2.5 text-slate-400 absolute -bottom-1 -right-1" />
                 </div>
-                {!isCollapsed && <span className="font-medium text-sm text-slate-400">Marketo</span>}
+                {!collapsed && <span className="font-medium text-sm text-slate-400">Marketo</span>}
               </div>
             ) : (
               <Link
