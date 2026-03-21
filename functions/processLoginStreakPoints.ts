@@ -3,7 +3,6 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 /**
  * Scheduled daily function - checks all students for login streak milestones.
  * 7-day streak: +10 points
- * 3-day absence: -15 points
  */
 
 Deno.serve(async (req) => {
