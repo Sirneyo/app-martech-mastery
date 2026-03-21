@@ -11,14 +11,14 @@ export function getAssignmentDates(cohortStartDate, weekNumber) {
   const start = new Date(cohortStartDate);
   start.setHours(0, 0, 0, 0);
   const dayOfWeek = start.getDay(); // 0=Sun, 6=Sat
-  const daysUntilSaturday = dayOfWeek === 6 ? 0 : (6 - dayOfWeek);
+  const daysUntilSunday = dayOfWeek === 0 ? 0 : (7 - dayOfWeek);
   
-  const firstSaturday = new Date(start);
-  firstSaturday.setDate(start.getDate() + daysUntilSaturday);
+  const firstSunday = new Date(start);
+  firstSunday.setDate(start.getDate() + daysUntilSunday);
   
-  // Unlock: Saturday of that week at 12:00 noon (local)
-  const unlockDate = new Date(firstSaturday);
-  unlockDate.setDate(firstSaturday.getDate() + (weekNumber - 1) * 7);
+  // Unlock: Sunday of that week at 12:00 noon (local)
+  const unlockDate = new Date(firstSunday);
+  unlockDate.setDate(firstSunday.getDate() + (weekNumber - 1) * 7);
   unlockDate.setHours(12, 0, 0, 0);
   
   // Due: following Friday at 22:00 (10pm local)
