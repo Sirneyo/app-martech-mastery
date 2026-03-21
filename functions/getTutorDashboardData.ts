@@ -54,6 +54,7 @@ Deno.serve(async (req) => {
         projects: pendingProjects,
         portfolio: pendingPortfolio,
       },
+      cohortIds,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
