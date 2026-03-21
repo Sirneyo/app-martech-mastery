@@ -3,10 +3,20 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
+    const realUser = await base44.auth.me();
 
-    if (!user) {
+    if (!realUser) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Support super admin impersonation: accept overrideUserId if caller is super_admin
+    const body = await req.json().catch(() => ({}));
+    let user = realUser;
+    if (body.impersonateUserId && realUser.app_role === 'super_admin') {
+      const targetUsers = await base44.asServiceRole.entities.User.filter({ id: body.impersonateUserId });
+      if (targetUsers[0]) {
+        user = targetUsers[0];
+      }
     }
 
     // Get user's cohort membership
