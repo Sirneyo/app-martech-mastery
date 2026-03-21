@@ -12,16 +12,21 @@ export default function TutorDashboard() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: assignments } = useQuery({
-    queryKey: ['tutor-cohort-assignments'],
+  // Single backend call returns pending counts + cohortIds (supports impersonation)
+  const { data: dashboardData } = useQuery({
+    queryKey: ['tutor-dashboard-data', user?.id],
     queryFn: async () => {
-      if (!user?.id) return [];
-      return base44.entities.TutorCohortAssignment.filter({ tutor_id: user.id });
+      if (!user?.id) return { pending: { assignments: 0, projects: 0, portfolio: 0 }, cohortIds: [] };
+      const impersonating = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
+      const payload = impersonating ? { impersonateUserId: impersonating.id } : {};
+      const res = await base44.functions.invoke('getTutorDashboardData', payload);
+      return res.data || { pending: { assignments: 0, projects: 0, portfolio: 0 }, cohortIds: [] };
     },
     enabled: !!user?.id,
   });
 
-  const cohortIds = [...new Set(assignments?.map(a => a.cohort_id) || [])];
+  const pending = dashboardData?.pending || { assignments: 0, projects: 0, portfolio: 0 };
+  const cohortIds = dashboardData?.cohortIds || [];
 
   const { data: cohorts } = useQuery({
     queryKey: ['tutor-cohorts', cohortIds],
@@ -41,21 +46,6 @@ export default function TutorDashboard() {
     },
     enabled: cohortIds.length > 0,
   });
-
-  // Consolidated pending counts from one backend call instead of 3 separate heavy queries
-  const { data: dashboardData } = useQuery({
-    queryKey: ['tutor-dashboard-data', cohortIds, user?.id],
-    queryFn: async () => {
-      if (cohortIds.length === 0) return { pending: { assignments: 0, projects: 0, portfolio: 0 } };
-      const impersonating = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
-      const payload = impersonating ? { impersonateUserId: impersonating.id } : {};
-      const res = await base44.functions.invoke('getTutorDashboardData', payload);
-      return res.data || { pending: { assignments: 0, projects: 0, portfolio: 0 } };
-    },
-    enabled: cohortIds.length > 0,
-  });
-
-  const pending = dashboardData?.pending || { assignments: 0, projects: 0, portfolio: 0 };
 
   const stats = [
     { label: 'Assigned Cohorts', value: cohortIds.length, icon: Users, color: 'from-blue-500 to-cyan-500', page: 'TutorCohorts' },
