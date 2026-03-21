@@ -13,10 +13,10 @@ Deno.serve(async (req) => {
       tutorId = body.impersonateUserId;
     }
 
-    // Get tutor's cohort assignments
+    // Get tutor's cohort assignments (always use service role so super admin impersonation works)
     const tutorAssignments = await base44.asServiceRole.entities.TutorCohortAssignment.filter({ tutor_id: tutorId });
     if (tutorAssignments.length === 0) {
-      return Response.json({ pending: { assignments: 0, projects: 0, portfolio: 0 } });
+      return Response.json({ pending: { assignments: 0, projects: 0, portfolio: 0 }, cohortIds: [] });
     }
     const cohortIds = tutorAssignments.map(a => a.cohort_id);
 
