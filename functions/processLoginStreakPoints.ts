@@ -16,11 +16,6 @@ Deno.serve(async (req) => {
     const allUsers = await db.entities.User.list();
     const students = allUsers.filter(u => u.app_role === 'student');
 
-    // Pre-load cohort memberships and cohorts to check start dates
-    const allMemberships = await db.entities.CohortMembership.list();
-    const allCohorts = await db.entities.Cohort.list();
-    const cohortMap = Object.fromEntries(allCohorts.map(c => [c.id, c]));
-
     const results = [];
 
     for (const student of students) {
