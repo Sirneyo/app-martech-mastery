@@ -3,11 +3,18 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    const realUser = await base44.auth.me();
+    if (!realUser) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // Support super admin impersonation
+    const body = await req.json().catch(() => ({}));
+    let tutorId = realUser.id;
+    if (body.impersonateUserId && realUser.app_role === 'super_admin') {
+      tutorId = body.impersonateUserId;
+    }
 
     // Get tutor's cohort assignments
-    const tutorAssignments = await base44.entities.TutorCohortAssignment.filter({ tutor_id: user.id });
+    const tutorAssignments = await base44.asServiceRole.entities.TutorCohortAssignment.filter({ tutor_id: tutorId });
     if (tutorAssignments.length === 0) {
       return Response.json({ pending: { assignments: 0, projects: 0, portfolio: 0 } });
     }

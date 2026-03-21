@@ -44,10 +44,12 @@ export default function TutorDashboard() {
 
   // Consolidated pending counts from one backend call instead of 3 separate heavy queries
   const { data: dashboardData } = useQuery({
-    queryKey: ['tutor-dashboard-data', cohortIds],
+    queryKey: ['tutor-dashboard-data', cohortIds, user?.id],
     queryFn: async () => {
       if (cohortIds.length === 0) return { pending: { assignments: 0, projects: 0, portfolio: 0 } };
-      const res = await base44.functions.invoke('getTutorDashboardData', {});
+      const impersonating = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
+      const payload = impersonating ? { impersonateUserId: impersonating.id } : {};
+      const res = await base44.functions.invoke('getTutorDashboardData', payload);
       return res.data || { pending: { assignments: 0, projects: 0, portfolio: 0 } };
     },
     enabled: cohortIds.length > 0,
