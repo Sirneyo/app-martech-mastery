@@ -60,13 +60,16 @@ export default function StudentDashboard() {
   });
 
   const { data: dashboardData } = useQuery({
-    queryKey: ['student-dashboard-data', membership?.cohort_id],
+    queryKey: ['student-dashboard-data', membership?.cohort_id, user?.id],
     queryFn: async () => {
       if (!membership?.cohort_id) return { tutor: null, leaderboardData: [] };
-      const { data } = await base44.functions.invoke('getStudentDashboardData');
+      // When impersonating, pass the impersonated user's ID so the backend uses their data
+      const impersonating = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
+      const payload = impersonating ? { impersonateUserId: impersonating.id } : {};
+      const { data } = await base44.functions.invoke('getStudentDashboardData', payload);
       return data;
     },
-    enabled: !!membership?.cohort_id,
+    enabled: !!membership?.cohort_id && !!user?.id,
   });
 
   const tutor = dashboardData?.tutor;
