@@ -64,35 +64,7 @@ Deno.serve(async (req) => {
         }
       }
 
-      // 3-day absence penalty: last login was exactly 3 days ago
-      const lastLogin = new Date(dates[0]);
-      const todayDate = new Date(today);
-      const daysSince = Math.round((todayDate - lastLogin) / (1000 * 60 * 60 * 24));
 
-      // Only apply penalty if student's cohort has started
-      const studentMembership = allMemberships.find(m => m.user_id === student.id && m.status === 'active');
-      const studentCohort = studentMembership ? cohortMap[studentMembership.cohort_id] : null;
-      const cohortStarted = studentCohort && studentCohort.start_date && studentCohort.start_date <= today;
-
-      if (daysSince === 3 && cohortStarted) {
-        const penaltyKey = `absence_3day_${today}_${student.id}`;
-        const existingPenalty = await db.entities.PointsLedger.filter({
-          user_id: student.id,
-          source_type: 'bonus',
-          source_id: penaltyKey,
-        });
-        if (existingPenalty.length === 0) {
-          await db.entities.PointsLedger.create({
-            user_id: student.id,
-            points: -15,
-            reason: '3_day_absence_penalty',
-            source_type: 'bonus',
-            source_id: penaltyKey,
-            awarded_by: 'system',
-          });
-          results.push({ student_id: student.id, awarded: -15, reason: '3-day absence' });
-        }
-      }
     }
 
     return Response.json({ processed: students.length, results });
