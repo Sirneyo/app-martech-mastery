@@ -9,9 +9,15 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const body = await req.json().catch(() => ({}));
+    let tutorId = user.id;
+    if (body.impersonateUserId && user.app_role === 'super_admin') {
+      tutorId = body.impersonateUserId;
+    }
+
     // Get tutor's cohort assignments
-    const assignments = await base44.entities.TutorCohortAssignment.filter({
-      tutor_id: user.id
+    const assignments = await base44.asServiceRole.entities.TutorCohortAssignment.filter({
+      tutor_id: tutorId
     });
 
     if (assignments.length === 0) {

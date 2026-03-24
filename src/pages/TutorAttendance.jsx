@@ -16,18 +16,23 @@ export default function TutorAttendance() {
   const [attendanceData, setAttendanceData] = useState({});
   const queryClient = useQueryClient();
 
+  const impersonatingUser = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
+  const impersonatingId = impersonatingUser?.id || null;
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
 
+  const effectiveTutorId = impersonatingId || user?.id;
+
   const { data: assignments = [] } = useQuery({
-    queryKey: ['tutor-cohort-assignments'],
+    queryKey: ['tutor-cohort-assignments', effectiveTutorId],
     queryFn: async () => {
-      if (!user?.id) return [];
-      return base44.entities.TutorCohortAssignment.filter({ tutor_id: user.id });
+      if (!effectiveTutorId) return [];
+      return base44.entities.TutorCohortAssignment.filter({ tutor_id: effectiveTutorId });
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveTutorId,
   });
 
   const { data: cohorts = [] } = useQuery({
@@ -42,9 +47,10 @@ export default function TutorAttendance() {
   });
 
   const { data: studentsData } = useQuery({
-    queryKey: ['tutor-students'],
+    queryKey: ['tutor-students', effectiveTutorId],
     queryFn: async () => {
-      const response = await base44.functions.invoke('getTutorStudents');
+      const payload = impersonatingId ? { impersonateUserId: impersonatingId } : {};
+      const response = await base44.functions.invoke('getTutorStudents', payload);
       return response.data;
     },
   });

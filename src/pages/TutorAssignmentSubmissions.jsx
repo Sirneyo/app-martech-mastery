@@ -16,30 +16,36 @@ export default function TutorAssignmentSubmissions() {
   const [cohortFilter, setCohortFilter] = useState('all');
   const [weekFilter, setWeekFilter] = useState('all');
 
+  const impersonatingUser = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
+  const impersonatingId = impersonatingUser?.id || null;
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
 
+  const effectiveTutorId = impersonatingId || user?.id;
+
   const { data: assignments = [] } = useQuery({
-    queryKey: ['tutor-cohort-assignments'],
+    queryKey: ['tutor-cohort-assignments', effectiveTutorId],
     queryFn: async () => {
-      if (!user?.id) return [];
-      return base44.entities.TutorCohortAssignment.filter({ tutor_id: user.id });
+      if (!effectiveTutorId) return [];
+      return base44.entities.TutorCohortAssignment.filter({ tutor_id: effectiveTutorId });
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveTutorId,
   });
 
   const cohortIds = React.useMemo(() => assignments.map(a => a.cohort_id), [assignments]);
 
   // Use getTutorStudents to get all students in one call (avoids N+1 getStudentInfo calls)
   const { data: students = [], isLoading: studentsLoading } = useQuery({
-    queryKey: ['tutor-students'],
+    queryKey: ['tutor-students', effectiveTutorId],
     queryFn: async () => {
-      const res = await base44.functions.invoke('getTutorStudents', {});
+      const payload = impersonatingId ? { impersonateUserId: impersonatingId } : {};
+      const res = await base44.functions.invoke('getTutorStudents', payload);
       return res.data?.students || [];
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveTutorId,
   });
 
   const cohortStudentIds = students.map(s => s.id);

@@ -13,18 +13,23 @@ export default function TutorPortfolioReviews() {
   const [statusFilter, setStatusFilter] = useState('submitted');
   const [requiredOnly, setRequiredOnly] = useState(false);
 
+  const impersonatingUser = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
+  const impersonatingId = impersonatingUser?.id || null;
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
 
+  const effectiveTutorId = impersonatingId || user?.id;
+
   const { data: assignments = [] } = useQuery({
-    queryKey: ['tutor-cohort-assignments'],
+    queryKey: ['tutor-cohort-assignments', effectiveTutorId],
     queryFn: async () => {
-      if (!user?.id) return [];
-      return base44.entities.TutorCohortAssignment.filter({ tutor_id: user.id });
+      if (!effectiveTutorId) return [];
+      return base44.entities.TutorCohortAssignment.filter({ tutor_id: effectiveTutorId });
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveTutorId,
   });
 
   const cohortIds = assignments.map(a => a.cohort_id);
@@ -55,9 +60,10 @@ export default function TutorPortfolioReviews() {
 
   // Use tutor students (already scoped) instead of User.list() (all platform users)
   const { data: students = [] } = useQuery({
-    queryKey: ['tutor-students'],
+    queryKey: ['tutor-students', effectiveTutorId],
     queryFn: async () => {
-      const res = await base44.functions.invoke('getTutorStudents', {});
+      const payload = impersonatingId ? { impersonateUserId: impersonatingId } : {};
+      const res = await base44.functions.invoke('getTutorStudents', payload);
       return res.data?.students || [];
     },
     enabled: cohortIds.length > 0,

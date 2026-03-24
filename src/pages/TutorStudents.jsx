@@ -14,15 +14,21 @@ export default function TutorStudents() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCohort, setSelectedCohort] = useState('all');
 
+  const impersonatingUser = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
+  const impersonatingId = impersonatingUser?.id || null;
+
   const { data: currentUser } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
 
+  const effectiveTutorId = impersonatingId || currentUser?.id;
+
   const { data: tutorData = { students: [] }, isLoading } = useQuery({
-    queryKey: ['tutor-students'],
+    queryKey: ['tutor-students', effectiveTutorId],
     queryFn: async () => {
-      const res = await base44.functions.invoke('getTutorStudents', {});
+      const payload = impersonatingId ? { impersonateUserId: impersonatingId } : {};
+      const res = await base44.functions.invoke('getTutorStudents', payload);
       return res.data || { students: [] };
     },
     enabled: !!currentUser,
@@ -31,9 +37,9 @@ export default function TutorStudents() {
   const students = tutorData.students || [];
 
   const { data: cohortAssignments = [] } = useQuery({
-    queryKey: ['tutor-cohort-assignments', currentUser?.id],
-    queryFn: () => base44.entities.TutorCohortAssignment.filter({ tutor_id: currentUser.id }),
-    enabled: !!currentUser?.id,
+    queryKey: ['tutor-cohort-assignments', effectiveTutorId],
+    queryFn: () => base44.entities.TutorCohortAssignment.filter({ tutor_id: effectiveTutorId }),
+    enabled: !!effectiveTutorId,
   });
 
   const { data: cohorts = [] } = useQuery({
