@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
     const overallLeaderboard = Object.entries(studentPoints)
       .map(([userId, points]) => {
         const u = users.find(u => u.id === userId);
-        return { userId, name: u?.full_name || 'Unknown', email: u?.email || '', points };
+        return { userId, name: u?.display_name || u?.full_name || 'Unknown', email: u?.email || '', points, profile_picture: u?.profile_picture || null };
       })
       .sort((a, b) => b.points - a.points)
       .slice(0, 5);
@@ -74,7 +74,7 @@ Deno.serve(async (req) => {
       const leaderboard = Object.entries(cohortPoints)
         .map(([userId, points]) => {
           const u = users.find(u => u.id === userId);
-          return { userId, name: u?.full_name || 'Unknown', points };
+          return { userId, name: u?.display_name || u?.full_name || 'Unknown', points, profile_picture: u?.profile_picture || null };
         })
         .sort((a, b) => b.points - a.points)
         .slice(0, 5);

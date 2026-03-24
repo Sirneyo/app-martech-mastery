@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, TrendingUp, Users, CheckCircle, Clock, Award, ChevronRight } from 'lucide-react';
+import { Trophy, TrendingUp, Users, CheckCircle, Clock, Award, ChevronRight, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
@@ -158,6 +158,13 @@ export default function AdminDashboard() {
                         </div>
                       )}
                     </div>
+                    {student.profile_picture ? (
+                      <img src={student.profile_picture} alt={student.name} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0">
+                        <User className="w-4 h-4 text-slate-500" />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm text-slate-900 truncate">{student.name}</p>
                     </div>
@@ -181,11 +188,16 @@ export default function AdminDashboard() {
                 {leaderboard.length > 0 ? (
                   <div className="space-y-2">
                     {leaderboard.map((student, index) => (
-                      <div key={student.userId} className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50">
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <span className="text-sm font-bold text-slate-600 w-5">{index + 1}.</span>
-                          <span className="font-medium text-sm text-slate-900 truncate">{student.name}</span>
-                        </div>
+                      <div key={student.userId} className="flex items-center gap-2 p-2.5 rounded-lg bg-slate-50">
+                        <span className="text-sm font-bold text-slate-600 w-5 flex-shrink-0">{index + 1}.</span>
+                        {student.profile_picture ? (
+                          <img src={student.profile_picture} alt={student.name} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                        ) : (
+                          <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0">
+                            <User className="w-3.5 h-3.5 text-slate-500" />
+                          </div>
+                        )}
+                        <span className="font-medium text-sm text-slate-900 truncate flex-1">{student.name}</span>
                         <Badge variant="outline" className="bg-white text-xs">{student.points}</Badge>
                       </div>
                     ))}

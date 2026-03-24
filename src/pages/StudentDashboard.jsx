@@ -434,7 +434,7 @@ export default function StudentDashboard() {
                     : 'bg-slate-50 hover:bg-slate-100'
                 }`}
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm flex-shrink-0 ${
                   index === 0 ? 'bg-amber-500 text-white' :
                   index === 1 ? 'bg-slate-400 text-white' :
                   index === 2 ? 'bg-orange-400 text-white' :
@@ -442,6 +442,13 @@ export default function StudentDashboard() {
                 }`}>
                   {index + 1}
                 </div>
+                {student.profile_picture ? (
+                  <img src={student.profile_picture} alt={student.name} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0">
+                    <User className="w-4 h-4 text-slate-500" />
+                  </div>
+                )}
                 <div className="flex-1">
                   <p className={`font-semibold ${student.id === user?.id ? 'text-amber-900' : 'text-slate-900'}`}>
                     {student.name} {student.id === user?.id && '(You)'}

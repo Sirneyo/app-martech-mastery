@@ -56,6 +56,7 @@ Deno.serve(async (req) => {
             id: userId,
             name: userData?.display_name || userData?.full_name || 'Unknown',
             points,
+            profile_picture: userData?.profile_picture || null,
           };
         })
         .sort((a, b) => b.points - a.points)

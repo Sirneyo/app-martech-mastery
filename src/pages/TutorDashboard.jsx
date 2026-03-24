@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Users, ClipboardCheck, Award, ChevronRight, TrendingUp, Trophy, Ticket } from 'lucide-react';
+import { Users, ClipboardCheck, Award, ChevronRight, TrendingUp, Trophy, Ticket, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function TutorDashboard() {
@@ -202,6 +202,13 @@ export default function TutorDashboard() {
                             }`}>
                               {index + 1}
                             </div>
+                            {student.profile_picture ? (
+                              <img src={student.profile_picture} alt={student.name} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                            ) : (
+                              <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0">
+                                <User className="w-3.5 h-3.5 text-slate-500" />
+                              </div>
+                            )}
                             <p className="flex-1 font-medium text-sm text-slate-900 truncate">{student.name}</p>
                             <span className="font-bold text-sm text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-full">
                               {student.points.toLocaleString()}

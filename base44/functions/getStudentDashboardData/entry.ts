@@ -95,6 +95,7 @@ Deno.serve(async (req) => {
         name: student.display_name || student.full_name,
         points: pointsByUser[student.id] || 0,
         isMe: student.id === user.id,
+        profile_picture: student.profile_picture || null,
       }))
       .sort((a, b) => b.points - a.points)
       .slice(0, 10);
