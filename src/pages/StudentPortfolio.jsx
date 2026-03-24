@@ -16,6 +16,7 @@ export default function StudentPortfolio() {
     queryFn: () => base44.auth.me(),
   });
 
+  const isSuperAdminImpersonating = !!impersonatingUser;
   const effectiveUserId = impersonatingUser?.id || user?.id;
 
   const { data: membership } = useQuery({
@@ -87,7 +88,7 @@ export default function StudentPortfolio() {
 
   const UNLOCK_WEEK = 8;
   const currentWeek = getCurrentWeek();
-  const isUnlocked = currentWeek >= UNLOCK_WEEK;
+  const isUnlocked = isSuperAdminImpersonating || currentWeek >= UNLOCK_WEEK;
 
   const { data: studentProfile } = useQuery({
     queryKey: ['student-profile', effectiveUserId],

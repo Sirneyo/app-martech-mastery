@@ -16,6 +16,7 @@ export default function StudentAssignments() {
     queryFn: () => base44.auth.me(),
   });
 
+  const isSuperAdminImpersonating = !!impersonatingUser;
   const effectiveUserId = impersonatingUser?.id || user?.id;
 
   const { data: membership } = useQuery({
@@ -77,7 +78,7 @@ export default function StudentAssignments() {
     const { unlockDate, dueDate } = getAssignmentDates(cohort.start_date, weekNumber);
     const now = new Date();
     return {
-      isLocked: now < unlockDate,
+      isLocked: isSuperAdminImpersonating ? false : now < unlockDate,
       isOverdue: now > dueDate,
       unlockDate,
       dueDate,

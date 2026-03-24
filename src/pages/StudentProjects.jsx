@@ -15,6 +15,7 @@ export default function StudentProjects() {
     queryFn: () => base44.auth.me(),
   });
 
+  const isSuperAdminImpersonating = !!impersonatingUser;
   const effectiveUserId = impersonatingUser?.id || user?.id;
 
   const { data: membership } = useQuery({
@@ -48,7 +49,7 @@ export default function StudentProjects() {
 
   const currentWeek = getCurrentWeek();
   const UNLOCK_WEEK = 8;
-  const isUnlocked = currentWeek >= UNLOCK_WEEK;
+  const isUnlocked = isSuperAdminImpersonating || currentWeek >= UNLOCK_WEEK;
 
   const { data: projects = [] } = useQuery({
     queryKey: ['project-templates'],
@@ -77,6 +78,7 @@ export default function StudentProjects() {
   };
 
   const isProjectLocked = (projectIndex) => {
+    if (isSuperAdminImpersonating) return false;
     if (projectIndex === 0) return false;
     const previousProject = projects[projectIndex - 1];
     const previousSubmission = submissions.find(s => s.project_template_id === previousProject.id);
