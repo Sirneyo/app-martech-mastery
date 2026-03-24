@@ -22,18 +22,22 @@ export default function TutorQuizGrading() {
   const [selections, setSelections] = useState({ first_place_user_id: '', second_place_user_id: '', third_place_user_id: '' });
   const queryClient = useQueryClient();
 
+  const impersonatingUser = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
 
+  const effectiveTutorId = impersonatingUser?.id || user?.id;
+
   const { data: assignments = [] } = useQuery({
-    queryKey: ['tutor-cohort-assignments'],
+    queryKey: ['tutor-cohort-assignments', effectiveTutorId],
     queryFn: async () => {
-      if (!user?.id) return [];
-      return base44.entities.TutorCohortAssignment.filter({ tutor_id: user.id });
+      if (!effectiveTutorId) return [];
+      return base44.entities.TutorCohortAssignment.filter({ tutor_id: effectiveTutorId });
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveTutorId,
   });
 
   const { data: cohorts = [] } = useQuery({

@@ -9,19 +9,23 @@ import { motion } from 'framer-motion';
 import AssignmentCountdown, { getAssignmentDates } from '@/components/AssignmentCountdown';
 
 export default function StudentAssignments() {
+  const impersonatingUser = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
 
+  const effectiveUserId = impersonatingUser?.id || user?.id;
+
   const { data: membership } = useQuery({
-    queryKey: ['my-cohort-membership'],
+    queryKey: ['my-cohort-membership', effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return null;
-      const memberships = await base44.entities.CohortMembership.filter({ user_id: user.id, status: 'active' });
+      if (!effectiveUserId) return null;
+      const memberships = await base44.entities.CohortMembership.filter({ user_id: effectiveUserId, status: 'active' });
       return memberships[0];
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   const { data: cohort } = useQuery({
@@ -36,18 +40,18 @@ export default function StudentAssignments() {
   });
 
   const { data: submissions = [] } = useQuery({
-    queryKey: ['my-submissions'],
+    queryKey: ['my-submissions', effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return [];
-      return base44.entities.Submission.filter({ user_id: user.id, submission_kind: 'assignment' });
+      if (!effectiveUserId) return [];
+      return base44.entities.Submission.filter({ user_id: effectiveUserId, submission_kind: 'assignment' });
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   const { data: grades = [] } = useQuery({
     queryKey: ['my-grades', submissions.map(s => s.id).join(',')],
     queryFn: async () => {
-      if (!user?.id || submissions.length === 0) return [];
+      if (!effectiveUserId || submissions.length === 0) return [];
       // Fetch only grades for this student's submissions, not all grades platform-wide
       const gradePromises = submissions.map(s =>
         base44.entities.SubmissionGrade.filter({ submission_id: s.id })

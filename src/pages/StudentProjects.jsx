@@ -8,19 +8,23 @@ import { FolderOpen, Lock, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function StudentProjects() {
+  const impersonatingUser = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
 
+  const effectiveUserId = impersonatingUser?.id || user?.id;
+
   const { data: membership } = useQuery({
-    queryKey: ['my-cohort-membership'],
+    queryKey: ['my-cohort-membership', effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return null;
-      const memberships = await base44.entities.CohortMembership.filter({ user_id: user.id, status: 'active' });
+      if (!effectiveUserId) return null;
+      const memberships = await base44.entities.CohortMembership.filter({ user_id: effectiveUserId, status: 'active' });
       return memberships[0];
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   const { data: cohort } = useQuery({
@@ -52,12 +56,12 @@ export default function StudentProjects() {
   });
 
   const { data: submissions = [] } = useQuery({
-    queryKey: ['my-project-submissions'],
+    queryKey: ['my-project-submissions', effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return [];
-      return base44.entities.Submission.filter({ user_id: user.id, submission_kind: 'project' });
+      if (!effectiveUserId) return [];
+      return base44.entities.Submission.filter({ user_id: effectiveUserId, submission_kind: 'project' });
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   const getSubmissionStatus = (projectId) => {

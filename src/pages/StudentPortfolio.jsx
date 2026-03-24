@@ -9,19 +9,23 @@ import { CheckCircle, Lock, ExternalLink, ChevronRight, Award, BookOpen, Clock }
 import { motion } from 'framer-motion';
 
 export default function StudentPortfolio() {
+  const impersonatingUser = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
 
+  const effectiveUserId = impersonatingUser?.id || user?.id;
+
   const { data: membership } = useQuery({
-    queryKey: ['my-cohort-membership'],
+    queryKey: ['my-cohort-membership', effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return null;
-      const memberships = await base44.entities.CohortMembership.filter({ user_id: user.id, status: 'active' });
+      if (!effectiveUserId) return null;
+      const memberships = await base44.entities.CohortMembership.filter({ user_id: effectiveUserId, status: 'active' });
       return memberships[0];
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   const { data: templates = [] } = useQuery({
@@ -30,15 +34,15 @@ export default function StudentPortfolio() {
   });
 
   const { data: statuses = [] } = useQuery({
-    queryKey: ['my-portfolio-statuses'],
+    queryKey: ['my-portfolio-statuses', effectiveUserId, membership?.cohort_id],
     queryFn: async () => {
-      if (!user?.id || !membership?.cohort_id) return [];
+      if (!effectiveUserId || !membership?.cohort_id) return [];
       return base44.entities.PortfolioItemStatus.filter({ 
-        user_id: user.id,
+        user_id: effectiveUserId,
         cohort_id: membership.cohort_id
       });
     },
-    enabled: !!user?.id && !!membership?.cohort_id,
+    enabled: !!effectiveUserId && !!membership?.cohort_id,
   });
 
   const { data: settings } = useQuery({
@@ -50,16 +54,16 @@ export default function StudentPortfolio() {
   });
 
   const { data: certificate } = useQuery({
-    queryKey: ['my-certificate', membership?.cohort_id],
+    queryKey: ['my-certificate', effectiveUserId, membership?.cohort_id],
     queryFn: async () => {
-      if (!user?.id || !membership?.cohort_id) return null;
+      if (!effectiveUserId || !membership?.cohort_id) return null;
       const certs = await base44.entities.Certificate.filter({ 
-        student_user_id: user.id, 
+        student_user_id: effectiveUserId, 
         cohort_id: membership.cohort_id 
       });
       return certs[0];
     },
-    enabled: !!user?.id && !!membership?.cohort_id,
+    enabled: !!effectiveUserId && !!membership?.cohort_id,
   });
 
   const { data: cohort } = useQuery({
@@ -86,13 +90,13 @@ export default function StudentPortfolio() {
   const isUnlocked = currentWeek >= UNLOCK_WEEK;
 
   const { data: studentProfile } = useQuery({
-    queryKey: ['student-profile', user?.id],
+    queryKey: ['student-profile', effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return null;
-      const profiles = await base44.entities.User.filter({ id: user.id });
+      if (!effectiveUserId) return null;
+      const profiles = await base44.entities.User.filter({ id: effectiveUserId });
       return profiles[0];
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   const getStatus = (templateId) => {
