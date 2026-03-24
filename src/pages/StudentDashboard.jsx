@@ -21,15 +21,16 @@ import { format, differenceInWeeks, differenceInDays, isAfter, isWithinInterval 
 export default function StudentDashboard() {
   const [liveTime, setLiveTime] = React.useState(new Date());
 
-  React.useEffect(() => {
-    const timer = setInterval(() => setLiveTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+  const impersonatingUser = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
+  const impersonatingId = impersonatingUser?.id || null;
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
   });
+
+  // When impersonating, use the impersonated user's ID for all data fetching
+  const effectiveUserId = impersonatingId || user?.id;
 
   const { data: settings } = useQuery({
     queryKey: ['app-settings'],
@@ -40,13 +41,13 @@ export default function StudentDashboard() {
   });
 
   const { data: membership } = useQuery({
-    queryKey: ['my-cohort-membership'],
+    queryKey: ['my-cohort-membership', effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return null;
-      const memberships = await base44.entities.CohortMembership.filter({ user_id: user.id, status: 'active' });
+      if (!effectiveUserId) return null;
+      const memberships = await base44.entities.CohortMembership.filter({ user_id: effectiveUserId, status: 'active' });
       return memberships[0];
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   const { data: cohort } = useQuery({
@@ -60,16 +61,14 @@ export default function StudentDashboard() {
   });
 
   const { data: dashboardData } = useQuery({
-    queryKey: ['student-dashboard-data', membership?.cohort_id, user?.id],
+    queryKey: ['student-dashboard-data', membership?.cohort_id, effectiveUserId],
     queryFn: async () => {
       if (!membership?.cohort_id) return { tutor: null, leaderboardData: [] };
-      // When impersonating, pass the impersonated user's ID so the backend uses their data
-      const impersonating = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
-      const payload = impersonating ? { impersonateUserId: impersonating.id } : {};
+      const payload = impersonatingId ? { impersonateUserId: impersonatingId } : {};
       const { data } = await base44.functions.invoke('getStudentDashboardData', payload);
       return data;
     },
-    enabled: !!membership?.cohort_id && !!user?.id,
+    enabled: !!membership?.cohort_id && !!effectiveUserId,
   });
 
   const tutor = dashboardData?.tutor;
@@ -83,15 +82,15 @@ export default function StudentDashboard() {
   const attendance = stats?.attendance ?? { total: 0, present: 0 };
 
   const { data: portfolioStatuses = [] } = useQuery({
-    queryKey: ['my-portfolio-statuses'],
+    queryKey: ['my-portfolio-statuses', effectiveUserId, membership?.cohort_id],
     queryFn: async () => {
-      if (!user?.id || !membership?.cohort_id) return [];
+      if (!effectiveUserId || !membership?.cohort_id) return [];
       return base44.entities.PortfolioItemStatus.filter({ 
-        user_id: user.id,
+        user_id: effectiveUserId,
         cohort_id: membership.cohort_id
       });
     },
-    enabled: !!user?.id && !!membership?.cohort_id,
+    enabled: !!effectiveUserId && !!membership?.cohort_id,
   });
 
   const { data: portfolioTemplates = [] } = useQuery({
@@ -100,16 +99,16 @@ export default function StudentDashboard() {
   });
 
   const { data: certificate } = useQuery({
-    queryKey: ['my-certificate', membership?.cohort_id],
+    queryKey: ['my-certificate', membership?.cohort_id, effectiveUserId],
     queryFn: async () => {
-      if (!user?.id || !membership?.cohort_id) return null;
+      if (!effectiveUserId || !membership?.cohort_id) return null;
       const certs = await base44.entities.Certificate.filter({ 
-        student_user_id: user.id, 
+        student_user_id: effectiveUserId, 
         cohort_id: membership.cohort_id 
       });
       return certs[0];
     },
-    enabled: !!user?.id && !!membership?.cohort_id,
+    enabled: !!effectiveUserId && !!membership?.cohort_id,
   });
 
   const leaderboard = dashboardData?.leaderboardData || [];

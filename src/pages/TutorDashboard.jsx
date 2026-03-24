@@ -7,6 +7,9 @@ import { Users, ClipboardCheck, Award, ChevronRight, TrendingUp, Trophy, Ticket,
 import { motion } from 'framer-motion';
 
 export default function TutorDashboard() {
+  const impersonatingUser = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
+  const impersonatingId = impersonatingUser?.id || null;
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
@@ -14,11 +17,10 @@ export default function TutorDashboard() {
 
   // Single backend call returns pending counts + cohortIds (supports impersonation)
   const { data: dashboardData } = useQuery({
-    queryKey: ['tutor-dashboard-data', user?.id],
+    queryKey: ['tutor-dashboard-data', user?.id, impersonatingId],
     queryFn: async () => {
       if (!user?.id) return { pending: { assignments: 0, projects: 0, portfolio: 0 }, cohortIds: [] };
-      const impersonating = (() => { try { return JSON.parse(sessionStorage.getItem('impersonatingUser') || 'null'); } catch { return null; } })();
-      const payload = impersonating ? { impersonateUserId: impersonating.id } : {};
+      const payload = impersonatingId ? { impersonateUserId: impersonatingId } : {};
       const res = await base44.functions.invoke('getTutorDashboardData', payload);
       return res.data || { pending: { assignments: 0, projects: 0, portfolio: 0 }, cohortIds: [] };
     },
@@ -29,7 +31,7 @@ export default function TutorDashboard() {
   const cohortIds = dashboardData?.cohortIds || [];
 
   const { data: cohorts } = useQuery({
-    queryKey: ['tutor-cohorts', cohortIds],
+    queryKey: ['tutor-cohorts', cohortIds, impersonatingId],
     queryFn: async () => {
       if (cohortIds.length === 0) return [];
       return base44.entities.Cohort.list();
@@ -38,7 +40,7 @@ export default function TutorDashboard() {
   });
 
   const { data: cohortLeaderboards } = useQuery({
-    queryKey: ['cohort-leaderboards', cohortIds],
+    queryKey: ['cohort-leaderboards', cohortIds, impersonatingId],
     queryFn: async () => {
       if (cohortIds.length === 0) return {};
       const res = await base44.functions.invoke('getTutorLeaderboards', { cohortIds });
