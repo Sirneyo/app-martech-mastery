@@ -85,29 +85,42 @@ Assistant:`;
     }
   };
 
+  const btnRef = useRef(null);
+
   const handleBtnPointerDown = (e) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
-    const rect = e.currentTarget.getBoundingClientRect();
-    dragState.current = { dragging: false, startX: e.clientX, startY: e.clientY, origLeft: rect.left, origTop: rect.top };
-  };
+    e.preventDefault();
+    const btn = btnRef.current;
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    // offset of pointer within the button
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+    dragState.current = { dragging: false, startX: e.clientX, startY: e.clientY, offsetX, offsetY };
 
-  const handleBtnPointerMove = (e) => {
-    const ds = dragState.current;
-    const dx = e.clientX - ds.startX;
-    const dy = e.clientY - ds.startY;
-    if (!ds.dragging && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) ds.dragging = true;
-    if (!ds.dragging) return;
-    const newPos = {
-      left: Math.max(8, Math.min(window.innerWidth - 64, ds.origLeft + dx)),
-      top: Math.max(8, Math.min(window.innerHeight - 64, ds.origTop + dy)),
+    const onMove = (ev) => {
+      const dx = ev.clientX - dragState.current.startX;
+      const dy = ev.clientY - dragState.current.startY;
+      if (!dragState.current.dragging && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+        dragState.current.dragging = true;
+      }
+      if (!dragState.current.dragging) return;
+      const newPos = {
+        left: Math.max(8, Math.min(window.innerWidth - 64, ev.clientX - dragState.current.offsetX)),
+        top: Math.max(8, Math.min(window.innerHeight - 64, ev.clientY - dragState.current.offsetY)),
+      };
+      setBtnPos(newPos);
+      sessionStorage.setItem('ai-btn-pos', JSON.stringify(newPos));
     };
-    setBtnPos(newPos);
-    sessionStorage.setItem('ai-btn-pos', JSON.stringify(newPos));
-  };
 
-  const handleBtnPointerUp = () => {
-    if (!dragState.current.dragging) setOpen(true);
-    dragState.current.dragging = false;
+    const onUp = () => {
+      if (!dragState.current.dragging) setOpen(true);
+      dragState.current.dragging = false;
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
   };
 
   const handleFileAttach = async (e) => {
@@ -126,12 +139,11 @@ Assistant:`;
       <AnimatePresence>
         {!open && (
           <motion.button
+            ref={btnRef}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             onPointerDown={handleBtnPointerDown}
-            onPointerMove={handleBtnPointerMove}
-            onPointerUp={handleBtnPointerUp}
             style={btnPos ? { left: btnPos.left, top: btnPos.top, bottom: 'auto', right: 'auto' } : { bottom: '1.5rem', right: '1.5rem' }}
             className="fixed z-50 w-14 h-14 bg-gradient-to-br from-violet-600 to-purple-700 rounded-full shadow-xl flex items-center justify-center text-white hover:shadow-2xl hover:shadow-purple-500/40 transition-shadow cursor-grab active:cursor-grabbing select-none"
           >
