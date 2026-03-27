@@ -195,7 +195,7 @@ export default function RoleBasedLayout({ children, currentPageName }) {
                     Profile Settings
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => { queryClient.clear(); base44.auth.logout(); }}>
+                <DropdownMenuItem onClick={() => { queryClient.clear(); base44.auth.logout('/'); }}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
                 </DropdownMenuItem>
