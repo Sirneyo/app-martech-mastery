@@ -97,8 +97,15 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
     const col = columns[status] ? status : 'not_started';
     columns[col].push(task);
   });
+  const phaseOrderMap = {};
+  phases.forEach((p, i) => { phaseOrderMap[p.id] = p.sort_order ?? i; });
+
   Object.keys(columns).forEach(col => {
-    columns[col].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    columns[col].sort((a, b) => {
+      const phaseDiff = (phaseOrderMap[a.phase_id] ?? 0) - (phaseOrderMap[b.phase_id] ?? 0);
+      if (phaseDiff !== 0) return phaseDiff;
+      return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+    });
   });
 
   const updateSubmissionStatus = useMutation({

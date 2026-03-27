@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Trash2, ChevronDown, ChevronRight, Pencil, Check, X } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronRight, Pencil, Check, X, GripVertical } from 'lucide-react';
 
 const PRIORITY_STYLES = { high: 'bg-red-100 text-red-700', medium: 'bg-amber-100 text-amber-700', low: 'bg-slate-100 text-slate-600' };
 const DELIVERABLE_LABELS = { file: 'File Upload', link: 'Link', text: 'Text', presentation: 'Presentation', spreadsheet: 'Spreadsheet' };
@@ -125,7 +126,7 @@ function TaskForm({ projectId, phaseId, allTasks, task, onClose, onSaved }) {
   );
 }
 
-function PhaseCard({ phase, allTasks, projectId, onDeletePhase }) {
+function PhaseCard({ phase, allTasks, projectId, onDeletePhase, dragHandleProps }) {
   const [expanded, setExpanded] = useState(true);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -151,6 +152,9 @@ function PhaseCard({ phase, allTasks, projectId, onDeletePhase }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
+        <div {...dragHandleProps} className="text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing flex-shrink-0" onClick={e => e.stopPropagation()}>
+          <GripVertical className="w-4 h-4" />
+        </div>
         <button onClick={() => setExpanded(e => !e)} className="text-slate-400">
           {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
@@ -311,6 +315,22 @@ export default function PhasesTab({ project }) {
 
   const sortedPhases = [...phases].sort((a, b) => a.sort_order - b.sort_order);
 
+  const reorderPhasesMutation = useMutation({
+    mutationFn: async (reordered) => {
+      await Promise.all(reordered.map((p, i) => base44.entities.ProjectPhase.update(p.id, { sort_order: i })));
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['project-phases', project.id] }),
+  });
+
+  const onDragEnd = (result) => {
+    const { destination, source } = result;
+    if (!destination || destination.index === source.index) return;
+    const reordered = Array.from(sortedPhases);
+    const [moved] = reordered.splice(source.index, 1);
+    reordered.splice(destination.index, 0, moved);
+    reorderPhasesMutation.mutate(reordered);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -353,15 +373,34 @@ export default function PhasesTab({ project }) {
         </div>
       )}
 
-      {sortedPhases.map(phase => (
-        <PhaseCard
-          key={phase.id}
-          phase={phase}
-          allTasks={tasks}
-          projectId={project.id}
-          onDeletePhase={(id) => { if (confirm('Delete this phase and all its tasks?')) deletePhaseMutation.mutate(id); }}
-        />
-      ))}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="phases">
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-4">
+              {sortedPhases.map((phase, index) => (
+                <Draggable key={phase.id} draggableId={phase.id} index={index}>
+                  {(draggable, snapshot) => (
+                    <div
+                      ref={draggable.innerRef}
+                      {...draggable.draggableProps}
+                      className={snapshot.isDragging ? 'opacity-90 shadow-2xl' : ''}
+                    >
+                      <PhaseCard
+                        phase={phase}
+                        allTasks={tasks}
+                        projectId={project.id}
+                        dragHandleProps={draggable.dragHandleProps}
+                        onDeletePhase={(id) => { if (confirm('Delete this phase and all its tasks?')) deletePhaseMutation.mutate(id); }}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 }
