@@ -13,7 +13,7 @@ const COLUMNS = [
   { id: 'not_started', label: 'To Do', color: 'bg-slate-100', dot: 'bg-slate-400', icon: Clock },
   { id: 'in_progress', label: 'In Progress', color: 'bg-blue-50', dot: 'bg-blue-500', icon: PlayCircle },
   { id: 'in_review',   label: 'In Review',  color: 'bg-amber-50', dot: 'bg-amber-500', icon: AlertCircle },
-  { id: 'approved',    label: 'Done',        color: 'bg-green-50', dot: 'bg-green-500', icon: CheckCircle },
+  { id: 'approved',    label: 'Completed',        color: 'bg-green-50', dot: 'bg-green-500', icon: CheckCircle },
 ];
 
 const PRIORITY_BADGE = {
@@ -86,6 +86,7 @@ function TaskCard({ task, submission, index, phases, onClick }) {
 
 export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, userId, projectId, onTaskClick }) {
   const queryClient = useQueryClient();
+  const [dragWarning, setDragWarning] = useState(null);
 
   const submissionMap = {};
   submissions.forEach(s => { submissionMap[s.task_id] = s; });
@@ -136,10 +137,39 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
     const newStatus = destination.droppableId;
     const currentStatus = submissionMap[draggableId]?.status || 'not_started';
     if (newStatus === currentStatus) return;
+    if (newStatus === 'approved') {
+      setDragWarning('only-tutor');
+      return;
+    }
+    if (newStatus === 'in_review') {
+      setDragWarning('in-review');
+      return;
+    }
     updateSubmissionStatus.mutate({ taskId: draggableId, newStatus });
   }, [submissionMap]);
 
   return (
+    <>
+    {dragWarning && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full mx-4 p-6">
+          <h3 className="font-semibold text-slate-900 mb-2">
+            {dragWarning === 'only-tutor' ? 'Completed by Tutor Only' : 'Submitting for Review'}
+          </h3>
+          <p className="text-sm text-slate-600 mb-4">
+            {dragWarning === 'only-tutor'
+              ? 'Only your assigned tutor can mark a task as Completed. You can move it to "In Review" when ready for assessment.'
+              : 'Once submitted for review, you won\'t be able to make further changes until your tutor has reviewed and provided feedback.'}
+          </p>
+          <button
+            onClick={() => setDragWarning(null)}
+            className="w-full h-9 px-4 rounded-lg bg-slate-900 text-white font-medium text-sm hover:bg-slate-800 transition-colors"
+          >
+            Got it
+          </button>
+        </div>
+      </div>
+    )}
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex gap-4 overflow-x-auto pb-4">
         {COLUMNS.map(col => {
@@ -152,14 +182,15 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
                 <span className="font-semibold text-slate-700 text-sm flex-1">{col.label}</span>
                 <span className="text-xs font-bold text-slate-400 bg-white/60 rounded-full px-2 py-0.5">{colTasks.length}</span>
               </div>
-              <Droppable droppableId={col.id}>
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className={`space-y-3 min-h-[200px] rounded-xl transition-colors duration-150 p-1
-                      ${snapshot.isDraggingOver ? 'bg-teal-50/60 ring-2 ring-teal-200 ring-inset' : ''}`}
-                  >
+              <Droppable droppableId={col.id} isDropDisabled={col.id === 'approved'}>
+              {(provided, snapshot) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className={`space-y-3 min-h-[200px] rounded-xl transition-colors duration-150 p-1
+                    ${snapshot.isDraggingOver ? 'bg-teal-50/60 ring-2 ring-teal-200 ring-inset' : ''}
+                    ${col.id === 'approved' ? 'opacity-60' : ''}`}
+                >
                     {colTasks.map((task, index) => (
                       <TaskCard
                         key={task.id}

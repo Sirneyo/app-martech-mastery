@@ -4,14 +4,16 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
-import { motion } from 'framer-motion';
-import { FolderKanban, Clock } from 'lucide-react';
+  import { motion } from 'framer-motion';
+  import { FolderKanban, Clock, AlertCircle, ChevronRight } from 'lucide-react';
 import KanbanBoard from '@/components/client-project/KanbanBoard';
 import TaskDetailPanel from '@/components/client-project/TaskDetailPanel';
 
 export default function StudentClientProjectDetail() {
   const navigate = useNavigate();
   const [selectedTask, setSelectedTask] = useState(null);
+  const [showKickoffAlert, setShowKickoffAlert] = useState(false);
+  const [pendingProjectId, setPendingProjectId] = useState(null);
 
   const params = new URLSearchParams(window.location.search);
   const projectId = params.get('id');
@@ -74,6 +76,16 @@ export default function StudentClientProjectDetail() {
     return null;
   }
 
+  const handleProjectEnter = (id) => {
+    setPendingProjectId(id);
+    setShowKickoffAlert(true);
+  };
+
+  const handleConfirmKickoff = () => {
+    setShowKickoffAlert(false);
+    setPendingProjectId(null);
+  };
+
   if (loadingProject || loadingEnrollment) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -99,7 +111,56 @@ export default function StudentClientProjectDetail() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      {showKickoffAlert && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div
+            className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full mx-4"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+          >
+            <div className="p-6">
+              <div className="flex items-start gap-3 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                  <AlertCircle className="w-5 h-5 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-slate-900 text-base">Project Kick-off</h3>
+                  <p className="text-sm text-slate-500 mt-1">Clicking "Start Project" will move this project to the "In Progress" phase. You'll then be able to begin working on tasks.</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowKickoffAlert(false)}
+                  className="flex-1 h-9 px-4 rounded-lg border border-slate-200 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmKickoff}
+                  className="flex-1 h-9 px-4 rounded-lg bg-blue-600 text-white font-medium text-sm hover:bg-blue-700 transition-colors"
+                >
+                  Start Project
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
       <div className="p-6 max-w-[1400px] mx-auto">
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            onClick={() => navigate(createPageUrl('StudentClientProjects'))}
+            className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors"
+            title="Back to My Projects"
+          >
+            <ChevronRight className="w-5 h-5 rotate-180" />
+          </button>
+        </div>
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}

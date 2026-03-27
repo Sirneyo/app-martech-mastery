@@ -12,9 +12,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const STATUS_OPTIONS = [
   { value: 'not_started', label: 'To Do', icon: Clock, color: 'text-slate-500', bg: 'bg-slate-100' },
-  { value: 'in_progress', label: 'In Progress', icon: PlayCircle, color: 'text-blue-600', bg: 'bg-blue-100' },
-  { value: 'in_review', label: 'In Review', icon: AlertCircle, color: 'text-amber-600', bg: 'bg-amber-100' },
-  { value: 'approved', label: 'Done', icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100' },
+  { value: 'in_progress', label: 'In Progress', icon: PlayCircle, color: 'text-blue-600', bg: 'bg-blue-100', studentEditable: true },
+  { value: 'in_review', label: 'In Review', icon: AlertCircle, color: 'text-amber-600', bg: 'bg-amber-100', studentEditable: true },
+  { value: 'approved', label: 'Completed', icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100' },
 ];
 
 const PRIORITY_STYLES = {
@@ -126,6 +126,15 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
   });
 
   const handleStatusChange = (newStatus) => {
+    if (newStatus === 'approved') return;
+    if (newStatus === 'in_review' && optimisticStatus === 'in_progress') {
+      if (confirm('Once submitted for review, you won\'t be able to make changes until the tutor reviews it. Continue?')) {
+        setOptimisticStatus(newStatus);
+        setShowStatusMenu(false);
+        updateSubmission.mutate({ status: newStatus });
+      }
+      return;
+    }
     setOptimisticStatus(newStatus);
     setShowStatusMenu(false);
     updateSubmission.mutate({ status: newStatus });
@@ -173,11 +182,14 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                   <div className="absolute top-full left-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden w-44">
                     {STATUS_OPTIONS.map(opt => {
                       const Ico = opt.icon;
+                      const disabled = opt.value === 'approved';
                       return (
                         <button
                           key={opt.value}
-                          onClick={() => handleStatusChange(opt.value)}
-                          className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium hover:bg-slate-50 transition-colors
+                          onClick={() => !disabled && handleStatusChange(opt.value)}
+                          disabled={disabled}
+                          className={`w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium transition-colors
+                            ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50'}
                             ${opt.value === optimisticStatus ? 'bg-slate-50 font-bold' : ''}`}
                         >
                           <Ico className={`w-4 h-4 ${opt.color}`} />
@@ -277,6 +289,12 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
               )}
 
               <div>
+                {optimisticStatus === 'in_review' && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                    <p className="text-xs text-amber-700 font-medium">This task is under review. You cannot make changes until your tutor provides feedback.</p>
+                  </div>
+                )}
+
                 <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                   <MessageSquare className="w-3.5 h-3.5" />
                   Comments ({comments.length})

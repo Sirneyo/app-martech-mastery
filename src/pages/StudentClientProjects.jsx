@@ -4,9 +4,9 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Lock, FolderKanban, ChevronRight, PlayCircle, FileText, ArrowRight, Briefcase } from 'lucide-react';
-import { motion } from 'framer-motion';
+  import { Button } from '@/components/ui/button';
+  import { Lock, FolderKanban, ChevronRight, PlayCircle, FileText, ArrowRight, Briefcase, Send } from 'lucide-react';
+  import { motion } from 'framer-motion';
 
 const OPSBASE_LOGO = 'https://media.base44.com/images/public/693261f4a46b591b7d38e623/6610419bc_5e2c44538_OpsbaseLogo500x100px.png';
 
@@ -131,17 +131,20 @@ function AgreementStep({ projects, onContinue }) {
 }
 
 // Step 3: Project List
-function ProjectListStep({ projects, enrollments }) {
+function ProjectListStep({ projects, enrollments, onPushOrder, isPushing }) {
   const getEnrollment = (projectId) => enrollments.find(e => e.project_id === projectId);
 
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-5xl mx-auto px-8 py-8">
+        <div className="max-w-5xl mx-auto px-8 py-8 flex items-center justify-between">
           <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
             <h1 className="text-2xl font-bold text-slate-900 mb-1">My Projects</h1>
             <p className="text-slate-500 text-sm">Your assigned client projects — delivered in partnership with Opsbase</p>
           </motion.div>
+          <Button onClick={onPushOrder} disabled={isPushing} className="gap-2 h-9" variant="outline">
+            <Send className="w-4 h-4" /> Sync Order
+          </Button>
         </div>
       </div>
 
@@ -218,6 +221,7 @@ function NotAssignedScreen() {
 
 export default function StudentClientProjects() {
   const [step, setStep] = useState('intro');
+  const [pushingOrder, setPushingOrder] = useState(false);
 
   const { data: user } = useQuery({ queryKey: ['current-user'], queryFn: () => base44.auth.me() });
 
@@ -252,7 +256,14 @@ export default function StudentClientProjects() {
     return <NotAssignedScreen />;
   }
 
+  const handlePushOrder = async () => {
+    setPushingOrder(true);
+    const adminProjects = await base44.entities.Project.list();
+    const sorted = adminProjects.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+    setPushingOrder(false);
+  };
+
   if (step === 'intro') return <IntroStep projects={myProjects} onContinue={() => setStep('agreement')} />;
   if (step === 'agreement') return <AgreementStep projects={myProjects} onContinue={() => setStep('list')} />;
-  return <ProjectListStep projects={myProjects} enrollments={enrollments} />;
+  return <ProjectListStep projects={myProjects} enrollments={enrollments} onPushOrder={handlePushOrder} isPushing={pushingOrder} />;
 }
