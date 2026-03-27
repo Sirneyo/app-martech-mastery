@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -228,6 +228,7 @@ export default function PhasesTab({ project }) {
   const [showPhaseForm, setShowPhaseForm] = useState(false);
   const [phaseForm, setPhaseForm] = useState({ title: '', description: '', sort_order: 0 });
   const queryClient = useQueryClient();
+  const cleanupDone = React.useRef(false);
 
   const { data: phases = [] } = useQuery({
     queryKey: ['project-phases', project.id],
@@ -253,9 +254,29 @@ export default function PhasesTab({ project }) {
   });
 
   const deletePhaseMutation = useMutation({
-    mutationFn: (id) => base44.entities.ProjectPhase.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['project-phases', project.id] }),
+    mutationFn: async (id) => {
+      // Delete all tasks in this phase first
+      const phaseTasks = tasks.filter(t => t.phase_id === id);
+      await Promise.all(phaseTasks.map(t => base44.entities.ProjectTask.delete(t.id)));
+      return base44.entities.ProjectPhase.delete(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['project-phases', project.id] });
+      queryClient.invalidateQueries({ queryKey: ['project-tasks', project.id] });
+    },
   });
+
+  // Auto-clean orphaned tasks (tasks whose phase was deleted)
+  useEffect(() => {
+    if (cleanupDone.current || phases.length === 0 || tasks.length === 0) return;
+    const phaseIds = new Set(phases.map(p => p.id));
+    const orphaned = tasks.filter(t => !phaseIds.has(t.phase_id));
+    if (orphaned.length > 0) {
+      cleanupDone.current = true;
+      Promise.all(orphaned.map(t => base44.entities.ProjectTask.delete(t.id)))
+        .then(() => queryClient.invalidateQueries({ queryKey: ['project-tasks', project.id] }));
+    }
+  }, [phases, tasks]);
 
   const sortedPhases = [...phases].sort((a, b) => a.sort_order - b.sort_order);
 
