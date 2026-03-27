@@ -230,14 +230,14 @@ export default function PhasesTab({ project }) {
   const queryClient = useQueryClient();
   const cleanupDone = React.useRef(false);
 
-  const { data: phases = [] } = useQuery({
+  const { data: phases = [], isSuccess: phasesLoaded } = useQuery({
     queryKey: ['project-phases', project.id],
     queryFn: () => base44.entities.ProjectPhase.filter({ project_id: project.id }),
     staleTime: 0,
     gcTime: 0,
   });
 
-  const { data: tasks = [] } = useQuery({
+  const { data: tasks = [], isSuccess: tasksLoaded } = useQuery({
     queryKey: ['project-tasks', project.id],
     queryFn: () => base44.entities.ProjectTask.filter({ project_id: project.id }),
     staleTime: 0,
@@ -267,16 +267,18 @@ export default function PhasesTab({ project }) {
   });
 
   // Auto-clean orphaned tasks (tasks whose phase was deleted)
+  // Only run after BOTH phases and tasks have successfully loaded to avoid
+  // incorrectly treating all tasks as orphans when phases haven't arrived yet.
   useEffect(() => {
-    if (cleanupDone.current || tasks.length === 0) return;
+    if (cleanupDone.current || !phasesLoaded || !tasksLoaded || tasks.length === 0 || phases.length === 0) return;
     const phaseIds = new Set(phases.map(p => p.id));
-    const orphaned = tasks.filter(t => !phaseIds.has(t.phase_id));
+    const orphaned = tasks.filter(t => t.phase_id && !phaseIds.has(t.phase_id));
     if (orphaned.length > 0) {
       cleanupDone.current = true;
       Promise.all(orphaned.map(t => base44.entities.ProjectTask.delete(t.id)))
         .then(() => queryClient.invalidateQueries({ queryKey: ['project-tasks', project.id] }));
     }
-  }, [phases, tasks]);
+  }, [phasesLoaded, tasksLoaded, phases, tasks]);
 
   const sortedPhases = [...phases].sort((a, b) => a.sort_order - b.sort_order);
 
