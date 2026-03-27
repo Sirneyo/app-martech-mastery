@@ -125,18 +125,7 @@ export default function AdminProjects() {
                   className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center flex-shrink-0">
-                      <FolderKanban className="w-6 h-6 text-violet-600" />
-                    </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Badge className={STATUS_STYLES[project.status] || STATUS_STYLES.draft}>
-                          {project.status}
-                        </Badge>
-                        {project.company_name && (
-                          <span className="text-xs text-slate-400 font-medium">{project.company_name}</span>
-                        )}
-                      </div>
                       <h3 className="text-lg font-bold text-slate-900 mb-1">{project.title}</h3>
                       <p className="text-sm text-slate-500 line-clamp-1">{project.overview}</p>
                       <div className="flex items-center gap-5 mt-3 text-sm text-slate-500">
