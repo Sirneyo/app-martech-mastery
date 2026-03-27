@@ -89,9 +89,6 @@ export default function AdminProjects() {
             { label: 'Completions', value: totalCompleted, icon: CheckCircle, color: 'text-violet-600 bg-violet-50' },
           ].map(stat => (
             <div key={stat.label} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color}`}>
-                <stat.icon className="w-6 h-6" />
-              </div>
               <div>
                 <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
                 <p className="text-sm text-slate-500">{stat.label}</p>
