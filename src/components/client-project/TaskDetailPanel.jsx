@@ -402,7 +402,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                     if (fileMatch) {
                       return (
                         <a key={li} href={fileMatch[2]} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 text-violet-600 hover:text-violet-800 underline mt-1">
+                          className="flex items-center gap-1.5 text-red-600 hover:text-red-800 underline mt-1">
                           <Paperclip className="w-3.5 h-3.5 flex-shrink-0" />
                           {fileMatch[1]}
                         </a>

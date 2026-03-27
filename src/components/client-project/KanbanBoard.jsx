@@ -151,8 +151,13 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
       setDragWarning('in-review');
       return;
     }
+    // Optimistically update local state for immediate UI feedback
+    const newSubmissionMap = { ...submissionMap };
+    if (newSubmissionMap[draggableId]) {
+      newSubmissionMap[draggableId].status = newStatus;
+    }
     updateSubmissionStatus.mutate({ taskId: draggableId, newStatus });
-  }, [submissionMap]);
+  }, [submissionMap])
 
   const handleConfirmInReview = () => {
     if (pendingStatus) {
@@ -195,7 +200,7 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
           ) : (
             <button
               onClick={() => setDragWarning(null)}
-              className="w-full h-9 px-4 rounded-lg bg-slate-900 text-white font-medium text-sm hover:bg-slate-800 transition-colors"
+              className="w-full h-9 px-4 rounded-lg bg-green-600 text-white font-medium text-sm hover:bg-green-700 transition-colors"
             >
               Got it
             </button>
