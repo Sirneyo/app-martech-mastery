@@ -165,11 +165,11 @@ export default function StudentClientProjectDetail() {
           </motion.div>
         </motion.div>
       )}
-      <div className="p-6 max-w-[1400px] mx-auto">
+      <div className="p-4 md:p-6 max-w-[1400px] mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <button
             onClick={handleBackClick}
-            className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors"
+            className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors flex-shrink-0"
             title="Back to My Projects"
           >
             <ChevronRight className="w-5 h-5 rotate-180" />
@@ -178,7 +178,7 @@ export default function StudentClientProjectDetail() {
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6 flex items-start gap-4"
+          className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6 flex flex-col md:flex-row items-start gap-4"
         >
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center flex-shrink-0 shadow-sm">
             <FolderKanban className="w-6 h-6 text-white" />
@@ -187,10 +187,10 @@ export default function StudentClientProjectDetail() {
             {project.company_name && (
               <p className="text-xs text-teal-600 font-semibold uppercase tracking-wider mb-0.5">{project.company_name}</p>
             )}
-            <h1 className="text-xl font-bold text-slate-900">{project.title}</h1>
+            <h1 className="text-lg md:text-xl font-bold text-slate-900">{project.title}</h1>
             {project.overview && <p className="text-slate-500 mt-0.5 text-sm">{project.overview}</p>}
           </div>
-          <div className="flex items-center gap-4 flex-shrink-0">
+          <div className="flex items-center gap-4 flex-shrink-0 w-full md:w-auto flex-wrap md:flex-nowrap">
             {totalTasks > 0 && (
               <div className="text-right">
                 <p className="text-xs text-slate-400">Progress</p>

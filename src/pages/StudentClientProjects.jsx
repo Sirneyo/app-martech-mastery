@@ -137,9 +137,9 @@ function ProjectListStep({ projects, enrollments, onPushOrder, isPushing, userRo
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-5xl mx-auto px-8 py-8 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 md:px-8 py-6 md:py-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-            <h1 className="text-2xl font-bold text-slate-900 mb-1">My Projects</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-1">My Projects</h1>
             <p className="text-slate-500 text-sm">Your assigned client projects — delivered in partnership with Opsbase</p>
           </motion.div>
           {userRole === 'admin' && (
@@ -150,7 +150,7 @@ function ProjectListStep({ projects, enrollments, onPushOrder, isPushing, userRo
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-8 py-8 space-y-4">
+      <div className="max-w-5xl mx-auto px-4 md:px-8 py-6 md:py-8 space-y-4">
         {projects.map((project, i) => {
           const enrollment = getEnrollment(project.id);
           if (!enrollment) return null;
@@ -163,7 +163,7 @@ function ProjectListStep({ projects, enrollments, onPushOrder, isPushing, userRo
             >
               <Link
                 to={createPageUrl(`StudentClientProjectDetail?id=${project.id}`)}
-                className="group flex items-center gap-6 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:border-teal-200 transition-all duration-200"
+                className="group flex flex-col md:flex-row md:items-center gap-4 md:gap-6 bg-white rounded-2xl p-4 md:p-6 border border-slate-200 shadow-sm hover:shadow-md hover:border-teal-200 transition-all duration-200"
               >
 
                 <div className="flex-1 min-w-0">
