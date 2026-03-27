@@ -150,7 +150,7 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
 
   return (
     <>
-    {dragWarning && (
+      {dragWarning && (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full mx-4 p-6">
           <h3 className="font-semibold text-slate-900 mb-2">
@@ -169,8 +169,8 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
           </button>
         </div>
       </div>
-    )}
-    <DragDropContext onDragEnd={onDragEnd}>
+      )}
+      <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex gap-4 overflow-x-auto pb-4">
         {COLUMNS.map(col => {
           const colTasks = columns[col.id] || [];
@@ -213,7 +213,8 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
             </div>
           );
         })}
-      </div>
-    </DragDropContext>
-  );
+        </div>
+        </DragDropContext>
+        </>
+        );
 }
