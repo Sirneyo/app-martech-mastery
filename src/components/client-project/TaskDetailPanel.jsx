@@ -41,6 +41,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [optimisticStatus, setOptimisticStatus] = useState(submission?.status || 'not_started');
   const [optimisticSubtasks, setOptimisticSubtasks] = useState([]);
+  const [localSubmissionId, setLocalSubmissionId] = useState(submission?.id || null);
 
   let subtasks = [];
   try { subtasks = JSON.parse(task.subtasks_json || '[]'); } catch {}
@@ -50,16 +51,15 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
   useEffect(() => {
     setOptimisticStatus(submission?.status || 'not_started');
     setOptimisticSubtasks(completedSubtasks);
+    if (submission?.id) setLocalSubmissionId(submission.id);
   }, [submission?.id, task.id]);
 
   const phase = phases?.find(p => p.id === task.phase_id);
 
   const { data: comments = [] } = useQuery({
-    queryKey: ['task-comments', submission?.id],
-    queryFn: () => submission?.id
-      ? base44.entities.TaskComment.filter({ task_submission_id: submission.id })
-      : Promise.resolve([]),
-    enabled: !!submission?.id,
+    queryKey: ['task-comments', localSubmissionId],
+    queryFn: () => base44.entities.TaskComment.filter({ task_submission_id: localSubmissionId }),
+    enabled: !!localSubmissionId,
   });
 
   const { data: currentUser } = useQuery({
@@ -115,8 +115,8 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
     },
     onSuccess: ({ subId }) => {
       setComment('');
+      setLocalSubmissionId(subId);
       queryClient.invalidateQueries({ queryKey: ['task-comments', subId] });
-      queryClient.invalidateQueries({ queryKey: ['task-comments', submission?.id] });
     },
   });
 
