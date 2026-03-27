@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Trash2, ChevronDown, ChevronRight, Pencil, GripVertical } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, ChevronRight, Pencil, Check, X } from 'lucide-react';
 
 const PRIORITY_STYLES = { high: 'bg-red-100 text-red-700', medium: 'bg-amber-100 text-amber-700', low: 'bg-slate-100 text-slate-600' };
 const DELIVERABLE_LABELS = { file: 'File Upload', link: 'Link', text: 'Text', presentation: 'Presentation', spreadsheet: 'Spreadsheet' };
@@ -129,7 +129,17 @@ function PhaseCard({ phase, allTasks, projectId, onDeletePhase }) {
   const [expanded, setExpanded] = useState(true);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [editingPhase, setEditingPhase] = useState(false);
+  const [phaseForm, setPhaseForm] = useState({ title: phase.title, description: phase.description || '', sort_order: phase.sort_order ?? 0 });
   const queryClient = useQueryClient();
+
+  const updatePhaseMutation = useMutation({
+    mutationFn: (data) => base44.entities.ProjectPhase.update(phase.id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['project-phases', projectId] });
+      setEditingPhase(false);
+    },
+  });
 
   const tasks = allTasks.filter(t => t.phase_id === phase.id).sort((a, b) => a.sort_order - b.sort_order);
 
@@ -144,14 +154,45 @@ function PhaseCard({ phase, allTasks, projectId, onDeletePhase }) {
         <button onClick={() => setExpanded(e => !e)} className="text-slate-400">
           {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </button>
-        <div className="flex-1">
-          <h3 className="font-bold text-slate-900">{phase.title}</h3>
-          {phase.description && <p className="text-xs text-slate-400 mt-0.5">{phase.description}</p>}
-        </div>
-        <span className="text-xs text-slate-400">{tasks.length} task{tasks.length !== 1 ? 's' : ''}</span>
-        <Button variant="ghost" size="icon" onClick={() => onDeletePhase(phase.id)} title="Delete phase">
-          <Trash2 className="w-4 h-4 text-red-400" />
-        </Button>
+        {editingPhase ? (
+          <div className="flex-1 flex items-center gap-2">
+            <input
+              className="flex-1 text-sm font-bold border border-slate-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-teal-400"
+              value={phaseForm.title}
+              onChange={e => setPhaseForm(f => ({ ...f, title: e.target.value }))}
+              placeholder="Phase title"
+              autoFocus
+            />
+            <input
+              className="flex-1 text-xs border border-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-teal-300 text-slate-500"
+              value={phaseForm.description}
+              onChange={e => setPhaseForm(f => ({ ...f, description: e.target.value }))}
+              placeholder="Description (optional)"
+            />
+            <Button size="icon" variant="ghost" onClick={() => updatePhaseMutation.mutate(phaseForm)} disabled={!phaseForm.title || updatePhaseMutation.isPending}>
+              <Check className="w-4 h-4 text-green-600" />
+            </Button>
+            <Button size="icon" variant="ghost" onClick={() => { setEditingPhase(false); setPhaseForm({ title: phase.title, description: phase.description || '', sort_order: phase.sort_order ?? 0 }); }}>
+              <X className="w-4 h-4 text-slate-400" />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex-1">
+            <h3 className="font-bold text-slate-900">{phase.title}</h3>
+            {phase.description && <p className="text-xs text-slate-400 mt-0.5">{phase.description}</p>}
+          </div>
+        )}
+        {!editingPhase && (
+          <>
+            <span className="text-xs text-slate-400">{tasks.length} task{tasks.length !== 1 ? 's' : ''}</span>
+            <Button variant="ghost" size="icon" onClick={() => setEditingPhase(true)} title="Edit phase">
+              <Pencil className="w-4 h-4 text-slate-400" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => onDeletePhase(phase.id)} title="Delete phase">
+              <Trash2 className="w-4 h-4 text-red-400" />
+            </Button>
+          </>
+        )}
       </div>
 
       {expanded && (
