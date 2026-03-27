@@ -82,8 +82,8 @@ function TaskForm({ projectId, phaseId, allTasks, task, onClose, onSaved }) {
           </Select>
         </div>
         <div className="space-y-1">
-          <Label>Due (days from enrolment)</Label>
-          <Input type="number" value={form.due_days_from_start} onChange={e => set('due_days_from_start', parseInt(e.target.value))} />
+          <Label>Due (days from enrolment) <span className="text-slate-400 font-normal">– optional</span></Label>
+          <Input type="number" value={form.due_days_from_start} onChange={e => set('due_days_from_start', e.target.value === '' ? '' : parseInt(e.target.value))} placeholder="e.g. 14" />
         </div>
         <div className="space-y-1">
           <Label>Depends on Task</Label>

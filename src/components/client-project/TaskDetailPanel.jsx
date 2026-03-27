@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   X, CheckSquare, Square, MessageSquare, Send,
-  Upload, Link as LinkIcon, FileText, Clock,
+  Link as LinkIcon, Clock, Paperclip,
   PlayCircle, AlertCircle, CheckCircle, ChevronDown
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -23,9 +23,21 @@ const PRIORITY_STYLES = {
   low:    'bg-slate-50 text-slate-500 border border-slate-200',
 };
 
+function renderWithLinks(text) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = text.split(urlRegex);
+  return parts.map((part, i) =>
+    urlRegex.test(part)
+      ? <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-violet-600 underline hover:text-violet-800 break-all">{part}</a>
+      : <span key={i}>{part}</span>
+  );
+}
+
 export default function TaskDetailPanel({ task, submission, onClose, userId, enrollmentId, projectId, phases }) {
   const queryClient = useQueryClient();
   const [comment, setComment] = useState('');
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const fileInputRef = useRef(null);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [optimisticStatus, setOptimisticStatus] = useState(submission?.status || 'not_started');
   const [optimisticSubtasks, setOptimisticSubtasks] = useState([]);
@@ -193,9 +205,28 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
               {task.brief && (
                 <div>
                   <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Brief</h3>
-                  <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{task.brief}</p>
+                  <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{renderWithLinks(task.brief)}</p>
                 </div>
               )}
+
+              {(() => {
+                let refs = [];
+                try { refs = JSON.parse(task.reference_files_json || '[]'); } catch {}
+                return refs.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Resources</h3>
+                    <div className="space-y-1.5">
+                      {refs.map((url, i) => (
+                        <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-sm text-violet-600 hover:text-violet-800 hover:underline break-all">
+                          <LinkIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                          {url}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {subtasks.length > 0 && (
                 <div>
@@ -230,28 +261,6 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                   </div>
                 </div>
               )}
-
-              <div>
-                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Deliverable</h3>
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  {task.deliverable_type === 'file' && <Upload className="w-4 h-4 text-slate-400" />}
-                  {task.deliverable_type === 'link' && <LinkIcon className="w-4 h-4 text-slate-400" />}
-                  {task.deliverable_type === 'text' && <FileText className="w-4 h-4 text-slate-400" />}
-                  <span className="capitalize">{task.deliverable_type || 'file'}</span>
-                </div>
-                {submission?.deliverable_link && (
-                  <a href={submission.deliverable_link} target="_blank" rel="noopener noreferrer"
-                    className="mt-2 flex items-center gap-1 text-sm text-violet-600 hover:underline">
-                    <LinkIcon className="w-3.5 h-3.5" />
-                    {submission.deliverable_link}
-                  </a>
-                )}
-                {submission?.deliverable_text && (
-                  <p className="mt-2 text-sm text-slate-600 bg-slate-50 rounded-xl p-3 border border-slate-200 whitespace-pre-wrap">
-                    {submission.deliverable_text}
-                  </p>
-                )}
-              </div>
 
               {submission?.tutor_feedback && (
                 <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
@@ -291,8 +300,22 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
             </div>
           </div>
 
-          <div className="border-t border-slate-200 px-6 py-4 flex-shrink-0">
-            <div className="flex gap-2">
+          <div className="border-t border-slate-100 px-4 py-3 flex-shrink-0 bg-slate-50">
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setUploadingFile(true);
+                const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                setComment(prev => prev + (prev ? '\n' : '') + file_url);
+                setUploadingFile(false);
+                e.target.value = '';
+              }}
+            />
+            <div className="flex gap-2 items-end bg-white border border-slate-200 rounded-2xl px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-teal-400 focus-within:border-transparent transition-all">
               <textarea
                 value={comment}
                 onChange={e => setComment(e.target.value)}
@@ -302,19 +325,29 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                     addComment.mutate(comment.trim());
                   }
                 }}
-                placeholder="Add a comment… (Enter to send)"
-                rows={2}
-                className="flex-1 resize-none text-sm border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent placeholder:text-slate-400"
+                placeholder="Add a comment…"
+                rows={1}
+                className="flex-1 resize-none text-sm focus:outline-none placeholder:text-slate-400 bg-transparent max-h-24 py-0.5"
               />
-              <Button
-                onClick={() => comment.trim() && addComment.mutate(comment.trim())}
-                disabled={!comment.trim() || addComment.isPending}
-                size="icon"
-                className="bg-teal-600 hover:bg-teal-700 text-white rounded-xl h-auto w-10 self-end flex-shrink-0"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingFile}
+                  className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-40"
+                  title="Attach file"
+                >
+                  <Paperclip className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => comment.trim() && addComment.mutate(comment.trim())}
+                  disabled={!comment.trim() || addComment.isPending}
+                  className="w-8 h-8 bg-teal-600 hover:bg-teal-700 rounded-xl flex items-center justify-center text-white disabled:opacity-40 transition-colors"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
+            <p className="text-[10px] text-slate-400 mt-1.5 text-center">Enter to send · Shift+Enter for new line</p>
           </div>
         </motion.div>
       </motion.div>
