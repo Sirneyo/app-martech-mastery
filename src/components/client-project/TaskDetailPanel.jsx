@@ -102,7 +102,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
         subId = sub.id;
         queryClient.invalidateQueries({ queryKey: ['my-task-submissions', projectId, userId] });
       }
-      await base44.entities.TaskComment.create({
+      const newComment = await base44.entities.TaskComment.create({
         task_submission_id: subId,
         project_id: projectId,
         task_id: task.id,
@@ -111,9 +111,11 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
         author_role: 'student',
         content: text,
       });
+      return { subId, newComment };
     },
-    onSuccess: () => {
+    onSuccess: ({ subId }) => {
       setComment('');
+      queryClient.invalidateQueries({ queryKey: ['task-comments', subId] });
       queryClient.invalidateQueries({ queryKey: ['task-comments', submission?.id] });
     },
   });
@@ -278,10 +280,15 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                   <p className="text-sm text-slate-400 italic">No comments yet. Add one below.</p>
                 ) : (
                   <div className="space-y-3 mb-4">
-                    {[...comments].sort((a, b) => new Date(a.created_date) - new Date(b.created_date)).map(c => (
-                      <div key={c.id} className={`rounded-xl p-3 text-sm ${c.author_role === 'tutor'
-                        ? 'bg-violet-50 border border-violet-100'
-                        : 'bg-slate-50 border border-slate-100'}`}
+                    {[...comments].sort((a, b) => new Date(a.created_date) - new Date(b.created_date)).map((c, idx) => (
+                      <motion.div
+                        key={c.id}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.25, delay: idx * 0.04 }}
+                        className={`rounded-xl p-3 text-sm ${c.author_role === 'tutor'
+                          ? 'bg-violet-50 border border-violet-100'
+                          : 'bg-slate-50 border border-slate-100'}`}
                       >
                         <div className="flex items-center justify-between mb-1">
                           <span className={`font-semibold text-xs ${c.author_role === 'tutor' ? 'text-violet-600' : 'text-slate-600'}`}>
@@ -292,7 +299,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                           </span>
                         </div>
                         <p className="text-slate-700 whitespace-pre-wrap">{c.content}</p>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 )}
