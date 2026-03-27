@@ -84,9 +84,10 @@ function TaskCard({ task, submission, index, phases, onClick }) {
   );
 }
 
-export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, userId, projectId, onTaskClick }) {
+export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, userId, projectId, onTaskClick, onPendingStatusChange }) {
   const queryClient = useQueryClient();
   const [dragWarning, setDragWarning] = useState(null);
+  const [pendingStatus, setPendingStatus] = useState(null);
 
   const submissionMap = {};
   submissions.forEach(s => { submissionMap[s.task_id] = s; });
@@ -137,16 +138,29 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
     const newStatus = destination.droppableId;
     const currentStatus = submissionMap[draggableId]?.status || 'not_started';
     if (newStatus === currentStatus) return;
+    if (currentStatus === 'in_review') {
+      setDragWarning('in-review-locked');
+      return;
+    }
     if (newStatus === 'approved') {
       setDragWarning('only-tutor');
       return;
     }
     if (newStatus === 'in_review') {
+      setPendingStatus(draggableId);
       setDragWarning('in-review');
       return;
     }
     updateSubmissionStatus.mutate({ taskId: draggableId, newStatus });
   }, [submissionMap]);
+
+  const handleConfirmInReview = () => {
+    if (pendingStatus) {
+      updateSubmissionStatus.mutate({ taskId: pendingStatus, newStatus: 'in_review' });
+      setPendingStatus(null);
+    }
+    setDragWarning(null);
+  };
 
   return (
     <>
@@ -154,19 +168,38 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full mx-4 p-6">
           <h3 className="font-semibold text-slate-900 mb-2">
-            {dragWarning === 'only-tutor' ? 'Completed by Tutor Only' : 'Submitting for Review'}
+            {dragWarning === 'only-tutor' ? 'Completed by Tutor Only' : dragWarning === 'in-review-locked' ? 'Cannot Move Task' : 'Submitting for Review'}
           </h3>
           <p className="text-sm text-slate-600 mb-4">
             {dragWarning === 'only-tutor'
               ? 'Only your assigned tutor can mark a task as Completed. You can move it to "In Review" when ready for assessment.'
+              : dragWarning === 'in-review-locked'
+              ? 'Once submitted for review, your task is locked. Only your tutor can move it back to In Progress or mark it as Completed.'
               : 'Once submitted for review, you won\'t be able to make further changes until your tutor has reviewed and provided feedback.'}
           </p>
-          <button
-            onClick={() => setDragWarning(null)}
-            className="w-full h-9 px-4 rounded-lg bg-slate-900 text-white font-medium text-sm hover:bg-slate-800 transition-colors"
-          >
-            Got it
-          </button>
+          {dragWarning === 'in-review' ? (
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setPendingStatus(null); setDragWarning(null); }}
+                className="flex-1 h-9 px-4 rounded-lg border border-slate-200 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmInReview}
+                className="flex-1 h-9 px-4 rounded-lg bg-teal-600 text-white font-medium text-sm hover:bg-teal-700 transition-colors"
+              >
+                Continue
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setDragWarning(null)}
+              className="w-full h-9 px-4 rounded-lg bg-slate-900 text-white font-medium text-sm hover:bg-slate-800 transition-colors"
+            >
+              Got it
+            </button>
+          )}
         </div>
       </div>
       )}

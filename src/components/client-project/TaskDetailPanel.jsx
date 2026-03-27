@@ -44,6 +44,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
   const [optimisticSubtasks, setOptimisticSubtasks] = useState([]);
   const [localSubmissionId, setLocalSubmissionId] = useState(submission?.id || null);
   const [linkToOpen, setLinkToOpen] = useState(null);
+  const [showReviewConfirm, setShowReviewConfirm] = useState(false);
 
   let subtasks = [];
   try { subtasks = JSON.parse(task.subtasks_json || '[]'); } catch {}
@@ -129,16 +130,19 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
   const handleStatusChange = (newStatus) => {
     if (newStatus === 'approved') return;
     if (newStatus === 'in_review' && optimisticStatus === 'in_progress') {
-      if (confirm('Once submitted for review, you won\'t be able to make changes until the tutor reviews it. Continue?')) {
-        setOptimisticStatus(newStatus);
-        setShowStatusMenu(false);
-        updateSubmission.mutate({ status: newStatus });
-      }
+      setShowReviewConfirm(true);
       return;
     }
     setOptimisticStatus(newStatus);
     setShowStatusMenu(false);
     updateSubmission.mutate({ status: newStatus });
+  };
+
+  const handleConfirmReview = () => {
+    setShowReviewConfirm(false);
+    setOptimisticStatus('in_review');
+    setShowStatusMenu(false);
+    updateSubmission.mutate({ status: 'in_review' });
   };
 
   const toggleSubtask = (index) => {
@@ -184,6 +188,37 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                   setLinkToOpen(null);
                 }}
                 className="flex-1 h-9 px-4 rounded-lg bg-violet-600 text-white font-medium text-sm hover:bg-violet-700 transition-colors"
+              >
+                Continue
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+      {showReviewConfirm && (
+        <motion.div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div
+            className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full mx-4 p-6"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+          >
+            <h3 className="font-semibold text-slate-900 mb-2">Submitting for Review</h3>
+            <p className="text-sm text-slate-600 mb-4">Once submitted for review, you won't be able to make further changes until your tutor has reviewed and provided feedback.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowReviewConfirm(false)}
+                className="flex-1 h-9 px-4 rounded-lg border border-slate-200 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmReview}
+                className="flex-1 h-9 px-4 rounded-lg bg-teal-600 text-white font-medium text-sm hover:bg-teal-700 transition-colors"
               >
                 Continue
               </button>
@@ -268,7 +303,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
 
               {optimisticStatus === 'in_progress' && (
                 <Button
-                  onClick={() => handleStatusChange('in_review')}
+                  onClick={() => setShowReviewConfirm(true)}
                   className="w-full bg-teal-600 hover:bg-teal-700 text-white"
                 >
                   Submit for Review
