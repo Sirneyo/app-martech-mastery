@@ -28,7 +28,7 @@ function renderWithLinks(text, onLinkClick) {
   const parts = text.split(urlRegex);
   return parts.map((part, i) =>
     urlRegex.test(part)
-      ? <button key={i} onClick={(e) => { e.preventDefault(); onLinkClick(part); }} className="text-violet-600 underline hover:text-violet-800 break-all">{part}</button>
+      ? <button key={i} onClick={(e) => { e.preventDefault(); onLinkClick(part); }} className="text-red-600 underline hover:text-red-800 break-all">{part}</button>
       : <span key={i}>{part}</span>
   );
 }
@@ -187,7 +187,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                   window.open(linkToOpen, '_blank');
                   setLinkToOpen(null);
                 }}
-                className="flex-1 h-9 px-4 rounded-lg bg-violet-600 text-white font-medium text-sm hover:bg-violet-700 transition-colors"
+                className="flex-1 h-9 px-4 rounded-lg bg-green-600 text-white font-medium text-sm hover:bg-green-700 transition-colors"
               >
                 Continue
               </button>
@@ -312,7 +312,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                     <div className="space-y-1.5">
                       {refs.map((url, i) => (
                         <button key={i} onClick={() => setLinkToOpen(url)}
-                          className="flex items-center gap-2 text-sm text-violet-600 hover:text-violet-800 hover:underline break-all text-left">
+                          className="flex items-center gap-2 text-sm text-red-600 hover:text-red-800 hover:underline break-all text-left">
                           <LinkIcon className="w-3.5 h-3.5 flex-shrink-0" />
                           {url}
                         </button>
