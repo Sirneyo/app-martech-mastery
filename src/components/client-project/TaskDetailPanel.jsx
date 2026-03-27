@@ -178,6 +178,8 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
               <button
                 onClick={() => {
                   onEnrollmentChange?.();
+                  setOptimisticStatus('in_progress');
+                  updateSubmission.mutate({ status: 'in_progress' });
                   window.open(linkToOpen, '_blank');
                   setLinkToOpen(null);
                 }}
