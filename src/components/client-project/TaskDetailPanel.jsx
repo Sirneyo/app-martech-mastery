@@ -33,7 +33,7 @@ function renderWithLinks(text, onLinkClick) {
   );
 }
 
-export default function TaskDetailPanel({ task, submission, onClose, userId, enrollmentId, projectId, phases }) {
+export default function TaskDetailPanel({ task, submission, onClose, userId, enrollmentId, projectId, phases, onEnrollmentChange }) {
   const queryClient = useQueryClient();
   const [comment, setComment] = useState('');
   const [attachedFiles, setAttachedFiles] = useState([]);
@@ -176,7 +176,11 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                 Cancel
               </button>
               <button
-                onClick={() => { window.open(linkToOpen, '_blank'); setLinkToOpen(null); }}
+                onClick={() => {
+                  onEnrollmentChange?.();
+                  window.open(linkToOpen, '_blank');
+                  setLinkToOpen(null);
+                }}
                 className="flex-1 h-9 px-4 rounded-lg bg-violet-600 text-white font-medium text-sm hover:bg-violet-700 transition-colors"
               >
                 Continue

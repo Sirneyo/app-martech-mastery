@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
   import { motion } from 'framer-motion';
   import { FolderKanban, Clock, AlertCircle, ChevronRight } from 'lucide-react';
@@ -69,6 +69,16 @@ export default function StudentClientProjectDetail() {
       student_user_id: user.id,
     }),
     enabled: !!projectId && !!user?.id,
+  });
+
+  const queryClient = useQueryClient();
+  const updateEnrollment = useMutation({
+    mutationFn: async () => {
+      if (enrollment?.id) {
+        await base44.entities.ProjectEnrollment.update(enrollment.id, { status: 'active' });
+        queryClient.invalidateQueries({ queryKey: ['my-enrollment', projectId, user?.id] });
+      }
+    },
   });
 
   if (!projectId) {
@@ -202,7 +212,7 @@ export default function StudentClientProjectDetail() {
         </motion.div>
 
         {tasks.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-16 text-center">
+           <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-16 text-center">
             <Clock className="w-10 h-10 text-slate-300 mx-auto mb-3" />
             <p className="text-slate-500">Tasks are being set up. Check back soon.</p>
           </div>
@@ -215,6 +225,7 @@ export default function StudentClientProjectDetail() {
             userId={user?.id}
             projectId={projectId}
             onTaskClick={(task, submission) => setSelectedTask({ task, submission: submission || null })}
+            onStartProject={() => updateEnrollment.mutate()}
           />
         )}
       </div>
@@ -228,6 +239,7 @@ export default function StudentClientProjectDetail() {
           enrollmentId={enrollment?.id}
           projectId={projectId}
           onClose={() => setSelectedTask(null)}
+          onEnrollmentChange={() => updateEnrollment.mutate()}
         />
       )}
     </div>
