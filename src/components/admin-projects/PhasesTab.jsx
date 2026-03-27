@@ -134,6 +134,22 @@ function PhaseCard({ phase, allTasks, projectId, onDeletePhase, dragHandleProps 
   const [phaseForm, setPhaseForm] = useState({ title: phase.title, description: phase.description || '', sort_order: phase.sort_order ?? 0 });
   const queryClient = useQueryClient();
 
+  const reorderTasksMutation = useMutation({
+    mutationFn: async (reordered) => {
+      await Promise.all(reordered.map((t, i) => base44.entities.ProjectTask.update(t.id, { sort_order: i })));
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['project-tasks', projectId] }),
+  });
+
+  const onTaskDragEnd = (result) => {
+    const { destination, source } = result;
+    if (!destination || destination.index === source.index) return;
+    const reordered = Array.from(tasks);
+    const [moved] = reordered.splice(source.index, 1);
+    reordered.splice(destination.index, 0, moved);
+    reorderTasksMutation.mutate(reordered);
+  };
+
   const updatePhaseMutation = useMutation({
     mutationFn: (data) => base44.entities.ProjectPhase.update(phase.id, data),
     onSuccess: () => {
@@ -201,49 +217,69 @@ function PhaseCard({ phase, allTasks, projectId, onDeletePhase, dragHandleProps 
 
       {expanded && (
         <div className="p-4 space-y-2">
-          {tasks.map(task => (
-            <div key={task.id} className="border border-slate-200 rounded-xl p-4 hover:bg-slate-50 transition-colors">
-              {editingTask?.id === task.id ? (
-                <TaskForm
-                  projectId={projectId}
-                  phaseId={phase.id}
-                  allTasks={allTasks}
-                  task={task}
-                  onClose={() => setEditingTask(null)}
-                  onSaved={() => {
-                    queryClient.invalidateQueries({ queryKey: ['project-tasks', projectId] });
-                    setEditingTask(null);
-                  }}
-                />
-              ) : (
-                <div className="flex items-start gap-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-slate-800 text-sm">{task.title}</span>
-                      <Badge className={`text-xs ${PRIORITY_STYLES[task.priority]}`}>{task.priority}</Badge>
-                      <Badge variant="outline" className="text-xs">{DELIVERABLE_LABELS[task.deliverable_type]}</Badge>
-                      {task.dependency_task_id && (
-                        <Badge className="text-xs bg-blue-50 text-blue-600">Has dependency</Badge>
+          <DragDropContext onDragEnd={onTaskDragEnd}>
+            <Droppable droppableId={`tasks-${phase.id}`}>
+              {(provided) => (
+                <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
+                  {tasks.map((task, idx) => (
+                    <Draggable key={task.id} draggableId={task.id} index={idx}>
+                      {(draggable, snapshot) => (
+                        <div
+                          ref={draggable.innerRef}
+                          {...draggable.draggableProps}
+                          className={`border border-slate-200 rounded-xl p-4 hover:bg-slate-50 transition-colors bg-white ${snapshot.isDragging ? 'shadow-lg opacity-90' : ''}`}
+                        >
+                          {editingTask?.id === task.id ? (
+                            <TaskForm
+                              projectId={projectId}
+                              phaseId={phase.id}
+                              allTasks={allTasks}
+                              task={task}
+                              onClose={() => setEditingTask(null)}
+                              onSaved={() => {
+                                queryClient.invalidateQueries({ queryKey: ['project-tasks', projectId] });
+                                setEditingTask(null);
+                              }}
+                            />
+                          ) : (
+                            <div className="flex items-start gap-3">
+                              <div {...draggable.dragHandleProps} className="text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing mt-0.5 flex-shrink-0">
+                                <GripVertical className="w-4 h-4" />
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-semibold text-slate-800 text-sm">{task.title}</span>
+                                  <Badge className={`text-xs ${PRIORITY_STYLES[task.priority]}`}>{task.priority}</Badge>
+                                  <Badge variant="outline" className="text-xs">{DELIVERABLE_LABELS[task.deliverable_type]}</Badge>
+                                  {task.dependency_task_id && (
+                                    <Badge className="text-xs bg-blue-50 text-blue-600">Has dependency</Badge>
+                                  )}
+                                </div>
+                                {task.brief && <p className="text-xs text-slate-500 line-clamp-2">{task.brief}</p>}
+                                {(() => {
+                                  try {
+                                    const subs = JSON.parse(task.subtasks_json || '[]');
+                                    return subs.length > 0 && <p className="text-xs text-slate-400 mt-1">{subs.length} subtask{subs.length !== 1 ? 's' : ''}</p>;
+                                  } catch { return null; }
+                                })()}
+                              </div>
+                              <div className="flex gap-1">
+                                <Button variant="ghost" size="icon" onClick={() => setEditingTask(task)}><Pencil className="w-3.5 h-3.5 text-slate-400" /></Button>
+                                <Button variant="ghost" size="icon" onClick={() => { if (confirm('Delete task?')) deleteTaskMutation.mutate(task.id); }}>
+                                  <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       )}
-                    </div>
-                    {task.brief && <p className="text-xs text-slate-500 line-clamp-2">{task.brief}</p>}
-                    {(() => {
-                      try {
-                        const subs = JSON.parse(task.subtasks_json || '[]');
-                        return subs.length > 0 && <p className="text-xs text-slate-400 mt-1">{subs.length} subtask{subs.length !== 1 ? 's' : ''}</p>;
-                      } catch { return null; }
-                    })()}
-                  </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => setEditingTask(task)}><Pencil className="w-3.5 h-3.5 text-slate-400" /></Button>
-                    <Button variant="ghost" size="icon" onClick={() => { if (confirm('Delete task?')) deleteTaskMutation.mutate(task.id); }}>
-                      <Trash2 className="w-3.5 h-3.5 text-red-400" />
-                    </Button>
-                  </div>
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
                 </div>
               )}
-            </div>
-          ))}
+            </Droppable>
+          </DragDropContext>
 
           {showTaskForm && !editingTask && (
             <TaskForm
