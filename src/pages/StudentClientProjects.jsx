@@ -131,7 +131,7 @@ function AgreementStep({ projects, onContinue }) {
 }
 
 // Step 3: Project List
-function ProjectListStep({ projects, enrollments, onPushOrder, isPushing }) {
+function ProjectListStep({ projects, enrollments, onPushOrder, isPushing, userRole }) {
   const getEnrollment = (projectId) => enrollments.find(e => e.project_id === projectId);
 
   return (
@@ -142,9 +142,11 @@ function ProjectListStep({ projects, enrollments, onPushOrder, isPushing }) {
             <h1 className="text-2xl font-bold text-slate-900 mb-1">My Projects</h1>
             <p className="text-slate-500 text-sm">Your assigned client projects — delivered in partnership with Opsbase</p>
           </motion.div>
-          <Button onClick={onPushOrder} disabled={isPushing} className="gap-2 h-9" variant="outline">
-            <Send className="w-4 h-4" /> Sync Order
-          </Button>
+          {userRole === 'admin' && (
+            <Button onClick={onPushOrder} disabled={isPushing} className="gap-2 h-9" variant="outline">
+              <Send className="w-4 h-4" /> Sync Order
+            </Button>
+          )}
         </div>
       </div>
 
@@ -265,5 +267,5 @@ export default function StudentClientProjects() {
 
   if (step === 'intro') return <IntroStep projects={myProjects} onContinue={() => setStep('agreement')} />;
   if (step === 'agreement') return <AgreementStep projects={myProjects} onContinue={() => setStep('list')} />;
-  return <ProjectListStep projects={myProjects} enrollments={enrollments} onPushOrder={handlePushOrder} isPushing={pushingOrder} />;
+  return <ProjectListStep projects={myProjects} enrollments={enrollments} onPushOrder={handlePushOrder} isPushing={pushingOrder} userRole={user?.app_role} />;
 }

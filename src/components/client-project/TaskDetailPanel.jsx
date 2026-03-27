@@ -23,12 +23,12 @@ const PRIORITY_STYLES = {
   low:    'bg-slate-50 text-slate-500 border border-slate-200',
 };
 
-function renderWithLinks(text) {
+function renderWithLinks(text, onLinkClick) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const parts = text.split(urlRegex);
   return parts.map((part, i) =>
     urlRegex.test(part)
-      ? <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-violet-600 underline hover:text-violet-800 break-all">{part}</a>
+      ? <button key={i} onClick={(e) => { e.preventDefault(); onLinkClick(part); }} className="text-violet-600 underline hover:text-violet-800 break-all">{part}</button>
       : <span key={i}>{part}</span>
   );
 }
@@ -43,6 +43,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
   const [optimisticStatus, setOptimisticStatus] = useState(submission?.status || 'not_started');
   const [optimisticSubtasks, setOptimisticSubtasks] = useState([]);
   const [localSubmissionId, setLocalSubmissionId] = useState(submission?.id || null);
+  const [linkToOpen, setLinkToOpen] = useState(null);
 
   let subtasks = [];
   try { subtasks = JSON.parse(task.subtasks_json || '[]'); } catch {}
@@ -153,6 +154,37 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
 
   return (
     <AnimatePresence>
+      {linkToOpen && (
+        <motion.div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div
+            className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full mx-4 p-6"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+          >
+            <h3 className="font-semibold text-slate-900 mb-2">Open External Link?</h3>
+            <p className="text-sm text-slate-600 mb-4 break-all"><span className="font-mono text-xs bg-slate-50 px-2 py-1 rounded">{linkToOpen}</span></p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setLinkToOpen(null)}
+                className="flex-1 h-9 px-4 rounded-lg border border-slate-200 text-slate-700 font-medium text-sm hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => { window.open(linkToOpen, '_blank'); setLinkToOpen(null); }}
+                className="flex-1 h-9 px-4 rounded-lg bg-violet-600 text-white font-medium text-sm hover:bg-violet-700 transition-colors"
+              >
+                Continue
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
       <motion.div
         className="fixed inset-0 z-50 flex"
         initial={{ opacity: 0 }}
@@ -224,7 +256,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
               {task.brief && (
                 <div>
                   <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Brief</h3>
-                  <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{renderWithLinks(task.brief)}</p>
+                  <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{renderWithLinks(task.brief, setLinkToOpen)}</p>
                 </div>
               )}
 
@@ -236,11 +268,11 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                     <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Resources</h3>
                     <div className="space-y-1.5">
                       {refs.map((url, i) => (
-                        <a key={i} href={url} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-sm text-violet-600 hover:text-violet-800 hover:underline break-all">
+                        <button key={i} onClick={() => setLinkToOpen(url)}
+                          className="flex items-center gap-2 text-sm text-violet-600 hover:text-violet-800 hover:underline break-all text-left">
                           <LinkIcon className="w-3.5 h-3.5 flex-shrink-0" />
                           {url}
-                        </a>
+                        </button>
                       ))}
                     </div>
                   </div>

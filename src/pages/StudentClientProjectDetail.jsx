@@ -86,6 +86,10 @@ export default function StudentClientProjectDetail() {
     setPendingProjectId(null);
   };
 
+  const handleBackClick = () => {
+    navigate('/StudentClientProjects');
+  };
+
   if (loadingProject || loadingEnrollment) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -154,7 +158,7 @@ export default function StudentClientProjectDetail() {
       <div className="p-6 max-w-[1400px] mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <button
-            onClick={() => navigate(createPageUrl('StudentClientProjects'))}
+            onClick={handleBackClick}
             className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors"
             title="Back to My Projects"
           >
