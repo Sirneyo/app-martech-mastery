@@ -266,6 +266,15 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                 </div>
               )}
 
+              {optimisticStatus === 'in_progress' && (
+                <Button
+                  onClick={() => handleStatusChange('in_review')}
+                  className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+                >
+                  Submit for Review
+                </Button>
+              )}
+
               {(() => {
                 let refs = [];
                 try { refs = JSON.parse(task.reference_files_json || '[]'); } catch {}
