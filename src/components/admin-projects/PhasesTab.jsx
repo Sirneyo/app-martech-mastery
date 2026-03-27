@@ -268,7 +268,7 @@ export default function PhasesTab({ project }) {
 
   // Auto-clean orphaned tasks (tasks whose phase was deleted)
   useEffect(() => {
-    if (cleanupDone.current || phases.length === 0 || tasks.length === 0) return;
+    if (cleanupDone.current || tasks.length === 0) return;
     const phaseIds = new Set(phases.map(p => p.id));
     const orphaned = tasks.filter(t => !phaseIds.has(t.phase_id));
     if (orphaned.length > 0) {
