@@ -5,8 +5,9 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, FolderKanban, Users, Clock, CheckCircle, BarChart3, Archive, Eye, Pencil, Trash2, Zap } from 'lucide-react';
+import { Plus, FolderKanban, Users, Clock, CheckCircle, BarChart3, Archive, Eye, Pencil, Trash2, Zap, GripVertical } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import ProjectFormModal from '@/components/admin-projects/ProjectFormModal';
 
 const STATUS_STYLES = {
@@ -24,6 +25,24 @@ export default function AdminProjects() {
     queryKey: ['projects'],
     queryFn: () => base44.entities.Project.list('sort_order'),
   });
+
+  const reorderMutation = useMutation({
+    mutationFn: async (reordered) => {
+      await Promise.all(reordered.map((p, i) => base44.entities.Project.update(p.id, { sort_order: i })));
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['projects'] }),
+  });
+
+  const sortedProjects = [...projects].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+
+  const onDragEnd = (result) => {
+    const { destination, source } = result;
+    if (!destination || destination.index === source.index) return;
+    const reordered = Array.from(sortedProjects);
+    const [moved] = reordered.splice(source.index, 1);
+    reordered.splice(destination.index, 0, moved);
+    reorderMutation.mutate(reordered);
+  };
 
   const { data: enrollments = [] } = useQuery({
     queryKey: ['enrollments-all'],
@@ -110,72 +129,84 @@ export default function AdminProjects() {
             </Button>
           </div>
         ) : (
-          <div className="space-y-4">
-            {projects.map((project, i) => {
-              const stats = getProjectStats(project.id);
-              return (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04 }}
-                  className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-bold text-slate-900 mb-1">{project.title}</h3>
-                      <p className="text-sm text-slate-500 line-clamp-1">{project.overview}</p>
-                      <div className="flex items-center gap-5 mt-3 text-sm text-slate-500">
-                        <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {stats.enrolled} enrolled</span>
-                        <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {stats.pendingReview} pending review</span>
-                        <span className="flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" /> {stats.completed} completed</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {project.status === 'draft' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="gap-1 text-green-600 border-green-300 hover:bg-green-50"
-                          onClick={() => statusMutation.mutate({ id: project.id, status: 'active' })}
-                          disabled={statusMutation.isPending}
-                        >
-                          <Zap className="w-3.5 h-3.5" /> Publish
-                        </Button>
-                      )}
-                      {project.status === 'active' && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="gap-1 text-slate-500"
-                          onClick={() => statusMutation.mutate({ id: project.id, status: 'draft' })}
-                          disabled={statusMutation.isPending}
-                        >
-                          <Archive className="w-3.5 h-3.5" /> Unpublish
-                        </Button>
-                      )}
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(project)} title="Edit">
-                        <Pencil className="w-4 h-4 text-slate-400" />
-                      </Button>
-                      <Link to={createPageUrl(`AdminProjectDetail?id=${project.id}`)}>
-                        <Button variant="outline" size="sm" className="gap-1">
-                          <Eye className="w-4 h-4" /> Manage
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => { if (confirm('Delete this project?')) deleteMutation.mutate(project.id); }}
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-400" />
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Droppable droppableId="projects">
+              {(provided) => (
+                <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-4">
+                  {sortedProjects.map((project, i) => {
+                    const stats = getProjectStats(project.id);
+                    return (
+                      <Draggable key={project.id} draggableId={project.id} index={i}>
+                        {(draggable, snapshot) => (
+                          <div
+                            ref={draggable.innerRef}
+                            {...draggable.draggableProps}
+                            className={`bg-white rounded-2xl border border-slate-200 shadow-sm p-6 ${snapshot.isDragging ? 'shadow-xl opacity-95' : ''}`}
+                          >
+                            <div className="flex items-start gap-4">
+                              <div {...draggable.dragHandleProps} className="text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing mt-1 flex-shrink-0">
+                                <GripVertical className="w-5 h-5" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h3 className="text-lg font-bold text-slate-900 mb-1">{project.title}</h3>
+                                <p className="text-sm text-slate-500 line-clamp-1">{project.overview}</p>
+                                <div className="flex items-center gap-5 mt-3 text-sm text-slate-500">
+                                  <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {stats.enrolled} enrolled</span>
+                                  <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {stats.pendingReview} pending review</span>
+                                  <span className="flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" /> {stats.completed} completed</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                {project.status === 'draft' && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="gap-1 text-green-600 border-green-300 hover:bg-green-50"
+                                    onClick={() => statusMutation.mutate({ id: project.id, status: 'active' })}
+                                    disabled={statusMutation.isPending}
+                                  >
+                                    <Zap className="w-3.5 h-3.5" /> Publish
+                                  </Button>
+                                )}
+                                {project.status === 'active' && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="gap-1 text-slate-500"
+                                    onClick={() => statusMutation.mutate({ id: project.id, status: 'draft' })}
+                                    disabled={statusMutation.isPending}
+                                  >
+                                    <Archive className="w-3.5 h-3.5" /> Unpublish
+                                  </Button>
+                                )}
+                                <Button variant="ghost" size="icon" onClick={() => handleEdit(project)} title="Edit">
+                                  <Pencil className="w-4 h-4 text-slate-400" />
+                                </Button>
+                                <Link to={createPageUrl(`AdminProjectDetail?id=${project.id}`)}>
+                                  <Button variant="outline" size="sm" className="gap-1">
+                                    <Eye className="w-4 h-4" /> Manage
+                                  </Button>
+                                </Link>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => { if (confirm('Delete this project?')) deleteMutation.mutate(project.id); }}
+                                  title="Delete"
+                                >
+                                  <Trash2 className="w-4 h-4 text-red-400" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    );
+                  })}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
         )}
       </div>
 
