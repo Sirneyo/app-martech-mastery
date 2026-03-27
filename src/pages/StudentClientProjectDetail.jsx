@@ -28,18 +28,24 @@ export default function StudentClientProjectDetail() {
       return list[0];
     },
     enabled: !!projectId,
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const { data: phases = [] } = useQuery({
     queryKey: ['project-phases', projectId],
     queryFn: () => base44.entities.ProjectPhase.filter({ project_id: projectId }),
     enabled: !!projectId,
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['project-tasks', projectId],
     queryFn: () => base44.entities.ProjectTask.filter({ project_id: projectId }),
     enabled: !!projectId,
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const { data: enrollment, isLoading: loadingEnrollment } = useQuery({
