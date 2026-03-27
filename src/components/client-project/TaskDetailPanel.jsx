@@ -36,6 +36,7 @@ function renderWithLinks(text) {
 export default function TaskDetailPanel({ task, submission, onClose, userId, enrollmentId, projectId, phases }) {
   const queryClient = useQueryClient();
   const [comment, setComment] = useState('');
+  const [attachedFiles, setAttachedFiles] = useState([]);
   const [uploadingFile, setUploadingFile] = useState(false);
   const fileInputRef = useRef(null);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
@@ -88,7 +89,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
   });
 
   const addComment = useMutation({
-    mutationFn: async (text) => {
+    mutationFn: async ({ text, files }) => {
       let subId = submission?.id;
       if (!subId) {
         const sub = await base44.entities.TaskSubmission.create({
@@ -102,6 +103,9 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
         subId = sub.id;
         queryClient.invalidateQueries({ queryKey: ['my-task-submissions', projectId, userId] });
       }
+      const fullContent = files.length > 0
+        ? (text ? text + '\n' : '') + files.map(f => `[file:${f.name}](${f.url})`).join('\n')
+        : text;
       const newComment = await base44.entities.TaskComment.create({
         task_submission_id: subId,
         project_id: projectId,
@@ -109,12 +113,13 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
         author_user_id: userId,
         author_name: currentUser?.full_name || currentUser?.email || 'You',
         author_role: 'student',
-        content: text,
+        content: fullContent,
       });
       return { subId, newComment };
     },
     onSuccess: ({ subId }) => {
       setComment('');
+      setAttachedFiles([]);
       setLocalSubmissionId(subId);
       queryClient.invalidateQueries({ queryKey: ['task-comments', subId] });
     },
@@ -298,7 +303,21 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                             {new Date(c.created_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
-                        <p className="text-slate-700 whitespace-pre-wrap">{c.content}</p>
+                        <div className="text-slate-700 whitespace-pre-wrap text-sm">
+                  {c.content.split('\n').map((line, li) => {
+                    const fileMatch = line.match(/^\[file:(.+?)\]\((.+?)\)$/);
+                    if (fileMatch) {
+                      return (
+                        <a key={li} href={fileMatch[2]} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-violet-600 hover:text-violet-800 underline mt-1">
+                          <Paperclip className="w-3.5 h-3.5 flex-shrink-0" />
+                          {fileMatch[1]}
+                        </a>
+                      );
+                    }
+                    return line ? <span key={li} className="block">{line}</span> : <br key={li} />;
+                  })}
+                </div>
                       </motion.div>
                     ))}
                   </div>
@@ -317,19 +336,32 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                 if (!file) return;
                 setUploadingFile(true);
                 const { file_url } = await base44.integrations.Core.UploadFile({ file });
-                setComment(prev => prev + (prev ? '\n' : '') + file_url);
+                setAttachedFiles(prev => [...prev, { name: file.name, url: file_url }]);
                 setUploadingFile(false);
                 e.target.value = '';
               }}
             />
+            {attachedFiles.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 px-1 pt-1">
+                {attachedFiles.map((f, i) => (
+                  <span key={i} className="flex items-center gap-1 bg-violet-50 border border-violet-200 text-violet-700 text-xs rounded-lg px-2 py-1">
+                    <Paperclip className="w-3 h-3" />
+                    {f.name}
+                    <button onClick={() => setAttachedFiles(prev => prev.filter((_, idx) => idx !== i))} className="ml-0.5 text-violet-400 hover:text-red-500">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="flex gap-2 items-end bg-white border border-slate-200 rounded-2xl px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-teal-400 focus-within:border-transparent transition-all">
               <textarea
                 value={comment}
                 onChange={e => setComment(e.target.value)}
                 onKeyDown={e => {
-                  if (e.key === 'Enter' && !e.shiftKey && comment.trim()) {
+                  if (e.key === 'Enter' && !e.shiftKey && (comment.trim() || attachedFiles.length > 0)) {
                     e.preventDefault();
-                    addComment.mutate(comment.trim());
+                    addComment.mutate({ text: comment.trim(), files: attachedFiles });
                   }
                 }}
                 placeholder="Add a comment…"
@@ -346,8 +378,8 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                   <Paperclip className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => comment.trim() && addComment.mutate(comment.trim())}
-                  disabled={!comment.trim() || addComment.isPending}
+                  onClick={() => (comment.trim() || attachedFiles.length > 0) && addComment.mutate({ text: comment.trim(), files: attachedFiles })}
+                  disabled={(!comment.trim() && attachedFiles.length === 0) || addComment.isPending}
                   className="w-8 h-8 bg-teal-600 hover:bg-teal-700 rounded-xl flex items-center justify-center text-white disabled:opacity-40 transition-colors"
                 >
                   <Send className="w-3.5 h-3.5" />
