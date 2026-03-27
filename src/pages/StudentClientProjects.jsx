@@ -158,10 +158,10 @@ function ProjectListStep({ projects, enrollments }) {
             >
               <Link
                 to={createPageUrl(`StudentClientProjectDetail?id=${project.id}`)}
-                className="group flex items-center gap-6 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:border-teal-200 transition-all duration-200"
+                className="group flex items-center gap-6 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
               >
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center flex-shrink-0 shadow-sm">
-                  <FolderKanban className="w-7 h-7 text-white" />
+                <div className="w-14 h-14 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0">
+                  <FolderKanban className="w-7 h-7 text-slate-500" />
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -220,7 +220,14 @@ function NotAssignedScreen() {
 }
 
 export default function StudentClientProjects() {
-  const [step, setStep] = useState('intro');
+  const [step, setStep] = useState(() =>
+    sessionStorage.getItem('client-projects-onboarded') === '1' ? 'list' : 'intro'
+  );
+
+  const advanceToList = () => {
+    sessionStorage.setItem('client-projects-onboarded', '1');
+    setStep('list');
+  };
 
   const { data: user } = useQuery({ queryKey: ['current-user'], queryFn: () => base44.auth.me() });
 
@@ -256,6 +263,6 @@ export default function StudentClientProjects() {
   }
 
   if (step === 'intro') return <IntroStep projects={myProjects} onContinue={() => setStep('agreement')} />;
-  if (step === 'agreement') return <AgreementStep projects={myProjects} onContinue={() => setStep('list')} />;
+  if (step === 'agreement') return <AgreementStep projects={myProjects} onContinue={advanceToList} />;
   return <ProjectListStep projects={myProjects} enrollments={enrollments} />;
 }

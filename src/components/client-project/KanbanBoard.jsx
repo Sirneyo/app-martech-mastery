@@ -54,8 +54,8 @@ function TaskCard({ task, submission, index, phases, onClick }) {
                 <p className="text-[10px] font-semibold text-teal-600 uppercase tracking-wide mb-1">{phase.title}</p>
               )}
               <p className="font-medium text-slate-900 text-sm leading-snug">{task.title}</p>
-              {task.brief && (
-                <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{task.brief}</p>
+              {phase?.description && (
+                <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{phase.description}</p>
               )}
               <div className="flex items-center gap-2 mt-3 flex-wrap">
                 {task.priority && (
@@ -97,8 +97,9 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
     const col = columns[status] ? status : 'not_started';
     columns[col].push(task);
   });
+  const sortedPhases = [...phases].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   const phaseOrderMap = {};
-  phases.forEach((p, i) => { phaseOrderMap[p.id] = p.sort_order ?? i; });
+  sortedPhases.forEach((p, i) => { phaseOrderMap[p.id] = p.sort_order ?? i; });
 
   Object.keys(columns).forEach(col => {
     columns[col].sort((a, b) => {

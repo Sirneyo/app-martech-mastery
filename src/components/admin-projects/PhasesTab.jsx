@@ -72,22 +72,18 @@ function TaskForm({ projectId, phaseId, allTasks, task, onClose, onSaved }) {
         <Textarea value={form.brief} onChange={e => set('brief', e.target.value)} rows={4} placeholder="Write the task brief as a real work assignment..." />
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <div className="space-y-1">
-          <Label>Deliverable Type</Label>
-          <Select value={form.deliverable_type} onValueChange={v => set('deliverable_type', v)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {Object.entries(DELIVERABLE_LABELS).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-1">
-          <Label>Due (days from enrolment) <span className="text-slate-400 font-normal">– optional</span></Label>
-          <Input type="number" value={form.due_days_from_start} onChange={e => set('due_days_from_start', e.target.value === '' ? '' : parseInt(e.target.value))} placeholder="e.g. 14" />
-        </div>
-        <div className="space-y-1">
-          <Label>Depends on Task</Label>
+      <div className="grid grid-cols-2 gap-3">
+      <div className="space-y-1">
+        <Label>Deliverable Type</Label>
+        <Select value={form.deliverable_type} onValueChange={v => set('deliverable_type', v)}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {Object.entries(DELIVERABLE_LABELS).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="space-y-1">
+        <Label>Depends on Task</Label>
           <Select value={form.dependency_task_id || 'none'} onValueChange={v => set('dependency_task_id', v === 'none' ? '' : v)}>
             <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
             <SelectContent>

@@ -105,8 +105,8 @@ export default function StudentClientProjectDetail() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6 flex items-start gap-4"
         >
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center flex-shrink-0 shadow-sm">
-            <FolderKanban className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0">
+            <FolderKanban className="w-6 h-6 text-slate-500" />
           </div>
           <div className="flex-1 min-w-0">
             {project.company_name && (

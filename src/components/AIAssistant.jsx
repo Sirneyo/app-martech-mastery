@@ -145,7 +145,7 @@ Assistant:`;
             exit={{ scale: 0, opacity: 0 }}
             onPointerDown={handleBtnPointerDown}
             style={btnPos ? { left: btnPos.left, top: btnPos.top, bottom: 'auto', right: 'auto' } : { bottom: '1.5rem', right: '1.5rem' }}
-            className="fixed z-50 w-14 h-14 bg-gradient-to-br from-violet-600 to-purple-700 rounded-full shadow-xl flex items-center justify-center text-white hover:shadow-2xl hover:shadow-purple-500/40 transition-shadow cursor-grab active:cursor-grabbing select-none"
+            className="fixed z-50 w-14 h-14 bg-slate-900 rounded-full shadow-xl flex items-center justify-center text-white hover:shadow-2xl hover:bg-slate-800 transition-all cursor-grab active:cursor-grabbing select-none"
           >
             <MessageCircle className="w-6 h-6" />
           </motion.button>
