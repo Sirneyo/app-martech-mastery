@@ -232,11 +232,15 @@ export default function PhasesTab({ project }) {
   const { data: phases = [] } = useQuery({
     queryKey: ['project-phases', project.id],
     queryFn: () => base44.entities.ProjectPhase.filter({ project_id: project.id }),
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['project-tasks', project.id],
     queryFn: () => base44.entities.ProjectTask.filter({ project_id: project.id }),
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const createPhaseMutation = useMutation({
