@@ -168,14 +168,14 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full mx-4 p-6">
           <h3 className="font-semibold text-slate-900 mb-2">
-            {dragWarning === 'only-tutor' ? 'Completed by Tutor Only' : dragWarning === 'in-review-locked' ? 'Cannot Move Task' : 'Submitting for Review'}
+            {dragWarning === 'only-tutor' ? 'Completed by Reviewer Only' : dragWarning === 'in-review-locked' ? 'Cannot Move Task' : 'Submitting for Review'}
           </h3>
           <p className="text-sm text-slate-600 mb-4">
             {dragWarning === 'only-tutor'
-              ? 'Only your assigned tutor can mark a task as Completed. You can move it to "In Review" when ready for assessment.'
+              ? 'Only your assigned reviewer can mark a task as Completed. You can move it to "In Review" when ready for assessment.'
               : dragWarning === 'in-review-locked'
-              ? 'Once submitted for review, your task is locked. Only your tutor can move it back to In Progress or mark it as Completed.'
-              : 'Once submitted for review, you won\'t be able to make further changes until your tutor has reviewed and provided feedback.'}
+              ? 'Once submitted for review, your task is locked. Only your reviewer can move it back to In Progress or mark it as Completed.'
+              : 'Once submitted for review, you won\'t be able to make further changes until your reviewer has reviewed and provided feedback.'}
           </p>
           {dragWarning === 'in-review' ? (
             <div className="flex gap-3">
@@ -187,7 +187,7 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
               </button>
               <button
                 onClick={handleConfirmInReview}
-                className="flex-1 h-9 px-4 rounded-lg bg-teal-600 text-white font-medium text-sm hover:bg-teal-700 transition-colors"
+                className="flex-1 h-9 px-4 rounded-lg bg-green-600 text-white font-medium text-sm hover:bg-green-700 transition-colors"
               >
                 Continue
               </button>

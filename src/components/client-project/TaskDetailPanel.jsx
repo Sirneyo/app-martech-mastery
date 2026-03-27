@@ -208,7 +208,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
             animate={{ y: 0, opacity: 1 }}
           >
             <h3 className="font-semibold text-slate-900 mb-2">Submitting for Review</h3>
-            <p className="text-sm text-slate-600 mb-4">Once submitted for review, you won't be able to make further changes until your tutor has reviewed and provided feedback.</p>
+            <p className="text-sm text-slate-600 mb-4">Once submitted for review, you won't be able to make further changes until your reviewer has reviewed and provided feedback.</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowReviewConfirm(false)}
@@ -217,10 +217,10 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                 Cancel
               </button>
               <button
-                onClick={handleConfirmReview}
-                className="flex-1 h-9 px-4 rounded-lg bg-teal-600 text-white font-medium text-sm hover:bg-teal-700 transition-colors"
+               onClick={handleConfirmReview}
+               className="flex-1 h-9 px-4 rounded-lg bg-green-600 text-white font-medium text-sm hover:bg-green-700 transition-colors"
               >
-                Continue
+               Continue
               </button>
             </div>
           </motion.div>
@@ -301,14 +301,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                 </div>
               )}
 
-              {optimisticStatus === 'in_progress' && (
-                <Button
-                  onClick={() => setShowReviewConfirm(true)}
-                  className="w-full bg-teal-600 hover:bg-teal-700 text-white"
-                >
-                  Submit for Review
-                </Button>
-              )}
+
 
               {(() => {
                 let refs = [];
@@ -365,17 +358,17 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
 
               {submission?.tutor_feedback && (
                 <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
-                  <h3 className="text-xs font-semibold text-violet-500 uppercase tracking-wider mb-2">Tutor Feedback</h3>
+                  <h3 className="text-xs font-semibold text-violet-500 uppercase tracking-wider mb-2">Reviewer Feedback</h3>
                   <p className="text-sm text-violet-900 leading-relaxed">{submission.tutor_feedback}</p>
                 </div>
               )}
 
               <div>
                 {optimisticStatus === 'in_review' && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                    <p className="text-xs text-amber-700 font-medium">This task is under review. You cannot make changes until your tutor provides feedback.</p>
-                  </div>
-                )}
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                      <p className="text-xs text-amber-700 font-medium">This task is under review. You cannot make changes until your reviewer provides feedback.</p>
+                    </div>
+                  )}
 
                 <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                   <MessageSquare className="w-3.5 h-3.5" />
@@ -391,13 +384,13 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.25, delay: idx * 0.04 }}
-                        className={`rounded-xl p-3 text-sm ${c.author_role === 'tutor'
+                        className={`rounded-xl p-3 text-sm ${c.author_role === 'reviewer'
                           ? 'bg-violet-50 border border-violet-100'
                           : 'bg-slate-50 border border-slate-100'}`}
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className={`font-semibold text-xs ${c.author_role === 'tutor' ? 'text-violet-600' : 'text-slate-600'}`}>
-                            {c.author_name || 'Unknown'}{c.author_role === 'tutor' ? ' · Tutor' : ''}
+                          <span className={`font-semibold text-xs ${c.author_role === 'reviewer' ? 'text-violet-600' : 'text-slate-600'}`}>
+                            {c.author_name || 'Unknown'}{c.author_role === 'reviewer' ? ' · Reviewer' : ''}
                           </span>
                           <span className="text-[10px] text-slate-400">
                             {new Date(c.created_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
@@ -454,39 +447,55 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                 ))}
               </div>
             )}
-            <div className="flex gap-2 items-end bg-white border border-slate-200 rounded-2xl px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-teal-400 focus-within:border-transparent transition-all">
-              <textarea
-                value={comment}
-                onChange={e => setComment(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && !e.shiftKey && (comment.trim() || attachedFiles.length > 0)) {
-                    e.preventDefault();
-                    addComment.mutate({ text: comment.trim(), files: attachedFiles });
-                  }
-                }}
-                placeholder="Add a comment…"
-                rows={1}
-                className="flex-1 resize-none text-sm focus:outline-none placeholder:text-slate-400 bg-transparent max-h-24 py-0.5"
-              />
-              <div className="flex items-center gap-1 flex-shrink-0">
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingFile}
-                  className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-40"
-                  title="Attach file"
-                >
-                  <Paperclip className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => (comment.trim() || attachedFiles.length > 0) && addComment.mutate({ text: comment.trim(), files: attachedFiles })}
-                  disabled={(!comment.trim() && attachedFiles.length === 0) || addComment.isPending}
-                  className="w-8 h-8 bg-teal-600 hover:bg-teal-700 rounded-xl flex items-center justify-center text-white disabled:opacity-40 transition-colors"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                </button>
+            {optimisticStatus !== 'in_review' ? (
+              <>
+                <div className="flex gap-2 items-end bg-white border border-slate-200 rounded-2xl px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-teal-400 focus-within:border-transparent transition-all">
+                  <textarea
+                    value={comment}
+                    onChange={e => setComment(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.shiftKey && (comment.trim() || attachedFiles.length > 0)) {
+                        e.preventDefault();
+                        addComment.mutate({ text: comment.trim(), files: attachedFiles });
+                      }
+                    }}
+                    placeholder="Add a comment…"
+                    rows={1}
+                    className="flex-1 resize-none text-sm focus:outline-none placeholder:text-slate-400 bg-transparent max-h-24 py-0.5"
+                  />
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingFile}
+                      className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-40"
+                      title="Attach file"
+                    >
+                      <Paperclip className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => (comment.trim() || attachedFiles.length > 0) && addComment.mutate({ text: comment.trim(), files: attachedFiles })}
+                      disabled={(!comment.trim() && attachedFiles.length === 0) || addComment.isPending}
+                      className="w-8 h-8 bg-teal-600 hover:bg-teal-700 rounded-xl flex items-center justify-center text-white disabled:opacity-40 transition-colors"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1.5 text-center">Enter to send · Shift+Enter for new line</p>
+                {optimisticStatus === 'in_progress' && (
+                  <Button
+                    onClick={() => setShowReviewConfirm(true)}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white mt-3"
+                  >
+                    Submit for Review
+                  </Button>
+                )}
+              </>
+            ) : (
+              <div className="text-center text-sm text-slate-500 py-4">
+                Comments are disabled while this task is under review.
               </div>
-            </div>
-            <p className="text-[10px] text-slate-400 mt-1.5 text-center">Enter to send · Shift+Enter for new line</p>
+            )}
           </div>
         </motion.div>
       </motion.div>
