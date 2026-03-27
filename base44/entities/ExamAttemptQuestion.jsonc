@@ -1,0 +1,33 @@
+{
+  "name": "ExamAttemptQuestion",
+  "type": "object",
+  "properties": {
+    "attempt_id": {
+      "type": "string",
+      "description": "Exam attempt ID"
+    },
+    "exam_section_id": {
+      "type": "string",
+      "description": "Exam section ID"
+    },
+    "question_id": {
+      "type": "string",
+      "description": "Exam question ID"
+    },
+    "order_index": {
+      "type": "integer",
+      "description": "Question order within section"
+    },
+    "global_order": {
+      "type": "integer",
+      "description": "Global question order 1-80"
+    }
+  },
+  "required": [
+    "attempt_id",
+    "exam_section_id",
+    "question_id",
+    "order_index",
+    "global_order"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "AppSettings",
+  "type": "object",
+  "properties": {
+    "kajabi_url": {
+      "type": "string",
+      "default": "https://www.the-growth-academy.co/library",
+      "description": "Kajabi learning platform URL"
+    },
+    "marketo_url": {
+      "type": "string",
+      "default": "https://experience.adobe.com/#/@oadsolutionsltd/",
+      "description": "Adobe Marketo platform URL"
+    },
+    "marketo_shared_email": {
+      "type": "string",
+      "description": "Shared Marketo login email"
+    },
+    "marketo_shared_password": {
+      "type": "string",
+      "description": "Shared Marketo login password"
+    },
+    "whatsapp_community_url": {
+      "type": "string",
+      "description": "WhatsApp community URL"
+    },
+    "ai_tools_url": {
+      "type": "string",
+      "default": "https://ai.martech-mastery.com/",
+      "description": "AI tools platform URL"
+    },
+    "exit_interview_booking_url": {
+      "type": "string",
+      "description": "Exit interview booking URL"
+    }
+  },
+  "required": []
+}

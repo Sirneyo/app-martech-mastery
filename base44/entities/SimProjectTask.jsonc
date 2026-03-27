@@ -1,0 +1,72 @@
+{
+  "name": "SimProjectTask",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "SimProject ID"
+    },
+    "phase_id": {
+      "type": "string",
+      "description": "SimProjectPhase ID"
+    },
+    "title": {
+      "type": "string",
+      "description": "Task title"
+    },
+    "brief": {
+      "type": "string",
+      "description": "Full task brief written as a real work assignment"
+    },
+    "subtasks_json": {
+      "type": "string",
+      "default": "[]",
+      "description": "JSON array of subtask strings"
+    },
+    "deliverable_type": {
+      "type": "string",
+      "enum": [
+        "file",
+        "link",
+        "text",
+        "presentation",
+        "spreadsheet"
+      ],
+      "default": "file",
+      "description": "Required deliverable type"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium",
+      "description": "Task priority"
+    },
+    "due_days_from_start": {
+      "type": "integer",
+      "description": "Days from project enrollment to due date"
+    },
+    "dependency_task_id": {
+      "type": "string",
+      "description": "Task ID that must be approved before this one unlocks"
+    },
+    "sort_order": {
+      "type": "integer",
+      "default": 0,
+      "description": "Display order within the phase"
+    },
+    "reference_files_json": {
+      "type": "string",
+      "default": "[]",
+      "description": "JSON array of reference file URLs"
+    }
+  },
+  "required": [
+    "project_id",
+    "phase_id",
+    "title"
+  ]
+}

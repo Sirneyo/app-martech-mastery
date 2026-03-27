@@ -1,0 +1,67 @@
+{
+  "name": "ExamConfig",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Exam title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Exam description"
+    },
+    "unlock_week": {
+      "type": "integer",
+      "default": 8,
+      "description": "Week when exam unlocks"
+    },
+    "time_limit_minutes": {
+      "type": "integer",
+      "default": 100,
+      "description": "Exam time limit in minutes"
+    },
+    "pass_mark": {
+      "type": "integer",
+      "default": 80,
+      "description": "Passing score percentage (deprecated, use pass_correct_required)"
+    },
+    "questions_per_section": {
+      "type": "integer",
+      "default": 20,
+      "description": "Questions per section"
+    },
+    "total_questions": {
+      "type": "integer",
+      "default": 80,
+      "description": "Total questions in exam"
+    },
+    "pass_correct_required": {
+      "type": "integer",
+      "default": 65,
+      "description": "Number of correct answers required to pass"
+    },
+    "attempts_allowed": {
+      "type": "integer",
+      "default": 4,
+      "description": "Maximum attempts allowed"
+    },
+    "cooldown_after_attempt_2_hours": {
+      "type": "integer",
+      "default": 24,
+      "description": "Hours to wait after attempt 2 before attempt 3"
+    },
+    "cooldown_after_attempt_3_fail_hours": {
+      "type": "integer",
+      "default": 48,
+      "description": "Hours to wait after attempt 3 fail before attempt 4"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Is exam active"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

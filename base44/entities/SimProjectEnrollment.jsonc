@@ -1,0 +1,66 @@
+{
+  "name": "SimProjectEnrollment",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "SimProject ID"
+    },
+    "student_user_id": {
+      "type": "string",
+      "description": "Student user ID"
+    },
+    "reviewer_tutor_id": {
+      "type": "string",
+      "description": "Assigned tutor user ID for reviewing submissions"
+    },
+    "cohort_id": {
+      "type": "string",
+      "description": "Cohort ID"
+    },
+    "onboarding_video_watched": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has student watched the intro video"
+    },
+    "onboarding_agreement_signed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has student signed the agreement"
+    },
+    "agreement_signed_name": {
+      "type": "string",
+      "description": "Name typed by student when signing"
+    },
+    "agreement_signed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When agreement was signed"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "onboarding",
+        "active",
+        "completed",
+        "withdrawn"
+      ],
+      "default": "onboarding",
+      "description": "Enrollment status"
+    },
+    "enrolled_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When enrolled"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When project was completed"
+    }
+  },
+  "required": [
+    "project_id",
+    "student_user_id"
+  ]
+}

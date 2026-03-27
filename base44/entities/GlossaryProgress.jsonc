@@ -1,0 +1,28 @@
+{
+  "name": "GlossaryProgress",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Student user ID"
+    },
+    "glossary_item_id": {
+      "type": "string",
+      "description": "GlossaryItem ID"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the student has marked this lesson complete"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the student marked it complete"
+    }
+  },
+  "required": [
+    "user_id",
+    "glossary_item_id"
+  ]
+}

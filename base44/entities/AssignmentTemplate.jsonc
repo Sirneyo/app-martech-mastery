@@ -1,0 +1,88 @@
+{
+  "name": "AssignmentTemplate",
+  "type": "object",
+  "properties": {
+    "template_key": {
+      "type": "string",
+      "description": "Unique key to group versions of same template"
+    },
+    "version": {
+      "type": "integer",
+      "default": 1,
+      "description": "Version number"
+    },
+    "title": {
+      "type": "string",
+      "description": "Assignment title"
+    },
+    "short_description": {
+      "type": "string",
+      "description": "Brief description"
+    },
+    "content_html": {
+      "type": "string",
+      "description": "Rich text content"
+    },
+    "week_number": {
+      "type": "integer",
+      "description": "Week number (1-12)"
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of tasks (legacy)"
+    },
+    "points": {
+      "type": "integer",
+      "default": 100,
+      "description": "Points value"
+    },
+    "evidence_requirements_json": {
+      "type": "string",
+      "default": "{\"allow_file\":true,\"allow_link\":true,\"allow_text\":true}",
+      "description": "Evidence requirements as JSON"
+    },
+    "thumbnail_url": {
+      "type": "string",
+      "description": "Thumbnail image URL"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published"
+      ],
+      "default": "draft",
+      "description": "Publication status"
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When template was published"
+    },
+    "audio_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Audio assignment files"
+    }
+  },
+  "required": [
+    "template_key",
+    "title"
+  ]
+}

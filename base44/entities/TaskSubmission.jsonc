@@ -1,0 +1,92 @@
+{
+  "name": "TaskSubmission",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "Project ID"
+    },
+    "task_id": {
+      "type": "string",
+      "description": "ProjectTask ID"
+    },
+    "enrollment_id": {
+      "type": "string",
+      "description": "ProjectEnrollment ID"
+    },
+    "student_user_id": {
+      "type": "string",
+      "description": "Student user ID"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "in_review",
+        "approved",
+        "rejected"
+      ],
+      "default": "not_started",
+      "description": "Task status"
+    },
+    "subtasks_completed_json": {
+      "type": "string",
+      "default": "[]",
+      "description": "JSON array of completed subtask indices"
+    },
+    "deliverable_file_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Uploaded deliverable files"
+    },
+    "deliverable_link": {
+      "type": "string",
+      "description": "Submitted link URL"
+    },
+    "deliverable_text": {
+      "type": "string",
+      "description": "Submitted text content"
+    },
+    "student_comment": {
+      "type": "string",
+      "description": "Handover comment from student"
+    },
+    "submitted_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When submitted for review"
+    },
+    "tutor_feedback": {
+      "type": "string",
+      "description": "Tutor written feedback"
+    },
+    "reviewed_by_tutor_id": {
+      "type": "string",
+      "description": "Tutor who reviewed"
+    },
+    "reviewed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When reviewed"
+    },
+    "revision_count": {
+      "type": "integer",
+      "default": 0,
+      "description": "Number of revision cycles"
+    },
+    "first_opened_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When student first opened the task"
+    }
+  },
+  "required": [
+    "project_id",
+    "task_id",
+    "enrollment_id",
+    "student_user_id"
+  ]
+}

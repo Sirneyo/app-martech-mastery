@@ -1,0 +1,47 @@
+{
+  "name": "PointsLedger",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User ID"
+    },
+    "points": {
+      "type": "integer",
+      "description": "Points earned/deducted"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for points"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "assignment",
+        "project",
+        "exam",
+        "achievement",
+        "bonus"
+      ],
+      "description": "Source of points"
+    },
+    "source_id": {
+      "type": "string",
+      "description": "ID of source item"
+    },
+    "awarded_by": {
+      "type": "string",
+      "description": "Who awarded points"
+    },
+    "notification_message": {
+      "type": "string",
+      "description": "Custom message to show the student in their notification"
+    }
+  },
+  "required": [
+    "user_id",
+    "points",
+    "reason",
+    "source_type"
+  ]
+}

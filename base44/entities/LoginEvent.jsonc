@@ -1,0 +1,27 @@
+{
+  "name": "LoginEvent",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User ID"
+    },
+    "login_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Login timestamp"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "IP address"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "Browser user agent"
+    }
+  },
+  "required": [
+    "user_id",
+    "login_time"
+  ]
+}

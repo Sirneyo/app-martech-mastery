@@ -1,0 +1,53 @@
+{
+  "name": "Project",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Project title"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company simulation name e.g. SaaSly \u2014 CRM Migration"
+    },
+    "overview": {
+      "type": "string",
+      "description": "Project overview description"
+    },
+    "intro_video_url": {
+      "type": "string",
+      "description": "URL to the intro briefing video"
+    },
+    "agreement_doc_url": {
+      "type": "string",
+      "description": "URL to the NDA/participation agreement document"
+    },
+    "agreement_text": {
+      "type": "string",
+      "description": "Full text of the agreement shown to students"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "archived"
+      ],
+      "default": "draft",
+      "description": "Project status"
+    },
+    "unlock_week": {
+      "type": "integer",
+      "default": 8,
+      "description": "Week number when project becomes available"
+    },
+    "sort_order": {
+      "type": "integer",
+      "default": 0,
+      "description": "Display order"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

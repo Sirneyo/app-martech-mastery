@@ -1,0 +1,43 @@
+{
+  "name": "GlossaryItem",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Glossary item title"
+    },
+    "short_description": {
+      "type": "string",
+      "description": "Brief summary shown on the card"
+    },
+    "content_html": {
+      "type": "string",
+      "description": "Full rich text content shown when expanded"
+    },
+    "thumbnail_url": {
+      "type": "string",
+      "description": "Card thumbnail image URL"
+    },
+    "banner_url": {
+      "type": "string",
+      "description": "Banner image displayed at the top of the glossary detail page"
+    },
+    "sort_order": {
+      "type": "integer",
+      "default": 0,
+      "description": "Display order"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published"
+      ],
+      "default": "draft",
+      "description": "Publication status"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

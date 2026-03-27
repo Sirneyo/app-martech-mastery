@@ -1,0 +1,46 @@
+{
+  "name": "SimTaskComment",
+  "type": "object",
+  "properties": {
+    "task_submission_id": {
+      "type": "string",
+      "description": "SimTaskSubmission ID"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "SimProject ID"
+    },
+    "task_id": {
+      "type": "string",
+      "description": "SimProjectTask ID"
+    },
+    "author_user_id": {
+      "type": "string",
+      "description": "User ID of comment author"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Display name of author"
+    },
+    "author_role": {
+      "type": "string",
+      "description": "Role: student or tutor"
+    },
+    "content": {
+      "type": "string",
+      "description": "Comment text"
+    },
+    "mentions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Mentioned user IDs"
+    }
+  },
+  "required": [
+    "task_submission_id",
+    "author_user_id",
+    "content"
+  ]
+}

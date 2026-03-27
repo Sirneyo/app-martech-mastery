@@ -1,0 +1,114 @@
+{
+  "name": "SupportTicket",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Student user ID"
+    },
+    "ticket_type": {
+      "type": "string",
+      "enum": [
+        "technical",
+        "program"
+      ],
+      "description": "Type of support ticket"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Ticket subject"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the issue"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium",
+      "description": "Ticket priority"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved",
+        "closed"
+      ],
+      "default": "open",
+      "description": "Ticket status"
+    },
+    "cohort_id": {
+      "type": "string",
+      "description": "Cohort ID of the student"
+    },
+    "student_email": {
+      "type": "string",
+      "description": "Student email address"
+    },
+    "student_name": {
+      "type": "string",
+      "description": "Student full name"
+    },
+    "admin_notes": {
+      "type": "string",
+      "description": "Internal notes from admin/tutor"
+    },
+    "admin_reply": {
+      "type": "string",
+      "description": "Latest reply from admin/super admin shown to student"
+    },
+    "assigned_to_id": {
+      "type": "string",
+      "description": "User ID of admin/tutor assigned to this ticket"
+    },
+    "assigned_to_name": {
+      "type": "string",
+      "description": "Name of admin/tutor assigned to this ticket"
+    },
+    "closed_by_id": {
+      "type": "string",
+      "description": "User ID who closed the ticket"
+    },
+    "closed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the ticket was closed"
+    },
+    "replies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "author_id": {
+            "type": "string"
+          },
+          "author_name": {
+            "type": "string"
+          },
+          "author_role": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "sent_at": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Full conversation thread"
+    }
+  },
+  "required": [
+    "user_id",
+    "ticket_type",
+    "subject",
+    "description"
+  ]
+}

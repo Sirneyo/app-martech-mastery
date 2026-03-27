@@ -1,0 +1,49 @@
+{
+  "name": "SubmissionGrade",
+  "type": "object",
+  "properties": {
+    "submission_id": {
+      "type": "string",
+      "description": "Submission ID"
+    },
+    "graded_by": {
+      "type": "string",
+      "description": "Tutor user ID"
+    },
+    "rubric_grade": {
+      "type": "string",
+      "enum": [
+        "Poor",
+        "Fair",
+        "Good",
+        "Excellent"
+      ],
+      "description": "Rubric grade"
+    },
+    "feedback_text": {
+      "type": "string",
+      "description": "Grading feedback"
+    },
+    "feedback_url": {
+      "type": "string",
+      "description": "URL to video feedback (e.g. Loom)"
+    },
+    "score": {
+      "type": "integer",
+      "description": "Score achieved"
+    },
+    "max_score": {
+      "type": "integer",
+      "description": "Maximum possible score"
+    },
+    "graded_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Grading timestamp"
+    }
+  },
+  "required": [
+    "submission_id",
+    "graded_by"
+  ]
+}

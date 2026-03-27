@@ -1,0 +1,43 @@
+{
+  "name": "Cohort",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Cohort name"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Program start date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Program end date"
+    },
+    "current_week": {
+      "type": "integer",
+      "default": 1,
+      "description": "Current week of the program"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "upcoming",
+        "active",
+        "completed"
+      ],
+      "default": "upcoming",
+      "description": "Cohort status"
+    },
+    "credential_id": {
+      "type": "string",
+      "description": "ID of the associated credential set"
+    }
+  },
+  "required": [
+    "name",
+    "start_date"
+  ]
+}

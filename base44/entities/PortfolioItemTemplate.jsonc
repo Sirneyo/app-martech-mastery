@@ -1,0 +1,90 @@
+{
+  "name": "PortfolioItemTemplate",
+  "type": "object",
+  "properties": {
+    "template_key": {
+      "type": "string",
+      "description": "Unique key to group versions of same template"
+    },
+    "version": {
+      "type": "integer",
+      "default": 1,
+      "description": "Version number"
+    },
+    "title": {
+      "type": "string",
+      "description": "Portfolio item title"
+    },
+    "short_description": {
+      "type": "string",
+      "description": "Brief description"
+    },
+    "content_html": {
+      "type": "string",
+      "description": "Rich text content"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "assignment",
+        "project",
+        "certification",
+        "skill"
+      ],
+      "description": "Item category"
+    },
+    "unlock_week": {
+      "type": "integer",
+      "description": "Week when item unlocks"
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Completion requirements (legacy)"
+    },
+    "required_flag": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this item required for completion"
+    },
+    "needs_approval": {
+      "type": "boolean",
+      "default": true,
+      "description": "Does this item need tutor approval"
+    },
+    "sort_order": {
+      "type": "integer",
+      "default": 0,
+      "description": "Display order"
+    },
+    "evidence_requirements_json": {
+      "type": "string",
+      "default": "{\"allow_file\":true,\"allow_link\":true,\"allow_text\":true}",
+      "description": "Evidence requirements as JSON"
+    },
+    "thumbnail_url": {
+      "type": "string",
+      "description": "Thumbnail image URL"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published"
+      ],
+      "default": "draft",
+      "description": "Publication status"
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When template was published"
+    }
+  },
+  "required": [
+    "template_key",
+    "title"
+  ]
+}

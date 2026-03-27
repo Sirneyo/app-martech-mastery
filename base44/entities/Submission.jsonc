@@ -1,0 +1,71 @@
+{
+  "name": "Submission",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Student user ID"
+    },
+    "assignment_template_id": {
+      "type": "string",
+      "description": "Assignment template ID (required if submission_kind = assignment)"
+    },
+    "project_template_id": {
+      "type": "string",
+      "description": "Project template ID (required if submission_kind = project)"
+    },
+    "submission_kind": {
+      "type": "string",
+      "enum": [
+        "assignment",
+        "project"
+      ],
+      "description": "Type of submission"
+    },
+    "cohort_id": {
+      "type": "string",
+      "description": "Cohort ID"
+    },
+    "content": {
+      "type": "string",
+      "description": "Submission content/notes"
+    },
+    "link_url": {
+      "type": "string",
+      "description": "Submitted URL"
+    },
+    "file_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Submitted files"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "in_review",
+        "graded",
+        "needs_revision"
+      ],
+      "default": "draft",
+      "description": "Submission status"
+    },
+    "submitted_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Submission timestamp"
+    },
+    "attempt_number": {
+      "type": "integer",
+      "default": 1,
+      "description": "Attempt number"
+    }
+  },
+  "required": [
+    "user_id",
+    "submission_kind"
+  ]
+}

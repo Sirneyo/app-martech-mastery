@@ -1,0 +1,59 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "app_role": {
+      "type": "string",
+      "enum": [
+        "student",
+        "tutor",
+        "admin",
+        "super_admin"
+      ],
+      "description": "User role in the application (set only after invitation is accepted)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "paused",
+        "archived"
+      ],
+      "default": "active",
+      "description": "User account status"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "User display name (editable)"
+    },
+    "phone": {
+      "type": "string",
+      "description": "User phone number"
+    },
+    "professional_bio": {
+      "type": "string",
+      "description": "Professional biography"
+    },
+    "cv_url": {
+      "type": "string",
+      "description": "CV file URL"
+    },
+    "portfolio_documents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Portfolio document URLs"
+    },
+    "profile_picture": {
+      "type": "string",
+      "description": "Profile picture URL"
+    },
+    "is_approved_graduate": {
+      "type": "boolean",
+      "default": false,
+      "description": "Approved graduate status"
+    }
+  },
+  "required": []
+}

@@ -1,0 +1,40 @@
+{
+  "name": "MediaFile",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "File name or label"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "Public URL of the uploaded file"
+    },
+    "file_type": {
+      "type": "string",
+      "enum": [
+        "image",
+        "video",
+        "other"
+      ],
+      "default": "image",
+      "description": "Type of media file"
+    },
+    "mime_type": {
+      "type": "string",
+      "description": "MIME type of the file"
+    },
+    "uploaded_by": {
+      "type": "string",
+      "description": "Name/email of the uploader"
+    },
+    "tags": {
+      "type": "string",
+      "description": "Comma-separated tags for filtering"
+    }
+  },
+  "required": [
+    "name",
+    "file_url"
+  ]
+}

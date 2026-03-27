@@ -1,0 +1,32 @@
+{
+  "name": "ExamAnswer",
+  "type": "object",
+  "properties": {
+    "attempt_id": {
+      "type": "string",
+      "description": "Exam attempt ID"
+    },
+    "question_id": {
+      "type": "string",
+      "description": "Exam question ID"
+    },
+    "answer_json": {
+      "type": "string",
+      "description": "Student's answer as JSON string: {\"keys\":[\"A\"]}"
+    },
+    "is_correct": {
+      "type": "boolean",
+      "description": "Is answer correct"
+    },
+    "points_earned": {
+      "type": "integer",
+      "default": 0,
+      "description": "Points earned"
+    }
+  },
+  "required": [
+    "attempt_id",
+    "question_id",
+    "answer_json"
+  ]
+}

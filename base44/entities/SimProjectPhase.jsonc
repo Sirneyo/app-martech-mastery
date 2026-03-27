@@ -1,0 +1,27 @@
+{
+  "name": "SimProjectPhase",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "SimProject ID"
+    },
+    "title": {
+      "type": "string",
+      "description": "Phase title e.g. Phase 1: Audit & Discovery"
+    },
+    "description": {
+      "type": "string",
+      "description": "Phase description"
+    },
+    "sort_order": {
+      "type": "integer",
+      "default": 0,
+      "description": "Display order within the project"
+    }
+  },
+  "required": [
+    "project_id",
+    "title"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "name": "ExamQuestion",
+  "type": "object",
+  "properties": {
+    "exam_id": {
+      "type": "string",
+      "description": "Exam config ID"
+    },
+    "exam_section_id": {
+      "type": "string",
+      "description": "Exam section ID"
+    },
+    "question_text": {
+      "type": "string",
+      "description": "Question text"
+    },
+    "question_type": {
+      "type": "string",
+      "enum": [
+        "single_choice",
+        "multi_choice",
+        "true_false"
+      ],
+      "default": "single_choice",
+      "description": "Question type"
+    },
+    "options_json": {
+      "type": "string",
+      "description": "Options as JSON string: [{\"key\":\"A\",\"label\":\"Option A\"}]"
+    },
+    "correct_answer_json": {
+      "type": "string",
+      "description": "Correct answer as JSON string: {\"keys\":[\"A\"]}"
+    },
+    "points": {
+      "type": "integer",
+      "default": 1,
+      "description": "Points for correct answer"
+    },
+    "published_flag": {
+      "type": "boolean",
+      "default": true,
+      "description": "Is question published"
+    },
+    "order": {
+      "type": "integer",
+      "description": "Question order"
+    }
+  },
+  "required": [
+    "exam_id",
+    "exam_section_id",
+    "question_text",
+    "options_json",
+    "correct_answer_json"
+  ]
+}

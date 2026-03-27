@@ -1,0 +1,71 @@
+{
+  "name": "Invitation",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "Invitee email address"
+    },
+    "full_name": {
+      "type": "string",
+      "description": "Full name of invitee"
+    },
+    "intended_app_role": {
+      "type": "string",
+      "enum": [
+        "student",
+        "tutor",
+        "admin"
+      ],
+      "default": "student",
+      "description": "Intended role in application"
+    },
+    "cohort_id": {
+      "type": "string",
+      "description": "Intended cohort assignment"
+    },
+    "token": {
+      "type": "string",
+      "description": "Unique invitation token"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "expired",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "Invitation status"
+    },
+    "invited_by": {
+      "type": "string",
+      "description": "Admin who sent invitation"
+    },
+    "sent_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When invitation was sent"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When invitation expires"
+    },
+    "accepted_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When user accepted"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User ID after acceptance"
+    }
+  },
+  "required": [
+    "email",
+    "intended_app_role",
+    "token"
+  ]
+}

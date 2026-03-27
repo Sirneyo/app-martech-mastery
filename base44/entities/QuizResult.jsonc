@@ -1,0 +1,44 @@
+{
+  "name": "QuizResult",
+  "type": "object",
+  "properties": {
+    "cohort_id": {
+      "type": "string",
+      "description": "Cohort ID"
+    },
+    "quiz_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the quiz"
+    },
+    "quiz_title": {
+      "type": "string",
+      "description": "Quiz title or topic"
+    },
+    "week_number": {
+      "type": "integer",
+      "description": "Week number"
+    },
+    "first_place_user_id": {
+      "type": "string",
+      "description": "User ID of 1st place student"
+    },
+    "second_place_user_id": {
+      "type": "string",
+      "description": "User ID of 2nd place student"
+    },
+    "third_place_user_id": {
+      "type": "string",
+      "description": "User ID of 3rd place student"
+    },
+    "marked_by": {
+      "type": "string",
+      "description": "Tutor user ID who marked the quiz"
+    }
+  },
+  "required": [
+    "cohort_id",
+    "quiz_date",
+    "first_place_user_id"
+  ]
+}

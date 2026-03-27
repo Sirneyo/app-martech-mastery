@@ -1,0 +1,32 @@
+{
+  "name": "Certificate",
+  "type": "object",
+  "properties": {
+    "cohort_id": {
+      "type": "string",
+      "description": "Cohort ID"
+    },
+    "student_user_id": {
+      "type": "string",
+      "description": "Student user ID"
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Certificate issuance timestamp"
+    },
+    "certificate_id_code": {
+      "type": "string",
+      "description": "Unique certificate identifier"
+    },
+    "certificate_url": {
+      "type": "string",
+      "description": "Certificate URL (optional)"
+    }
+  },
+  "required": [
+    "cohort_id",
+    "student_user_id",
+    "certificate_id_code"
+  ]
+}

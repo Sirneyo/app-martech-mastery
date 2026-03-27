@@ -1,0 +1,70 @@
+{
+  "name": "ExamAttempt",
+  "type": "object",
+  "properties": {
+    "student_user_id": {
+      "type": "string",
+      "description": "Student user ID"
+    },
+    "cohort_id": {
+      "type": "string",
+      "description": "Cohort ID"
+    },
+    "exam_id": {
+      "type": "string",
+      "description": "Exam config ID"
+    },
+    "attempt_number": {
+      "type": "integer",
+      "description": "Attempt number (1-4)"
+    },
+    "attempt_status": {
+      "type": "string",
+      "enum": [
+        "prepared",
+        "in_progress",
+        "submitted"
+      ],
+      "default": "prepared",
+      "description": "Attempt status"
+    },
+    "prepared_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When attempt was prepared"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When exam was started"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When exam expires"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Exam submission time"
+    },
+    "score_percent": {
+      "type": "integer",
+      "description": "Score percentage"
+    },
+    "pass_flag": {
+      "type": "boolean",
+      "description": "Did student pass"
+    },
+    "current_question_index": {
+      "type": "integer",
+      "default": 1,
+      "description": "Current question number (1-80)"
+    }
+  },
+  "required": [
+    "student_user_id",
+    "cohort_id",
+    "exam_id"
+  ]
+}

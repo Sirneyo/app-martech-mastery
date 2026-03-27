@@ -1,0 +1,28 @@
+{
+  "name": "TutorCohortAssignment",
+  "type": "object",
+  "properties": {
+    "tutor_id": {
+      "type": "string",
+      "description": "Tutor user ID"
+    },
+    "cohort_id": {
+      "type": "string",
+      "description": "Cohort ID"
+    },
+    "assigned_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Assignment date"
+    },
+    "is_primary": {
+      "type": "boolean",
+      "default": true,
+      "description": "Is primary tutor"
+    }
+  },
+  "required": [
+    "tutor_id",
+    "cohort_id"
+  ]
+}

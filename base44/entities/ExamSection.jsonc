@@ -1,0 +1,27 @@
+{
+  "name": "ExamSection",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Unique section key"
+    },
+    "name": {
+      "type": "string",
+      "description": "Section display name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Section description"
+    },
+    "sort_order": {
+      "type": "integer",
+      "description": "Display order"
+    }
+  },
+  "required": [
+    "key",
+    "name",
+    "sort_order"
+  ]
+}

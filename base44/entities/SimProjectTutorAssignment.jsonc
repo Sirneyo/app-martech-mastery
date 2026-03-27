@@ -1,0 +1,23 @@
+{
+  "name": "SimProjectTutorAssignment",
+  "type": "object",
+  "properties": {
+    "project_id": {
+      "type": "string",
+      "description": "SimProject ID"
+    },
+    "tutor_user_id": {
+      "type": "string",
+      "description": "Tutor user ID"
+    },
+    "assigned_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When tutor was assigned"
+    }
+  },
+  "required": [
+    "project_id",
+    "tutor_user_id"
+  ]
+}

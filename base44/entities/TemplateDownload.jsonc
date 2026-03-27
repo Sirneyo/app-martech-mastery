@@ -1,0 +1,38 @@
+{
+  "name": "TemplateDownload",
+  "type": "object",
+  "properties": {
+    "template_type": {
+      "type": "string",
+      "enum": [
+        "assignment",
+        "project",
+        "portfolio"
+      ],
+      "description": "Type of template"
+    },
+    "template_id": {
+      "type": "string",
+      "description": "ID of the template"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL of the file"
+    },
+    "file_name": {
+      "type": "string",
+      "description": "Display name of the file"
+    },
+    "sort_order": {
+      "type": "integer",
+      "default": 0,
+      "description": "Display order"
+    }
+  },
+  "required": [
+    "template_type",
+    "template_id",
+    "file_url",
+    "file_name"
+  ]
+}

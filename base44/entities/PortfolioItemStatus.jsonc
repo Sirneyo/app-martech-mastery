@@ -1,0 +1,67 @@
+{
+  "name": "PortfolioItemStatus",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User ID"
+    },
+    "cohort_id": {
+      "type": "string",
+      "description": "Cohort ID"
+    },
+    "portfolio_item_id": {
+      "type": "string",
+      "description": "Portfolio item template ID"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "submitted",
+        "in_review",
+        "approved",
+        "needs_revision"
+      ],
+      "default": "not_started",
+      "description": "Item status"
+    },
+    "evidence_links": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Evidence links submitted"
+    },
+    "evidence_files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Evidence files uploaded"
+    },
+    "reviewer_note": {
+      "type": "string",
+      "description": "Tutor feedback/notes"
+    },
+    "reviewed_by_user_id": {
+      "type": "string",
+      "description": "Tutor who reviewed"
+    },
+    "progress": {
+      "type": "integer",
+      "default": 0,
+      "description": "Progress percentage"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Completion date"
+    }
+  },
+  "required": [
+    "user_id",
+    "portfolio_item_id"
+  ]
+}

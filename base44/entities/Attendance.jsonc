@@ -1,0 +1,44 @@
+{
+  "name": "Attendance",
+  "type": "object",
+  "properties": {
+    "student_user_id": {
+      "type": "string",
+      "description": "Student user ID"
+    },
+    "cohort_id": {
+      "type": "string",
+      "description": "Cohort ID"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Attendance date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "present",
+        "absent",
+        "late"
+      ],
+      "default": "present",
+      "description": "Attendance status"
+    },
+    "marked_by": {
+      "type": "string",
+      "description": "Tutor who marked attendance"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes about attendance"
+    }
+  },
+  "required": [
+    "student_user_id",
+    "cohort_id",
+    "date",
+    "status",
+    "marked_by"
+  ]
+}

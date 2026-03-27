@@ -1,0 +1,67 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User ID of the recipient"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "assignment_published",
+        "assignment_unlocked",
+        "project_published",
+        "assignment_graded",
+        "assignment_needs_revision",
+        "portfolio_approved",
+        "portfolio_needs_revision",
+        "portfolio_feedback",
+        "certificate_issued",
+        "exam_results_ready",
+        "exam_unlocked",
+        "project_unlocked",
+        "portfolio_unlocked",
+        "points_awarded",
+        "points_deducted",
+        "login_streak",
+        "achievement",
+        "deadline_reminder",
+        "welcome"
+      ],
+      "description": "Type of notification"
+    },
+    "title": {
+      "type": "string",
+      "description": "Notification title"
+    },
+    "message": {
+      "type": "string",
+      "description": "Notification message"
+    },
+    "link_url": {
+      "type": "string",
+      "description": "URL to navigate when notification is clicked"
+    },
+    "related_entity_id": {
+      "type": "string",
+      "description": "ID of related entity"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has the notification been read"
+    },
+    "read_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When notification was read"
+    }
+  },
+  "required": [
+    "user_id",
+    "type",
+    "title",
+    "message"
+  ]
+}

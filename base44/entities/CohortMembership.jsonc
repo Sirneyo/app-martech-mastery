@@ -1,0 +1,33 @@
+{
+  "name": "CohortMembership",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User ID"
+    },
+    "cohort_id": {
+      "type": "string",
+      "description": "Cohort ID"
+    },
+    "enrollment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date enrolled"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "withdrawn",
+        "completed"
+      ],
+      "default": "active",
+      "description": "Membership status"
+    }
+  },
+  "required": [
+    "user_id",
+    "cohort_id"
+  ]
+}
