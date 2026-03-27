@@ -93,10 +93,18 @@ export default function TutorTaskReviewPanel({ task, submission, student, phases
   });
 
   const handleApprove = () => {
+    if (!feedback.trim()) {
+      alert('Please add feedback before approving.');
+      return;
+    }
     reviewMutation.mutate({ newStatus: 'approved', tutorFeedback: feedback });
   };
 
   const handleRequestRevision = () => {
+    if (!feedback.trim()) {
+      alert('Please add feedback before requesting revision.');
+      return;
+    }
     reviewMutation.mutate({ newStatus: 'rejected', tutorFeedback: feedback });
   };
 
@@ -346,7 +354,7 @@ export default function TutorTaskReviewPanel({ task, submission, student, phases
                       >
                         <div className="flex items-center justify-between mb-1">
                           <span className={`font-semibold text-xs ${c.author_role === 'tutor' ? 'text-violet-600' : 'text-slate-600'}`}>
-                            {c.author_name || 'Unknown'}{c.author_role === 'tutor' ? ' · Tutor' : ' · Student'}
+                            {c.author_role === 'tutor' ? 'Reviewer' : c.author_name || 'Unknown'}{c.author_role === 'tutor' ? '' : ' · Student'}
                           </span>
                           <span className="text-[10px] text-slate-400">
                             {new Date(c.created_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}

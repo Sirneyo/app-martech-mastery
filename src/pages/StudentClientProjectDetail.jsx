@@ -166,20 +166,18 @@ export default function StudentClientProjectDetail() {
         </motion.div>
       )}
       <div className="p-4 md:p-6 max-w-[1400px] mx-auto">
-        <div className="flex items-center gap-3 mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6 flex flex-col md:flex-row items-start gap-4 relative"
+        >
           <button
             onClick={handleBackClick}
-            className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors flex-shrink-0"
+            className="absolute top-4 right-4 w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors flex-shrink-0 md:hidden"
             title="Back to My Projects"
           >
             <ChevronRight className="w-5 h-5 rotate-180" />
           </button>
-        </div>
-        <motion.div
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6 flex flex-col md:flex-row items-start gap-4"
-        >
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center flex-shrink-0 shadow-sm">
             <FolderKanban className="w-6 h-6 text-white" />
           </div>
