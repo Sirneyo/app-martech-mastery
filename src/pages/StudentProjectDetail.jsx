@@ -36,6 +36,8 @@ export default function StudentProjectDetail() {
       return result[0];
     },
     enabled: !!projectId,
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const { data: membership } = useQuery({
