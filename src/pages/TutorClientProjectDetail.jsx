@@ -124,31 +124,37 @@ export default function TutorClientProjectDetail() {
   const { data: project, isLoading: loadingProject } = useQuery({
     queryKey: ['project', PROJECT_ID],
     queryFn: () => base44.entities.Project.filter({ id: PROJECT_ID }).then(r => r[0]),
-    enabled: !!PROJECT_ID && isAssigned,
+    enabled: !!PROJECT_ID && !checkingAccess && isAssigned,
   });
+
 
   const { data: phases = [] } = useQuery({
     queryKey: ['project-phases', PROJECT_ID],
     queryFn: () => base44.entities.ProjectPhase.filter({ project_id: PROJECT_ID }),
-    enabled: !!PROJECT_ID && isAssigned,
+    enabled: !!PROJECT_ID && !checkingAccess && isAssigned,
   });
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['project-tasks', PROJECT_ID],
     queryFn: () => base44.entities.ProjectTask.filter({ project_id: PROJECT_ID }),
-    enabled: !!PROJECT_ID && isAssigned,
+    enabled: !!PROJECT_ID && !checkingAccess && isAssigned,
   });
 
   const { data: enrollments = [], isLoading: loadingEnrollments } = useQuery({
     queryKey: ['project-enrollments-tutor', PROJECT_ID, user?.id],
     queryFn: () => base44.entities.ProjectEnrollment.filter({ project_id: PROJECT_ID, reviewer_tutor_id: user.id }),
-    enabled: !!PROJECT_ID && !!user?.id && isAssigned,
+    enabled: !!PROJECT_ID && !!user?.id && !checkingAccess && isAssigned,
   });
 
+  const enrollmentUserIds = enrollments.map(e => e.student_user_id);
+
   const { data: allUsers = [] } = useQuery({
-    queryKey: ['all-users'],
-    queryFn: () => base44.entities.User.list(),
-    enabled: enrollments.length > 0,
+    queryKey: ['enrollment-users', enrollmentUserIds.join(',')],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('getUsersByIds', { userIds: enrollmentUserIds });
+      return res.data?.users || [];
+    },
+    enabled: enrollmentUserIds.length > 0,
   });
 
   const { data: submissions = [] } = useQuery({
@@ -158,7 +164,7 @@ export default function TutorClientProjectDetail() {
     refetchInterval: 30000,
   });
 
-  const isLoading = checkingAccess || loadingProject || loadingEnrollments;
+  const isLoading = checkingAccess || loadingProject || (isAssigned && loadingEnrollments);
 
   if (!PROJECT_ID) {
     navigate(createPageUrl('TutorClientProjects'));
