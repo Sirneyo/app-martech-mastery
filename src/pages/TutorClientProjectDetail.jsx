@@ -15,8 +15,7 @@ const FILTERS = [
   { id: 'all', label: 'All' },
 ];
 
-const urlParams = new URLSearchParams(window.location.search);
-const PROJECT_ID = urlParams.get('id');
+
 
 const STATUS_CONFIG = {
   not_started:  { label: 'Not Started',    icon: Circle,        color: 'text-slate-400', bg: 'bg-slate-50 border-slate-200',       badge: 'bg-slate-100 text-slate-500' },
@@ -110,6 +109,7 @@ export default function TutorClientProjectDetail() {
   const navigate = useNavigate();
   const [selectedReview, setSelectedReview] = useState(null);
   const [activeFilter, setActiveFilter] = useState('in_review');
+  const PROJECT_ID = new URLSearchParams(window.location.search).get('id');
 
   const { data: user } = useQuery({ queryKey: ['current-user'], queryFn: () => base44.auth.me() });
 
