@@ -8,6 +8,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import TutorTaskReviewPanel from '@/components/client-project/TutorTaskReviewPanel';
 
+const FILTERS = [
+  { id: 'in_review', label: 'In Review' },
+  { id: 'rejected', label: 'Rejected' },
+  { id: 'approved', label: 'Approved' },
+  { id: 'all', label: 'All' },
+];
+
 const urlParams = new URLSearchParams(window.location.search);
 const PROJECT_ID = urlParams.get('id');
 
@@ -19,8 +26,8 @@ const STATUS_CONFIG = {
   rejected:     { label: 'Needs Revision', icon: AlertCircle,   color: 'text-red-500',   bg: 'bg-red-50 border-red-200',           badge: 'bg-red-100 text-red-700' },
 };
 
-function StudentRow({ student, tasks, submissions, onTaskClick }) {
-  const [expanded, setExpanded] = useState(false);
+function StudentRow({ student, tasks, submissions, onTaskClick, filterStatus }) {
+  const [expanded, setExpanded] = useState(true);
 
   const getSubmission = (taskId) =>
     submissions.find(s => s.task_id === taskId && s.student_user_id === student.student_user_id);
@@ -28,7 +35,13 @@ function StudentRow({ student, tasks, submissions, onTaskClick }) {
   const totalTasks = tasks.length;
   const approved = tasks.filter(t => getSubmission(t.id)?.status === 'approved').length;
   const inReview = tasks.filter(t => getSubmission(t.id)?.status === 'in_review').length;
-  const progress = totalTasks > 0 ? Math.round((approved / totalTasks) * 100) : 0;
+
+  // Only show tasks matching the filter
+  const visibleTasks = filterStatus === 'all'
+    ? tasks.filter(t => !!getSubmission(t.id))
+    : tasks.filter(t => getSubmission(t.id)?.status === filterStatus);
+
+  const avatarUrl = student.profile_picture_url;
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -36,31 +49,27 @@ function StudentRow({ student, tasks, submissions, onTaskClick }) {
         onClick={() => setExpanded(!expanded)}
         className="w-full px-5 py-4 flex items-center gap-4 hover:bg-slate-50 transition-colors text-left"
       >
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
-          {(student.student_name || 'S').charAt(0).toUpperCase()}
-        </div>
+        {avatarUrl ? (
+          <img src={avatarUrl} alt={student.student_name} className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-slate-200" />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
+            {(student.student_name || 'S').charAt(0).toUpperCase()}
+          </div>
+        )}
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-slate-900 text-sm truncate">{student.student_name || student.student_user_id}</p>
-          <p className="text-xs text-slate-500">{student.student_email || ''}</p>
+          <p className="font-semibold text-slate-900 text-sm truncate">{student.student_name}</p>
+          <p className="text-xs text-slate-500">{approved}/{totalTasks} tasks approved</p>
         </div>
-        <div className="flex items-center gap-4 flex-shrink-0">
+        <div className="flex items-center gap-3 flex-shrink-0">
           {inReview > 0 && (
             <Badge className="bg-amber-100 text-amber-700 text-xs border-0">{inReview} in review</Badge>
           )}
-          <div className="text-right">
-            <p className="text-sm font-bold text-slate-900">{approved}/{totalTasks}</p>
-            <p className="text-xs text-slate-400">tasks approved</p>
-          </div>
-          <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
-            <div className="h-full bg-teal-500 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
-          </div>
-          <span className="text-xs font-semibold text-slate-600 w-10 text-right">{progress}%</span>
           {expanded ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
         </div>
       </button>
 
       <AnimatePresence>
-        {expanded && (
+        {expanded && visibleTasks.length > 0 && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
@@ -69,18 +78,16 @@ function StudentRow({ student, tasks, submissions, onTaskClick }) {
             className="overflow-hidden border-t border-slate-100"
           >
             <div className="px-5 py-4 space-y-2 bg-slate-50">
-              {tasks.map(task => {
+              {visibleTasks.map(task => {
                 const sub = getSubmission(task.id);
                 const status = sub?.status || 'not_started';
                 const cfg = STATUS_CONFIG[status];
                 const Icon = cfg.icon;
-                const isClickable = !!sub;
                 return (
                   <button
                     key={task.id}
-                    onClick={() => isClickable && onTaskClick(task, sub, student)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${cfg.bg}
-                      ${isClickable ? 'hover:shadow-sm hover:scale-[1.005] cursor-pointer' : 'cursor-default opacity-70'}`}
+                    onClick={() => onTaskClick(task, sub, student)}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${cfg.bg} hover:shadow-sm cursor-pointer`}
                   >
                     <Icon className={`w-4 h-4 flex-shrink-0 ${cfg.color}`} />
                     <span className="flex-1 text-sm text-slate-700 font-medium truncate">{task.title}</span>
@@ -101,7 +108,8 @@ function StudentRow({ student, tasks, submissions, onTaskClick }) {
 
 export default function TutorClientProjectDetail() {
   const navigate = useNavigate();
-  const [selectedReview, setSelectedReview] = useState(null); // { task, submission, student }
+  const [selectedReview, setSelectedReview] = useState(null);
+  const [activeFilter, setActiveFilter] = useState('in_review');
 
   const { data: user } = useQuery({ queryKey: ['current-user'], queryFn: () => base44.auth.me() });
 
@@ -201,9 +209,18 @@ export default function TutorClientProjectDetail() {
     const u = allUsers.find(u => u.id === e.student_user_id);
     return {
       ...e,
-      student_name: u?.full_name || u?.email || e.student_user_id,
+      student_name: u?.full_name || u?.email || 'Unknown',
       student_email: u?.email || '',
+      profile_picture_url: u?.profile_picture_url || null,
     };
+  });
+
+  // Filter students: only show those who have at least one submission matching the filter
+  const filteredStudents = students.filter(student => {
+    if (activeFilter === 'all') {
+      return submissions.some(s => s.student_user_id === student.student_user_id);
+    }
+    return submissions.some(s => s.student_user_id === student.student_user_id && s.status === activeFilter);
   });
 
   const sortedTasks = [...tasks].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
@@ -250,23 +267,38 @@ export default function TutorClientProjectDetail() {
         </motion.div>
 
         <div>
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-lg font-bold text-slate-900">Student Progress</h2>
-            <Badge className="bg-slate-100 text-slate-600 text-xs border-0">{students.length} students</Badge>
-            {inReviewCount > 0 && (
-              <Badge className="bg-amber-100 text-amber-700 text-xs border-0">{inReviewCount} awaiting review</Badge>
-            )}
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold text-slate-900">Students</h2>
+              <Badge className="bg-slate-100 text-slate-600 text-xs border-0">{filteredStudents.length} shown</Badge>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {FILTERS.map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setActiveFilter(f.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors border ${
+                    activeFilter === f.id
+                      ? 'bg-teal-600 text-white border-teal-600'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-teal-300 hover:text-teal-700'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {students.length === 0 ? (
+          {filteredStudents.length === 0 ? (
             <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
               <Users className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-              <p className="text-slate-500 font-medium">No students assigned to you yet</p>
-              <p className="text-slate-400 text-sm mt-1">Students will appear here once an admin assigns them to you.</p>
+              <p className="text-slate-500 font-medium">
+                {activeFilter === 'in_review' ? 'No students awaiting review' : 'No students match this filter'}
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
-              {students.map((student, i) => (
+              {filteredStudents.map((student, i) => (
                 <motion.div
                   key={student.student_user_id}
                   initial={{ opacity: 0, y: 12 }}
@@ -277,6 +309,7 @@ export default function TutorClientProjectDetail() {
                     student={student}
                     tasks={sortedTasks}
                     submissions={submissions}
+                    filterStatus={activeFilter}
                     onTaskClick={(task, sub, stu) => setSelectedReview({ task, submission: sub, student: stu })}
                   />
                 </motion.div>

@@ -36,6 +36,12 @@ export default function TutorClientProjects() {
     enabled: assignedProjectIds.length > 0,
   });
 
+  const { data: inReviewSubmissions = [] } = useQuery({
+    queryKey: ['in-review-submissions'],
+    queryFn: () => base44.entities.TaskSubmission.filter({ status: 'in_review' }),
+    enabled: assignedProjectIds.length > 0,
+  });
+
   if (loadingAssignments || (assignedProjectIds.length > 0 && loadingProjects)) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -49,8 +55,17 @@ export default function TutorClientProjects() {
 
   const myProjects = allProjects.filter(p => assignedProjectIds.includes(p.id));
 
-  const getStudentCount = (projectId) =>
-    allEnrollments.filter(e => e.project_id === projectId && e.reviewer_tutor_id === user?.id).length;
+  const getInReviewCount = (projectId) => {
+    const myStudentIds = allEnrollments
+      .filter(e => e.project_id === projectId && e.reviewer_tutor_id === user?.id)
+      .map(e => e.student_user_id);
+    const uniqueStudents = new Set(
+      inReviewSubmissions
+        .filter(s => s.project_id === projectId && myStudentIds.includes(s.student_user_id))
+        .map(s => s.student_user_id)
+    );
+    return uniqueStudents.size;
+  };
 
   if (myProjects.length === 0) {
     return (
@@ -91,7 +106,7 @@ export default function TutorClientProjects() {
 
       <div className="max-w-5xl mx-auto px-8 py-8 space-y-4">
         {myProjects.map((project, i) => {
-          const studentCount = getStudentCount(project.id);
+          const inReviewCount = getInReviewCount(project.id);
           return (
             <motion.div
               key={project.id}
@@ -119,9 +134,9 @@ export default function TutorClientProjects() {
                     <Badge className={`text-xs ${STATUS_STYLES[project.status] || 'bg-slate-100 text-slate-500'}`}>
                       {project.status}
                     </Badge>
-                    <span className="flex items-center gap-1 text-xs text-slate-500">
+                    <span className="flex items-center gap-1 text-xs text-amber-600 font-medium">
                       <Users className="w-3.5 h-3.5" />
-                      {studentCount} student{studentCount !== 1 ? 's' : ''} assigned to you
+                      {inReviewCount} student{inReviewCount !== 1 ? 's' : ''} in review
                     </span>
                   </div>
                 </div>
