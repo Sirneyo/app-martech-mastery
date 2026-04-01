@@ -215,9 +215,9 @@ export default function TutorClientProjectDetail() {
     const u = allUsers.find(u => u.id === e.student_user_id);
     return {
       ...e,
-      student_name: u?.full_name || u?.email || 'Unknown',
+      student_name: u?.display_name || u?.full_name || u?.email || 'Unknown',
       student_email: u?.email || '',
-      profile_picture_url: u?.profile_picture_url || null,
+      profile_picture_url: u?.profile_picture || u?.profile_picture_url || u?.avatar_url || null,
     };
   });
 

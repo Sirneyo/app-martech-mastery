@@ -153,6 +153,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
     updateSubmission.mutate({ subtasks_completed_json: JSON.stringify(newCompleted) });
   };
 
+  const isApproved = optimisticStatus === 'approved';
   const currentStatusOption = STATUS_OPTIONS.find(s => s.value === optimisticStatus) || STATUS_OPTIONS[0];
   const StatusIcon = currentStatusOption.icon;
 
@@ -243,10 +244,10 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
           <div className="border-b border-slate-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <button
-                  onClick={() => setShowStatusMenu(p => !p)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${currentStatusOption.bg} ${currentStatusOption.color} hover:opacity-80`}
-                >
+               <button
+                 onClick={() => !isApproved && setShowStatusMenu(p => !p)}
+                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${currentStatusOption.bg} ${currentStatusOption.color} ${isApproved ? 'cursor-default' : 'hover:opacity-80'}`}
+               >
                   <StatusIcon className="w-3.5 h-3.5" />
                   {currentStatusOption.label}
                   <ChevronDown className="w-3 h-3 ml-0.5" />
@@ -340,7 +341,7 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                       return (
                         <button
                           key={i}
-                          onClick={() => toggleSubtask(i)}
+                          onClick={() => !isApproved && toggleSubtask(i)}
                           className={`w-full flex items-start gap-3 p-3 rounded-xl text-left transition-all hover:bg-slate-50 border
                             ${done ? 'border-green-100 bg-green-50/50' : 'border-slate-100'}`}
                         >
@@ -364,11 +365,16 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
               )}
 
               <div>
-                {optimisticStatus === 'in_review' && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                      <p className="text-xs text-amber-700 font-medium">This task is under review. You cannot make changes until your reviewer provides feedback.</p>
-                    </div>
-                  )}
+                {isApproved && (
+                   <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                     <p className="text-xs text-green-700 font-medium">✓ This task has been approved and is now read-only.</p>
+                   </div>
+                 )}
+                 {optimisticStatus === 'in_review' && (
+                       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                          <p className="text-xs text-amber-700 font-medium">This task is under review. You cannot make changes until your reviewer provides feedback.</p>
+                        </div>
+                      )}
 
                 <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                   <MessageSquare className="w-3.5 h-3.5" />
@@ -447,55 +453,59 @@ export default function TaskDetailPanel({ task, submission, onClose, userId, enr
                 ))}
               </div>
             )}
-            {optimisticStatus !== 'in_review' ? (
-              <>
-                <div className="flex gap-2 items-end bg-white border border-slate-200 rounded-2xl px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-teal-400 focus-within:border-transparent transition-all">
-                  <textarea
-                    value={comment}
-                    onChange={e => setComment(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' && !e.shiftKey && (comment.trim() || attachedFiles.length > 0)) {
-                        e.preventDefault();
-                        addComment.mutate({ text: comment.trim(), files: attachedFiles });
-                      }
-                    }}
-                    placeholder="Add a comment…"
-                    rows={1}
-                    className="flex-1 resize-none text-sm focus:outline-none placeholder:text-slate-400 bg-transparent max-h-24 py-0.5"
-                  />
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploadingFile}
-                      className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-40"
-                      title="Attach file"
-                    >
-                      <Paperclip className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => (comment.trim() || attachedFiles.length > 0) && addComment.mutate({ text: comment.trim(), files: attachedFiles })}
-                      disabled={(!comment.trim() && attachedFiles.length === 0) || addComment.isPending}
-                      className="w-8 h-8 bg-teal-600 hover:bg-teal-700 rounded-xl flex items-center justify-center text-white disabled:opacity-40 transition-colors"
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-                <p className="text-[10px] text-slate-400 mt-1.5 text-center">Enter to send · Shift+Enter for new line</p>
-                {optimisticStatus === 'in_progress' && (
-                  <Button
-                    onClick={() => setShowReviewConfirm(true)}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white mt-3"
-                  >
-                    Submit for Review
-                  </Button>
-                )}
-              </>
-            ) : (
-              <div className="text-center text-sm text-slate-500 py-4">
-                Comments are disabled while this task is under review.
-              </div>
-            )}
+            {isApproved ? (
+               <div className="text-center text-sm text-slate-500 py-4">
+                 This task is completed and locked.
+               </div>
+             ) : optimisticStatus !== 'in_review' ? (
+               <>
+                 <div className="flex gap-2 items-end bg-white border border-slate-200 rounded-2xl px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-teal-400 focus-within:border-transparent transition-all">
+                   <textarea
+                     value={comment}
+                     onChange={e => setComment(e.target.value)}
+                     onKeyDown={e => {
+                       if (e.key === 'Enter' && !e.shiftKey && (comment.trim() || attachedFiles.length > 0)) {
+                         e.preventDefault();
+                         addComment.mutate({ text: comment.trim(), files: attachedFiles });
+                       }
+                     }}
+                     placeholder="Add a comment…"
+                     rows={1}
+                     className="flex-1 resize-none text-sm focus:outline-none placeholder:text-slate-400 bg-transparent max-h-24 py-0.5"
+                   />
+                   <div className="flex items-center gap-1 flex-shrink-0">
+                     <button
+                       onClick={() => fileInputRef.current?.click()}
+                       disabled={uploadingFile}
+                       className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors disabled:opacity-40"
+                       title="Attach file"
+                     >
+                       <Paperclip className="w-4 h-4" />
+                     </button>
+                     <button
+                       onClick={() => (comment.trim() || attachedFiles.length > 0) && addComment.mutate({ text: comment.trim(), files: attachedFiles })}
+                       disabled={(!comment.trim() && attachedFiles.length === 0) || addComment.isPending}
+                       className="w-8 h-8 bg-teal-600 hover:bg-teal-700 rounded-xl flex items-center justify-center text-white disabled:opacity-40 transition-colors"
+                     >
+                       <Send className="w-3.5 h-3.5" />
+                     </button>
+                   </div>
+                 </div>
+                 <p className="text-[10px] text-slate-400 mt-1.5 text-center">Enter to send · Shift+Enter for new line</p>
+                 {optimisticStatus === 'in_progress' && (
+                   <Button
+                     onClick={() => setShowReviewConfirm(true)}
+                     className="w-full bg-green-600 hover:bg-green-700 text-white mt-3"
+                   >
+                     Submit for Review
+                   </Button>
+                 )}
+               </>
+             ) : (
+               <div className="text-center text-sm text-slate-500 py-4">
+                 Comments are disabled while this task is under review.
+               </div>
+             )}
           </div>
         </motion.div>
       </motion.div>
