@@ -131,13 +131,13 @@ export default function TutorClientProjectDetail() {
   const { data: phases = [] } = useQuery({
     queryKey: ['project-phases', PROJECT_ID],
     queryFn: () => base44.entities.ProjectPhase.filter({ project_id: PROJECT_ID }),
-    enabled: !!PROJECT_ID && !checkingAccess && isAssigned,
+    enabled: !!PROJECT_ID,
   });
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['project-tasks', PROJECT_ID],
     queryFn: () => base44.entities.ProjectTask.filter({ project_id: PROJECT_ID }),
-    enabled: !!PROJECT_ID && !checkingAccess && isAssigned,
+    enabled: !!PROJECT_ID,
   });
 
   const { data: enrollments = [], isLoading: loadingEnrollments } = useQuery({
@@ -160,7 +160,7 @@ export default function TutorClientProjectDetail() {
   const { data: submissions = [] } = useQuery({
     queryKey: ['task-submissions-project', PROJECT_ID],
     queryFn: () => base44.entities.TaskSubmission.filter({ project_id: PROJECT_ID }),
-    enabled: !!PROJECT_ID && isAssigned,
+    enabled: !!PROJECT_ID,
     refetchInterval: 30000,
   });
 

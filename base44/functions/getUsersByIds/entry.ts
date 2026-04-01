@@ -15,11 +15,15 @@ Deno.serve(async (req) => {
       return Response.json({ users: [] });
     }
 
-    // Fetch all users by IDs using service role (bypasses User list permission)
-    const allUsers = await base44.asServiceRole.entities.User.list();
-    const filtered = allUsers.filter(u => userIds.includes(u.id));
+    // Fetch each user in parallel instead of listing all users
+    const results = await Promise.all(
+      userIds.map(id =>
+        base44.asServiceRole.entities.User.filter({ id }).then(r => r[0]).catch(() => null)
+      )
+    );
 
-    return Response.json({ users: filtered });
+    const users = results.filter(Boolean);
+    return Response.json({ users });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
