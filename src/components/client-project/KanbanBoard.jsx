@@ -24,6 +24,7 @@ const PRIORITY_BADGE = {
 
 function TaskCard({ task, submission, index, phases, onClick }) {
   const status = submission?.status || 'not_started';
+  const isApproved = status === 'approved';
   let subtasks = [];
   try { subtasks = JSON.parse(task.subtasks_json || '[]'); } catch {}
   let completedSubtasks = [];
@@ -31,20 +32,21 @@ function TaskCard({ task, submission, index, phases, onClick }) {
   const phase = phases.find(p => p.id === task.phase_id);
 
   return (
-    <Draggable draggableId={task.id} index={index}>
+    <Draggable draggableId={task.id} index={index} isDragDisabled={isApproved}>
       {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          onClick={onClick}
-          className={`bg-white rounded-xl border border-slate-200 p-4 cursor-pointer select-none
+              onClick={onClick}
+              className={`bg-white rounded-xl border border-slate-200 p-4 cursor-pointer select-none
             hover:border-teal-300 hover:shadow-md transition-all duration-150 group
-            ${snapshot.isDragging ? 'shadow-xl border-teal-400 rotate-1' : ''}`}
+            ${snapshot.isDragging ? 'shadow-xl border-teal-400 rotate-1' : ''}
+            ${isApproved ? 'opacity-70' : ''}`}
         >
           <div className="flex items-start gap-2">
             <div
-              {...provided.dragHandleProps}
-              className="mt-0.5 text-slate-300 group-hover:text-slate-400 flex-shrink-0 cursor-grab active:cursor-grabbing"
+              {...(!isApproved ? provided.dragHandleProps : {})}
+              className={`mt-0.5 text-slate-300 flex-shrink-0 ${isApproved ? 'cursor-not-allowed opacity-30' : 'group-hover:text-slate-400 cursor-grab active:cursor-grabbing'}`}
               onClick={e => e.stopPropagation()}
             >
               <GripVertical className="w-4 h-4" />
@@ -137,6 +139,7 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
     if (!destination) return;
     const newStatus = destination.droppableId;
     const currentStatus = submissionMap[draggableId]?.status || 'not_started';
+    if (currentStatus === 'approved') return;
     if (newStatus === currentStatus) return;
     if (currentStatus === 'in_review') {
       setDragWarning('in-review-locked');
