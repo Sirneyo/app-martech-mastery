@@ -113,6 +113,11 @@ export default function RoleBasedLayout({ children, currentPageName }) {
 
   // No forceCollapsed — sidebar manages itself
 
+  // During exam, render children only — no sidebar, no nav, complete lockdown
+  if (currentPageName === 'StudentCertificationAttempt') {
+    return <>{children}</>;
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">

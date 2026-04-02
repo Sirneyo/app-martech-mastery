@@ -25,6 +25,7 @@ export default function StudentCertificationAttempt() {
   const attemptId = urlParams.get('id');
   const queryClient = useQueryClient();
 
+  const [examRevealed, setExamRevealed] = useState(false);
   const [currentAnswer, setCurrentAnswer] = useState(null);
   const [showAnswerWarning, setShowAnswerWarning] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(null);
@@ -96,6 +97,14 @@ export default function StudentCertificationAttempt() {
   const currentAttemptQuestion = attemptQuestions.find(aq => aq.global_order === currentQuestionIndex);
   const currentQuestion = allQuestions.find(q => q.id === currentAttemptQuestion?.question_id);
   const currentSection = sections.find(s => s.id === currentAttemptQuestion?.exam_section_id);
+
+  // Trigger entrance animation once data is ready
+  useEffect(() => {
+    if (attempt && examConfig && currentQuestion && !examRevealed) {
+      const t = setTimeout(() => setExamRevealed(true), 100);
+      return () => clearTimeout(t);
+    }
+  }, [attempt, examConfig, currentQuestion]);
 
   useExamExpiryGuard(attempt, examConfig, attemptQuestions, allQuestions);
 
@@ -207,16 +216,6 @@ export default function StudentCertificationAttempt() {
     if (nextIndex <= (examConfig?.total_questions || 80)) {
       await updateQuestionIndexMutation.mutateAsync(nextIndex);
     }
-  };
-
-  // Previous is disabled when paused
-  const handlePrevious = async () => {
-    if (isPaused) return;
-    if (currentAnswer) {
-      await saveAnswerMutation.mutateAsync({ questionId: currentQuestion.id, answer: currentAnswer });
-    }
-    const prevIndex = currentQuestionIndex - 1;
-    if (prevIndex >= 1) await updateQuestionIndexMutation.mutateAsync(prevIndex);
   };
 
   const handleEarlySubmit = async () => {
@@ -349,10 +348,34 @@ export default function StudentCertificationAttempt() {
     window.location.href = createPageUrl(`StudentCertificationResults?id=${attemptId}`);
     return null;
   }
-  if (!attempt || !examConfig || !currentQuestion) {
+  if (!attempt || !examConfig || !currentQuestion || !examRevealed) {
+    // Cinematic entrance — dark screen with a brief beat before reveal
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <p className="text-slate-400 text-sm">Loading exam…</p>
+      <div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center gap-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-800 flex items-center justify-center shadow-2xl shadow-violet-900/60">
+            <Shield className="w-8 h-8 text-white" />
+          </div>
+          <div className="text-center">
+            <p className="text-violet-400 text-xs font-bold tracking-widest uppercase mb-1">Secure Exam Environment</p>
+            <p className="text-white text-xl font-bold">{examConfig?.title || 'Loading…'}</p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            {[0,1,2].map(i => (
+              <motion.div
+                key={i}
+                className="w-1.5 h-1.5 rounded-full bg-violet-500"
+                animate={{ opacity: [0.3, 1, 0.3] }}
+                transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+              />
+            ))}
+          </div>
+        </motion.div>
       </div>
     );
   }
@@ -365,8 +388,12 @@ export default function StudentCertificationAttempt() {
   const options = JSON.parse(currentQuestion.options_json);
 
   return (
-    // Full-screen lockdown — no sidebar, no nav, nothing outside
-    <div className="fixed inset-0 bg-slate-950 flex flex-col overflow-hidden">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8, ease: 'easeOut' }}
+      className="fixed inset-0 bg-slate-950 flex flex-col overflow-hidden"
+    >
 
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <div className="flex-shrink-0 bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between">
@@ -530,15 +557,8 @@ export default function StudentCertificationAttempt() {
 
               {/* Navigation */}
               <div className="flex items-center justify-between">
-                <Button
-                  onClick={handlePrevious}
-                  disabled={currentQuestionIndex === 1 || isPaused}
-                  variant="outline"
-                  className="border-slate-700 text-slate-300 hover:bg-slate-800 disabled:opacity-30 gap-2"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Previous
-                </Button>
+                {/* No back navigation — answers are locked once submitted */}
+                <div />
 
                 {isLastQuestion ? (
                   <Button
@@ -658,6 +678,6 @@ export default function StudentCertificationAttempt() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
   );
 }
