@@ -135,7 +135,7 @@ export default function StudentCertification() {
   const [timeUntilEligible, setTimeUntilEligible] = useState(null);
 
   useEffect(() => {
-    if (!examConfig || hasPassed || activeAttempt) {
+    if (!examConfig || hasPassed || activeAttempt || isTesterAccount) {
       setCooldownStatus(null);
       return;
     }
