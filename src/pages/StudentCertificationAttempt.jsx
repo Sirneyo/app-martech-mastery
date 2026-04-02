@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useExamExpiryGuard } from '@/components/ExamExpiryGuard';
 import ExamCameraMonitor from '@/components/ExamCameraMonitor';
+import ExamLockedSidebar from '@/components/ExamLockedSidebar';
 
 export default function StudentCertificationAttempt() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -392,8 +393,13 @@ export default function StudentCertificationAttempt() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8, ease: 'easeOut' }}
-      className="fixed inset-0 bg-slate-950 flex flex-col overflow-hidden"
+      className="fixed inset-0 bg-slate-950 flex overflow-hidden"
     >
+      {/* Locked sidebar */}
+      <ExamLockedSidebar isPaused={isPaused} />
+
+      {/* Main exam column */}
+      <div className="flex-1 flex flex-col overflow-hidden">
 
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <div className="flex-shrink-0 bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between">
@@ -678,6 +684,7 @@ export default function StudentCertificationAttempt() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>{/* end main exam column */}
     </motion.div>
   );
 }
