@@ -16,6 +16,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Clock, ChevronLeft, ChevronRight, AlertCircle, List, AlertTriangle, Flag } from 'lucide-react';
+import ExamCameraMonitor from '@/components/ExamCameraMonitor';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useExamExpiryGuard } from '@/components/ExamExpiryGuard';
@@ -373,7 +374,11 @@ export default function StudentCertificationAttempt() {
   const options = JSON.parse(currentQuestion.options_json);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-6">
+      <ExamCameraMonitor
+        attemptId={attemptId}
+        studentName={user?.full_name || user?.email}
+      />
       {/* Top Status Bar */}
       <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-4xl mx-auto px-6 py-4">
