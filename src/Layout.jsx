@@ -3,6 +3,7 @@ import 'react-quill/dist/quill.snow.css';
 import RoleBasedLayout from '@/components/RoleBasedLayout';
 import PausedAccountScreen from '@/components/PausedAccountScreen';
 import AccessDenied from '@/pages/AccessDenied';
+import PageTransition from '@/components/PageTransition';
 import { base44 } from '@/api/base44Client';
 
 // Central page access map — list of allowed roles per page.
@@ -134,7 +135,9 @@ export default function Layout({ children, currentPageName }) {
     <>
       <div style={{ pointerEvents: isPaused ? 'none' : 'auto', userSelect: isPaused ? 'none' : 'auto' }}>
         <RoleBasedLayout currentPageName={currentPageName}>
-          {children}
+          <PageTransition>
+            {children}
+          </PageTransition>
         </RoleBasedLayout>
       </div>
       {isPaused && <PausedAccountScreen />}
