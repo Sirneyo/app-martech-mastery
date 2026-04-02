@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Clock, Target, Trophy, AlertCircle } from 'lucide-react';
+import ExamCameraGate from '@/components/ExamCameraGate';
 import { motion } from 'framer-motion';
 
 export default function StudentCertificationReady() {
@@ -61,6 +62,8 @@ export default function StudentCertificationReady() {
       window.location.href = createPageUrl(`StudentCertificationAttempt?id=${attemptId}`);
     },
   });
+
+  const [cameraCleared, setCameraCleared] = useState(false);
 
   const handleBeginExam = () => {
     startExamMutation.mutate();
@@ -166,18 +169,23 @@ export default function StudentCertificationReady() {
           </p>
         </div>
 
-        <Button
-          onClick={handleBeginExam}
-          disabled={startExamMutation.isPending}
-          size="lg"
-          className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-lg py-6"
-        >
-          {startExamMutation.isPending ? 'Starting...' : 'Begin Exam'}
-        </Button>
-
-        <p className="text-center text-xs text-slate-500 mt-4">
-          By clicking "Begin Exam", you agree to complete the exam honestly and without external assistance.
-        </p>
+        {!cameraCleared ? (
+          <ExamCameraGate onPass={() => setCameraCleared(true)} />
+        ) : (
+          <>
+            <Button
+              onClick={handleBeginExam}
+              disabled={startExamMutation.isPending}
+              size="lg"
+              className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-lg py-6"
+            >
+              {startExamMutation.isPending ? 'Starting...' : 'Begin Exam'}
+            </Button>
+            <p className="text-center text-xs text-slate-500 mt-4">
+              By clicking "Begin Exam", you agree to complete the exam honestly and without external assistance.
+            </p>
+          </>
+        )}
       </motion.div>
     </div>
   );

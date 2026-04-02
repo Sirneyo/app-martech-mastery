@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Dialog,
   DialogContent,
@@ -15,11 +14,11 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Clock, ChevronLeft, ChevronRight, AlertCircle, List, AlertTriangle, Flag } from 'lucide-react';
-import ExamCameraMonitor from '@/components/ExamCameraMonitor';
-import { motion } from 'framer-motion';
+import { Clock, ChevronLeft, ChevronRight, AlertCircle, List, AlertTriangle, Flag, Shield, Pause, Play, Camera } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useExamExpiryGuard } from '@/components/ExamExpiryGuard';
+import ExamCameraMonitor from '@/components/ExamCameraMonitor';
 
 export default function StudentCertificationAttempt() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -27,10 +26,20 @@ export default function StudentCertificationAttempt() {
   const queryClient = useQueryClient();
 
   const [currentAnswer, setCurrentAnswer] = useState(null);
-  const [showWarning, setShowWarning] = useState(false);
+  const [showAnswerWarning, setShowAnswerWarning] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [showEndExamDialog, setShowEndExamDialog] = useState(false);
   const [submittingEarly, setSubmittingEarly] = useState(false);
+
+  // Pause / camera re-check state
+  const [isPaused, setIsPaused] = useState(false);
+  const [pausedAt, setPausedAt] = useState(null);
+  const [showFocusWarning, setShowFocusWarning] = useState(false);
+  const [focusWarningMessage, setFocusWarningMessage] = useState('');
+  const [violations, setViolations] = useState([]);
+  const [cameraOkToResume, setCameraOkToResume] = useState(false);
+
+  const cameraRef = useRef(null);
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -83,16 +92,14 @@ export default function StudentCertificationAttempt() {
     enabled: !!attemptId,
   });
 
-  // Get current question based on attempt's current_question_index
   const currentQuestionIndex = attempt?.current_question_index || 1;
   const currentAttemptQuestion = attemptQuestions.find(aq => aq.global_order === currentQuestionIndex);
   const currentQuestion = allQuestions.find(q => q.id === currentAttemptQuestion?.question_id);
   const currentSection = sections.find(s => s.id === currentAttemptQuestion?.exam_section_id);
 
-  // Expiry guard
   useExamExpiryGuard(attempt, examConfig, attemptQuestions, allQuestions);
 
-  // Load existing answer for current question
+  // Load existing answer
   useEffect(() => {
     if (!currentQuestion?.id) return;
     const existingAnswer = existingAnswers.find(a => a.question_id === currentQuestion.id);
@@ -102,37 +109,75 @@ export default function StudentCertificationAttempt() {
     } else {
       setCurrentAnswer(null);
     }
-    setShowWarning(false);
+    setShowAnswerWarning(false);
   }, [currentQuestion?.id, existingAnswers]);
 
-  // Timer
+  // Timer — stops when paused
   useEffect(() => {
-    if (!attempt?.expires_at) return;
-    
+    if (!attempt?.expires_at || isPaused) return;
+
     const expiresAt = new Date(attempt.expires_at).getTime();
-
     const interval = setInterval(() => {
-      const now = Date.now();
-      const remaining = Math.max(0, expiresAt - now);
+      const remaining = Math.max(0, expiresAt - Date.now());
       setTimeRemaining(remaining);
-
-      if (remaining === 0) {
-        handleFinalSubmit();
-      }
+      if (remaining === 0) handleFinalSubmit();
     }, 1000);
 
-    // Set initial time
     setTimeRemaining(Math.max(0, expiresAt - Date.now()));
-
     return () => clearInterval(interval);
-  }, [attempt?.expires_at]);
+  }, [attempt?.expires_at, isPaused]);
+
+  // Tab / focus lockdown — auto-pause on switch
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden && !isPaused) {
+        triggerFocusLoss('Tab switch detected');
+      }
+    };
+    const handleBlur = () => {
+      if (!isPaused) triggerFocusLoss('Window focus lost');
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('blur', handleBlur);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, [isPaused]);
+
+  const triggerFocusLoss = (reason) => {
+    const entry = { reason, timestamp: new Date().toISOString() };
+    setViolations(prev => [...prev, entry]);
+    setFocusWarningMessage(reason);
+    setShowFocusWarning(true);
+    setIsPaused(true);
+    setPausedAt(new Date());
+    setCameraOkToResume(false);
+  };
+
+  const handleManualPause = () => {
+    setIsPaused(true);
+    setPausedAt(new Date());
+    setCameraOkToResume(false);
+  };
+
+  const handleResume = async () => {
+    // Re-check camera before resuming
+    const ok = await cameraRef.current?.checkCamera();
+    if (ok) {
+      setIsPaused(false);
+      setShowFocusWarning(false);
+      setCameraOkToResume(false);
+    } else {
+      setCameraOkToResume(false);
+      alert('Camera is not available. Please allow camera access to resume.');
+    }
+  };
 
   const saveAnswerMutation = useMutation({
     mutationFn: async ({ questionId, answer }) => {
-      const answerJson = JSON.stringify({ 
-        keys: Array.isArray(answer) ? answer : [answer] 
-      });
-
+      const answerJson = JSON.stringify({ keys: Array.isArray(answer) ? answer : [answer] });
       const existing = existingAnswers.find(a => a.question_id === questionId);
       if (existing) {
         await base44.entities.ExamAnswer.update(existing.id, { answer_json: answerJson });
@@ -146,52 +191,32 @@ export default function StudentCertificationAttempt() {
         });
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['exam-answers', attemptId] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['exam-answers', attemptId] }),
   });
 
   const updateQuestionIndexMutation = useMutation({
-    mutationFn: (newIndex) => 
+    mutationFn: (newIndex) =>
       base44.entities.ExamAttempt.update(attemptId, { current_question_index: newIndex }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['exam-attempt', attemptId] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['exam-attempt', attemptId] }),
   });
 
   const handleNext = async () => {
-    if (!currentAnswer) {
-      setShowWarning(true);
-      return;
-    }
-
-    // Save current answer
-    await saveAnswerMutation.mutateAsync({ 
-      questionId: currentQuestion.id, 
-      answer: currentAnswer 
-    });
-
-    // Move to next question
+    if (!currentAnswer) { setShowAnswerWarning(true); return; }
+    await saveAnswerMutation.mutateAsync({ questionId: currentQuestion.id, answer: currentAnswer });
     const nextIndex = currentQuestionIndex + 1;
     if (nextIndex <= (examConfig?.total_questions || 80)) {
       await updateQuestionIndexMutation.mutateAsync(nextIndex);
     }
   };
 
+  // Previous is disabled when paused
   const handlePrevious = async () => {
-    // Save current answer if exists
+    if (isPaused) return;
     if (currentAnswer) {
-      await saveAnswerMutation.mutateAsync({ 
-        questionId: currentQuestion.id, 
-        answer: currentAnswer 
-      });
+      await saveAnswerMutation.mutateAsync({ questionId: currentQuestion.id, answer: currentAnswer });
     }
-
-    // Move to previous question
     const prevIndex = currentQuestionIndex - 1;
-    if (prevIndex >= 1) {
-      await updateQuestionIndexMutation.mutateAsync(prevIndex);
-    }
+    if (prevIndex >= 1) await updateQuestionIndexMutation.mutateAsync(prevIndex);
   };
 
   const handleEarlySubmit = async () => {
@@ -201,39 +226,28 @@ export default function StudentCertificationAttempt() {
 
   const performSubmit = async () => {
     const totalQuestions = examConfig?.total_questions || 80;
-
-    // Calculate score
     let correctCount = 0;
 
     for (const attemptQ of attemptQuestions) {
       const question = allQuestions.find(q => q.id === attemptQ.question_id);
       const answer = existingAnswers.find(a => a.question_id === attemptQ.question_id);
-      
       if (!question || !answer) continue;
 
       const correctAnswer = JSON.parse(question.correct_answer_json);
       const studentAnswer = JSON.parse(answer.answer_json);
-      
-      const studentKeys = studentAnswer.keys.sort();
-      const correctKeys = correctAnswer.keys.sort();
-      
-      const isCorrect = JSON.stringify(studentKeys) === JSON.stringify(correctKeys);
-      
+      const isCorrect = JSON.stringify(studentAnswer.keys.sort()) === JSON.stringify(correctAnswer.keys.sort());
       if (isCorrect) correctCount++;
 
-      // Update answer with is_correct
       await base44.entities.ExamAnswer.update(answer.id, {
         is_correct: isCorrect,
         points_earned: isCorrect ? 1 : 0,
       });
     }
 
-    // Calculate final score
     const scorePercent = Math.round((correctCount / totalQuestions) * 100);
     const passCorrectRequired = examConfig.pass_correct_required || 65;
     const passFlag = correctCount >= passCorrectRequired;
 
-    // Update attempt
     await base44.entities.ExamAttempt.update(attemptId, {
       attempt_status: 'submitted',
       submitted_at: new Date().toISOString(),
@@ -241,11 +255,7 @@ export default function StudentCertificationAttempt() {
       pass_flag: passFlag,
     });
 
-    // If passed, handle certificate, portfolio, and points
     if (passFlag) {
-      const user = await base44.auth.me();
-      
-      // Create certificate
       const existingCerts = await base44.entities.Certificate.filter({
         student_user_id: attempt.student_user_id,
         cohort_id: attempt.cohort_id,
@@ -258,14 +268,9 @@ export default function StudentCertificationAttempt() {
           issued_at: new Date().toISOString(),
           certificate_id_code: `MM-${attempt.cohort_id.slice(-6)}-${attemptId.slice(-6)}`,
         });
-
-        // Generate certificate PDF
-        await base44.functions.invoke('generateCertificate', {
-          certificate_id: cert.id
-        });
+        await base44.functions.invoke('generateCertificate', { certificate_id: cert.id });
       }
 
-      // Auto-approve portfolio item
       const templates = await base44.entities.PortfolioItemTemplate.filter({ key: 'mm_cert_exam' });
       if (templates.length > 0) {
         const template = templates[0];
@@ -274,11 +279,8 @@ export default function StudentCertificationAttempt() {
           cohort_id: attempt.cohort_id,
           portfolio_item_id: template.id,
         });
-
         if (existingStatus.length > 0) {
-          await base44.entities.PortfolioItemStatus.update(existingStatus[0].id, {
-            status: 'approved',
-          });
+          await base44.entities.PortfolioItemStatus.update(existingStatus[0].id, { status: 'approved' });
         } else {
           await base44.entities.PortfolioItemStatus.create({
             user_id: attempt.student_user_id,
@@ -289,13 +291,11 @@ export default function StudentCertificationAttempt() {
         }
       }
 
-      // Award points
       const existingPoints = await base44.entities.PointsLedger.filter({
         user_id: attempt.student_user_id,
         source_type: 'exam',
         source_id: attemptId,
       });
-
       if (existingPoints.length === 0) {
         await base44.entities.PointsLedger.create({
           user_id: attempt.student_user_id,
@@ -311,29 +311,23 @@ export default function StudentCertificationAttempt() {
   };
 
   const handleFinalSubmit = async () => {
-    // Check all questions answered
     const totalQuestions = examConfig?.total_questions || 80;
-    const answeredCount = existingAnswers.length;
-    
-    if (answeredCount < totalQuestions) {
+    if (existingAnswers.length < totalQuestions) {
       window.location.href = createPageUrl(`StudentCertificationReview?id=${attemptId}`);
       return;
     }
-
     await performSubmit();
   };
 
   const handleAnswerChange = (value, isMulti = false) => {
     if (isMulti) {
       const current = Array.isArray(currentAnswer) ? currentAnswer : [];
-      const updated = current.includes(value)
-        ? current.filter(v => v !== value)
-        : [...current, value];
+      const updated = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
       setCurrentAnswer(updated);
     } else {
       setCurrentAnswer(value);
     }
-    setShowWarning(false);
+    setShowAnswerWarning(false);
   };
 
   const formatTime = (ms) => {
@@ -342,26 +336,23 @@ export default function StudentCertificationAttempt() {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  // Access control and status guards
+  // Access / status guards
   if (attempt && user && attempt.student_user_id !== user.id) {
     window.location.href = createPageUrl('StudentCertification');
     return null;
   }
-
   if (attempt?.attempt_status === 'prepared' && !attempt.started_at) {
     window.location.href = createPageUrl(`StudentCertificationReady?id=${attemptId}`);
     return null;
   }
-
   if (attempt?.attempt_status === 'submitted') {
     window.location.href = createPageUrl(`StudentCertificationResults?id=${attemptId}`);
     return null;
   }
-
   if (!attempt || !examConfig || !currentQuestion) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <p className="text-slate-500">Loading exam...</p>
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <p className="text-slate-400 text-sm">Loading exam…</p>
       </div>
     );
   }
@@ -370,191 +361,285 @@ export default function StudentCertificationAttempt() {
   const answeredCount = existingAnswers.length;
   const progress = (answeredCount / totalQuestions) * 100;
   const isLastQuestion = currentQuestionIndex === totalQuestions;
-
+  const isTimeCritical = timeRemaining !== null && timeRemaining < 600000;
   const options = JSON.parse(currentQuestion.options_json);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-6">
-      <ExamCameraMonitor
-        attemptId={attemptId}
-        studentName={user?.full_name || user?.email}
-      />
-      {/* Top Status Bar */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-4xl mx-auto px-6 py-4">
-          <Alert className="mb-3 border-amber-200 bg-amber-50">
-            <AlertTriangle className="h-4 w-4 text-amber-600" />
-            <AlertDescription className="text-amber-800 text-sm">
-              <strong>Timer is running.</strong> Leaving the exam will not pause time.
-            </AlertDescription>
-          </Alert>
-          
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h1 className="text-xl font-bold text-slate-900">{examConfig.title}</h1>
-              <p className="text-sm text-slate-500">
-                Question {currentQuestionIndex} of {totalQuestions}
-              </p>
+    // Full-screen lockdown — no sidebar, no nav, nothing outside
+    <div className="fixed inset-0 bg-slate-950 flex flex-col overflow-hidden">
+
+      {/* ── Top bar ─────────────────────────────────────────────── */}
+      <div className="flex-shrink-0 bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between">
+        {/* Left: branding + status */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg">
+            <Shield className="w-4 h-4 text-emerald-400" />
+            <span className="text-white text-xs font-bold tracking-widest">SECURE EXAM</span>
+          </div>
+          {violations.length > 0 && (
+            <span className="bg-red-500/20 text-red-400 text-xs font-semibold px-2 py-1 rounded-lg border border-red-500/30">
+              {violations.length} flag{violations.length > 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
+
+        {/* Centre: exam title */}
+        <div className="hidden md:block text-center">
+          <p className="text-slate-200 text-sm font-semibold">{examConfig.title}</p>
+          <p className="text-slate-500 text-xs">Question {currentQuestionIndex} of {totalQuestions}</p>
+        </div>
+
+        {/* Right: timer + controls */}
+        <div className="flex items-center gap-3">
+          {timeRemaining !== null && (
+            <div className={`flex items-center gap-2 font-mono font-bold px-3 py-1.5 rounded-lg border
+              ${isPaused ? 'text-amber-400 border-amber-500/40 bg-amber-500/10'
+              : isTimeCritical ? 'text-red-400 border-red-500/40 bg-red-500/10 animate-pulse'
+              : 'text-white border-slate-700 bg-slate-800'}`}>
+              <Clock className="w-4 h-4" />
+              {isPaused ? 'PAUSED' : formatTime(timeRemaining)}
             </div>
-            <div className="flex items-center gap-4">
-              {timeRemaining !== null && (
-                <div className={`flex items-center gap-2 font-bold ${
-                  timeRemaining < 600000 ? 'text-red-600' : 'text-slate-900'
-                }`}>
-                  <Clock className="w-5 h-5" />
-                  <span className="font-mono text-lg">{formatTime(timeRemaining)}</span>
-                </div>
-              )}
-              <Link 
+          )}
+
+          {isPaused ? (
+            <Button
+              onClick={handleResume}
+              size="sm"
+              className="bg-emerald-600 hover:bg-emerald-700 gap-1.5 text-xs"
+            >
+              <Play className="w-3.5 h-3.5" /> Resume
+            </Button>
+          ) : (
+            <Button
+              onClick={handleManualPause}
+              variant="outline"
+              size="sm"
+              className="border-slate-700 text-slate-300 hover:bg-slate-800 gap-1.5 text-xs"
+            >
+              <Pause className="w-3.5 h-3.5" /> Pause
+            </Button>
+          )}
+
+          {!isPaused && (
+            <>
+              <Link
                 to={createPageUrl(`StudentCertificationReview?id=${attemptId}`)}
-                className="text-violet-600 hover:text-violet-700 flex items-center gap-2 text-sm font-medium"
+                className="text-slate-400 hover:text-slate-200 flex items-center gap-1.5 text-xs font-medium"
               >
-                <List className="w-4 h-4" />
-                Review
+                <List className="w-4 h-4" /> Review
               </Link>
               <Button
                 onClick={() => setShowEndExamDialog(true)}
                 variant="outline"
                 size="sm"
-                className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                className="border-red-800 text-red-400 hover:bg-red-900/30 gap-1.5 text-xs"
               >
-                <Flag className="w-4 h-4 mr-2" />
-                End Exam
+                <Flag className="w-3.5 h-3.5" /> End Exam
               </Button>
-            </div>
-          </div>
-          <div className="relative">
-            <div className="w-full bg-slate-200 rounded-full h-2">
-              <motion.div 
-                className="h-full bg-violet-600 rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.3 }}
-              />
-            </div>
-            {currentSection && (
-              <p className="text-xs text-slate-500 mt-2">
-                Section: {currentSection.name}
-              </p>
-            )}
-          </div>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Main Question Panel */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <motion.div
-          key={currentQuestionIndex}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-          className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 mb-6"
-        >
-          <h2 className="text-2xl font-semibold text-slate-900 mb-6">
-            {currentQuestion.question_text}
-          </h2>
-
-          {currentQuestion.question_type === 'single_choice' || currentQuestion.question_type === 'true_false' ? (
-            <RadioGroup
-              value={currentAnswer || ''}
-              onValueChange={(value) => handleAnswerChange(value)}
-            >
-              <div className="space-y-3">
-                {options.map((option) => (
-                  <div
-                    key={option.key}
-                    className="flex items-center space-x-4 p-4 rounded-lg border border-slate-200 hover:border-violet-300 hover:bg-violet-50 transition-all cursor-pointer"
-                  >
-                    <RadioGroupItem value={option.key} id={`option-${option.key}`} />
-                    <Label
-                      htmlFor={`option-${option.key}`}
-                      className="flex-1 cursor-pointer font-medium text-slate-700 text-lg"
-                    >
-                      {option.label}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </RadioGroup>
-          ) : (
-            <div className="space-y-3">
-              {options.map((option) => (
-                <div
-                  key={option.key}
-                  className="flex items-center space-x-4 p-4 rounded-lg border border-slate-200 hover:border-violet-300 hover:bg-violet-50 transition-all"
-                >
-                  <Checkbox
-                    id={`option-${option.key}`}
-                    checked={(Array.isArray(currentAnswer) ? currentAnswer : []).includes(option.key)}
-                    onCheckedChange={() => handleAnswerChange(option.key, true)}
-                  />
-                  <Label
-                    htmlFor={`option-${option.key}`}
-                    className="flex-1 cursor-pointer font-medium text-slate-700 text-lg"
-                  >
-                    {option.label}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {showWarning && (
+      {/* ── Progress bar ────────────────────────────────────────── */}
+      <div className="flex-shrink-0 bg-slate-900 px-6 pb-3 border-b border-slate-800">
+        <div className="flex items-center gap-3">
+          <div className="flex-1 bg-slate-800 rounded-full h-1.5">
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-4 flex items-center gap-2 text-amber-700 bg-amber-50 p-3 rounded-lg border border-amber-200"
+              className="h-full bg-violet-500 rounded-full"
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
+          <span className="text-slate-500 text-xs font-medium flex-shrink-0">{answeredCount}/{totalQuestions} answered</span>
+        </div>
+        {currentSection && (
+          <p className="text-slate-500 text-xs mt-1.5">Section: <span className="text-slate-300">{currentSection.name}</span></p>
+        )}
+      </div>
+
+      {/* ── Body ────────────────────────────────────────────────── */}
+      <div className="flex-1 overflow-hidden flex">
+
+        {/* Question area */}
+        <div className="flex-1 overflow-y-auto px-6 py-8">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentQuestionIndex}
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -30 }}
+              transition={{ duration: 0.25 }}
             >
-              <AlertCircle className="w-5 h-5" />
-              <span className="text-sm font-medium">Please select an answer to continue</span>
+              {/* Question card */}
+              <div className={`bg-slate-900 rounded-2xl border p-8 mb-6 transition-all ${isPaused ? 'border-amber-500/40 opacity-60 pointer-events-none select-none' : 'border-slate-800'}`}>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
+                  Question {currentQuestionIndex}
+                </p>
+                <h2 className="text-xl font-semibold text-slate-100 leading-relaxed mb-8">
+                  {currentQuestion.question_text}
+                </h2>
+
+                {currentQuestion.question_type === 'single_choice' || currentQuestion.question_type === 'true_false' ? (
+                  <RadioGroup value={currentAnswer || ''} onValueChange={(v) => handleAnswerChange(v)}>
+                    <div className="space-y-3">
+                      {options.map((option) => (
+                        <label
+                          key={option.key}
+                          className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all
+                            ${currentAnswer === option.key
+                              ? 'border-violet-500 bg-violet-500/10 text-violet-200'
+                              : 'border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-500 hover:bg-slate-800'}`}
+                        >
+                          <RadioGroupItem value={option.key} id={`opt-${option.key}`} className="border-slate-500 text-violet-400" />
+                          <span className="font-medium">{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </RadioGroup>
+                ) : (
+                  <div className="space-y-3">
+                    {options.map((option) => (
+                      <label
+                        key={option.key}
+                        className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all
+                          ${(Array.isArray(currentAnswer) ? currentAnswer : []).includes(option.key)
+                            ? 'border-violet-500 bg-violet-500/10 text-violet-200'
+                            : 'border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-500 hover:bg-slate-800'}`}
+                      >
+                        <Checkbox
+                          id={`opt-${option.key}`}
+                          checked={(Array.isArray(currentAnswer) ? currentAnswer : []).includes(option.key)}
+                          onCheckedChange={() => handleAnswerChange(option.key, true)}
+                          className="border-slate-500"
+                        />
+                        <span className="font-medium">{option.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+
+                {showAnswerWarning && (
+                  <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+                    className="mt-5 flex items-center gap-2 text-amber-400 bg-amber-500/10 border border-amber-500/30 p-3 rounded-lg">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-sm font-medium">Please select an answer to continue.</span>
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Navigation */}
+              <div className="flex items-center justify-between">
+                <Button
+                  onClick={handlePrevious}
+                  disabled={currentQuestionIndex === 1 || isPaused}
+                  variant="outline"
+                  className="border-slate-700 text-slate-300 hover:bg-slate-800 disabled:opacity-30 gap-2"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Previous
+                </Button>
+
+                {isLastQuestion ? (
+                  <Button
+                    onClick={handleFinalSubmit}
+                    disabled={isPaused}
+                    className="bg-emerald-600 hover:bg-emerald-700 gap-2 disabled:opacity-30"
+                  >
+                    Submit Exam
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleNext}
+                    disabled={isPaused}
+                    className="bg-violet-600 hover:bg-violet-700 gap-2 disabled:opacity-30"
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
             </motion.div>
-          )}
-        </motion.div>
+          </AnimatePresence>
+        </div>
 
-        {/* Bottom Navigation */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex items-center justify-between">
-          <Button
-            onClick={handlePrevious}
-            disabled={currentQuestionIndex === 1}
-            variant="outline"
-            size="lg"
-            className="gap-2"
-          >
-            <ChevronLeft className="w-5 h-5" />
-            Previous
-          </Button>
+        {/* Camera sidebar */}
+        <div className="flex-shrink-0 w-56 border-l border-slate-800 p-4 flex flex-col gap-4 overflow-y-auto">
+          <ExamCameraMonitor
+            ref={cameraRef}
+            studentName={user?.full_name || user?.email}
+          />
 
-          {isLastQuestion ? (
-            <Button
-              onClick={handleFinalSubmit}
-              size="lg"
-              className="bg-green-600 hover:bg-green-700 gap-2"
-            >
-              Submit Exam
-            </Button>
-          ) : (
-            <Button
-              onClick={handleNext}
-              size="lg"
-              className="bg-violet-600 hover:bg-violet-700 gap-2"
-            >
-              Next
-              <ChevronRight className="w-5 h-5" />
-            </Button>
-          )}
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 text-center">
+            <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-widest mb-1">Integrity</p>
+            <div className={`text-xs font-bold ${violations.length === 0 ? 'text-emerald-400' : violations.length < 3 ? 'text-amber-400' : 'text-red-400'}`}>
+              {violations.length === 0 ? 'Clean session' : `${violations.length} flag${violations.length > 1 ? 's' : ''} logged`}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* End Exam Confirmation Dialog */}
+      {/* ── Pause overlay ───────────────────────────────────────── */}
+      <AnimatePresence>
+        {isPaused && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-slate-950/90 z-40 flex flex-col items-center justify-center gap-6 p-8"
+          >
+            <div className="bg-slate-900 border border-slate-700 rounded-2xl p-10 max-w-md w-full text-center shadow-2xl">
+              {showFocusWarning ? (
+                <>
+                  <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-5">
+                    <AlertTriangle className="w-8 h-8 text-red-400" />
+                  </div>
+                  <h2 className="text-white text-xl font-bold mb-2">Exam Paused</h2>
+                  <p className="text-slate-400 text-sm mb-1">{focusWarningMessage}</p>
+                  <p className="text-red-400 text-xs font-semibold mb-6">This incident has been logged with a timestamp.</p>
+                </>
+              ) : (
+                <>
+                  <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-5">
+                    <Pause className="w-8 h-8 text-amber-400" />
+                  </div>
+                  <h2 className="text-white text-xl font-bold mb-2">Exam Paused</h2>
+                  <p className="text-slate-400 text-sm mb-6">Timer is frozen. Camera must be active to resume.</p>
+                </>
+              )}
+
+              <div className="mb-6">
+                <div className="flex items-center gap-2 text-slate-400 text-xs justify-center mb-3">
+                  <Camera className="w-3.5 h-3.5" />
+                  Camera must be active to resume
+                </div>
+                <ExamCameraMonitor
+                  ref={cameraRef}
+                  studentName={user?.full_name || user?.email}
+                />
+              </div>
+
+              <Button
+                onClick={handleResume}
+                size="lg"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2"
+              >
+                <Play className="w-4 h-4" /> Resume Exam
+              </Button>
+              <p className="text-slate-600 text-xs mt-3">Navigation is locked while paused.</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── End exam dialog ─────────────────────────────────────── */}
       <Dialog open={showEndExamDialog} onOpenChange={setShowEndExamDialog}>
-        <DialogContent>
+        <DialogContent className="bg-slate-900 border-slate-700 text-white">
           <DialogHeader>
-            <DialogTitle>Submit exam now?</DialogTitle>
+            <DialogTitle className="text-white">Submit exam now?</DialogTitle>
             <DialogDescription className="space-y-3 pt-4">
-              <p className="font-semibold text-slate-900">
-                This will submit your exam immediately.
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-sm text-slate-700">
+              <p className="font-semibold text-slate-200">This will submit your exam immediately.</p>
+              <ul className="list-disc list-inside space-y-2 text-sm text-slate-400">
                 <li>Any unanswered questions will be marked incorrect.</li>
                 <li>This counts as a completed attempt and cannot be undone.</li>
                 <li>You will not be able to resume this attempt.</li>
@@ -562,22 +647,13 @@ export default function StudentCertificationAttempt() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowEndExamDialog(false)}
-              disabled={submittingEarly}
-            >
+            <Button variant="outline" onClick={() => setShowEndExamDialog(false)} disabled={submittingEarly}
+              className="border-slate-700 text-slate-300 hover:bg-slate-800">
               Cancel
             </Button>
-            <Button
-              onClick={() => {
-                setShowEndExamDialog(false);
-                handleEarlySubmit();
-              }}
-              disabled={submittingEarly}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {submittingEarly ? 'Submitting...' : 'Submit Now'}
+            <Button onClick={() => { setShowEndExamDialog(false); handleEarlySubmit(); }}
+              disabled={submittingEarly} className="bg-red-600 hover:bg-red-700">
+              {submittingEarly ? 'Submitting…' : 'Submit Now'}
             </Button>
           </DialogFooter>
         </DialogContent>
