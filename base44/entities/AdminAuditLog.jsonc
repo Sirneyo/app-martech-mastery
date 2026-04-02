@@ -6,7 +6,9 @@
       "type": "string",
       "enum": [
         "impersonate_start",
-        "impersonate_end"
+        "impersonate_end",
+        "cooldown_override",
+        "attempt_reset"
       ],
       "description": "Type of audit action"
     },
@@ -20,19 +22,23 @@
     },
     "target_user_id": {
       "type": "string",
-      "description": "ID of the user being impersonated"
+      "description": "ID of the affected user"
     },
     "target_user_name": {
       "type": "string",
-      "description": "Name of the user being impersonated"
+      "description": "Name of the affected user"
     },
     "target_user_email": {
       "type": "string",
-      "description": "Email of the user being impersonated"
+      "description": "Email of the affected user"
     },
     "target_user_role": {
       "type": "string",
-      "description": "Role of the user being impersonated"
+      "description": "Role of the affected user"
+    },
+    "details": {
+      "type": "string",
+      "description": "Additional details about the action"
     },
     "timestamp": {
       "type": "string",

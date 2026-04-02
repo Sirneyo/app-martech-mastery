@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Coins, Trash2, CheckCircle, XCircle, Search, Plus, Minus, Users, AlertTriangle, Eye, Activity, UserCheck, Wifi, BarChart2, RotateCcw } from 'lucide-react';
+import { Shield, Coins, Trash2, CheckCircle, XCircle, Search, Plus, Minus, Users, AlertTriangle, Eye, Activity, UserCheck, Wifi, BarChart2, RotateCcw, Clock, RefreshCw, GraduationCap } from 'lucide-react';
 import SystemCheckPanel from '@/components/SystemCheckPanel';
 import SuperAdminAnalytics from '@/components/SuperAdminAnalytics';
 import { useNavigate } from 'react-router-dom';
@@ -49,6 +49,12 @@ export default function SuperAdminDashboard() {
   // View as User state
   const [viewAsSearch, setViewAsSearch] = useState('');
   const [viewAsRoleFilter, setViewAsRoleFilter] = useState('');
+
+  // Exam overrides state
+  const [examSearchTerm, setExamSearchTerm] = useState('');
+  const [overrideConfirmOpen, setOverrideConfirmOpen] = useState(false);
+  const [overrideTarget, setOverrideTarget] = useState(null); // { user, attempt, type: 'cooldown'|'reset' }
+
   const [activeTab, setActiveTab] = useState('points');
 
   const { data: currentUser } = useQuery({
@@ -76,10 +82,23 @@ export default function SuperAdminDashboard() {
   });
 
   // Online users: logged in within the last 15 minutes
+  const { data: allExamAttempts = [] } = useQuery({
+    queryKey: ['all-exam-attempts-admin'],
+    queryFn: () => base44.entities.ExamAttempt.list('-created_date', 500),
+  });
+
+  const { data: examConfig } = useQuery({
+    queryKey: ['exam-config-admin'],
+    queryFn: async () => {
+      const configs = await base44.entities.ExamConfig.filter({ is_active: true });
+      return configs[0];
+    },
+  });
+
   const { data: recentLoginEvents = [] } = useQuery({
     queryKey: ['recent-login-events'],
     queryFn: () => base44.entities.LoginEvent.list('-login_time', 200),
-    refetchInterval: 60000, // refresh every minute
+    refetchInterval: 60000,
   });
 
   const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
@@ -170,9 +189,7 @@ export default function SuperAdminDashboard() {
 
   const deleteLedgerEntryMutation = useMutation({
     mutationFn: async (entryId) => {
-      // Delete the ledger entry
       await base44.entities.PointsLedger.delete(entryId);
-      // Delete any linked notification (related_entity_id = entryId)
       const linked = await base44.entities.Notification.filter({ related_entity_id: entryId });
       for (const n of linked) {
         await base44.entities.Notification.delete(n.id);
@@ -180,6 +197,47 @@ export default function SuperAdminDashboard() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['points-ledger'] });
+    },
+  });
+
+  const examOverrideMutation = useMutation({
+    mutationFn: async ({ user, attempt, type }) => {
+      if (type === 'cooldown') {
+        // Set submitted_at to 72h ago on the blocking attempt so cooldown has expired
+        const pastTime = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+        await base44.entities.ExamAttempt.update(attempt.id, { submitted_at: pastTime });
+        await base44.entities.AdminAuditLog.create({
+          action: 'cooldown_override',
+          admin_id: currentUser?.id,
+          admin_name: currentUser?.full_name || currentUser?.email,
+          target_user_id: user.id,
+          target_user_name: user.full_name || user.display_name,
+          target_user_email: user.email,
+          details: `Cooldown bypassed for attempt #${attempt.attempt_number} (attempt ID: ${attempt.id})`,
+          timestamp: new Date().toISOString(),
+        });
+      } else if (type === 'reset') {
+        // Delete all attempts for this user so they can start fresh
+        const userAttempts = allExamAttempts.filter(a => a.student_user_id === user.id);
+        for (const a of userAttempts) {
+          await base44.entities.ExamAttempt.delete(a.id);
+        }
+        await base44.entities.AdminAuditLog.create({
+          action: 'attempt_reset',
+          admin_id: currentUser?.id,
+          admin_name: currentUser?.full_name || currentUser?.email,
+          target_user_id: user.id,
+          target_user_name: user.full_name || user.display_name,
+          target_user_email: user.email,
+          details: `All ${userAttempts.length} exam attempt(s) deleted. Student can retake from attempt 1.`,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-exam-attempts-admin'] });
+      setOverrideConfirmOpen(false);
+      setOverrideTarget(null);
     },
   });
 
@@ -401,10 +459,129 @@ export default function SuperAdminDashboard() {
             <TabsTrigger value="analytics" className="flex items-center gap-2">
               <BarChart2 className="w-4 h-4" /> Analytics
             </TabsTrigger>
+            <TabsTrigger value="examoverrides" className="flex items-center gap-2">
+              <GraduationCap className="w-4 h-4" /> Exam Overrides
+            </TabsTrigger>
             <TabsTrigger value="systemcheck" className="flex items-center gap-2">
               <Activity className="w-4 h-4" /> System Check
             </TabsTrigger>
           </TabsList>
+
+          {/* Exam Overrides Tab */}
+          <TabsContent value="examoverrides" className="space-y-4 mt-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-amber-800">Exam Override Controls</p>
+                <p className="text-sm text-amber-700 mt-0.5">Override cooldown periods or fully reset exam attempts. All actions are logged with admin name and timestamp.</p>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                <input
+                  className="w-full border border-slate-200 rounded-lg pl-10 pr-4 py-2 text-sm outline-none focus:ring-2 focus:ring-violet-300"
+                  placeholder="Search students..."
+                  value={examSearchTerm}
+                  onChange={e => setExamSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200">
+                    <th className="text-left p-4 font-semibold text-slate-700">Student</th>
+                    <th className="text-left p-4 font-semibold text-slate-700">Attempts</th>
+                    <th className="text-left p-4 font-semibold text-slate-700">Status</th>
+                    <th className="text-left p-4 font-semibold text-slate-700">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users
+                    .filter(u => u.app_role === 'student')
+                    .filter(u => !examSearchTerm || u.full_name?.toLowerCase().includes(examSearchTerm.toLowerCase()) || u.email?.toLowerCase().includes(examSearchTerm.toLowerCase()))
+                    .map(u => {
+                      const userAttempts = allExamAttempts.filter(a => a.student_user_id === u.id).sort((a, b) => a.attempt_number - b.attempt_number);
+                      const attemptsAllowed = examConfig?.attempts_allowed || 4;
+                      const hasPassed = userAttempts.some(a => a.pass_flag);
+                      const submittedAttempts = userAttempts.filter(a => a.submitted_at);
+                      const latestSubmitted = submittedAttempts[submittedAttempts.length - 1];
+                      const nextAttemptNum = userAttempts.filter(a => a.prepared_at).length + 1;
+                      const exhausted = !hasPassed && userAttempts.filter(a => a.prepared_at).length >= attemptsAllowed;
+
+                      // Cooldown check
+                      let inCooldown = false;
+                      let cooldownAttempt = null;
+                      if (!hasPassed && !exhausted && latestSubmitted) {
+                        const cooldownHours = latestSubmitted.attempt_number === 2 ? (examConfig?.cooldown_after_attempt_2_hours || 24) : (examConfig?.cooldown_after_attempt_3_fail_hours || 48);
+                        if ([2, 3].includes(latestSubmitted.attempt_number)) {
+                          const eligibleAt = new Date(new Date(latestSubmitted.submitted_at).getTime() + cooldownHours * 3600000);
+                          if (new Date() < eligibleAt) { inCooldown = true; cooldownAttempt = latestSubmitted; }
+                        }
+                      }
+
+                      if (!inCooldown && !exhausted && userAttempts.length === 0) return null;
+                      if (!inCooldown && !exhausted) return null;
+
+                      return (
+                        <tr key={u.id} className="border-b border-slate-100 hover:bg-slate-50">
+                          <td className="p-4">
+                            <p className="font-medium text-slate-900">{u.display_name || u.full_name}</p>
+                            <p className="text-xs text-slate-500">{u.email}</p>
+                          </td>
+                          <td className="p-4 text-sm text-slate-700">{userAttempts.filter(a => a.prepared_at).length} / {attemptsAllowed}</td>
+                          <td className="p-4">
+                            {exhausted ? (
+                              <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-red-100 text-red-700 px-2.5 py-1 rounded-full border border-red-200">
+                                <XCircle className="w-3 h-3" /> All attempts used
+                              </span>
+                            ) : inCooldown ? (
+                              <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full border border-amber-200">
+                                <Clock className="w-3 h-3" /> In cooldown (after attempt {cooldownAttempt?.attempt_number})
+                              </span>
+                            ) : null}
+                          </td>
+                          <td className="p-4">
+                            <div className="flex gap-2">
+                              {inCooldown && (
+                                <Button
+                                  size="sm"
+                                  className="bg-amber-500 hover:bg-amber-600 text-white gap-1"
+                                  onClick={() => { setOverrideTarget({ user: u, attempt: cooldownAttempt, type: 'cooldown' }); setOverrideConfirmOpen(true); }}
+                                >
+                                  <Clock className="w-3 h-3" /> Bypass Cooldown
+                                </Button>
+                              )}
+                              {exhausted && (
+                                <Button
+                                  size="sm"
+                                  className="bg-violet-600 hover:bg-violet-700 text-white gap-1"
+                                  onClick={() => { setOverrideTarget({ user: u, attempt: null, type: 'reset' }); setOverrideConfirmOpen(true); }}
+                                >
+                                  <RefreshCw className="w-3 h-3" /> Reset Attempts
+                                </Button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  {users.filter(u => u.app_role === 'student').every(u => {
+                    const ua = allExamAttempts.filter(a => a.student_user_id === u.id);
+                    const hasPassed = ua.some(a => a.pass_flag);
+                    const exhausted = !hasPassed && ua.filter(a => a.prepared_at).length >= (examConfig?.attempts_allowed || 4);
+                    const latest = ua.filter(a => a.submitted_at).sort((a, b) => a.attempt_number - b.attempt_number).slice(-1)[0];
+                    const cooldownHours = latest?.attempt_number === 2 ? (examConfig?.cooldown_after_attempt_2_hours || 24) : (examConfig?.cooldown_after_attempt_3_fail_hours || 48);
+                    const inCooldown = !hasPassed && !exhausted && latest && [2, 3].includes(latest.attempt_number) && new Date() < new Date(new Date(latest.submitted_at).getTime() + cooldownHours * 3600000);
+                    return !inCooldown && !exhausted;
+                  }) && (
+                    <tr><td colSpan="4" className="p-10 text-center text-slate-400 text-sm">No students currently in cooldown or with exhausted attempts</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </TabsContent>
 
           {/* Points Tab */}
           <TabsContent value="points" className="space-y-4 mt-4">
@@ -812,6 +989,42 @@ export default function SuperAdminDashboard() {
                  onClick={() => resetPointsMutation.mutate(resetTarget?.id)}
                >
                  <RotateCcw className="w-4 h-4 mr-1" /> {resetPointsMutation.isPending ? 'Resetting...' : 'Reset Points'}
+               </Button>
+             </div>
+           </div>
+         </DialogContent>
+       </Dialog>
+
+       {/* Exam Override Confirmation Dialog */}
+       <Dialog open={overrideConfirmOpen} onOpenChange={setOverrideConfirmOpen}>
+         <DialogContent>
+           <DialogHeader>
+             <DialogTitle className={`flex items-center gap-2 ${overrideTarget?.type === 'reset' ? 'text-violet-700' : 'text-amber-700'}`}>
+               {overrideTarget?.type === 'reset' ? <RefreshCw className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+               {overrideTarget?.type === 'reset' ? 'Reset All Exam Attempts' : 'Bypass Cooldown Period'}
+             </DialogTitle>
+           </DialogHeader>
+           <div className="space-y-4 py-2">
+             <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-700 space-y-1">
+               <p><strong>Student:</strong> {overrideTarget?.user?.display_name || overrideTarget?.user?.full_name}</p>
+               <p><strong>Email:</strong> {overrideTarget?.user?.email}</p>
+             </div>
+             {overrideTarget?.type === 'cooldown' ? (
+               <p className="text-slate-700 text-sm">This will mark attempt <strong>#{overrideTarget?.attempt?.attempt_number}</strong> as submitted 72 hours ago, effectively ending the cooldown immediately. The student can retake the exam right away.</p>
+             ) : (
+               <p className="text-slate-700 text-sm">This will <strong>permanently delete all exam attempts</strong> for this student. They will be able to retake the exam from attempt 1 as if they had never sat it before.</p>
+             )}
+             <p className="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded p-2">
+               This action will be logged under your name ({currentUser?.full_name || currentUser?.email}) with a timestamp.
+             </p>
+             <div className="flex gap-2">
+               <Button variant="outline" className="flex-1" onClick={() => setOverrideConfirmOpen(false)}>Cancel</Button>
+               <Button
+                 className={`flex-1 text-white ${overrideTarget?.type === 'reset' ? 'bg-violet-600 hover:bg-violet-700' : 'bg-amber-500 hover:bg-amber-600'}`}
+                 disabled={examOverrideMutation.isPending}
+                 onClick={() => examOverrideMutation.mutate(overrideTarget)}
+               >
+                 {examOverrideMutation.isPending ? 'Applying...' : overrideTarget?.type === 'reset' ? 'Reset Attempts' : 'Bypass Cooldown'}
                </Button>
              </div>
            </div>
