@@ -246,7 +246,7 @@ export default function StudentCertification() {
   // Tester bypass: nixelainc@gmail.com gets unlimited attempts and no cooldowns
   const isTesterAccount = user?.email === 'nixelainc@gmail.com';
 
-  const canStartAttempt = (isTesterAccount || isUnlocked) && !hasPassed && (isTesterAccount || attemptsUsed < attemptsAllowed) && !activeAttempt && (isTesterAccount || !cooldownStatus?.blocked);
+  const canStartAttempt = isUnlocked && !hasPassed && (isTesterAccount || attemptsUsed < attemptsAllowed) && !activeAttempt && (isTesterAccount || !cooldownStatus?.blocked);
 
   const handleStartExam = () => {
     if (activeAttempt) {
