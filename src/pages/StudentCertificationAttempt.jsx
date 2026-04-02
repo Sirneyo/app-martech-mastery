@@ -350,29 +350,39 @@ export default function StudentCertificationAttempt() {
     return null;
   }
   if (!attempt || !examConfig || !currentQuestion || !examRevealed) {
-    // Cinematic entrance — dark screen with a brief beat before reveal
     return (
-      <div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center gap-6">
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-6" style={{ background: '#0a0a0f', backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(109,40,217,0.12) 0%, transparent 60%)' }}>
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
+          initial={{ opacity: 0, scale: 0.85 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="flex flex-col items-center gap-4"
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col items-center gap-5"
         >
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-800 flex items-center justify-center shadow-2xl shadow-violet-900/60">
-            <Shield className="w-8 h-8 text-white" />
+          {/* Spinning ring */}
+          <div className="relative w-20 h-20 flex items-center justify-center">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2.5, ease: 'linear', repeat: Infinity }}
+              className="absolute inset-0 rounded-full"
+              style={{ border: '2px solid transparent', borderTopColor: 'rgba(139,92,246,0.8)', borderRightColor: 'rgba(139,92,246,0.2)' }}
+            />
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', boxShadow: '0 0 32px rgba(109,40,217,0.5)' }}>
+              <Shield className="w-6 h-6 text-white" />
+            </div>
           </div>
           <div className="text-center">
-            <p className="text-violet-400 text-xs font-bold tracking-widest uppercase mb-1">Secure Exam Environment</p>
-            <p className="text-white text-xl font-bold">{examConfig?.title || 'Loading…'}</p>
+            <p className="text-violet-400 text-xs font-bold tracking-widest uppercase mb-2">Secure Exam Environment</p>
+            <p className="text-white text-xl font-semibold">{examConfig?.title || 'Preparing…'}</p>
+            <p className="text-slate-500 text-sm mt-1">Preparing your exam…</p>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {[0,1,2].map(i => (
               <motion.div
                 key={i}
-                className="w-1.5 h-1.5 rounded-full bg-violet-500"
-                animate={{ opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ background: 'rgba(139,92,246,0.8)' }}
+                animate={{ opacity: [0.2, 1, 0.2] }}
+                transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.22 }}
               />
             ))}
           </div>
@@ -392,8 +402,9 @@ export default function StudentCertificationAttempt() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.8, ease: 'easeOut' }}
-      className="fixed inset-0 bg-slate-950 flex overflow-hidden"
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      className="fixed inset-0 flex overflow-hidden"
+      style={{ background: '#0a0a0f' }}
     >
       {/* Locked sidebar */}
       <ExamLockedSidebar isPaused={isPaused} />
@@ -401,289 +412,241 @@ export default function StudentCertificationAttempt() {
       {/* Main exam column */}
       <div className="flex-1 flex flex-col overflow-hidden">
 
-      {/* ── Top bar ─────────────────────────────────────────────── */}
-      <div className="flex-shrink-0 bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between">
-        {/* Left: branding + status */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg">
-            <Shield className="w-4 h-4 text-emerald-400" />
-            <span className="text-white text-xs font-bold tracking-widest">SECURE EXAM</span>
-          </div>
-          {violations.length > 0 && (
-            <span className="bg-red-500/20 text-red-400 text-xs font-semibold px-2 py-1 rounded-lg border border-red-500/30">
-              {violations.length} flag{violations.length > 1 ? 's' : ''}
-            </span>
-          )}
-        </div>
-
-        {/* Centre: exam title */}
-        <div className="hidden md:block text-center">
-          <p className="text-slate-200 text-sm font-semibold">{examConfig.title}</p>
-          <p className="text-slate-500 text-xs">Question {currentQuestionIndex} of {totalQuestions}</p>
-        </div>
-
-        {/* Right: timer + controls */}
-        <div className="flex items-center gap-3">
-          {timeRemaining !== null && (
-            <div className={`flex items-center gap-2 font-mono font-bold px-3 py-1.5 rounded-lg border
-              ${isPaused ? 'text-amber-400 border-amber-500/40 bg-amber-500/10'
-              : isTimeCritical ? 'text-red-400 border-red-500/40 bg-red-500/10 animate-pulse'
-              : 'text-white border-slate-700 bg-slate-800'}`}>
-              <Clock className="w-4 h-4" />
-              {isPaused ? 'PAUSED' : formatTime(timeRemaining)}
+        {/* Top bar */}
+        <div
+          className="flex-shrink-0 px-6 py-3 flex items-center justify-between"
+          style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg">
+              <Shield className="w-4 h-4 text-emerald-400" />
+              <span className="text-white text-xs font-bold tracking-widest">SECURE EXAM</span>
             </div>
-          )}
-
-          {isPaused ? (
-            <Button
-              onClick={handleResume}
-              size="sm"
-              className="bg-emerald-600 hover:bg-emerald-700 gap-1.5 text-xs"
-            >
-              <Play className="w-3.5 h-3.5" /> Resume
-            </Button>
-          ) : (
-            <Button
-              onClick={handleManualPause}
-              variant="outline"
-              size="sm"
-              className="border-slate-700 text-slate-300 hover:bg-slate-800 gap-1.5 text-xs"
-            >
-              <Pause className="w-3.5 h-3.5" /> Pause
-            </Button>
-          )}
-
-          {!isPaused && (
-            <>
-              <Link
-                to={createPageUrl(`StudentCertificationReview?id=${attemptId}`)}
-                className="text-slate-400 hover:text-slate-200 flex items-center gap-1.5 text-xs font-medium"
-              >
-                <List className="w-4 h-4" /> Review
-              </Link>
-              <Button
-                onClick={() => setShowEndExamDialog(true)}
-                variant="outline"
-                size="sm"
-                className="border-red-800 text-red-400 hover:bg-red-900/30 gap-1.5 text-xs"
-              >
-                <Flag className="w-3.5 h-3.5" /> End Exam
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* ── Progress bar ────────────────────────────────────────── */}
-      <div className="flex-shrink-0 bg-slate-900 px-6 pb-3 border-b border-slate-800">
-        <div className="flex items-center gap-3">
-          <div className="flex-1 bg-slate-800 rounded-full h-1.5">
-            <motion.div
-              className="h-full bg-violet-500 rounded-full"
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.3 }}
-            />
+            {violations.length > 0 && (
+              <span className="bg-red-500/20 text-red-400 text-xs font-semibold px-2 py-1 rounded-lg border border-red-500/30">
+                {violations.length} flag{violations.length > 1 ? 's' : ''}
+              </span>
+            )}
           </div>
-          <span className="text-slate-500 text-xs font-medium flex-shrink-0">{answeredCount}/{totalQuestions} answered</span>
+
+          <div className="hidden md:block text-center">
+            <p className="text-slate-200 text-sm font-semibold">{examConfig.title}</p>
+            <p className="text-slate-500 text-xs">Question {currentQuestionIndex} of {totalQuestions}</p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {timeRemaining !== null && (
+              <div className={`flex items-center gap-2 font-mono font-bold px-3 py-1.5 rounded-lg border
+                ${isPaused ? 'text-amber-400 border-amber-500/40 bg-amber-500/10'
+                : isTimeCritical ? 'text-red-400 border-red-500/40 bg-red-500/10 animate-pulse'
+                : 'text-white border-slate-700 bg-slate-800'}`}>
+                <Clock className="w-4 h-4" />
+                {isPaused ? 'PAUSED' : formatTime(timeRemaining)}
+              </div>
+            )}
+            {isPaused ? (
+              <Button onClick={handleResume} size="sm" className="bg-emerald-600 hover:bg-emerald-700 gap-1.5 text-xs">
+                <Play className="w-3.5 h-3.5" /> Resume
+              </Button>
+            ) : (
+              <Button onClick={handleManualPause} variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800 gap-1.5 text-xs">
+                <Pause className="w-3.5 h-3.5" /> Pause
+              </Button>
+            )}
+            {!isPaused && (
+              <>
+                <Link to={createPageUrl(`StudentCertificationReview?id=${attemptId}`)} className="text-slate-400 hover:text-slate-200 flex items-center gap-1.5 text-xs font-medium">
+                  <List className="w-4 h-4" /> Review
+                </Link>
+                <Button onClick={() => setShowEndExamDialog(true)} variant="outline" size="sm" className="border-red-800 text-red-400 hover:bg-red-900/30 gap-1.5 text-xs">
+                  <Flag className="w-3.5 h-3.5" /> End Exam
+                </Button>
+              </>
+            )}
+          </div>
         </div>
-        {currentSection && (
-          <p className="text-slate-500 text-xs mt-1.5">Section: <span className="text-slate-300">{currentSection.name}</span></p>
-        )}
-      </div>
 
-      {/* ── Body ────────────────────────────────────────────────── */}
-      <div className="flex-1 overflow-hidden flex">
+        {/* Progress bar */}
+        <div className="flex-shrink-0 px-6 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 bg-slate-800 rounded-full h-1.5">
+              <motion.div className="h-full bg-violet-500 rounded-full" animate={{ width: `${progress}%` }} transition={{ duration: 0.3 }} />
+            </div>
+            <span className="text-slate-500 text-xs font-medium flex-shrink-0">{answeredCount}/{totalQuestions} answered</span>
+          </div>
+          {currentSection && (
+            <p className="text-slate-500 text-xs mt-1.5">Section: <span className="text-slate-300">{currentSection.name}</span></p>
+          )}
+        </div>
 
-        {/* Question area */}
-        <div className="flex-1 overflow-y-auto px-6 py-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentQuestionIndex}
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -30 }}
-              transition={{ duration: 0.25 }}
-            >
-              {/* Question card */}
-              <div className={`bg-slate-900 rounded-2xl border p-8 mb-6 transition-all ${isPaused ? 'border-amber-500/40 opacity-60 pointer-events-none select-none' : 'border-slate-800'}`}>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
-                  Question {currentQuestionIndex}
-                </p>
-                <h2 className="text-xl font-semibold text-slate-100 leading-relaxed mb-8">
-                  {currentQuestion.question_text}
-                </h2>
+        {/* Body */}
+        <div className="flex-1 overflow-hidden flex">
 
-                {currentQuestion.question_type === 'single_choice' || currentQuestion.question_type === 'true_false' ? (
-                  <RadioGroup value={currentAnswer || ''} onValueChange={(v) => handleAnswerChange(v)}>
+          {/* Question area */}
+          <div className="flex-1 overflow-y-auto px-6 py-8">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentQuestionIndex}
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -30 }}
+                transition={{ duration: 0.25 }}
+              >
+                {/* Question card */}
+                <div
+                  className={`rounded-2xl p-8 mb-6 transition-all ${isPaused ? 'opacity-60 pointer-events-none select-none' : ''}`}
+                  style={{ background: 'rgba(255,255,255,0.03)', border: isPaused ? '1px solid rgba(251,191,36,0.25)' : '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)' }}
+                >
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
+                    Question {currentQuestionIndex}
+                  </p>
+                  <h2 className="text-xl font-semibold text-slate-100 leading-relaxed mb-8">
+                    {currentQuestion.question_text}
+                  </h2>
+
+                  {currentQuestion.question_type === 'single_choice' || currentQuestion.question_type === 'true_false' ? (
+                    <RadioGroup value={currentAnswer || ''} onValueChange={(v) => handleAnswerChange(v)}>
+                      <div className="space-y-3">
+                        {options.map((option) => (
+                          <label
+                            key={option.key}
+                            className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all
+                              ${currentAnswer === option.key
+                                ? 'border-violet-500 bg-violet-500/10 text-violet-200'
+                                : 'border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-500 hover:bg-slate-800'}`}
+                          >
+                            <RadioGroupItem value={option.key} id={`opt-${option.key}`} className="border-slate-500 text-violet-400" />
+                            <span className="font-medium">{option.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </RadioGroup>
+                  ) : (
                     <div className="space-y-3">
                       {options.map((option) => (
                         <label
                           key={option.key}
                           className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all
-                            ${currentAnswer === option.key
+                            ${(Array.isArray(currentAnswer) ? currentAnswer : []).includes(option.key)
                               ? 'border-violet-500 bg-violet-500/10 text-violet-200'
                               : 'border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-500 hover:bg-slate-800'}`}
                         >
-                          <RadioGroupItem value={option.key} id={`opt-${option.key}`} className="border-slate-500 text-violet-400" />
+                          <Checkbox
+                            id={`opt-${option.key}`}
+                            checked={(Array.isArray(currentAnswer) ? currentAnswer : []).includes(option.key)}
+                            onCheckedChange={() => handleAnswerChange(option.key, true)}
+                            className="border-slate-500"
+                          />
                           <span className="font-medium">{option.label}</span>
                         </label>
                       ))}
                     </div>
-                  </RadioGroup>
-                ) : (
-                  <div className="space-y-3">
-                    {options.map((option) => (
-                      <label
-                        key={option.key}
-                        className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all
-                          ${(Array.isArray(currentAnswer) ? currentAnswer : []).includes(option.key)
-                            ? 'border-violet-500 bg-violet-500/10 text-violet-200'
-                            : 'border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-500 hover:bg-slate-800'}`}
-                      >
-                        <Checkbox
-                          id={`opt-${option.key}`}
-                          checked={(Array.isArray(currentAnswer) ? currentAnswer : []).includes(option.key)}
-                          onCheckedChange={() => handleAnswerChange(option.key, true)}
-                          className="border-slate-500"
-                        />
-                        <span className="font-medium">{option.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
+                  )}
 
-                {showAnswerWarning && (
-                  <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-                    className="mt-5 flex items-center gap-2 text-amber-400 bg-amber-500/10 border border-amber-500/30 p-3 rounded-lg">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-sm font-medium">Please select an answer to continue.</span>
-                  </motion.div>
-                )}
+                  {showAnswerWarning && (
+                    <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+                      className="mt-5 flex items-center gap-2 text-amber-400 bg-amber-500/10 border border-amber-500/30 p-3 rounded-lg">
+                      <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm font-medium">Please select an answer to continue.</span>
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* Navigation */}
+                <div className="flex items-center justify-between">
+                  <div />
+                  {isLastQuestion ? (
+                    <Button onClick={handleFinalSubmit} disabled={isPaused} className="bg-emerald-600 hover:bg-emerald-700 gap-2 disabled:opacity-30">
+                      Submit Exam
+                    </Button>
+                  ) : (
+                    <Button onClick={handleNext} disabled={isPaused} className="bg-violet-600 hover:bg-violet-700 gap-2 disabled:opacity-30">
+                      Next <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Camera sidebar */}
+          <div className="flex-shrink-0 w-52 p-4 flex flex-col gap-4 overflow-y-auto" style={{ borderLeft: '1px solid rgba(255,255,255,0.06)' }}>
+            <ExamCameraMonitor ref={cameraRef} studentName={user?.full_name || user?.email} />
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 text-center">
+              <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-widest mb-1">Integrity</p>
+              <div className={`text-xs font-bold ${violations.length === 0 ? 'text-emerald-400' : violations.length < 3 ? 'text-amber-400' : 'text-red-400'}`}>
+                {violations.length === 0 ? 'Clean session' : `${violations.length} flag${violations.length > 1 ? 's' : ''} logged`}
               </div>
-
-              {/* Navigation */}
-              <div className="flex items-center justify-between">
-                {/* No back navigation — answers are locked once submitted */}
-                <div />
-
-                {isLastQuestion ? (
-                  <Button
-                    onClick={handleFinalSubmit}
-                    disabled={isPaused}
-                    className="bg-emerald-600 hover:bg-emerald-700 gap-2 disabled:opacity-30"
-                  >
-                    Submit Exam
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={handleNext}
-                    disabled={isPaused}
-                    className="bg-violet-600 hover:bg-violet-700 gap-2 disabled:opacity-30"
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Camera sidebar */}
-        <div className="flex-shrink-0 w-56 border-l border-slate-800 p-4 flex flex-col gap-4 overflow-y-auto">
-          <ExamCameraMonitor
-            ref={cameraRef}
-            studentName={user?.full_name || user?.email}
-          />
-
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 text-center">
-            <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-widest mb-1">Integrity</p>
-            <div className={`text-xs font-bold ${violations.length === 0 ? 'text-emerald-400' : violations.length < 3 ? 'text-amber-400' : 'text-red-400'}`}>
-              {violations.length === 0 ? 'Clean session' : `${violations.length} flag${violations.length > 1 ? 's' : ''} logged`}
             </div>
           </div>
         </div>
-      </div>
 
-      {/* ── Pause overlay ───────────────────────────────────────── */}
-      <AnimatePresence>
-        {isPaused && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-slate-950/90 z-40 flex flex-col items-center justify-center gap-6 p-8"
-          >
-            <div className="bg-slate-900 border border-slate-700 rounded-2xl p-10 max-w-md w-full text-center shadow-2xl">
-              {showFocusWarning ? (
-                <>
-                  <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-5">
-                    <AlertTriangle className="w-8 h-8 text-red-400" />
+        {/* Pause overlay */}
+        <AnimatePresence>
+          {isPaused && (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-950/90 z-40 flex flex-col items-center justify-center gap-6 p-8"
+            >
+              <div className="bg-slate-900 border border-slate-700 rounded-2xl p-10 max-w-md w-full text-center shadow-2xl">
+                {showFocusWarning ? (
+                  <>
+                    <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-5">
+                      <AlertTriangle className="w-8 h-8 text-red-400" />
+                    </div>
+                    <h2 className="text-white text-xl font-bold mb-2">Exam Paused</h2>
+                    <p className="text-slate-400 text-sm mb-1">{focusWarningMessage}</p>
+                    <p className="text-red-400 text-xs font-semibold mb-6">This incident has been logged with a timestamp.</p>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-5">
+                      <Pause className="w-8 h-8 text-amber-400" />
+                    </div>
+                    <h2 className="text-white text-xl font-bold mb-2">Exam Paused</h2>
+                    <p className="text-slate-400 text-sm mb-6">Timer is frozen. Camera must be active to resume.</p>
+                  </>
+                )}
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 text-slate-400 text-xs justify-center mb-3">
+                    <Camera className="w-3.5 h-3.5" /> Camera must be active to resume
                   </div>
-                  <h2 className="text-white text-xl font-bold mb-2">Exam Paused</h2>
-                  <p className="text-slate-400 text-sm mb-1">{focusWarningMessage}</p>
-                  <p className="text-red-400 text-xs font-semibold mb-6">This incident has been logged with a timestamp.</p>
-                </>
-              ) : (
-                <>
-                  <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-5">
-                    <Pause className="w-8 h-8 text-amber-400" />
-                  </div>
-                  <h2 className="text-white text-xl font-bold mb-2">Exam Paused</h2>
-                  <p className="text-slate-400 text-sm mb-6">Timer is frozen. Camera must be active to resume.</p>
-                </>
-              )}
-
-              <div className="mb-6">
-                <div className="flex items-center gap-2 text-slate-400 text-xs justify-center mb-3">
-                  <Camera className="w-3.5 h-3.5" />
-                  Camera must be active to resume
+                  <ExamCameraMonitor ref={cameraRef} studentName={user?.full_name || user?.email} />
                 </div>
-                <ExamCameraMonitor
-                  ref={cameraRef}
-                  studentName={user?.full_name || user?.email}
-                />
+                <Button onClick={handleResume} size="lg" className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2">
+                  <Play className="w-4 h-4" /> Resume Exam
+                </Button>
+                <p className="text-slate-600 text-xs mt-3">Navigation is unlocked while paused — use the sidebar to navigate.</p>
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-              <Button
-                onClick={handleResume}
-                size="lg"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2"
-              >
-                <Play className="w-4 h-4" /> Resume Exam
+        {/* End exam dialog */}
+        <Dialog open={showEndExamDialog} onOpenChange={setShowEndExamDialog}>
+          <DialogContent className="bg-slate-900 border-slate-700 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-white">Submit exam now?</DialogTitle>
+              <DialogDescription className="space-y-3 pt-4">
+                <p className="font-semibold text-slate-200">This will submit your exam immediately.</p>
+                <ul className="list-disc list-inside space-y-2 text-sm text-slate-400">
+                  <li>Any unanswered questions will be marked incorrect.</li>
+                  <li>This counts as a completed attempt and cannot be undone.</li>
+                  <li>You will not be able to resume this attempt.</li>
+                </ul>
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowEndExamDialog(false)} disabled={submittingEarly}
+                className="border-slate-700 text-slate-300 hover:bg-slate-800">Cancel</Button>
+              <Button onClick={() => { setShowEndExamDialog(false); handleEarlySubmit(); }}
+                disabled={submittingEarly} className="bg-red-600 hover:bg-red-700">
+                {submittingEarly ? 'Submitting…' : 'Submit Now'}
               </Button>
-              <p className="text-slate-600 text-xs mt-3">Navigation is locked while paused.</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-      {/* ── End exam dialog ─────────────────────────────────────── */}
-      <Dialog open={showEndExamDialog} onOpenChange={setShowEndExamDialog}>
-        <DialogContent className="bg-slate-900 border-slate-700 text-white">
-          <DialogHeader>
-            <DialogTitle className="text-white">Submit exam now?</DialogTitle>
-            <DialogDescription className="space-y-3 pt-4">
-              <p className="font-semibold text-slate-200">This will submit your exam immediately.</p>
-              <ul className="list-disc list-inside space-y-2 text-sm text-slate-400">
-                <li>Any unanswered questions will be marked incorrect.</li>
-                <li>This counts as a completed attempt and cannot be undone.</li>
-                <li>You will not be able to resume this attempt.</li>
-              </ul>
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEndExamDialog(false)} disabled={submittingEarly}
-              className="border-slate-700 text-slate-300 hover:bg-slate-800">
-              Cancel
-            </Button>
-            <Button onClick={() => { setShowEndExamDialog(false); handleEarlySubmit(); }}
-              disabled={submittingEarly} className="bg-red-600 hover:bg-red-700">
-              {submittingEarly ? 'Submitting…' : 'Submit Now'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
       </div>{/* end main exam column */}
     </motion.div>
   );

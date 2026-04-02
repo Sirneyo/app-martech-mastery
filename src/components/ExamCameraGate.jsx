@@ -1,14 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Camera, CameraOff, CheckCircle, XCircle, Loader } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Camera, CameraOff, CheckCircle, Loader } from 'lucide-react';
 
-/**
- * Camera gate shown on the Ready page.
- * Props:
- *   onPass  — called when camera confirmed working
- *   onFail  — called when camera access denied
- */
 export default function ExamCameraGate({ onPass }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
@@ -36,80 +29,99 @@ export default function ExamCameraGate({ onPass }) {
   }, []);
 
   const handleProceed = () => {
-    // Stop the gate stream — the attempt page will open its own
     streamRef.current?.getTracks().forEach(t => t.stop());
     onPass();
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden"
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="relative rounded-2xl overflow-hidden"
+      style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 48px rgba(0,0,0,0.4)' }}
     >
-      <div className="bg-slate-900 px-6 py-4 flex items-center gap-3">
-        <Camera className="w-5 h-5 text-white" />
-        <h2 className="text-white font-semibold text-sm tracking-wide">CAMERA VERIFICATION</h2>
-        <div className={`ml-auto flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full
-          ${status === 'ok' ? 'bg-emerald-500 text-white' : status === 'denied' ? 'bg-red-500 text-white' : 'bg-slate-700 text-slate-300'}`}>
-          {status === 'requesting' && <><Loader className="w-3 h-3 animate-spin" /> Checking</>}
-          {status === 'ok' && <><CheckCircle className="w-3 h-3" /> Camera Ready</>}
-          {status === 'denied' && <><XCircle className="w-3 h-3" /> Access Denied</>}
+      {/* Top shimmer */}
+      <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.5), transparent)' }} />
+
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="flex items-center gap-2.5">
+          <Camera className="w-4 h-4 text-slate-400" />
+          <span className="text-xs font-bold text-slate-300 tracking-widest uppercase">Camera Verification</span>
         </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={status}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
+              status === 'ok' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+              status === 'denied' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+              'bg-slate-700/50 text-slate-400 border border-slate-600/30'
+            }`}
+          >
+            {status === 'requesting' && <><Loader className="w-3 h-3 animate-spin" /> Checking</>}
+            {status === 'ok' && <><CheckCircle className="w-3 h-3" /> Ready</>}
+            {status === 'denied' && <>Denied</>}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
-      <div className="p-6">
-        {/* Video preview */}
-        <div className="relative rounded-xl overflow-hidden bg-slate-900 mb-5" style={{ aspectRatio: '4/3', maxWidth: 320, margin: '0 auto 20px' }}>
+      {/* Video */}
+      <div className="p-5">
+        <div className="relative rounded-xl overflow-hidden mx-auto mb-5 bg-slate-950" style={{ aspectRatio: '4/3', maxWidth: 280 }}>
           {status === 'requesting' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-2">
-              <Loader className="w-8 h-8 animate-spin" />
-              <span className="text-xs">Requesting access…</span>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+              <Loader className="w-7 h-7 text-slate-500 animate-spin" />
+              <span className="text-xs text-slate-500">Requesting access…</span>
             </div>
           )}
           {status === 'denied' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-red-400 gap-3 px-6 text-center">
-              <CameraOff className="w-10 h-10" />
-              <p className="text-sm font-medium text-slate-300">Camera access was denied.</p>
-              <p className="text-xs text-slate-400">Please allow camera access in your browser settings and reload the page.</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center">
+              <CameraOff className="w-9 h-9 text-slate-600" />
+              <p className="text-xs text-slate-400 leading-relaxed">Camera access denied. Please allow camera access in your browser settings and reload.</p>
             </div>
           )}
           <video
             ref={videoRef}
-            autoPlay
-            muted
-            playsInline
-            className={`w-full h-full object-cover ${status !== 'ok' ? 'opacity-0' : ''}`}
-            style={{ display: 'block' }}
+            autoPlay muted playsInline
+            className={`w-full h-full object-cover transition-opacity duration-500 ${status !== 'ok' ? 'opacity-0' : 'opacity-100'}`}
           />
           {status === 'ok' && (
-            <div className="absolute bottom-2 left-2 flex items-center gap-1.5 bg-black/60 px-2 py-1 rounded-full">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-white text-[10px] font-semibold tracking-wide">LIVE</span>
-            </div>
+            <>
+              {/* Corner brackets */}
+              {['top-2 left-2 border-t border-l', 'top-2 right-2 border-t border-r', 'bottom-2 left-2 border-b border-l', 'bottom-2 right-2 border-b border-r'].map((cls, i) => (
+                <div key={i} className={`absolute w-4 h-4 ${cls} border-violet-400/60`} />
+              ))}
+              <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded-full">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[9px] text-white font-bold tracking-wider">LIVE</span>
+              </div>
+            </>
           )}
         </div>
 
+        {/* CTA */}
         {status === 'ok' && (
-          <div className="flex flex-col items-center gap-4">
-            <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-lg text-sm font-medium">
-              <CheckCircle className="w-4 h-4" />
-              Camera confirmed — you may begin
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+            <div className="flex items-center justify-center gap-2 text-xs text-emerald-400">
+              <CheckCircle className="w-3.5 h-3.5" />
+              Camera confirmed — you may proceed
             </div>
-            <Button
+            <button
               onClick={handleProceed}
-              size="lg"
-              className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-base py-5"
+              className="w-full py-3.5 rounded-xl text-sm font-bold text-white transition-all"
+              style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', boxShadow: '0 8px 24px rgba(109,40,217,0.35)' }}
             >
               Proceed to Begin Exam
-            </Button>
-          </div>
+            </button>
+          </motion.div>
         )}
 
         {status === 'denied' && (
-          <div className="flex items-center gap-2 justify-center text-red-700 bg-red-50 border border-red-200 px-4 py-3 rounded-lg text-sm font-medium">
-            <XCircle className="w-4 h-4" />
-            You cannot start the exam without camera access.
+          <div className="text-center text-xs text-red-400 py-2">
+            Camera access is required to sit this exam.
           </div>
         )}
       </div>

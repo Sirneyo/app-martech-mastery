@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
 import { CheckCircle, Clock, Target, Trophy, AlertCircle } from 'lucide-react';
 import ExamCameraGate from '@/components/ExamCameraGate';
 import { motion } from 'framer-motion';
@@ -113,72 +112,74 @@ export default function StudentCertificationReady() {
   const attemptsAllowed = examConfig.attempts_allowed || 4;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-8">
+    <div
+      className="min-h-screen flex items-center justify-center p-8"
+      style={{ background: '#0a0a0f', backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(109,40,217,0.15) 0%, transparent 60%)' }}
+    >
       <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 16 }}
+        initial={{ opacity: 0, scale: 0.96, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        className="relative overflow-hidden bg-slate-800/80 rounded-3xl p-10 max-w-2xl w-full border border-slate-700 shadow-2xl backdrop-blur-sm"
+        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+        className="relative w-full max-w-2xl rounded-3xl overflow-hidden"
+        style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.09)', boxShadow: '0 40px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)' }}
       >
         {/* Top shimmer */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-400/50 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-900/10 via-transparent to-purple-900/10 pointer-events-none" />
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.6), transparent)' }} />
 
-        <div className="relative text-center mb-8">
-          <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.15, type: 'spring', stiffness: 180 }}
-            className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-full flex items-center justify-center mx-auto mb-5 shadow-xl shadow-emerald-900/40"
-          >
-            <CheckCircle className="w-10 h-10 text-white" />
-          </motion.div>
-          <h1 className="text-3xl font-bold text-white mb-2">Your Exam is Ready</h1>
-          <p className="text-slate-400">Everything is prepared. Complete the camera check and begin when ready.</p>
-        </div>
-
-        <div className="relative grid grid-cols-2 gap-4 mb-6">
-          {[
-            { icon: Target, label: 'Total Questions', value: examConfig.total_questions || 80, color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/20' },
-            { icon: Trophy, label: 'To Pass', value: `${examConfig.pass_correct_required || 65}/${examConfig.total_questions || 80}`, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-          ].map(({ icon: Icon, label, value, color, bg }) => (
-            <div key={label} className={`rounded-2xl border p-5 text-center ${bg}`}>
-              <Icon className={`w-6 h-6 mx-auto mb-2 ${color}`} />
-              <p className="text-xs text-slate-500 mb-1">{label}</p>
-              <p className={`text-2xl font-bold ${color}`}>{value}</p>
-            </div>
-          ))}
-          <div className="col-span-2 rounded-2xl border bg-amber-500/10 border-amber-500/20 p-5 text-center">
-            <Clock className="w-6 h-6 mx-auto mb-2 text-amber-400" />
-            <p className="text-xs text-slate-500 mb-1">Time Limit</p>
-            <p className="text-2xl font-bold text-amber-400">{examConfig?.time_limit_minutes || 100} minutes</p>
+        <div className="px-8 pt-10 pb-8">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 180 }}
+              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+              style={{ background: 'linear-gradient(135deg, #10b981, #059669)', boxShadow: '0 12px 32px rgba(16,185,129,0.3)' }}
+            >
+              <CheckCircle className="w-8 h-8 text-white" />
+            </motion.div>
+            <h1 className="text-3xl font-bold text-white mb-2">Your Exam is Ready</h1>
+            <p className="text-slate-400 text-sm">Complete camera verification below, then begin when you are ready.</p>
           </div>
-        </div>
 
-        <div className="relative bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 mb-6">
-          <p className="text-amber-300 text-sm font-semibold mb-1">⚠️ Attempt {attemptsUsed} of {attemptsAllowed}</p>
-          <p className="text-amber-500/80 text-xs">
-            Once you begin, the {examConfig?.time_limit_minutes || 100}-minute timer starts and cannot be paused. The exam will auto-submit when time expires.
-          </p>
-        </div>
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            {[
+              { icon: Target, label: 'Questions', value: examConfig.total_questions || 80, color: 'text-violet-400' },
+              { icon: Trophy, label: 'To Pass', value: `${examConfig.pass_correct_required || 65}/${examConfig.total_questions || 80}`, color: 'text-emerald-400' },
+              { icon: Clock, label: 'Time Limit', value: `${examConfig.time_limit_minutes || 100}m`, color: 'text-amber-400' },
+            ].map(({ icon: Icon, label, value, color }) => (
+              <div key={label} className="rounded-2xl p-4 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                <Icon className={`w-5 h-5 mx-auto mb-1.5 ${color}`} />
+                <p className="text-xs text-slate-500 mb-0.5">{label}</p>
+                <p className={`text-lg font-bold ${color}`}>{value}</p>
+              </div>
+            ))}
+          </div>
 
-        <div className="relative">
+          {/* Warning */}
+          <div className="rounded-2xl p-4 mb-6" style={{ background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.15)' }}>
+            <p className="text-amber-300 text-xs font-semibold mb-1">Attempt {attemptsUsed} of {attemptsAllowed}</p>
+            <p className="text-amber-500/80 text-xs">Once started, the {examConfig?.time_limit_minutes || 100}-minute timer cannot be paused. The exam auto-submits on expiry.</p>
+          </div>
+
+          {/* Camera gate or begin */}
           {!cameraCleared ? (
             <ExamCameraGate onPass={() => setCameraCleared(true)} />
           ) : (
-            <>
-              <Button
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+              <button
                 onClick={handleBeginExam}
                 disabled={startExamMutation.isPending}
-                size="lg"
-                className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-bold text-base py-6 rounded-xl shadow-lg shadow-violet-900/40 transition-all"
+                className="w-full py-4 rounded-xl text-base font-bold text-white transition-all disabled:opacity-50"
+                style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', boxShadow: '0 12px 32px rgba(109,40,217,0.4)' }}
               >
-                {startExamMutation.isPending ? 'Starting...' : 'Begin Exam'}
-              </Button>
-              <p className="text-center text-xs text-slate-500 mt-3">
+                {startExamMutation.isPending ? 'Starting…' : 'Begin Exam'}
+              </button>
+              <p className="text-center text-xs text-slate-600 mt-3">
                 By clicking "Begin Exam", you agree to complete the exam honestly and without external assistance.
               </p>
-            </>
+            </motion.div>
           )}
         </div>
       </motion.div>

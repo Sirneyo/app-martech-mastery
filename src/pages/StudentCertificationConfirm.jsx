@@ -228,96 +228,100 @@ export default function StudentCertificationConfirm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8 flex items-center justify-center">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-2xl p-8 max-w-2xl shadow-lg border border-slate-200"
+    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-6" style={{ backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(109,40,217,0.15) 0%, transparent 60%)' }}>
+      {/* Curtain open entrance */}
+      <motion.div
+        initial={{ opacity: 0, scaleY: 0.92, y: 30 }}
+        animate={{ opacity: 1, scaleY: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-xl"
       >
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertTriangle className="w-10 h-10 text-amber-600" />
-          </div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">
-            Confirm Exam Start
-          </h1>
-          <p className="text-slate-600">
-            Please read the following carefully before proceeding
-          </p>
-        </div>
+        {/* Glass card */}
+        <div className="relative rounded-3xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.09)', boxShadow: '0 40px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)' }}>
+          {/* Top shimmer line */}
+          <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.6), transparent)' }} />
 
-        <Alert className="mb-6 border-amber-200 bg-amber-50">
-          <AlertTriangle className="h-5 w-5 text-amber-600" />
-          <AlertDescription className="text-amber-800">
-            <div className="space-y-2 mt-2">
-              <p className="font-semibold">⚠️ Important Information:</p>
-              <ul className="list-disc list-inside space-y-1 text-sm">
-                <li>Starting the certification exam will use <strong>1 attempt immediately</strong></li>
-                <li>Once your questions are generated, <strong>this cannot be undone</strong></li>
-                <li>If you leave, you can return to the same attempt, <strong>but it still counts</strong></li>
-                <li>You have <strong>{examConfig?.attempts_allowed || 4} total attempts</strong> available</li>
-              </ul>
+          <div className="px-8 pt-10 pb-8">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <p className="text-violet-400 text-xs font-bold tracking-widest uppercase mb-3">MarTech Mastery</p>
+              <h1 className="text-3xl font-bold text-white mb-2">Certification Exam</h1>
+              <p className="text-slate-400 text-sm">Read the information below carefully before proceeding</p>
             </div>
-          </AlertDescription>
-        </Alert>
 
-        <div className="bg-slate-50 rounded-xl p-6 mb-6">
-          <h3 className="font-bold text-slate-900 mb-3">Exam Details:</h3>
-          <div className="space-y-2 text-sm text-slate-700">
-            <div className="flex justify-between">
-              <span>Total Questions:</span>
-              <span className="font-semibold">{examConfig?.total_questions || 80}</span>
+            {/* Info grid */}
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              {[
+                { label: 'Questions', value: examConfig?.total_questions || 80 },
+                { label: 'To Pass', value: `${examConfig?.pass_correct_required || 65}/${examConfig?.total_questions || 80}` },
+                { label: 'Attempts', value: `${attempts.filter(a=>a.prepared_at).length + 1} of ${examConfig?.attempts_allowed || 4}` },
+              ].map(({ label, value }) => (
+                <div key={label} className="rounded-xl py-4 px-3 text-center" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <p className="text-xs text-slate-500 mb-1 uppercase tracking-wide">{label}</p>
+                  <p className="text-lg font-bold text-white">{value}</p>
+                </div>
+              ))}
             </div>
-            <div className="flex justify-between">
-              <span>Pass Requirement:</span>
-              <span className="font-semibold">{examConfig?.pass_correct_required || 65} / {examConfig?.total_questions || 80} correct</span>
+
+            {/* Rules */}
+            <div className="rounded-2xl p-5 mb-6 space-y-2.5" style={{ background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.15)' }}>
+              {[
+                'Starting the exam uses 1 attempt immediately — this cannot be undone',
+                'You may leave and return to the same attempt, but it still counts as used',
+                'Camera must remain active throughout the exam session',
+                'Switching tabs or losing focus will pause and flag your session',
+              ].map((rule, i) => (
+                <div key={i} className="flex items-start gap-2.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />
+                  <p className="text-sm text-slate-300">{rule}</p>
+                </div>
+              ))}
             </div>
-            {examConfig?.duration_minutes && (
-              <div className="flex justify-between">
-                <span>Time Limit:</span>
-                <span className="font-semibold">{examConfig.duration_minutes} minutes</span>
+
+            {error && (
+              <div className="rounded-xl p-4 mb-5" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                <p className="text-red-400 text-sm">{error}</p>
               </div>
             )}
+
+            {/* Type READY */}
+            <div className="mb-6">
+              <p className="text-xs text-slate-400 uppercase tracking-widest mb-3 text-center">
+                Type <span className="text-violet-400 font-bold">READY</span> to confirm you understand
+              </p>
+              <input
+                value={readyInput}
+                onChange={(e) => setReadyInput(e.target.value)}
+                placeholder="READY"
+                disabled={creating}
+                className="w-full text-center text-xl font-bold text-white py-4 rounded-xl outline-none tracking-widest placeholder-slate-700 transition-all"
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: readyInput === 'READY' ? '1px solid rgba(139,92,246,0.6)' : '1px solid rgba(255,255,255,0.08)',
+                  boxShadow: readyInput === 'READY' ? '0 0 20px rgba(139,92,246,0.2)' : 'none',
+                }}
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => window.location.href = createPageUrl('StudentCertification')}
+                disabled={creating}
+                className="flex-1 py-3.5 rounded-xl text-sm font-semibold text-slate-400 transition-all hover:text-white"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePrepareExam}
+                disabled={readyInput !== 'READY' || creating}
+                className="flex-1 py-3.5 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-30"
+                style={{ background: readyInput === 'READY' ? 'linear-gradient(135deg, #7c3aed, #6d28d9)' : 'rgba(109,40,217,0.3)', boxShadow: readyInput === 'READY' ? '0 8px 24px rgba(109,40,217,0.35)' : 'none' }}
+              >
+                {creating ? 'Preparing exam…' : 'Prepare My Exam'}
+              </button>
+            </div>
           </div>
-        </div>
-
-        {error && (
-          <Alert className="mb-6 border-red-200 bg-red-50">
-            <AlertDescription className="text-red-800">
-              {error}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-slate-700 mb-2">
-            Type <span className="font-bold text-violet-600">READY</span> to confirm (case-sensitive):
-          </label>
-          <Input
-            value={readyInput}
-            onChange={(e) => setReadyInput(e.target.value)}
-            placeholder="Type READY here"
-            className="text-lg text-center font-semibold"
-            disabled={creating}
-          />
-        </div>
-
-        <div className="flex gap-3">
-          <Button
-            onClick={() => window.location.href = createPageUrl('StudentCertification')}
-            variant="outline"
-            className="flex-1"
-            disabled={creating}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handlePrepareExam}
-            disabled={readyInput !== 'READY' || creating}
-            className="flex-1 bg-violet-600 hover:bg-violet-700"
-          >
-            {creating ? 'Preparing...' : 'Prepare My Exam'}
-          </Button>
         </div>
       </motion.div>
     </div>

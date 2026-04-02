@@ -19,9 +19,12 @@ const NAV_ITEMS = [
  */
 export default function ExamLockedSidebar({ isPaused }) {
   return (
-    <div className="relative flex-shrink-0 w-[68px] bg-slate-900 border-r border-slate-800 flex flex-col items-center py-4 gap-1 overflow-hidden">
+    <div
+      className="relative flex-shrink-0 w-[68px] flex flex-col items-center py-4 gap-1 overflow-hidden"
+      style={{ background: 'rgba(10,10,15,0.95)', borderRight: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}
+    >
       {/* Logo mark */}
-      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center mb-3 flex-shrink-0">
+      <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3 flex-shrink-0" style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)' }}>
         <GraduationCap className="w-4 h-4 text-white" />
       </div>
 
@@ -31,7 +34,10 @@ export default function ExamLockedSidebar({ isPaused }) {
             key={page}
             to={createPageUrl(page)}
             title={label}
-            className="w-11 h-11 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+            className="w-11 h-11 rounded-xl flex items-center justify-center transition-all"
+            style={{ color: 'rgba(148,163,184,0.8)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'white'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(148,163,184,0.8)'; }}
           >
             <Icon className="w-5 h-5" />
           </Link>
@@ -39,7 +45,8 @@ export default function ExamLockedSidebar({ isPaused }) {
           <div
             key={page}
             title={`${label} — locked during exam`}
-            className="w-11 h-11 rounded-xl flex items-center justify-center text-slate-700 cursor-not-allowed"
+            className="w-11 h-11 rounded-xl flex items-center justify-center cursor-not-allowed"
+            style={{ color: 'rgba(255,255,255,0.15)' }}
           >
             <Icon className="w-5 h-5" />
           </div>
@@ -48,9 +55,9 @@ export default function ExamLockedSidebar({ isPaused }) {
 
       {/* Lock badge */}
       {!isPaused && (
-        <div className="mt-auto pb-2 flex flex-col items-center gap-1">
-          <div className="w-7 h-7 rounded-lg bg-red-900/40 border border-red-700/40 flex items-center justify-center">
-            <Lock className="w-3.5 h-3.5 text-red-400" />
+        <div className="mt-auto pb-2 flex flex-col items-center">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)' }}>
+            <Lock className="w-3.5 h-3.5 text-red-400/70" />
           </div>
         </div>
       )}
