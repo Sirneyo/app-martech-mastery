@@ -20,7 +20,6 @@ const PAGE_ACCESS = {
   StudentCertification: ['student'],
   StudentCertificationAttempt: ['student'],
   StudentCertificationConfirm: ['student'],
-  StudentCertificationReady: ['student'],
   StudentCertificationResults: ['student'],
   StudentCertificationLoading: ['student'],
   StudentCertificationReview: ['student'],

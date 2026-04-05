@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { AlertCircle, Shield, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function StudentCertificationLoading() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -12,6 +12,8 @@ export default function StudentCertificationLoading() {
 
   const [stage, setStage] = useState(0);
   const [error, setError] = useState(null);
+  const [screenShareStatus, setScreenShareStatus] = useState('pending'); // pending | requesting | granted | denied
+  const [screenStream, setScreenStream] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -27,117 +29,237 @@ export default function StudentCertificationLoading() {
     enabled: !!attemptId,
   });
 
+  const { data: examConfig } = useQuery({
+    queryKey: ['exam-config', attempt?.exam_id],
+    queryFn: async () => {
+      const configs = await base44.entities.ExamConfig.filter({ id: attempt.exam_id });
+      return configs[0];
+    },
+    enabled: !!attempt?.exam_id,
+  });
+
   const stages = [
-    'Gathering your questions...',
-    'Randomising your sections...',
-    'Preparing exam environment...',
-    'Securing your attempt...',
-    'Almost there...'
+    'Gathering your questions…',
+    'Randomising your sections…',
+    'Preparing exam environment…',
+    'Securing your attempt…',
+    'Almost there…',
   ];
 
-  useEffect(() => {
-    if (!user?.id || !attempt?.id) return;
+  const requestScreenShare = async () => {
+    setScreenShareStatus('requesting');
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { cursor: 'always' },
+        audio: false,
+      });
+      setScreenStream(stream);
+      setScreenShareStatus('granted');
+    } catch (err) {
+      setScreenShareStatus('denied');
+    }
+  };
 
-    // Validate access
+  const proceedToExam = async () => {
+    try {
+      let stageIdx = 0;
+      const stageInterval = setInterval(() => {
+        stageIdx = Math.min(stageIdx + 1, stages.length - 1);
+        setStage(stageIdx);
+      }, 550);
+
+      await new Promise(resolve => setTimeout(resolve, 2800));
+      clearInterval(stageInterval);
+
+      // Start the exam — set started_at and expires_at
+      const startedAt = new Date();
+      const timeLimitMinutes = examConfig?.time_limit_minutes || 100;
+      const expiresAt = new Date(startedAt.getTime() + timeLimitMinutes * 60000);
+
+      await base44.entities.ExamAttempt.update(attemptId, {
+        attempt_status: 'in_progress',
+        started_at: startedAt.toISOString(),
+        expires_at: expiresAt.toISOString(),
+      });
+
+      window.location.href = createPageUrl(`StudentCertificationAttempt?id=${attemptId}`);
+    } catch (err) {
+      setError(err.message || 'Failed to start exam. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    if (!user?.id || !attempt?.id || !examConfig) return;
+
     if (attempt.student_user_id !== user.id) {
       setError('Access denied: This attempt belongs to another student.');
       return;
     }
 
-    if (!['prepared'].includes(attempt.attempt_status)) {
-      setError('This attempt has already been started or submitted.');
+    if (attempt.attempt_status === 'submitted') {
+      window.location.href = createPageUrl(`StudentCertificationResults?id=${attemptId}`);
       return;
     }
 
-    let stageInterval;
+    if (attempt.attempt_status === 'in_progress') {
+      window.location.href = createPageUrl(`StudentCertificationAttempt?id=${attemptId}`);
+      return;
+    }
 
-    const loadAttempt = async () => {
-      try {
-        // Progress through stages
-        stageInterval = setInterval(() => {
-          setStage(prev => Math.min(prev + 1, stages.length - 1));
-        }, 600);
+    // attempt_status === 'prepared' — show screen share request
+  }, [user?.id, attempt?.id, attempt?.student_user_id, attempt?.attempt_status, examConfig]);
 
-        // Simulate loading delay
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        
-        // Clear interval and redirect to ready screen
-        clearInterval(stageInterval);
-        setTimeout(() => {
-          window.location.href = createPageUrl(`StudentCertificationReady?id=${attempt.id}`);
-        }, 500);
-      } catch (error) {
-        clearInterval(stageInterval);
-        console.error('Error loading exam attempt:', error);
-        setError(error.message);
-      }
-    };
-
-    loadAttempt();
-
-    return () => {
-      if (stageInterval) clearInterval(stageInterval);
-    };
-  }, [user?.id, attempt?.id, attempt?.student_user_id, attempt?.attempt_status]);
+  // Once screen share is granted, auto-proceed
+  useEffect(() => {
+    if (screenShareStatus === 'granted') {
+      proceedToExam();
+    }
+  }, [screenShareStatus]);
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-8">
-        <motion.div 
+      <div className="min-h-screen flex items-center justify-center p-8" style={{ background: '#0a0a0f' }}>
+        <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-2xl p-8 max-w-md shadow-lg border border-red-200"
+          className="bg-slate-900 rounded-2xl p-8 max-w-md border border-red-500/30 text-center"
         >
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <AlertCircle className="w-8 h-8 text-red-600" />
+          <div className="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-5">
+            <AlertCircle className="w-7 h-7 text-red-400" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 text-center mb-4">
-            Unable to Start Exam
-          </h2>
-          <p className="text-slate-600 text-center mb-6">
-            {error}
-          </p>
-          <Button
-            onClick={() => window.location.href = createPageUrl('StudentCertificationConfirm')}
-            className="w-full bg-violet-600 hover:bg-violet-700"
-          >
-            Back to Confirm
+          <h2 className="text-xl font-bold text-white mb-2">Unable to Start Exam</h2>
+          <p className="text-slate-400 text-sm mb-6">{error}</p>
+          <Button onClick={() => window.location.href = createPageUrl('StudentCertification')} className="w-full bg-violet-600 hover:bg-violet-700">
+            Back to Certification
           </Button>
         </motion.div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 to-purple-50 flex items-center justify-center p-8">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center"
-      >
-        <div className="mb-8">
-          <Loader2 className="w-16 h-16 text-violet-600 animate-spin mx-auto mb-4" />
-        </div>
-        <motion.h2 
-          key={stage}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-2xl font-bold text-slate-900 mb-2"
+  // Screen share prompt
+  if (screenShareStatus === 'pending' || screenShareStatus === 'requesting' || screenShareStatus === 'denied') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: '#0a0a0f', backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(109,40,217,0.15) 0%, transparent 60%)' }}>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-lg"
         >
-          {stages[stage]}
-        </motion.h2>
-        <p className="text-slate-500">Please wait while we prepare your exam</p>
-        
-        <div className="mt-8 flex justify-center gap-2">
-          {stages.map((_, idx) => (
-            <motion.div
-              key={idx}
-              className={`w-2 h-2 rounded-full ${
-                idx <= stage ? 'bg-violet-600' : 'bg-slate-300'
-              }`}
-              animate={{ scale: idx === stage ? [1, 1.5, 1] : 1 }}
-              transition={{ repeat: idx === stage ? Infinity : 0, duration: 1 }}
-            />
+          <div className="relative rounded-3xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.09)', boxShadow: '0 40px 80px rgba(0,0,0,0.6)' }}>
+            <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.6), transparent)' }} />
+
+            <div className="px-8 pt-10 pb-8">
+              <div className="text-center mb-8">
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.15, type: 'spring', stiffness: 180 }}
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
+                  style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', boxShadow: '0 12px 32px rgba(109,40,217,0.4)' }}
+                >
+                  <Monitor className="w-8 h-8 text-white" />
+                </motion.div>
+                <p className="text-violet-400 text-xs font-bold tracking-widest uppercase mb-2">Exam Proctoring</p>
+                <h1 className="text-2xl font-bold text-white mb-2">Screen Sharing Required</h1>
+                <p className="text-slate-400 text-sm leading-relaxed">
+                  To maintain academic integrity, you must share your screen for the duration of this exam. Your screen will be monitored to ensure no external resources are used.
+                </p>
+              </div>
+
+              {/* Exam summary */}
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                {[
+                  { label: 'Questions', value: examConfig?.total_questions || 80 },
+                  { label: 'To Pass', value: `${examConfig?.pass_correct_required || 65}/${examConfig?.total_questions || 80}` },
+                  { label: 'Duration', value: `${examConfig?.time_limit_minutes || 100}m` },
+                ].map(({ label, value }) => (
+                  <div key={label} className="rounded-xl py-4 px-3 text-center" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{label}</p>
+                    <p className="text-lg font-bold text-white">{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Requirements */}
+              <div className="rounded-2xl p-5 mb-6 space-y-2.5" style={{ background: 'rgba(139,92,246,0.05)', border: '1px solid rgba(139,92,246,0.15)' }}>
+                <p className="text-xs font-bold text-violet-400 uppercase tracking-widest mb-3">By proceeding you agree to:</p>
+                {[
+                  'Share your entire screen for the full duration of the exam',
+                  'Not switch to any other application, browser tab, or window',
+                  'Complete the exam independently without external assistance',
+                  'Allow your screen activity to be recorded and reviewed',
+                ].map((rule, i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-violet-400 mt-1.5 flex-shrink-0" />
+                    <p className="text-sm text-slate-300">{rule}</p>
+                  </div>
+                ))}
+              </div>
+
+              {screenShareStatus === 'denied' && (
+                <div className="rounded-xl p-4 mb-5" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                  <p className="text-red-400 text-sm font-medium">Screen share was denied or cancelled. You must share your screen to proceed with the exam.</p>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => window.location.href = createPageUrl('StudentCertification')}
+                  disabled={screenShareStatus === 'requesting'}
+                  className="flex-1 py-3.5 rounded-xl text-sm font-semibold text-slate-400 transition-all hover:text-white disabled:opacity-30"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={requestScreenShare}
+                  disabled={screenShareStatus === 'requesting'}
+                  className="flex-1 py-3.5 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-50"
+                  style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', boxShadow: '0 8px 24px rgba(109,40,217,0.35)' }}
+                >
+                  {screenShareStatus === 'requesting' ? 'Waiting for permission…' : screenShareStatus === 'denied' ? 'Try Again' : 'Share Screen & Begin'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Screen share granted — loading/starting exam
+  return (
+    <div className="min-h-screen flex items-center justify-center p-8" style={{ background: '#0a0a0f', backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(109,40,217,0.12) 0%, transparent 60%)' }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.85 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="flex flex-col items-center gap-5"
+      >
+        <div className="relative w-20 h-20 flex items-center justify-center">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2.5, ease: 'linear', repeat: Infinity }}
+            className="absolute inset-0 rounded-full"
+            style={{ border: '2px solid transparent', borderTopColor: 'rgba(139,92,246,0.8)', borderRightColor: 'rgba(139,92,246,0.2)' }}
+          />
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', boxShadow: '0 0 32px rgba(109,40,217,0.5)' }}>
+            <Shield className="w-6 h-6 text-white" />
+          </div>
+        </div>
+        <div className="text-center">
+          <p className="text-violet-400 text-xs font-bold tracking-widest uppercase mb-2">Secure Exam Environment</p>
+          <motion.p key={stage} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="text-white text-xl font-semibold">
+            {stages[stage]}
+          </motion.p>
+          <p className="text-slate-500 text-sm mt-1">Screen monitoring active</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {[0, 1, 2].map(i => (
+            <motion.div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: 'rgba(139,92,246,0.8)' }}
+              animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.22 }} />
           ))}
         </div>
       </motion.div>

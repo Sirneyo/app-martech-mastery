@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Lock, Trophy, CheckCircle, Clock, Award, AlertTriangle, FileText, Target, ChevronRight, Sparkles, Shield } from 'lucide-react';
+import { Lock, Trophy, CheckCircle, Clock, Award, AlertTriangle, FileText, Target, ChevronRight, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CertificatePreviewModal from '@/components/CertificatePreviewModal';
 
@@ -14,6 +14,14 @@ export default function StudentCertification() {
   const queryClient = useQueryClient();
   const [generatingCert, setGeneratingCert] = React.useState(false);
   const [showPreview, setShowPreview] = React.useState(false);
+  const [splashVisible, setSplashVisible] = useState(true);
+  const [splashFading, setSplashFading] = useState(false);
+
+  useEffect(() => {
+    const fadeTimer = setTimeout(() => setSplashFading(true), 1800);
+    const hideTimer = setTimeout(() => setSplashVisible(false), 2500);
+    return () => { clearTimeout(fadeTimer); clearTimeout(hideTimer); };
+  }, []);
   
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -255,7 +263,7 @@ export default function StudentCertification() {
     setTimeout(() => {
       if (activeAttempt) {
         if (activeAttempt.attempt_status === 'prepared') {
-          window.location.href = createPageUrl(`StudentCertificationReady?id=${activeAttempt.id}`);
+          window.location.href = createPageUrl(`StudentCertificationLoading?id=${activeAttempt.id}`);
         } else {
           window.location.href = createPageUrl(`StudentCertificationAttempt?id=${activeAttempt.id}`);
         }
@@ -446,11 +454,53 @@ export default function StudentCertification() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 md:p-10">
+      {/* Entrance splash overlay */}
+      {splashVisible && (
+        <motion.div
+          initial={{ opacity: 1 }}
+          animate={{ opacity: splashFading ? 0 : 1 }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+          style={{ background: '#0a0a0f', backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(109,40,217,0.2) 0%, transparent 60%)' }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col items-center gap-5"
+          >
+            <div className="relative w-20 h-20 flex items-center justify-center">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2.5, ease: 'linear', repeat: Infinity }}
+                className="absolute inset-0 rounded-full"
+                style={{ border: '2px solid transparent', borderTopColor: 'rgba(139,92,246,0.8)', borderRightColor: 'rgba(139,92,246,0.2)' }}
+              />
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', boxShadow: '0 0 32px rgba(109,40,217,0.5)' }}>
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <div className="text-center">
+              <p className="text-violet-400 text-xs font-bold tracking-widest uppercase mb-2">Certification Hub</p>
+              <p className="text-white text-2xl font-bold">MarTech Mastery</p>
+              <p className="text-slate-500 text-sm mt-1">Loading your certification dashboard…</p>
+            </div>
+            <div className="flex items-center gap-2">
+              {[0,1,2].map(i => (
+                <motion.div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: 'rgba(139,92,246,0.8)' }}
+                  animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.22 }}
+                />
+              ))}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
       <div className="max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="relative overflow-hidden bg-slate-800/80 rounded-3xl border border-slate-700 shadow-2xl backdrop-blur-sm"
         >
           {/* Decorative top shimmer */}
@@ -478,13 +528,12 @@ export default function StudentCertification() {
           {/* Stats */}
           <div className="relative px-8 py-6 grid grid-cols-3 gap-4 border-b border-slate-700/60">
             {[
-              { label: 'Attempts Used', value: `${attemptsUsed} / ${attemptsAllowed}`, icon: Shield, color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/20' },
-              { label: 'Required to Pass', value: `${examConfig?.pass_correct_required || 65} / ${examConfig?.total_questions || 80}`, icon: Target, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-              { label: 'Time Limit', value: `${examConfig?.time_limit_minutes || 100} min`, icon: Clock, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
-            ].map(({ label, value, icon: Icon, color, bg }) => (
-              <div key={label} className={`rounded-2xl border p-4 text-center ${bg}`}>
-                <Icon className={`w-5 h-5 mx-auto mb-2 ${color}`} />
-                <p className="text-xs text-slate-500 mb-1">{label}</p>
+              { label: 'Attempts Used', value: `${attemptsUsed} / ${attemptsAllowed}`, color: 'text-violet-300', bg: 'bg-violet-500/10 border-violet-500/20' },
+              { label: 'Required to Pass', value: `${examConfig?.pass_correct_required || 65} / ${examConfig?.total_questions || 80}`, color: 'text-emerald-300', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+              { label: 'Time Limit', value: `${examConfig?.time_limit_minutes || 100} min`, color: 'text-amber-300', bg: 'bg-amber-500/10 border-amber-500/20' },
+            ].map(({ label, value, color, bg }) => (
+              <div key={label} className={`rounded-xl border p-5 text-center ${bg}`}>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">{label}</p>
                 <p className={`text-xl font-bold ${color}`}>{value}</p>
               </div>
             ))}
@@ -551,8 +600,7 @@ export default function StudentCertification() {
                   size="lg"
                   className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-bold text-base py-6 rounded-xl shadow-lg shadow-violet-900/40 transition-all"
                 >
-                  <Trophy className="w-5 h-5 mr-2" />
-                  {activeAttempt.attempt_status === 'prepared' ? 'Continue to Ready Screen' : 'Resume Exam'}
+                  {activeAttempt.attempt_status === 'prepared' ? 'Continue to Exam' : 'Resume Exam'}
                 </Button>
               </div>
             )}
@@ -564,7 +612,6 @@ export default function StudentCertification() {
                   size="lg"
                   className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-bold text-base py-6 rounded-xl shadow-lg shadow-violet-900/40 transition-all"
                 >
-                  <Trophy className="w-5 h-5 mr-2" />
                   Begin Certification Exam
                 </Button>
                 <p className="text-xs text-slate-500 mt-3">

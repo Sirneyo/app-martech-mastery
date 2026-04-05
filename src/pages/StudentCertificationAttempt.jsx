@@ -342,7 +342,7 @@ export default function StudentCertificationAttempt() {
     return null;
   }
   if (attempt?.attempt_status === 'prepared' && !attempt.started_at) {
-    window.location.href = createPageUrl(`StudentCertificationReady?id=${attemptId}`);
+    window.location.href = createPageUrl(`StudentCertificationLoading?id=${attemptId}`);
     return null;
   }
   if (attempt?.attempt_status === 'submitted') {

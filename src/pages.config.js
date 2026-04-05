@@ -96,7 +96,7 @@ import StudentCertification from './pages/StudentCertification';
 import StudentCertificationAttempt from './pages/StudentCertificationAttempt';
 import StudentCertificationConfirm from './pages/StudentCertificationConfirm';
 import StudentCertificationLoading from './pages/StudentCertificationLoading';
-import StudentCertificationReady from './pages/StudentCertificationReady';
+
 import StudentCertificationResults from './pages/StudentCertificationResults';
 import StudentCertificationReview from './pages/StudentCertificationReview';
 import StudentDashboard from './pages/StudentDashboard';
@@ -178,7 +178,7 @@ export const PAGES = {
     "StudentCertificationAttempt": StudentCertificationAttempt,
     "StudentCertificationConfirm": StudentCertificationConfirm,
     "StudentCertificationLoading": StudentCertificationLoading,
-    "StudentCertificationReady": StudentCertificationReady,
+
     "StudentCertificationResults": StudentCertificationResults,
     "StudentCertificationReview": StudentCertificationReview,
     "StudentDashboard": StudentDashboard,
