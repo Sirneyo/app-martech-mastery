@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Lock, Trophy, CheckCircle, Clock, Award, AlertTriangle, FileText, Target, ChevronRight, Shield } from 'lucide-react';
+import { Lock, Trophy, CheckCircle, Clock, Award, AlertTriangle, FileText, Target, ChevronRight, Shield, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CertificatePreviewModal from '@/components/CertificatePreviewModal';
 
