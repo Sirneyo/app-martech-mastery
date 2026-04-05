@@ -202,8 +202,9 @@ export default function SuperAdminDashboard() {
 
   const examOverrideMutation = useMutation({
     mutationFn: async ({ user, attempt, type }) => {
+      const examId = examConfig?.id || '';
+      const examTitle = examConfig?.title || 'Certification Exam';
       if (type === 'cooldown') {
-        // Set submitted_at to 72h ago on the blocking attempt so cooldown has expired
         const pastTime = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
         await base44.entities.ExamAttempt.update(attempt.id, { submitted_at: pastTime });
         await base44.entities.AdminAuditLog.create({
@@ -213,11 +214,12 @@ export default function SuperAdminDashboard() {
           target_user_id: user.id,
           target_user_name: user.full_name || user.display_name,
           target_user_email: user.email,
-          details: `Cooldown bypassed for attempt #${attempt.attempt_number} (attempt ID: ${attempt.id})`,
+          exam_id: examId,
+          exam_title: examTitle,
+          details: `Cooldown bypassed after attempt #${attempt.attempt_number} (attempt ID: ${attempt.id}). Student can now retake immediately.`,
           timestamp: new Date().toISOString(),
         });
       } else if (type === 'reset') {
-        // Delete all attempts for this user so they can start fresh
         const userAttempts = allExamAttempts.filter(a => a.student_user_id === user.id);
         for (const a of userAttempts) {
           await base44.entities.ExamAttempt.delete(a.id);
@@ -229,7 +231,9 @@ export default function SuperAdminDashboard() {
           target_user_id: user.id,
           target_user_name: user.full_name || user.display_name,
           target_user_email: user.email,
-          details: `All ${userAttempts.length} exam attempt(s) deleted. Student can retake from attempt 1.`,
+          exam_id: examId,
+          exam_title: examTitle,
+          details: `Full reset: all ${userAttempts.length} attempt(s) deleted. Student can retake from attempt 1.`,
           timestamp: new Date().toISOString(),
         });
       }
@@ -473,7 +477,7 @@ export default function SuperAdminDashboard() {
               <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
               <div>
                 <p className="text-sm font-semibold text-amber-800">Exam Override Controls</p>
-                <p className="text-sm text-amber-700 mt-0.5">Override cooldown periods or fully reset exam attempts. All actions are logged with admin name and timestamp.</p>
+                <p className="text-sm text-amber-700 mt-0.5">Bypass cooldown periods or fully reset exam attempts for any student. All actions are logged with admin name, affected user, exam, and timestamp.</p>
               </div>
             </div>
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
@@ -498,86 +502,88 @@ export default function SuperAdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users
-                    .filter(u => u.app_role === 'student')
-                    .filter(u => !examSearchTerm || u.full_name?.toLowerCase().includes(examSearchTerm.toLowerCase()) || u.email?.toLowerCase().includes(examSearchTerm.toLowerCase()))
-                    .map(u => {
-                      const userAttempts = allExamAttempts.filter(a => a.student_user_id === u.id).sort((a, b) => a.attempt_number - b.attempt_number);
-                      const attemptsAllowed = examConfig?.attempts_allowed || 4;
-                      const hasPassed = userAttempts.some(a => a.pass_flag);
-                      const submittedAttempts = userAttempts.filter(a => a.submitted_at);
-                      const latestSubmitted = submittedAttempts[submittedAttempts.length - 1];
-                      const nextAttemptNum = userAttempts.filter(a => a.prepared_at).length + 1;
-                      const exhausted = !hasPassed && userAttempts.filter(a => a.prepared_at).length >= attemptsAllowed;
+                  {(() => {
+                    const studentsWithAttempts = users
+                      .filter(u => u.app_role === 'student')
+                      .filter(u => !examSearchTerm || u.full_name?.toLowerCase().includes(examSearchTerm.toLowerCase()) || u.email?.toLowerCase().includes(examSearchTerm.toLowerCase()))
+                      .filter(u => allExamAttempts.some(a => a.student_user_id === u.id))
+                      .map(u => {
+                        const userAttempts = allExamAttempts.filter(a => a.student_user_id === u.id).sort((a, b) => a.attempt_number - b.attempt_number);
+                        const attemptsAllowed = examConfig?.attempts_allowed || 4;
+                        const hasPassed = userAttempts.some(a => a.pass_flag);
+                        const submittedAttempts = userAttempts.filter(a => a.submitted_at);
+                        const latestSubmitted = submittedAttempts[submittedAttempts.length - 1];
+                        const exhausted = !hasPassed && userAttempts.filter(a => a.prepared_at).length >= attemptsAllowed;
 
-                      // Cooldown check
-                      let inCooldown = false;
-                      let cooldownAttempt = null;
-                      if (!hasPassed && !exhausted && latestSubmitted) {
-                        const cooldownHours = latestSubmitted.attempt_number === 2 ? (examConfig?.cooldown_after_attempt_2_hours || 24) : (examConfig?.cooldown_after_attempt_3_fail_hours || 48);
-                        if ([2, 3].includes(latestSubmitted.attempt_number)) {
-                          const eligibleAt = new Date(new Date(latestSubmitted.submitted_at).getTime() + cooldownHours * 3600000);
-                          if (new Date() < eligibleAt) { inCooldown = true; cooldownAttempt = latestSubmitted; }
+                        let inCooldown = false;
+                        let cooldownAttempt = null;
+                        if (!hasPassed && !exhausted && latestSubmitted) {
+                          const cooldownHours = latestSubmitted.attempt_number === 2 ? (examConfig?.cooldown_after_attempt_2_hours || 24) : (examConfig?.cooldown_after_attempt_3_fail_hours || 48);
+                          if ([2, 3].includes(latestSubmitted.attempt_number)) {
+                            const eligibleAt = new Date(new Date(latestSubmitted.submitted_at).getTime() + cooldownHours * 3600000);
+                            if (new Date() < eligibleAt) { inCooldown = true; cooldownAttempt = latestSubmitted; }
+                          }
                         }
-                      }
 
-                      if (!inCooldown && !exhausted && userAttempts.length === 0) return null;
-                      if (!inCooldown && !exhausted) return null;
+                        return { u, userAttempts, attemptsAllowed, hasPassed, exhausted, inCooldown, cooldownAttempt, latestSubmitted };
+                      });
 
-                      return (
-                        <tr key={u.id} className="border-b border-slate-100 hover:bg-slate-50">
-                          <td className="p-4">
-                            <p className="font-medium text-slate-900">{u.display_name || u.full_name}</p>
-                            <p className="text-xs text-slate-500">{u.email}</p>
-                          </td>
-                          <td className="p-4 text-sm text-slate-700">{userAttempts.filter(a => a.prepared_at).length} / {attemptsAllowed}</td>
-                          <td className="p-4">
-                            {exhausted ? (
-                              <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-red-100 text-red-700 px-2.5 py-1 rounded-full border border-red-200">
-                                <XCircle className="w-3 h-3" /> All attempts used
-                              </span>
-                            ) : inCooldown ? (
-                              <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full border border-amber-200">
-                                <Clock className="w-3 h-3" /> In cooldown (after attempt {cooldownAttempt?.attempt_number})
-                              </span>
-                            ) : null}
-                          </td>
-                          <td className="p-4">
-                            <div className="flex gap-2">
-                              {inCooldown && (
-                                <Button
-                                  size="sm"
-                                  className="bg-amber-500 hover:bg-amber-600 text-white gap-1"
-                                  onClick={() => { setOverrideTarget({ user: u, attempt: cooldownAttempt, type: 'cooldown' }); setOverrideConfirmOpen(true); }}
-                                >
-                                  <Clock className="w-3 h-3" /> Bypass Cooldown
-                                </Button>
-                              )}
-                              {exhausted && (
-                                <Button
-                                  size="sm"
-                                  className="bg-violet-600 hover:bg-violet-700 text-white gap-1"
-                                  onClick={() => { setOverrideTarget({ user: u, attempt: null, type: 'reset' }); setOverrideConfirmOpen(true); }}
-                                >
-                                  <RefreshCw className="w-3 h-3" /> Reset Attempts
-                                </Button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  {users.filter(u => u.app_role === 'student').every(u => {
-                    const ua = allExamAttempts.filter(a => a.student_user_id === u.id);
-                    const hasPassed = ua.some(a => a.pass_flag);
-                    const exhausted = !hasPassed && ua.filter(a => a.prepared_at).length >= (examConfig?.attempts_allowed || 4);
-                    const latest = ua.filter(a => a.submitted_at).sort((a, b) => a.attempt_number - b.attempt_number).slice(-1)[0];
-                    const cooldownHours = latest?.attempt_number === 2 ? (examConfig?.cooldown_after_attempt_2_hours || 24) : (examConfig?.cooldown_after_attempt_3_fail_hours || 48);
-                    const inCooldown = !hasPassed && !exhausted && latest && [2, 3].includes(latest.attempt_number) && new Date() < new Date(new Date(latest.submitted_at).getTime() + cooldownHours * 3600000);
-                    return !inCooldown && !exhausted;
-                  }) && (
-                    <tr><td colSpan="4" className="p-10 text-center text-slate-400 text-sm">No students currently in cooldown or with exhausted attempts</td></tr>
-                  )}
+                    if (studentsWithAttempts.length === 0) {
+                      return <tr><td colSpan="4" className="p-10 text-center text-slate-400 text-sm">No students with exam attempts found</td></tr>;
+                    }
+
+                    return studentsWithAttempts.map(({ u, userAttempts, attemptsAllowed, hasPassed, exhausted, inCooldown, cooldownAttempt, latestSubmitted }) => (
+                      <tr key={u.id} className="border-b border-slate-100 hover:bg-slate-50">
+                        <td className="p-4">
+                          <p className="font-medium text-slate-900">{u.display_name || u.full_name}</p>
+                          <p className="text-xs text-slate-500">{u.email}</p>
+                        </td>
+                        <td className="p-4 text-sm text-slate-700">{userAttempts.filter(a => a.prepared_at).length} / {attemptsAllowed}</td>
+                        <td className="p-4">
+                          {hasPassed ? (
+                            <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200">
+                              ✓ Passed
+                            </span>
+                          ) : exhausted ? (
+                            <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-red-100 text-red-700 px-2.5 py-1 rounded-full border border-red-200">
+                              <XCircle className="w-3 h-3" /> All attempts used
+                            </span>
+                          ) : inCooldown ? (
+                            <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full border border-amber-200">
+                              <Clock className="w-3 h-3" /> In cooldown (after attempt {cooldownAttempt?.attempt_number})
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200">
+                              In progress
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-4">
+                          <div className="flex gap-2 flex-wrap">
+                            {inCooldown && (
+                              <Button
+                                size="sm"
+                                className="bg-amber-500 hover:bg-amber-600 text-white gap-1"
+                                onClick={() => { setOverrideTarget({ user: u, attempt: cooldownAttempt, type: 'cooldown' }); setOverrideConfirmOpen(true); }}
+                              >
+                                <Clock className="w-3 h-3" /> Bypass Cooldown
+                              </Button>
+                            )}
+                            {!hasPassed && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-violet-300 text-violet-700 hover:bg-violet-50 gap-1"
+                                onClick={() => { setOverrideTarget({ user: u, attempt: null, type: 'reset' }); setOverrideConfirmOpen(true); }}
+                              >
+                                <RefreshCw className="w-3 h-3" /> Reset All Attempts
+                              </Button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ));
+                  })()}
                 </tbody>
               </table>
             </div>
@@ -1010,10 +1016,15 @@ export default function SuperAdminDashboard() {
                <p><strong>Email:</strong> {overrideTarget?.user?.email}</p>
              </div>
              {overrideTarget?.type === 'cooldown' ? (
-               <p className="text-slate-700 text-sm">This will mark attempt <strong>#{overrideTarget?.attempt?.attempt_number}</strong> as submitted 72 hours ago, effectively ending the cooldown immediately. The student can retake the exam right away.</p>
-             ) : (
+               <p className="text-slate-700 text-sm">This will mark attempt <strong>#{overrideTarget?.attempt?.attempt_number}</strong> as submitted 72 hours ago, ending the cooldown immediately. The student can retake the exam right away.</p>
+              ) : (
                <p className="text-slate-700 text-sm">This will <strong>permanently delete all exam attempts</strong> for this student. They will be able to retake the exam from attempt 1 as if they had never sat it before.</p>
-             )}
+              )}
+              <div className="bg-blue-50 border border-blue-200 rounded p-2 text-xs text-blue-700 space-y-0.5">
+                <p><strong>Exam:</strong> {examConfig?.title || 'Certification Exam'}</p>
+                <p><strong>Action logged under:</strong> {currentUser?.full_name || currentUser?.email}</p>
+                <p><strong>Timestamp:</strong> {new Date().toLocaleString()}</p>
+              </div>
              <p className="text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded p-2">
                This action will be logged under your name ({currentUser?.full_name || currentUser?.email}) with a timestamp.
              </p>

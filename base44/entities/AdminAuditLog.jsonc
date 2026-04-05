@@ -36,6 +36,14 @@
       "type": "string",
       "description": "Role of the affected user"
     },
+    "exam_id": {
+      "type": "string",
+      "description": "ID of the exam affected (for exam override actions)"
+    },
+    "exam_title": {
+      "type": "string",
+      "description": "Title of the exam affected (for exam override actions)"
+    },
     "details": {
       "type": "string",
       "description": "Additional details about the action"
