@@ -162,24 +162,25 @@ export default function StudentCertificationConfirm() {
         }
       }
 
-      // Validate bank coverage
-      const sections = await base44.entities.ExamSection.list('sort_order');
       const questionsPerSection = examConfig.questions_per_section || 20;
-      
+
+      // Fetch sections + ALL exam questions in parallel (single pass, no per-section loops)
+      const [sections, allBankQuestions] = await Promise.all([
+        base44.entities.ExamSection.list('sort_order'),
+        base44.entities.ExamQuestion.filter({ exam_id: examConfig.id, published_flag: true }),
+      ]);
+
+      // Validate bank coverage
       for (const section of sections) {
-        const sectionQuestions = await base44.entities.ExamQuestion.filter({
-          exam_section_id: section.id,
-          published_flag: true
-        });
-        
-        if (sectionQuestions.length < questionsPerSection) {
-          setError(`Exam not available yet, missing questions in ${section.name}. Need ${questionsPerSection}, have ${sectionQuestions.length}.`);
+        const sectionQs = allBankQuestions.filter(q => q.exam_section_id === section.id);
+        if (sectionQs.length < questionsPerSection) {
+          setError(`Exam not available yet — need ${questionsPerSection} questions in ${section.name}, have ${sectionQs.length}.`);
           setCreating(false);
           return;
         }
       }
 
-      // Create attempt with attempt_number
+      // Create the attempt record
       const attempt = await base44.entities.ExamAttempt.create({
         student_user_id: user.id,
         cohort_id: membership.cohort_id,
@@ -190,32 +191,23 @@ export default function StudentCertificationConfirm() {
         current_question_index: 1,
       });
 
-      // Generate and lock questions
+      // Shuffle & select questions per section (all in memory, no extra API calls)
       const attemptQuestions = [];
       let globalOrder = 1;
-      
       for (const section of sections) {
-        const sectionQuestions = await base44.entities.ExamQuestion.filter({
-          exam_section_id: section.id,
-          published_flag: true
-        });
-        
-        // Shuffle and select questionsPerSection
-        const shuffled = sectionQuestions.sort(() => Math.random() - 0.5);
-        const selected = shuffled.slice(0, questionsPerSection);
-        
+        const sectionQs = allBankQuestions.filter(q => q.exam_section_id === section.id);
+        const selected = sectionQs.sort(() => Math.random() - 0.5).slice(0, questionsPerSection);
         selected.forEach((q, idx) => {
           attemptQuestions.push({
             attempt_id: attempt.id,
             exam_section_id: section.id,
             question_id: q.id,
             order_index: idx + 1,
-            global_order: globalOrder++
+            global_order: globalOrder++,
           });
         });
       }
-      
-      // Save selected questions
+
       await base44.entities.ExamAttemptQuestion.bulkCreate(attemptQuestions);
 
       // Redirect to loading page

@@ -62,16 +62,7 @@ export default function StudentCertificationLoading() {
 
   const proceedToExam = async () => {
     try {
-      let stageIdx = 0;
-      const stageInterval = setInterval(() => {
-        stageIdx = Math.min(stageIdx + 1, stages.length - 1);
-        setStage(stageIdx);
-      }, 550);
-
-      await new Promise(resolve => setTimeout(resolve, 2800));
-      clearInterval(stageInterval);
-
-      // Start the exam — set started_at and expires_at
+      setStage(1);
       const startedAt = new Date();
       const timeLimitMinutes = examConfig?.time_limit_minutes || 100;
       const expiresAt = new Date(startedAt.getTime() + timeLimitMinutes * 60000);
@@ -82,6 +73,7 @@ export default function StudentCertificationLoading() {
         expires_at: expiresAt.toISOString(),
       });
 
+      setStage(2);
       window.location.href = createPageUrl(`StudentCertificationAttempt?id=${attemptId}`);
     } catch (err) {
       setError(err.message || 'Failed to start exam. Please try again.');

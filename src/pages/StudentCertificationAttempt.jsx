@@ -233,11 +233,13 @@ export default function StudentCertificationAttempt() {
 
   const handleNext = async () => {
     if (!currentAnswer) { setShowAnswerWarning(true); return; }
-    await saveAnswerMutation.mutateAsync({ questionId: currentQuestion.id, answer: currentAnswer });
     const nextIndex = currentQuestionIndex + 1;
-    if (nextIndex <= (examConfig?.total_questions || 80)) {
-      await updateQuestionIndexMutation.mutateAsync(nextIndex);
-    }
+    const total = examConfig?.total_questions || 80;
+    // Fire both mutations in parallel — no need to wait for answer save before moving index
+    await Promise.all([
+      saveAnswerMutation.mutateAsync({ questionId: currentQuestion.id, answer: currentAnswer }),
+      nextIndex <= total ? updateQuestionIndexMutation.mutateAsync(nextIndex) : Promise.resolve(),
+    ]);
   };
 
   const handleEarlySubmit = async () => {
