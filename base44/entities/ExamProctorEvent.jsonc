@@ -1,0 +1,61 @@
+{
+  "name": "ExamProctorEvent",
+  "type": "object",
+  "properties": {
+    "attempt_id": {
+      "type": "string",
+      "description": "Exam attempt ID"
+    },
+    "student_user_id": {
+      "type": "string",
+      "description": "Student user ID"
+    },
+    "student_name": {
+      "type": "string",
+      "description": "Student display name"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "screenshot",
+        "camera_frame",
+        "violation"
+      ],
+      "description": "Type of proctoring event"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When event occurred"
+    },
+    "drive_file_id": {
+      "type": "string",
+      "description": "Google Drive file ID"
+    },
+    "drive_url": {
+      "type": "string",
+      "description": "Google Drive view URL"
+    },
+    "ai_flags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "AI-detected flags e.g. looking_away, phone_detected, multiple_faces"
+    },
+    "ai_summary": {
+      "type": "string",
+      "description": "AI one-line summary of the frame"
+    },
+    "suspicion_score": {
+      "type": "integer",
+      "description": "0-100 AI suspicion score"
+    }
+  },
+  "required": [
+    "attempt_id",
+    "student_user_id",
+    "event_type",
+    "timestamp"
+  ]
+}

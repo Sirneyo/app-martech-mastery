@@ -14,7 +14,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Clock, ChevronRight, AlertCircle, List, AlertTriangle, Flag, Shield, Pause, Play, Minimize2, Maximize2, Monitor } from 'lucide-react';
+import { Clock, ChevronRight, AlertCircle, List, AlertTriangle, Flag, Shield, Pause, Play, Minimize2, Maximize2, Monitor, Eye } from 'lucide-react';
+import ExamProctorMonitor from '@/components/ExamProctorMonitor';
 import { Link } from 'react-router-dom';
 import { useExamExpiryGuard } from '@/components/ExamExpiryGuard';
 import ExamCameraMonitor from '@/components/ExamCameraMonitor';
@@ -44,12 +45,23 @@ export default function StudentCertificationAttempt() {
   const screenVideoRef = useRef(null);
   const [screenStream, setScreenStream] = useState(null);
   const [questionsCollapsed, setQuestionsCollapsed] = useState(false);
+  const monitorRef = useRef(null);
+  const [proctorCameraStream, setProctorCameraStream] = useState(null);
+  const [aiAlert, setAiAlert] = useState(null); // { score, flags, summary }
 
   useEffect(() => {
     if (screenVideoRef.current && screenStream) {
       screenVideoRef.current.srcObject = screenStream;
     }
   }, [screenStream]);
+
+  // Acquire a silent camera stream for AI proctoring analysis
+  useEffect(() => {
+    navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 }, audio: false })
+      .then(stream => setProctorCameraStream(stream))
+      .catch(() => {});
+    return () => proctorCameraStream?.getTracks().forEach(t => t.stop());
+  }, []);
 
   // Pause the exam when the user stops screen sharing
   useEffect(() => {
@@ -247,6 +259,10 @@ export default function StudentCertificationAttempt() {
   };
 
   const performSubmit = async () => {
+    // Trigger AI invigilator report generation (non-blocking — runs in background)
+    if (monitorRef.current?.generateReport) {
+      monitorRef.current.generateReport().catch(() => {});
+    }
     const totalQuestions = examConfig?.total_questions || 80;
     let correctCount = 0;
 
@@ -609,7 +625,27 @@ export default function StudentCertificationAttempt() {
           </div>
         </div>
 
-        {/* Pause overlay */}
+        {/* AI Invigilator (invisible background monitor) */}
+      <ExamProctorMonitor
+        attemptId={attemptId}
+        cameraStream={proctorCameraStream}
+        monitorRef={monitorRef}
+        onFlagDetected={(flag) => setAiAlert(flag)}
+      />
+
+      {/* AI alert toast */}
+      {aiAlert && (
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#181c25] border border-amber-500/30 rounded-xl px-5 py-3 flex items-center gap-3 shadow-xl">
+          <Eye className="w-4 h-4 text-amber-400 flex-shrink-0" />
+          <div>
+            <p className="text-amber-300 text-xs font-bold">AI Invigilator: {aiAlert.severity?.toUpperCase()} alert</p>
+            <p className="text-slate-400 text-xs">{aiAlert.summary}</p>
+          </div>
+          <button onClick={() => setAiAlert(null)} className="text-slate-600 hover:text-slate-300 text-xs ml-2">×</button>
+        </div>
+      )}
+
+      {/* Pause overlay */}
         {isPaused && (
           <div className="absolute inset-0 z-40 flex items-center justify-center p-8" style={{ background: 'rgba(15,17,23,0.96)' }}>
             <div className="w-full max-w-sm bg-[#181c25] border border-[#2a2f3d] rounded-2xl overflow-hidden">
