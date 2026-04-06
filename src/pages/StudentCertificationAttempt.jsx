@@ -14,7 +14,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Clock, ChevronLeft, ChevronRight, AlertCircle, List, AlertTriangle, Flag, Shield, Pause, Play, Camera } from 'lucide-react';
+import { Clock, ChevronLeft, ChevronRight, AlertCircle, List, AlertTriangle, Flag, Shield, Pause, Play, Camera, Minimize2, Maximize2, Monitor } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useExamExpiryGuard } from '@/components/ExamExpiryGuard';
@@ -42,6 +42,33 @@ export default function StudentCertificationAttempt() {
   const [cameraOkToResume, setCameraOkToResume] = useState(false);
 
   const cameraRef = useRef(null);
+  const screenVideoRef = useRef(null);
+  const [screenStream, setScreenStream] = useState(null);
+  const [questionsCollapsed, setQuestionsCollapsed] = useState(false);
+  const [screenPreviewSize, setScreenPreviewSize] = useState({ w: 340, h: 220 });
+
+  // Try to capture an existing screen share stream from sessionStorage key (passed via loading page)
+  useEffect(() => {
+    // Attempt to re-request screen share if not already active
+    const tryGetStream = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+          video: { cursor: 'always', displaySurface: 'monitor' },
+          audio: false,
+        });
+        setScreenStream(stream);
+      } catch (e) {
+        // silently ignore — student may have already shared
+      }
+    };
+    tryGetStream();
+  }, []);
+
+  useEffect(() => {
+    if (screenVideoRef.current && screenStream) {
+      screenVideoRef.current.srcObject = screenStream;
+    }
+  }, [screenStream]);
 
   const { data: user } = useQuery({
     queryKey: ['current-user'],
@@ -482,8 +509,21 @@ export default function StudentCertificationAttempt() {
         {/* Body */}
         <div className="flex-1 overflow-hidden flex">
 
+          {/* Collapse toggle */}
+          {questionsCollapsed && (
+            <div className="flex-shrink-0 w-12 flex flex-col items-center justify-start pt-6" style={{ borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+              <button
+                onClick={() => setQuestionsCollapsed(false)}
+                className="text-slate-500 hover:text-slate-300 transition-colors p-2 rounded-lg hover:bg-slate-800"
+                title="Expand questions"
+              >
+                <Maximize2 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
           {/* Question area */}
-          <div className="flex-1 overflow-y-auto px-6 py-8">
+          <div className={`${questionsCollapsed ? 'hidden' : 'flex-1'} overflow-y-auto px-6 py-8`}>
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentQuestionIndex}
@@ -554,7 +594,13 @@ export default function StudentCertificationAttempt() {
 
                 {/* Navigation */}
                 <div className="flex items-center justify-between">
-                  <div />
+                  <button
+                    onClick={() => setQuestionsCollapsed(true)}
+                    className="flex items-center gap-1.5 text-slate-600 hover:text-slate-400 text-xs transition-colors"
+                    title="Collapse questions panel"
+                  >
+                    <Minimize2 className="w-3.5 h-3.5" /> Collapse
+                  </button>
                   {isLastQuestion ? (
                     <Button onClick={handleFinalSubmit} disabled={isPaused} className="bg-emerald-600 hover:bg-emerald-700 gap-2 disabled:opacity-30">
                       Submit Exam
@@ -569,9 +615,37 @@ export default function StudentCertificationAttempt() {
             </AnimatePresence>
           </div>
 
-          {/* Camera sidebar */}
-          <div className="flex-shrink-0 w-52 p-4 flex flex-col gap-4 overflow-y-auto" style={{ borderLeft: '1px solid rgba(255,255,255,0.06)' }}>
+          {/* Camera + Screen share sidebar */}
+          <div className="flex-shrink-0 w-56 p-3 flex flex-col gap-3 overflow-y-auto" style={{ borderLeft: '1px solid rgba(255,255,255,0.06)' }}>
             <ExamCameraMonitor ref={cameraRef} studentName={user?.full_name || user?.email} />
+
+            {/* Screen share preview */}
+            <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+                <div className="flex items-center gap-1.5">
+                  <Monitor className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Screen Share</span>
+                </div>
+                <div className={`w-1.5 h-1.5 rounded-full ${screenStream ? 'bg-emerald-400' : 'bg-red-500'}`} />
+              </div>
+              <div className="relative" style={{ aspectRatio: '16/10' }}>
+                {screenStream ? (
+                  <video
+                    ref={screenVideoRef}
+                    autoPlay
+                    muted
+                    className="w-full h-full object-cover"
+                    style={{ display: 'block' }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ minHeight: 90 }}>
+                    <Monitor className="w-6 h-6 text-slate-600" />
+                    <p className="text-slate-600 text-[10px] text-center px-2">No screen share active</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 text-center">
               <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-widest mb-1">Integrity</p>
               <div className={`text-xs font-bold ${violations.length === 0 ? 'text-emerald-400' : violations.length < 3 ? 'text-amber-400' : 'text-red-400'}`}>
@@ -586,37 +660,37 @@ export default function StudentCertificationAttempt() {
           {isPaused && (
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-950/90 z-40 flex flex-col items-center justify-center gap-6 p-8"
+              className="absolute inset-0 z-40 flex items-center justify-center p-8"
+              style={{ background: 'rgba(5,5,10,0.93)', backdropFilter: 'blur(6px)' }}
             >
-              <div className="bg-slate-900 border border-slate-700 rounded-2xl p-10 max-w-md w-full text-center shadow-2xl">
-                {showFocusWarning ? (
-                  <>
-                    <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-5">
-                      <AlertTriangle className="w-8 h-8 text-red-400" />
-                    </div>
-                    <h2 className="text-white text-xl font-bold mb-2">Exam Paused</h2>
-                    <p className="text-slate-400 text-sm mb-1">{focusWarningMessage}</p>
-                    <p className="text-red-400 text-xs font-semibold mb-6">This incident has been logged with a timestamp.</p>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-5">
-                      <Pause className="w-8 h-8 text-amber-400" />
-                    </div>
-                    <h2 className="text-white text-xl font-bold mb-2">Exam Paused</h2>
-                    <p className="text-slate-400 text-sm mb-6">Timer is frozen. Camera must be active to resume.</p>
-                  </>
-                )}
-                <div className="mb-6">
-                  <div className="flex items-center gap-2 text-slate-400 text-xs justify-center mb-3">
-                    <Camera className="w-3.5 h-3.5" /> Camera must be active to resume
+              <div
+                className="max-w-sm w-full"
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '36px 32px', boxShadow: '0 40px 80px rgba(0,0,0,0.6)' }}
+              >
+                <div className="absolute top-0 left-0 right-0 h-px" style={{ background: showFocusWarning ? 'linear-gradient(90deg, transparent, rgba(239,68,68,0.5), transparent)' : 'linear-gradient(90deg, transparent, rgba(251,191,36,0.4), transparent)', borderRadius: 20 }} />
+
+                <div className="text-center mb-6">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg mb-5" style={{ background: showFocusWarning ? 'rgba(239,68,68,0.08)' : 'rgba(251,191,36,0.08)', border: showFocusWarning ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(251,191,36,0.2)' }}>
+                    {showFocusWarning
+                      ? <><AlertTriangle className="w-3.5 h-3.5 text-red-400" /><span className="text-red-400 text-xs font-bold tracking-widest uppercase">Integrity Alert</span></>
+                      : <><Pause className="w-3.5 h-3.5 text-amber-400" /><span className="text-amber-400 text-xs font-bold tracking-widest uppercase">Exam Paused</span></>}
                   </div>
+                  <h2 className="text-white text-xl font-semibold mb-2">{showFocusWarning ? 'Focus Lost' : 'Timer Frozen'}</h2>
+                  <p className="text-slate-400 text-sm">
+                    {showFocusWarning
+                      ? <>{focusWarningMessage} — <span className="text-red-400 font-medium">this incident has been logged.</span></>
+                      : 'Your timer is paused. Camera must be active to resume.'}
+                  </p>
+                </div>
+
+                <div className="mb-5 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
                   <ExamCameraMonitor ref={cameraRef} studentName={user?.full_name || user?.email} />
                 </div>
-                <Button onClick={handleResume} size="lg" className="w-full bg-emerald-600 hover:bg-emerald-700 gap-2">
+
+                <Button onClick={handleResume} size="lg" className="w-full gap-2" style={{ background: 'rgba(16,185,129,0.9)', color: 'white' }}>
                   <Play className="w-4 h-4" /> Resume Exam
                 </Button>
-                <p className="text-slate-600 text-xs mt-3">Navigation is unlocked while paused — use the sidebar to navigate.</p>
+                <p className="text-slate-600 text-xs text-center mt-3">Sidebar navigation is available while paused.</p>
               </div>
             </motion.div>
           )}

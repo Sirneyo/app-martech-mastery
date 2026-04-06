@@ -50,7 +50,7 @@ export default function StudentCertificationLoading() {
     setScreenShareStatus('requesting');
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({
-        video: { cursor: 'always' },
+        video: { cursor: 'always', displaySurface: 'monitor' },
         audio: false,
       });
       setScreenStream(stream);
@@ -162,9 +162,9 @@ export default function StudentCertificationLoading() {
                   <Monitor className="w-8 h-8 text-white" />
                 </motion.div>
                 <p className="text-violet-400 text-xs font-bold tracking-widest uppercase mb-2">Exam Proctoring</p>
-                <h1 className="text-2xl font-bold text-white mb-2">Screen Sharing Required</h1>
+                <h1 className="text-2xl font-bold text-white mb-2">Screen Sharing & Camera Recording Required</h1>
                 <p className="text-slate-400 text-sm leading-relaxed">
-                  To maintain academic integrity, you must share your screen for the duration of this exam. Your screen will be monitored to ensure no external resources are used.
+                  To maintain academic integrity, you must share your <strong className="text-slate-300">entire screen</strong> and allow camera recording for the full duration of this exam. When prompted, select <strong className="text-slate-300">&ldquo;Entire Screen&rdquo;</strong> — not a tab or window.
                 </p>
               </div>
 
