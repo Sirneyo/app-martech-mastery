@@ -52,6 +52,19 @@ export default function StudentCertificationAttempt() {
     }
   }, [screenStream]);
 
+  // Pause the exam when the user stops screen sharing
+  useEffect(() => {
+    if (!screenStream) return;
+    const track = screenStream.getVideoTracks()[0];
+    if (!track) return;
+    const handleEnded = () => {
+      setScreenStream(null);
+      triggerFocusLoss('Screen sharing was stopped');
+    };
+    track.addEventListener('ended', handleEnded);
+    return () => track.removeEventListener('ended', handleEnded);
+  }, [screenStream]);
+
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: () => base44.auth.me(),
