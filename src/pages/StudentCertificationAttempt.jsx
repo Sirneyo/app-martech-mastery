@@ -45,24 +45,6 @@ export default function StudentCertificationAttempt() {
   const screenVideoRef = useRef(null);
   const [screenStream, setScreenStream] = useState(null);
   const [questionsCollapsed, setQuestionsCollapsed] = useState(false);
-  const [screenPreviewSize, setScreenPreviewSize] = useState({ w: 340, h: 220 });
-
-  // Try to capture an existing screen share stream from sessionStorage key (passed via loading page)
-  useEffect(() => {
-    // Attempt to re-request screen share if not already active
-    const tryGetStream = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getDisplayMedia({
-          video: { cursor: 'always', displaySurface: 'monitor' },
-          audio: false,
-        });
-        setScreenStream(stream);
-      } catch (e) {
-        // silently ignore — student may have already shared
-      }
-    };
-    tryGetStream();
-  }, []);
 
   useEffect(() => {
     if (screenVideoRef.current && screenStream) {
@@ -105,14 +87,13 @@ export default function StudentCertificationAttempt() {
   });
 
   const { data: allQuestions = [] } = useQuery({
-    queryKey: ['all-questions', attemptQuestions],
+    queryKey: ['all-questions', attempt?.exam_id],
     queryFn: async () => {
-      if (attemptQuestions.length === 0) return [];
-      const questionIds = attemptQuestions.map(aq => aq.question_id);
-      const questions = await base44.entities.ExamQuestion.list();
-      return questions.filter(q => questionIds.includes(q.id));
+      if (!attempt?.exam_id) return [];
+      return base44.entities.ExamQuestion.filter({ exam_id: attempt.exam_id, published_flag: true });
     },
-    enabled: attemptQuestions.length > 0,
+    enabled: !!attempt?.exam_id,
+    staleTime: 5 * 60 * 1000,
   });
 
   const { data: existingAnswers = [] } = useQuery({
