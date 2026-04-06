@@ -453,7 +453,7 @@ export default function StudentCertificationAttempt() {
         <div className="flex-shrink-0 px-6 py-3" style={{ borderBottom: '1px solid #2a2f3d', background: '#181c25' }}>
           <div className="flex items-center gap-3">
             <div className="flex-1 bg-slate-800 rounded-full h-1.5">
-              <motion.div className="h-full bg-violet-500 rounded-full" animate={{ width: `${progress}%` }} transition={{ duration: 0.3 }} />
+              <div className="h-full bg-violet-500 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
             </div>
             <span className="text-slate-500 text-xs font-medium flex-shrink-0">{answeredCount}/{totalQuestions} answered</span>
           </div>
