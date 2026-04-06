@@ -2,9 +2,7 @@ import React from 'react';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { CheckCircle, Circle, ArrowLeft } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import { useExamExpiryGuard } from '@/components/ExamExpiryGuard';
 
 export default function StudentCertificationReview() {
@@ -20,20 +18,6 @@ export default function StudentCertificationReview() {
     },
     enabled: !!attemptId,
   });
-
-  const { data: allQuestions = [] } = useQuery({
-    queryKey: ['all-questions', attemptQuestions],
-    queryFn: async () => {
-      if (attemptQuestions.length === 0) return [];
-      const questionIds = attemptQuestions.map(aq => aq.question_id);
-      const questions = await base44.entities.ExamQuestion.list();
-      return questions.filter(q => questionIds.includes(q.id));
-    },
-    enabled: attemptQuestions.length > 0,
-  });
-
-  // Expiry guard
-  useExamExpiryGuard(attempt, examConfig, attemptQuestions, allQuestions);
 
   const { data: examConfig } = useQuery({
     queryKey: ['exam-config', attempt?.exam_id],
@@ -61,8 +45,20 @@ export default function StudentCertificationReview() {
     queryFn: () => base44.entities.ExamSection.list('sort_order'),
   });
 
+  const { data: allQuestions = [] } = useQuery({
+    queryKey: ['all-questions', attempt?.exam_id],
+    queryFn: async () => {
+      if (!attempt?.exam_id) return [];
+      return base44.entities.ExamQuestion.filter({ exam_id: attempt.exam_id, published_flag: true });
+    },
+    enabled: !!attempt?.exam_id,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  useExamExpiryGuard(attempt, examConfig, attemptQuestions, allQuestions);
+
   const updateQuestionIndexMutation = useMutation({
-    mutationFn: (newIndex) => 
+    mutationFn: (newIndex) =>
       base44.entities.ExamAttempt.update(attemptId, { current_question_index: newIndex }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exam-attempt', attemptId] });
@@ -70,14 +66,10 @@ export default function StudentCertificationReview() {
     },
   });
 
-  const handleQuestionClick = (globalOrder) => {
-    updateQuestionIndexMutation.mutate(globalOrder);
-  };
-
   if (!attempt || !examConfig) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <p className="text-slate-500">Loading...</p>
+      <div className="min-h-screen bg-[#0f1117] flex items-center justify-center">
+        <p className="text-slate-500 text-sm">Loading…</p>
       </div>
     );
   }
@@ -86,84 +78,95 @@ export default function StudentCertificationReview() {
   const answeredCount = existingAnswers.length;
   const unansweredCount = totalQuestions - answeredCount;
 
-  // Group questions by section
-  const questionsBySection = sections.map(section => {
-    const sectionQuestions = attemptQuestions
+  const questionsBySection = sections.map(section => ({
+    section,
+    questions: attemptQuestions
       .filter(aq => aq.exam_section_id === section.id)
-      .sort((a, b) => a.global_order - b.global_order);
-    return { section, questions: sectionQuestions };
-  });
+      .sort((a, b) => a.global_order - b.global_order),
+  }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-8">
-      <div className="max-w-5xl mx-auto px-6">
-        <div className="bg-white rounded-2xl p-8 shadow-lg border border-slate-200">
-          <div className="mb-8">
-            <Button
-              onClick={() => window.location.href = createPageUrl(`StudentCertificationAttempt?id=${attemptId}`)}
-              variant="outline"
-              className="mb-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Exam
-            </Button>
-            <h1 className="text-3xl font-bold text-slate-900">Exam Review</h1>
-            <p className="text-slate-500 mt-1">
-              {answeredCount} of {totalQuestions} questions answered
+    <div className="min-h-screen bg-[#0f1117] py-10">
+      <div className="max-w-4xl mx-auto px-6">
+        {/* Header */}
+        <div className="mb-8">
+          <button
+            onClick={() => window.location.href = createPageUrl(`StudentCertificationAttempt?id=${attemptId}`)}
+            className="flex items-center gap-2 text-slate-400 hover:text-white text-sm font-medium transition-colors mb-6"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Exam
+          </button>
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.2em] mb-2">Exam Review</p>
+              <h1 className="text-2xl font-bold text-white">{examConfig.title}</h1>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl font-bold text-white">{answeredCount}<span className="text-slate-500 text-base font-normal"> / {totalQuestions}</span></p>
+              <p className="text-xs text-slate-500 mt-0.5">Questions answered</p>
+            </div>
+          </div>
+        </div>
+
+        {unansweredCount > 0 && (
+          <div className="mb-6 flex items-center gap-3 p-4 bg-amber-500/8 border border-amber-500/20 rounded-xl">
+            <div className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
+            <p className="text-amber-300 text-sm font-medium">
+              {unansweredCount} unanswered question{unansweredCount !== 1 ? 's' : ''} — all must be answered before submission.
             </p>
           </div>
+        )}
 
-          {unansweredCount > 0 && (
-            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-              <p className="text-amber-800 font-medium">
-                You have {unansweredCount} unanswered question{unansweredCount !== 1 ? 's' : ''}. 
-                Please answer all questions before submitting.
-              </p>
-            </div>
-          )}
-
-          <div className="space-y-8">
-            {questionsBySection.map(({ section, questions }) => (
-              <div key={section.id}>
-                <h3 className="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {section.name}
-                </h3>
-                <div className="grid grid-cols-5 sm:grid-cols-10 gap-3">
-                  {questions.map((aq) => {
-                    const isAnswered = existingAnswers.some(a => a.question_id === aq.question_id);
-                    return (
-                      <motion.button
-                        key={aq.question_id}
-                        onClick={() => handleQuestionClick(aq.global_order)}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`
-                          w-12 h-12 rounded-lg font-semibold flex items-center justify-center
-                          transition-all duration-200 border-2
-                          ${isAnswered 
-                            ? 'bg-green-100 border-green-300 text-green-800 hover:bg-green-200' 
-                            : 'bg-slate-100 border-slate-300 text-slate-600 hover:bg-slate-200'
-                          }
-                        `}
-                      >
-                        {aq.global_order}
-                      </motion.button>
-                    );
-                  })}
-                </div>
+        {/* Sections */}
+        <div className="space-y-6">
+          {questionsBySection.map(({ section, questions }) => (
+            <div key={section.id} className="bg-[#181c25] border border-[#2a2f3d] rounded-xl overflow-hidden">
+              <div className="px-6 py-4 border-b border-[#2a2f3d] flex items-center justify-between">
+                <p className="text-sm font-semibold text-slate-200">{section.name}</p>
+                <p className="text-xs text-slate-500">
+                  {questions.filter(aq => existingAnswers.some(a => a.question_id === aq.question_id)).length} / {questions.length} answered
+                </p>
               </div>
-            ))}
-          </div>
+              <div className="p-5 grid grid-cols-10 gap-2">
+                {questions.map((aq) => {
+                  const isAnswered = existingAnswers.some(a => a.question_id === aq.question_id);
+                  return (
+                    <button
+                      key={aq.question_id}
+                      onClick={() => updateQuestionIndexMutation.mutate(aq.global_order)}
+                      title={`Question ${aq.global_order}`}
+                      className={`w-full aspect-square rounded-lg text-xs font-bold transition-colors flex items-center justify-center
+                        ${isAnswered
+                          ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                          : 'bg-[#0f1117] text-slate-500 border border-[#2a2f3d] hover:border-slate-500 hover:text-slate-300'
+                        }`}
+                    >
+                      {aq.global_order}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
 
-          <div className="mt-8 flex items-center gap-6 p-4 bg-slate-50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded bg-green-100 border-2 border-green-300"></div>
-              <span className="text-sm text-slate-700">Answered</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded bg-slate-100 border-2 border-slate-300"></div>
-              <span className="text-sm text-slate-700">Unanswered</span>
-            </div>
+        {/* Legend */}
+        <div className="mt-6 flex items-center gap-6 px-4 py-3 bg-[#181c25] border border-[#2a2f3d] rounded-xl">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-md bg-indigo-600" />
+            <span className="text-xs text-slate-400">Answered</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-md bg-[#0f1117] border border-[#2a2f3d]" />
+            <span className="text-xs text-slate-400">Unanswered</span>
+          </div>
+          <div className="ml-auto">
+            <button
+              onClick={() => window.location.href = createPageUrl(`StudentCertificationAttempt?id=${attemptId}`)}
+              className="px-5 py-2 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
+            >
+              Return to Exam
+            </button>
           </div>
         </div>
       </div>

@@ -14,8 +14,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Clock, ChevronLeft, ChevronRight, AlertCircle, List, AlertTriangle, Flag, Shield, Pause, Play, Camera, Minimize2, Maximize2, Monitor } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Clock, ChevronRight, AlertCircle, List, AlertTriangle, Flag, Shield, Pause, Play, Minimize2, Maximize2, Monitor } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useExamExpiryGuard } from '@/components/ExamExpiryGuard';
 import ExamCameraMonitor from '@/components/ExamCameraMonitor';
@@ -374,42 +373,12 @@ export default function StudentCertificationAttempt() {
   }
   if (!attempt || !examConfig || !currentQuestion || !examRevealed) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center gap-6" style={{ background: '#0a0a0f', backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(109,40,217,0.12) 0%, transparent 60%)' }}>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.85 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center gap-5"
-        >
-          {/* Spinning ring */}
-          <div className="relative w-20 h-20 flex items-center justify-center">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 2.5, ease: 'linear', repeat: Infinity }}
-              className="absolute inset-0 rounded-full"
-              style={{ border: '2px solid transparent', borderTopColor: 'rgba(139,92,246,0.8)', borderRightColor: 'rgba(139,92,246,0.2)' }}
-            />
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', boxShadow: '0 0 32px rgba(109,40,217,0.5)' }}>
-              <Shield className="w-6 h-6 text-white" />
-            </div>
-          </div>
-          <div className="text-center">
-            <p className="text-violet-400 text-xs font-bold tracking-widest uppercase mb-2">Secure Exam Environment</p>
-            <p className="text-white text-xl font-semibold">{examConfig?.title || 'Preparing…'}</p>
-            <p className="text-slate-500 text-sm mt-1">Preparing your exam…</p>
-          </div>
-          <div className="flex items-center gap-2">
-            {[0,1,2].map(i => (
-              <motion.div
-                key={i}
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ background: 'rgba(139,92,246,0.8)' }}
-                animate={{ opacity: [0.2, 1, 0.2] }}
-                transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.22 }}
-              />
-            ))}
-          </div>
-        </motion.div>
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-4" style={{ background: '#0f1117' }}>
+        <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center">
+          <Shield className="w-5 h-5 text-white" />
+        </div>
+        <p className="text-xs font-semibold text-slate-500 uppercase tracking-[0.2em]">{examConfig?.title || 'Loading exam…'}</p>
+        <p className="text-white text-sm">Preparing your questions…</p>
       </div>
     );
   }
@@ -422,13 +391,7 @@ export default function StudentCertificationAttempt() {
   const options = JSON.parse(currentQuestion.options_json);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed inset-0 flex overflow-hidden"
-      style={{ background: '#0a0a0f' }}
-    >
+    <div className="fixed inset-0 flex overflow-hidden" style={{ background: '#0f1117' }}>
       {/* Locked sidebar */}
       <ExamLockedSidebar isPaused={isPaused} />
 
@@ -436,17 +399,14 @@ export default function StudentCertificationAttempt() {
       <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* Top bar */}
-        <div
-          className="flex-shrink-0 px-6 py-3 flex items-center justify-between"
-          style={{ background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-        >
+        <div className="flex-shrink-0 px-6 py-3 flex items-center justify-between" style={{ background: '#181c25', borderBottom: '1px solid #2a2f3d' }}>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-lg">
-              <Shield className="w-4 h-4 text-emerald-400" />
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0f1117] border border-[#2a2f3d]">
+              <Shield className="w-3.5 h-3.5 text-indigo-400" />
               <span className="text-white text-xs font-bold tracking-widest">SECURE EXAM</span>
             </div>
             {violations.length > 0 && (
-              <span className="bg-red-500/20 text-red-400 text-xs font-semibold px-2 py-1 rounded-lg border border-red-500/30">
+              <span className="bg-red-500/10 text-red-400 text-xs font-semibold px-2 py-1 rounded-lg border border-red-500/20">
                 {violations.length} flag{violations.length > 1 ? 's' : ''}
               </span>
             )}
@@ -459,38 +419,38 @@ export default function StudentCertificationAttempt() {
 
           <div className="flex items-center gap-3">
             {timeRemaining !== null && (
-              <div className={`flex items-center gap-2 font-mono font-bold px-3 py-1.5 rounded-lg border
-                ${isPaused ? 'text-amber-400 border-amber-500/40 bg-amber-500/10'
-                : isTimeCritical ? 'text-red-400 border-red-500/40 bg-red-500/10 animate-pulse'
-                : 'text-white border-slate-700 bg-slate-800'}`}>
+              <div className={`flex items-center gap-2 font-mono font-bold px-3 py-1.5 rounded-lg border text-sm
+                ${isPaused ? 'text-amber-400 border-amber-500/30 bg-amber-500/8'
+                : isTimeCritical ? 'text-red-400 border-red-500/30 bg-red-500/8'
+                : 'text-white border-[#2a2f3d] bg-[#0f1117]'}`}>
                 <Clock className="w-4 h-4" />
                 {isPaused ? 'PAUSED' : formatTime(timeRemaining)}
               </div>
             )}
             {isPaused ? (
-              <Button onClick={handleResume} size="sm" className="bg-emerald-600 hover:bg-emerald-700 gap-1.5 text-xs">
+              <button onClick={handleResume} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors">
                 <Play className="w-3.5 h-3.5" /> Resume
-              </Button>
+              </button>
             ) : (
-              <Button onClick={handleManualPause} variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-800 gap-1.5 text-xs">
+              <button onClick={handleManualPause} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 border border-[#2a2f3d] hover:bg-[#2a2f3d] transition-colors">
                 <Pause className="w-3.5 h-3.5" /> Pause
-              </Button>
+              </button>
             )}
             {!isPaused && (
               <>
-                <Link to={createPageUrl(`StudentCertificationReview?id=${attemptId}`)} className="text-slate-400 hover:text-slate-200 flex items-center gap-1.5 text-xs font-medium">
+                <Link to={createPageUrl(`StudentCertificationReview?id=${attemptId}`)} className="text-slate-400 hover:text-slate-200 flex items-center gap-1.5 text-xs font-medium transition-colors">
                   <List className="w-4 h-4" /> Review
                 </Link>
-                <Button onClick={() => setShowEndExamDialog(true)} variant="outline" size="sm" className="border-red-800 text-red-400 hover:bg-red-900/30 gap-1.5 text-xs">
+                <button onClick={() => setShowEndExamDialog(true)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-400 border border-red-500/20 hover:bg-red-500/8 transition-colors">
                   <Flag className="w-3.5 h-3.5" /> End Exam
-                </Button>
+                </button>
               </>
             )}
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="flex-shrink-0 px-6 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="flex-shrink-0 px-6 py-3" style={{ borderBottom: '1px solid #2a2f3d', background: '#181c25' }}>
           <div className="flex items-center gap-3">
             <div className="flex-1 bg-slate-800 rounded-full h-1.5">
               <motion.div className="h-full bg-violet-500 rounded-full" animate={{ width: `${progress}%` }} transition={{ duration: 0.3 }} />
@@ -519,72 +479,64 @@ export default function StudentCertificationAttempt() {
           )}
 
           {/* Question area */}
-          <div className={`${questionsCollapsed ? 'hidden' : 'flex-1'} overflow-y-auto px-6 py-8`}>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentQuestionIndex}
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -30 }}
-                transition={{ duration: 0.25 }}
-              >
+          <div className={`${questionsCollapsed ? 'hidden' : 'flex-1'} overflow-y-auto px-8 py-8`}>
+            <div key={currentQuestionIndex}>
                 {/* Question card */}
                 <div
-                  className={`rounded-2xl p-8 mb-6 transition-all ${isPaused ? 'opacity-60 pointer-events-none select-none' : ''}`}
-                  style={{ background: 'rgba(255,255,255,0.03)', border: isPaused ? '1px solid rgba(251,191,36,0.25)' : '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(8px)' }}
+                  className={`rounded-xl p-8 mb-6 transition-opacity ${isPaused ? 'opacity-40 pointer-events-none select-none' : ''}`}
+                  style={{ background: '#181c25', border: '1px solid #2a2f3d' }}
                 >
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">
-                    Question {currentQuestionIndex}
+                  <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-4">
+                    Question {currentQuestionIndex} of {totalQuestions}
                   </p>
-                  <h2 className="text-xl font-semibold text-slate-100 leading-relaxed mb-8">
+                  <h2 className="text-lg font-semibold text-slate-100 leading-relaxed mb-8">
                     {currentQuestion.question_text}
                   </h2>
 
                   {currentQuestion.question_type === 'single_choice' || currentQuestion.question_type === 'true_false' ? (
                     <RadioGroup value={currentAnswer || ''} onValueChange={(v) => handleAnswerChange(v)}>
-                      <div className="space-y-3">
+                      <div className="space-y-2.5">
                         {options.map((option) => (
                           <label
                             key={option.key}
-                            className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all
+                            className={`flex items-center gap-4 px-5 py-4 rounded-xl border cursor-pointer transition-colors
                               ${currentAnswer === option.key
-                                ? 'border-violet-500 bg-violet-500/10 text-violet-200'
-                                : 'border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-500 hover:bg-slate-800'}`}
+                                ? 'border-indigo-500 bg-indigo-500/8 text-slate-100'
+                                : 'border-[#2a2f3d] bg-[#0f1117] text-slate-400 hover:border-slate-500 hover:text-slate-200'}`}
                           >
-                            <RadioGroupItem value={option.key} id={`opt-${option.key}`} className="border-slate-500 text-violet-400" />
-                            <span className="font-medium">{option.label}</span>
+                            <RadioGroupItem value={option.key} id={`opt-${option.key}`} className="border-slate-600 text-indigo-400" />
+                            <span className="text-sm font-medium">{option.label}</span>
                           </label>
                         ))}
                       </div>
                     </RadioGroup>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                       {options.map((option) => (
                         <label
                           key={option.key}
-                          className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all
+                          className={`flex items-center gap-4 px-5 py-4 rounded-xl border cursor-pointer transition-colors
                             ${(Array.isArray(currentAnswer) ? currentAnswer : []).includes(option.key)
-                              ? 'border-violet-500 bg-violet-500/10 text-violet-200'
-                              : 'border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-500 hover:bg-slate-800'}`}
+                              ? 'border-indigo-500 bg-indigo-500/8 text-slate-100'
+                              : 'border-[#2a2f3d] bg-[#0f1117] text-slate-400 hover:border-slate-500 hover:text-slate-200'}`}
                         >
                           <Checkbox
                             id={`opt-${option.key}`}
                             checked={(Array.isArray(currentAnswer) ? currentAnswer : []).includes(option.key)}
                             onCheckedChange={() => handleAnswerChange(option.key, true)}
-                            className="border-slate-500"
+                            className="border-slate-600"
                           />
-                          <span className="font-medium">{option.label}</span>
+                          <span className="text-sm font-medium">{option.label}</span>
                         </label>
                       ))}
                     </div>
                   )}
 
                   {showAnswerWarning && (
-                    <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-                      className="mt-5 flex items-center gap-2 text-amber-400 bg-amber-500/10 border border-amber-500/30 p-3 rounded-lg">
+                    <div className="mt-5 flex items-center gap-2 text-amber-400 bg-amber-500/8 border border-amber-500/20 p-3 rounded-lg">
                       <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                      <span className="text-sm font-medium">Please select an answer to continue.</span>
-                    </motion.div>
+                      <span className="text-sm">Please select an answer to continue.</span>
+                    </div>
                   )}
                 </div>
 
@@ -598,103 +550,87 @@ export default function StudentCertificationAttempt() {
                     <Minimize2 className="w-3.5 h-3.5" /> Collapse
                   </button>
                   {isLastQuestion ? (
-                    <Button onClick={handleFinalSubmit} disabled={isPaused} className="bg-emerald-600 hover:bg-emerald-700 gap-2 disabled:opacity-30">
+                    <button onClick={handleFinalSubmit} disabled={isPaused} className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
                       Submit Exam
-                    </Button>
+                    </button>
                   ) : (
-                    <Button onClick={handleNext} disabled={isPaused} className="bg-violet-600 hover:bg-violet-700 gap-2 disabled:opacity-30">
+                    <button onClick={handleNext} disabled={isPaused} className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
                       Next <ChevronRight className="w-4 h-4" />
-                    </Button>
+                    </button>
                   )}
                 </div>
-              </motion.div>
-            </AnimatePresence>
+            </div>
           </div>
 
           {/* Camera + Screen share sidebar */}
-          <div className="flex-shrink-0 w-56 p-3 flex flex-col gap-3 overflow-y-auto" style={{ borderLeft: '1px solid rgba(255,255,255,0.06)' }}>
-            <ExamCameraMonitor ref={cameraRef} studentName={user?.full_name || user?.email} />
+          <div className="flex-shrink-0 w-56 flex flex-col gap-0 overflow-y-auto" style={{ borderLeft: '1px solid #2a2f3d', background: '#181c25' }}>
+            <div className="p-3">
+              <ExamCameraMonitor ref={cameraRef} studentName={user?.full_name || user?.email} />
+            </div>
 
             {/* Screen share preview */}
-            <div className="rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-              <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-                <div className="flex items-center gap-1.5">
+            <div className="border-t border-[#2a2f3d]">
+              <div className="flex items-center justify-between px-4 py-2.5">
+                <div className="flex items-center gap-2">
                   <Monitor className="w-3.5 h-3.5 text-slate-500" />
                   <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Screen Share</span>
                 </div>
                 <div className={`w-1.5 h-1.5 rounded-full ${screenStream ? 'bg-emerald-400' : 'bg-red-500'}`} />
               </div>
-              <div className="relative" style={{ aspectRatio: '16/10' }}>
+              <div className="relative bg-[#0f1117]" style={{ aspectRatio: '16/10' }}>
                 {screenStream ? (
-                  <video
-                    ref={screenVideoRef}
-                    autoPlay
-                    muted
-                    className="w-full h-full object-cover"
-                    style={{ display: 'block' }}
-                  />
+                  <video ref={screenVideoRef} autoPlay muted className="w-full h-full object-cover" style={{ display: 'block' }} />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ minHeight: 90 }}>
-                    <Monitor className="w-6 h-6 text-slate-600" />
-                    <p className="text-slate-600 text-[10px] text-center px-2">No screen share active</p>
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-1.5">
+                    <Monitor className="w-5 h-5 text-slate-700" />
+                    <p className="text-slate-700 text-[10px] text-center px-2">No screen share</p>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 text-center">
-              <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-widest mb-1">Integrity</p>
-              <div className={`text-xs font-bold ${violations.length === 0 ? 'text-emerald-400' : violations.length < 3 ? 'text-amber-400' : 'text-red-400'}`}>
-                {violations.length === 0 ? 'Clean session' : `${violations.length} flag${violations.length > 1 ? 's' : ''} logged`}
-              </div>
+            {/* Integrity */}
+            <div className="border-t border-[#2a2f3d] px-4 py-3">
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1">Session Integrity</p>
+              <p className={`text-xs font-semibold ${violations.length === 0 ? 'text-emerald-400' : violations.length < 3 ? 'text-amber-400' : 'text-red-400'}`}>
+                {violations.length === 0 ? 'No flags' : `${violations.length} incident${violations.length > 1 ? 's' : ''} logged`}
+              </p>
             </div>
           </div>
         </div>
 
         {/* Pause overlay */}
-        <AnimatePresence>
-          {isPaused && (
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 z-40 flex items-center justify-center p-8"
-              style={{ background: 'rgba(5,5,10,0.93)', backdropFilter: 'blur(6px)' }}
-            >
-              <div
-                className="max-w-sm w-full"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '36px 32px', boxShadow: '0 40px 80px rgba(0,0,0,0.6)' }}
-              >
-                <div className="absolute top-0 left-0 right-0 h-px" style={{ background: showFocusWarning ? 'linear-gradient(90deg, transparent, rgba(239,68,68,0.5), transparent)' : 'linear-gradient(90deg, transparent, rgba(251,191,36,0.4), transparent)', borderRadius: 20 }} />
-
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg mb-5" style={{ background: showFocusWarning ? 'rgba(239,68,68,0.08)' : 'rgba(251,191,36,0.08)', border: showFocusWarning ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(251,191,36,0.2)' }}>
-                    {showFocusWarning
-                      ? <><AlertTriangle className="w-3.5 h-3.5 text-red-400" /><span className="text-red-400 text-xs font-bold tracking-widest uppercase">Integrity Alert</span></>
-                      : <><Pause className="w-3.5 h-3.5 text-amber-400" /><span className="text-amber-400 text-xs font-bold tracking-widest uppercase">Exam Paused</span></>}
-                  </div>
-                  <h2 className="text-white text-xl font-semibold mb-2">{showFocusWarning ? 'Focus Lost' : 'Timer Frozen'}</h2>
-                  <p className="text-slate-400 text-sm">
-                    {showFocusWarning
-                      ? <>{focusWarningMessage} — <span className="text-red-400 font-medium">this incident has been logged.</span></>
-                      : 'Your timer is paused. Camera must be active to resume.'}
-                  </p>
-                </div>
-
-                <div className="mb-5 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+        {isPaused && (
+          <div className="absolute inset-0 z-40 flex items-center justify-center p-8" style={{ background: 'rgba(15,17,23,0.96)' }}>
+            <div className="w-full max-w-sm bg-[#181c25] border border-[#2a2f3d] rounded-2xl overflow-hidden">
+              {/* Status bar */}
+              <div className={`px-6 py-3 border-b border-[#2a2f3d] flex items-center gap-2 ${showFocusWarning ? 'bg-red-500/8' : 'bg-amber-500/8'}`}>
+                {showFocusWarning
+                  ? <><AlertTriangle className="w-4 h-4 text-red-400" /><span className="text-red-400 text-xs font-bold uppercase tracking-widest">Integrity Alert</span></>
+                  : <><Pause className="w-4 h-4 text-amber-400" /><span className="text-amber-400 text-xs font-bold uppercase tracking-widest">Exam Paused</span></>}
+              </div>
+              <div className="p-6">
+                <h2 className="text-white text-lg font-bold mb-1.5">{showFocusWarning ? 'Focus Lost' : 'Timer Frozen'}</h2>
+                <p className="text-slate-400 text-sm mb-5">
+                  {showFocusWarning
+                    ? <>{focusWarningMessage}. <span className="text-red-400">This incident has been logged.</span></>
+                    : 'Your timer is frozen. Camera must be active to resume.'}
+                </p>
+                <div className="mb-5 rounded-xl overflow-hidden border border-[#2a2f3d]">
                   <ExamCameraMonitor ref={cameraRef} studentName={user?.full_name || user?.email} />
                 </div>
-
-                <Button onClick={handleResume} size="lg" className="w-full gap-2" style={{ background: 'rgba(16,185,129,0.9)', color: 'white' }}>
+                <button onClick={handleResume} className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2">
                   <Play className="w-4 h-4" /> Resume Exam
-                </Button>
-                <p className="text-slate-600 text-xs text-center mt-3">Sidebar navigation is available while paused.</p>
+                </button>
+                <p className="text-slate-600 text-xs text-center mt-3">Sidebar navigation remains available while paused.</p>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
+        )}
 
         {/* End exam dialog */}
         <Dialog open={showEndExamDialog} onOpenChange={setShowEndExamDialog}>
-          <DialogContent className="bg-slate-900 border-slate-700 text-white">
+          <DialogContent className="border-[#2a2f3d] text-white" style={{ background: '#181c25' }}>
             <DialogHeader>
               <DialogTitle className="text-white">Submit exam now?</DialogTitle>
               <DialogDescription className="space-y-3 pt-4">
@@ -707,17 +643,19 @@ export default function StudentCertificationAttempt() {
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowEndExamDialog(false)} disabled={submittingEarly}
-                className="border-slate-700 text-slate-300 hover:bg-slate-800">Cancel</Button>
-              <Button onClick={() => { setShowEndExamDialog(false); handleEarlySubmit(); }}
-                disabled={submittingEarly} className="bg-red-600 hover:bg-red-700">
+              <button onClick={() => setShowEndExamDialog(false)} disabled={submittingEarly}
+                className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-300 border border-[#2a2f3d] hover:bg-[#2a2f3d] transition-colors disabled:opacity-30">
+                Cancel
+              </button>
+              <button onClick={() => { setShowEndExamDialog(false); handleEarlySubmit(); }}
+                disabled={submittingEarly} className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50">
                 {submittingEarly ? 'Submitting…' : 'Submit Now'}
-              </Button>
+              </button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
       </div>{/* end main exam column */}
-    </motion.div>
+    </div>
   );
 }

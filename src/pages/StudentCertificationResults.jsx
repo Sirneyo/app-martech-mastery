@@ -3,10 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Trophy, XCircle, CheckCircle, ArrowLeft, Download } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Trophy, XCircle, Download, ArrowLeft } from 'lucide-react';
 import CertificatePreviewModal from '@/components/CertificatePreviewModal';
 
 export default function StudentCertificationResults() {
@@ -83,8 +80,8 @@ export default function StudentCertificationResults() {
 
   if (!attempt || !examConfig) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <p className="text-slate-500">Loading results...</p>
+      <div className="min-h-screen bg-[#0f1117] flex items-center justify-center">
+        <p className="text-slate-500 text-sm">Loading results…</p>
       </div>
     );
   }
@@ -100,126 +97,94 @@ export default function StudentCertificationResults() {
   const passCorrectRequired = examConfig?.pass_correct_required || 65;
 
   return (
-    <div className={`min-h-screen ${passed ? 'bg-gradient-to-br from-green-50 to-emerald-50' : 'bg-gradient-to-br from-red-50 to-orange-50'} p-8`}>
-      <div className="max-w-4xl mx-auto">
-        <Link to={createPageUrl('StudentCertification')} className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-6">
-          <ArrowLeft className="w-4 h-4" />
-          Back to Certification
+    <div className="min-h-screen bg-[#0f1117] py-10 px-6">
+      <div className="max-w-2xl mx-auto">
+        <Link to={createPageUrl('StudentCertification')} className="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm font-medium transition-colors mb-8">
+          <ArrowLeft className="w-4 h-4" /> Back to Certification
         </Link>
 
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-2xl p-12 text-center shadow-xl border border-slate-200"
-        >
-          <div className={`w-24 h-24 ${passed ? 'bg-gradient-to-br from-green-500 to-emerald-500' : 'bg-gradient-to-br from-red-500 to-orange-500'} rounded-full flex items-center justify-center mx-auto mb-6`}>
-            {passed ? (
-              <Trophy className="w-12 h-12 text-white" />
-            ) : (
-              <XCircle className="w-12 h-12 text-white" />
+        <div className="bg-[#181c25] border border-[#2a2f3d] rounded-2xl overflow-hidden">
+          {/* Result header */}
+          <div className={`px-8 py-6 border-b border-[#2a2f3d] flex items-center gap-5 ${passed ? 'bg-emerald-500/6' : 'bg-red-500/6'}`}>
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${passed ? 'bg-emerald-600' : 'bg-red-600'}`}>
+              {passed ? <Trophy className="w-6 h-6 text-white" /> : <XCircle className="w-6 h-6 text-white" />}
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-widest mb-1" style={{ color: passed ? '#34d399' : '#f87171' }}>
+                {passed ? 'Passed' : 'Not Passed'}
+              </p>
+              <h1 className="text-xl font-bold text-white">{passed ? 'Exam Complete — Well Done' : 'Exam Complete — Review Required'}</h1>
+            </div>
+          </div>
+
+          {/* Score grid */}
+          <div className="grid grid-cols-3 divide-x divide-[#2a2f3d] border-b border-[#2a2f3d]">
+            {[
+              { label: 'Correct Answers', value: `${correctAnswers} / ${totalQuestions}` },
+              { label: 'Pass Requirement', value: `${passCorrectRequired} / ${totalQuestions}` },
+              { label: 'Score', value: `${attempt.score_percent}%` },
+            ].map(({ label, value }) => (
+              <div key={label} className="px-5 py-5 text-center">
+                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-1.5">{label}</p>
+                <p className="text-xl font-bold text-white">{value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-7">
+            {passed && certificate && (
+              <div className="mb-6 p-5 bg-[#0f1117] border border-[#2a2f3d] rounded-xl">
+                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-2">Certificate ID</p>
+                <p className="text-lg font-mono font-bold text-white mb-4">{certificate.certificate_id_code}</p>
+                {certificate.certificate_url && (
+                  <>
+                    <button
+                      onClick={() => setShowPreview(true)}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
+                    >
+                      <Download className="w-4 h-4" /> View Certificate
+                    </button>
+                    <CertificatePreviewModal
+                      isOpen={showPreview}
+                      onClose={() => setShowPreview(false)}
+                      certificateUrl={certificate.certificate_url}
+                      certificateId={certificate.certificate_id_code}
+                    />
+                  </>
+                )}
+              </div>
             )}
-          </div>
 
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">
-            {passed ? 'Congratulations!' : 'Not Quite There'}
-          </h1>
-          <p className="text-xl text-slate-600 mb-8">
-            {passed ? 'You have passed the exam!' : 'Keep studying and try again'}
-          </p>
-
-          <div className="grid grid-cols-3 gap-6 mb-8">
-            <div className="bg-slate-50 rounded-xl p-6">
-              <p className="text-3xl font-bold text-slate-900 mb-2">
-                {correctAnswers}/{totalQuestions}
-              </p>
-              <p className="text-sm text-slate-500">Correct Answers</p>
-            </div>
-            <div className="bg-slate-50 rounded-xl p-6">
-              <p className="text-3xl font-bold text-slate-900 mb-2">
-                {passCorrectRequired}/{totalQuestions}
-              </p>
-              <p className="text-sm text-slate-500">Required to Pass</p>
-            </div>
-            <div className="bg-slate-50 rounded-xl p-6">
-              <p className="text-3xl font-bold text-slate-900 mb-2">
-                {attempt.score_percent}%
-              </p>
-              <p className="text-sm text-slate-500">Score Percentage</p>
-            </div>
-          </div>
-
-          {passed && (
-            <>
-              {certificate && (
-                <div className="bg-slate-50 rounded-xl p-6 mb-6">
-                  <p className="text-sm text-slate-500 mb-2">Certificate ID</p>
-                  <p className="text-2xl font-mono font-bold text-slate-900 mb-4">
-                    {certificate.certificate_id_code}
-                  </p>
-                  {certificate.certificate_url && (
-                    <>
-                      <Button
-                        onClick={() => setShowPreview(true)}
-                        className="w-full bg-violet-600 hover:bg-violet-700"
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        View Certificate
-                      </Button>
-                      <CertificatePreviewModal
-                        isOpen={showPreview}
-                        onClose={() => setShowPreview(false)}
-                        certificateUrl={certificate.certificate_url}
-                        certificateId={certificate.certificate_id_code}
-                      />
-                    </>
-                  )}
-                </div>
-              )}
-              <div className="bg-green-50 rounded-xl p-6 mb-6 border border-green-200">
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
-                  <p className="font-bold text-green-900">What happens next?</p>
-                </div>
-                <div className="text-left space-y-2 text-sm text-green-800">
-                  <p>✓ Your certificate has been generated</p>
-                  <p>✓ Portfolio item "mm_cert_exam" has been approved</p>
-                  <p>✓ You've earned 100 points</p>
+            {passed && (
+              <div className="mb-6 p-5 bg-emerald-500/6 border border-emerald-500/20 rounded-xl">
+                <p className="text-[11px] font-semibold text-emerald-400 uppercase tracking-widest mb-3">Automatically Applied</p>
+                <div className="space-y-2 text-sm text-slate-300">
+                  <p>Certificate generated and issued</p>
+                  <p>Portfolio item approved</p>
+                  <p>100 points awarded</p>
                 </div>
               </div>
-            </>
-          )}
+            )}
 
-          {!passed && (
-            <div className="mb-6">
-              <p className="text-slate-600 mb-4">
-                Attempts used: <span className="font-bold">{attemptsUsed} / {attemptsAllowed}</span>
-              </p>
-              {canRetry ? (
-                <Link to={createPageUrl('StudentCertification')}>
-                  <Button size="lg" className="bg-violet-600 hover:bg-violet-700">
-                    Try Again
-                  </Button>
-                </Link>
-              ) : (
-                <Badge variant="secondary" className="text-lg py-2 px-4">
-                  No attempts remaining
-                </Badge>
-              )}
-            </div>
-          )}
+            {!passed && (
+              <div className="mb-6 p-5 bg-[#0f1117] border border-[#2a2f3d] rounded-xl">
+                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mb-2">Attempts</p>
+                <p className="text-white text-sm mb-4">{attemptsUsed} of {attemptsAllowed} used</p>
+                {canRetry ? (
+                  <Link to={createPageUrl('StudentCertification')} className="inline-flex items-center px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                    Retry Exam
+                  </Link>
+                ) : (
+                  <p className="text-slate-500 text-sm">No attempts remaining.</p>
+                )}
+              </div>
+            )}
 
-          <div className="border-t border-slate-200 pt-6">
-            <h3 className="font-bold text-slate-900 mb-4">Summary</h3>
-            <div className="bg-slate-50 rounded-xl p-6 text-center">
-              <p className="text-lg text-slate-700 mb-2">
-                You answered <span className="font-bold text-slate-900">{correctAnswers}</span> out of <span className="font-bold text-slate-900">{totalQuestions}</span> questions correctly
-              </p>
-              <p className="text-sm text-slate-500">
-                {passed ? `You exceeded the requirement of ${passCorrectRequired} correct answers` : `You needed ${passCorrectRequired} correct answers to pass`}
-              </p>
-            </div>
+            <Link to={createPageUrl('StudentCertification')} className="text-slate-400 hover:text-white text-sm font-medium transition-colors">
+              ← Return to Certification Hub
+            </Link>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
