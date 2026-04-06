@@ -581,9 +581,19 @@ export default function StudentCertificationAttempt() {
                 {screenStream ? (
                   <video ref={screenVideoRef} autoPlay muted className="w-full h-full object-cover" style={{ display: 'block' }} />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-1.5">
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 p-2">
                     <Monitor className="w-5 h-5 text-slate-700" />
-                    <p className="text-slate-700 text-[10px] text-center px-2">No screen share</p>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const stream = await navigator.mediaDevices.getDisplayMedia({ video: { cursor: 'always', displaySurface: 'monitor' }, audio: false });
+                          setScreenStream(stream);
+                        } catch {}
+                      }}
+                      className="text-[10px] font-semibold text-indigo-400 hover:text-indigo-300 transition-colors underline text-center"
+                    >
+                      Click to share screen
+                    </button>
                   </div>
                 )}
               </div>
