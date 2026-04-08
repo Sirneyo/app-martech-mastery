@@ -297,24 +297,27 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
             </div>
 
             {/* Document card — click to open */}
-            <button
-              onClick={() => setShowModal(true)}
-              className="w-full bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-teal-300 transition-all duration-200 overflow-hidden group mb-6"
-            >
-              <div className="px-8 py-5 flex items-center gap-5">
-                <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-6 h-6 text-teal-600" />
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+              <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-slate-400" />
+                <span className="text-sm font-semibold text-slate-700">Documents Required</span>
+              </div>
+              <button
+                onClick={() => setShowModal(true)}
+                className="w-full flex items-center gap-4 px-6 py-5 hover:bg-slate-50 transition-colors group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-5 h-5 text-teal-600" />
                 </div>
                 <div className="text-left flex-1">
-                  <p className="text-base font-bold text-slate-800 group-hover:text-teal-700 transition-colors">Opsbase Project Experience Agreement</p>
-                  <p className="text-sm text-slate-400 mt-0.5">MarTech Mastery by OAD Solutions Ltd</p>
+                  <p className="text-sm font-bold text-slate-800 group-hover:text-teal-700 transition-colors">Opsbase Project Experience Agreement</p>
+                  <p className="text-xs text-slate-400 mt-0.5">MarTech Mastery by OAD Solutions Ltd</p>
                 </div>
-                <div className="flex items-center gap-1.5 text-teal-600 text-sm font-semibold flex-shrink-0">
-                  <ExternalLink className="w-4 h-4" />
-                  <span className="hidden sm:inline">Click to view & sign</span>
-                </div>
-              </div>
-            </button>
+                <span className="text-xs font-semibold text-teal-600 flex items-center gap-1 flex-shrink-0">
+                  <ExternalLink className="w-3.5 h-3.5" /> Click to view &amp; sign
+                </span>
+              </button>
+            </div>
 
           </motion.div>
         </div>

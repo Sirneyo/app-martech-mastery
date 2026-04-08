@@ -2,11 +2,17 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
+    const body = await req.json();
+    const reqClone = new Request(req.url, {
+      method: req.method,
+      headers: req.headers,
+      body: JSON.stringify(body),
+    });
+    const base44 = createClientFromRequest(reqClone);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { studentName, studentEmail, date, cohortName, pdfBase64 } = await req.json();
+    const { studentName, studentEmail, date, cohortName, pdfBase64 } = body;
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 
