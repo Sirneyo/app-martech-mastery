@@ -53,6 +53,16 @@
       "type": "boolean",
       "default": false,
       "description": "Approved graduate status"
+    },
+    "opsbase_agreement_signed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the student has signed the Opsbase Project Experience Agreement"
+    },
+    "opsbase_agreement_signed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the student signed the Opsbase agreement"
     }
   },
   "required": []

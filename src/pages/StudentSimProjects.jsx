@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import OpsbaseAgreementStep from '@/components/OpsbaseAgreementStep';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -74,58 +75,6 @@ function IntroStep({ projects, onContinue }) {
               onClick={onContinue}
             >
               Continue to Participation Agreement
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </motion.div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Step 2: Agreement
-function AgreementStep({ projects, onContinue }) {
-  const agreementText = projects[0]?.agreement_text;
-
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <div className="flex-1 flex items-start justify-center px-6 py-12">
-        <div className="w-full max-w-3xl">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-
-            <div className="mb-8 text-center">
-              <div className="inline-flex items-center gap-2 bg-slate-100 border border-slate-200 text-slate-600 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest mb-4">
-                <FileText className="w-3.5 h-3.5" />
-                Participation Agreement
-              </div>
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">Before You Begin</h1>
-              <p className="text-slate-500 text-base max-w-xl mx-auto">
-                Please read through the participation agreement carefully. By proceeding, you confirm your commitment to the project expectations.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
-              <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-slate-400" />
-                <span className="text-sm font-semibold text-slate-700">Participation Agreement</span>
-              </div>
-              <div className="px-6 py-5 max-h-80 overflow-y-auto">
-                {agreementText ? (
-                  <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">{agreementText}</p>
-                ) : (
-                  <div className="text-center py-8">
-                    <FileText className="w-10 h-10 text-slate-200 mx-auto mb-2" />
-                    <p className="text-slate-400 text-sm">Agreement text will be added by your program coordinator.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <Button
-              className="w-full h-12 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-sm"
-              onClick={onContinue}
-            >
-              I Agree — View My Projects
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </motion.div>
@@ -235,6 +184,21 @@ export default function StudentSimProjects() {
 
   const { data: user } = useQuery({ queryKey: ['current-user'], queryFn: () => base44.auth.me() });
 
+  const { data: membership } = useQuery({
+    queryKey: ['my-cohort-membership', user?.id],
+    queryFn: async () => {
+      const memberships = await base44.entities.CohortMembership.filter({ user_id: user.id, status: 'active' });
+      return memberships[0];
+    },
+    enabled: !!user?.id,
+  });
+
+  const { data: cohort } = useQuery({
+    queryKey: ['my-cohort', membership?.cohort_id],
+    queryFn: () => base44.entities.Cohort.filter({ id: membership.cohort_id }).then(r => r[0]),
+    enabled: !!membership?.cohort_id,
+  });
+
   const { data: enrollments = [], isLoading: loadingEnrollments } = useQuery({
     queryKey: ['my-sim-enrollments', user?.id],
     queryFn: () => base44.entities.SimProjectEnrollment.filter({ student_user_id: user.id }),
@@ -266,7 +230,10 @@ export default function StudentSimProjects() {
     return <NotAssignedScreen />;
   }
 
-  if (step === 'intro') return <IntroStep projects={myProjects} onContinue={() => setStep('agreement')} />;
-  if (step === 'agreement') return <AgreementStep projects={myProjects} onContinue={() => setStep('list')} />;
+  // Skip agreement if already signed
+  const agreementSigned = user?.opsbase_agreement_signed;
+
+  if (step === 'intro') return <IntroStep projects={myProjects} onContinue={() => setStep(agreementSigned ? 'list' : 'agreement')} />;
+  if (step === 'agreement') return <OpsbaseAgreementStep user={user} cohortName={cohort?.name} onContinue={() => setStep('list')} />;
   return <ProjectListStep projects={myProjects} enrollments={enrollments} />;
 }
