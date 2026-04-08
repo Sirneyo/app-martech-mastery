@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, ArrowRight, RotateCcw, PenLine, Type, X } from 'lucide-react';
+import { FileText, ArrowRight, RotateCcw, PenLine, Type, X, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { jsPDF } from 'jspdf';
@@ -162,10 +162,12 @@ function SignaturePad({ onSignatureChange }) {
   );
 }
 
-function SignatureModal({ open, onClose, user, cohortName, onSubmit, submitting }) {
+export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
+  const [showModal, setShowModal] = useState(false);
   const [studentName, setStudentName] = useState(user?.display_name || '');
   const [signatureDataUrl, setSignatureDataUrl] = useState(null);
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
   const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
   const validate = () => {
@@ -176,94 +178,8 @@ function SignatureModal({ open, onClose, user, cohortName, onSubmit, submitting 
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
-    onSubmit({ studentName, signatureDataUrl, today });
-  };
-
-  if (!open) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.2 }}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden"
-      >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-slate-400" />
-            <span className="text-sm font-semibold text-slate-700">Sign Agreement</span>
-          </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
-          {/* Student Name */}
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-              Student Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={studentName}
-              onChange={(e) => { setStudentName(e.target.value); setErrors(p => ({ ...p, name: null })); }}
-              placeholder="Enter your full name"
-              className={`w-full border rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 ${errors.name ? 'border-red-300' : 'border-slate-200'}`}
-            />
-            {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-          </div>
-
-          {/* Date */}
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Date</label>
-            <input type="text" value={today} readOnly className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-500 bg-slate-50 cursor-default" />
-          </div>
-
-          {/* Programme Cohort */}
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Programme Cohort</label>
-            <input type="text" value={cohortName || 'Loading…'} readOnly className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-500 bg-slate-50 cursor-default" />
-          </div>
-
-          {/* Signature */}
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-              Signature <span className="text-red-500">*</span>
-            </label>
-            <SignaturePad onSignatureChange={(data) => { setSignatureDataUrl(data); setErrors(p => ({ ...p, sig: null })); }} />
-            {errors.sig && <p className="text-red-500 text-xs mt-1">{errors.sig}</p>}
-          </div>
-
-          <p className="text-xs text-slate-400 text-center pt-2 border-t border-slate-100">
-            MarTech Mastery is operated by OAD Solutions Ltd. This agreement forms part of the programme terms and conditions.
-          </p>
-        </div>
-
-        <div className="px-6 py-4 border-t border-slate-100 flex-shrink-0">
-          <Button
-            className="w-full h-11 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl disabled:opacity-60"
-            onClick={handleSubmit}
-            disabled={submitting}
-          >
-            {submitting ? 'Submitting…' : 'I Agree — View My Projects'}
-            {!submitting && <ArrowRight className="w-4 h-4 ml-2" />}
-          </Button>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
-  const [showModal, setShowModal] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-
-  const handleSubmit = async ({ studentName, signatureDataUrl }) => {
     setSubmitting(true);
 
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
@@ -380,15 +296,60 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
               </p>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
-              {/* Agreement header */}
+            {/* Document card — click to open */}
+            <button
+              onClick={() => setShowModal(true)}
+              className="w-full bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-teal-300 transition-all duration-200 overflow-hidden group mb-6"
+            >
+              <div className="px-8 py-5 flex items-center gap-5">
+                <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-6 h-6 text-teal-600" />
+                </div>
+                <div className="text-left flex-1">
+                  <p className="text-base font-bold text-slate-800 group-hover:text-teal-700 transition-colors">Opsbase Project Experience Agreement</p>
+                  <p className="text-sm text-slate-400 mt-0.5">MarTech Mastery by OAD Solutions Ltd</p>
+                </div>
+                <div className="flex items-center gap-1.5 text-teal-600 text-sm font-semibold flex-shrink-0">
+                  <ExternalLink className="w-4 h-4" />
+                  <span className="hidden sm:inline">Click to view & sign</span>
+                </div>
+              </div>
+            </button>
+
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Modal with full contract + signature fields */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.2 }}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
+          >
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-slate-400" />
+                <span className="text-sm font-semibold text-slate-700">Opsbase Project Experience Agreement</span>
+              </div>
+              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Scrollable content */}
+            <div className="flex-1 overflow-y-auto">
+              {/* Agreement heading */}
               <div className="px-8 py-6 border-b border-slate-100 text-center">
-                <h2 className="text-xl font-bold text-slate-900 uppercase tracking-wide">Opsbase Project Experience Agreement</h2>
+                <h2 className="text-lg font-bold text-slate-900 uppercase tracking-wide">Opsbase Project Experience Agreement</h2>
                 <p className="text-sm font-semibold mt-1" style={{ color: '#F05A22' }}>MarTech Mastery by OAD Solutions Ltd</p>
               </div>
 
               {/* Agreement body */}
-              <div className="px-8 py-6 max-h-96 overflow-y-auto space-y-5 border-b border-slate-100">
+              <div className="px-8 py-6 space-y-5 border-b border-slate-100">
                 {AGREEMENT_SECTIONS.map((section, i) => (
                   <div key={i}>
                     {section.heading && (
@@ -399,34 +360,62 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
                 ))}
               </div>
 
-              {/* Footer note */}
-              <div className="px-8 py-4 bg-slate-50 border-t border-slate-100">
-                <p className="text-xs text-slate-400 text-center">
+              {/* Signature fields */}
+              <div className="px-8 py-6 space-y-5 bg-slate-50">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200 pb-3">Sign Below</p>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                    Student Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={studentName}
+                    onChange={(e) => { setStudentName(e.target.value); setErrors(p => ({ ...p, name: null })); }}
+                    placeholder="Enter your full name"
+                    className={`w-full border rounded-xl px-4 py-2.5 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 ${errors.name ? 'border-red-300' : 'border-slate-200'}`}
+                  />
+                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Date</label>
+                  <input type="text" value={today} readOnly className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-500 bg-white cursor-default" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Programme Cohort</label>
+                  <input type="text" value={cohortName || 'Loading…'} readOnly className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-500 bg-white cursor-default" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                    Signature <span className="text-red-500">*</span>
+                  </label>
+                  <SignaturePad onSignatureChange={(data) => { setSignatureDataUrl(data); setErrors(p => ({ ...p, sig: null })); }} />
+                  {errors.sig && <p className="text-red-500 text-xs mt-1">{errors.sig}</p>}
+                </div>
+
+                <p className="text-xs text-slate-400 text-center pt-2 border-t border-slate-200">
                   MarTech Mastery is operated by OAD Solutions Ltd. This agreement forms part of the programme terms and conditions.
                 </p>
               </div>
             </div>
 
-            <Button
-              className="w-full h-12 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-sm"
-              onClick={() => setShowModal(true)}
-            >
-              I Agree — Sign Document
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-
+            {/* Submit footer */}
+            <div className="px-6 py-4 border-t border-slate-100 flex-shrink-0">
+              <Button
+                className="w-full h-11 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl disabled:opacity-60"
+                onClick={handleSubmit}
+                disabled={submitting}
+              >
+                {submitting ? 'Submitting…' : 'I Agree — View My Projects'}
+                {!submitting && <ArrowRight className="w-4 h-4 ml-2" />}
+              </Button>
+            </div>
           </motion.div>
         </div>
-      </div>
-
-      <SignatureModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        user={user}
-        cohortName={cohortName}
-        onSubmit={handleSubmit}
-        submitting={submitting}
-      />
+      )}
     </div>
   );
 }
