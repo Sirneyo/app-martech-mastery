@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Coins, Trash2, CheckCircle, XCircle, Search, Plus, Minus, Users, AlertTriangle, Eye, Activity, UserCheck, Wifi, BarChart2, RotateCcw, Clock, RefreshCw, GraduationCap } from 'lucide-react';
+import { Shield, Coins, Trash2, CheckCircle, XCircle, Search, Plus, Minus, Users, AlertTriangle, Eye, Activity, UserCheck, Wifi, BarChart2, RotateCcw, Clock, RefreshCw, GraduationCap, FolderOpen } from 'lucide-react';
 import SystemCheckPanel from '@/components/SystemCheckPanel';
 import SuperAdminAnalytics from '@/components/SuperAdminAnalytics';
 import { useNavigate } from 'react-router-dom';
@@ -52,8 +52,11 @@ export default function SuperAdminDashboard() {
 
   // Exam overrides state
   const [examSearchTerm, setExamSearchTerm] = useState('');
-  const [overrideConfirmOpen, setOverrideConfirmOpen] = useState(false);
-  const [overrideTarget, setOverrideTarget] = useState(null); // { user, attempt, type: 'cooldown'|'reset' }
+
+  // Project onboarding state
+  const [onboardingSearchTerm, setOnboardingSearchTerm] = useState('');
+  const [onboardingResetConfirmOpen, setOnboardingResetConfirmOpen] = useState(false);
+  const [onboardingResetTarget, setOnboardingResetTarget] = useState(null);
 
   const [activeTab, setActiveTab] = useState('points');
 
@@ -242,6 +245,30 @@ export default function SuperAdminDashboard() {
       queryClient.invalidateQueries({ queryKey: ['all-exam-attempts-admin'] });
       setOverrideConfirmOpen(false);
       setOverrideTarget(null);
+    },
+  });
+
+  const onboardingResetMutation = useMutation({
+    mutationFn: async (user) => {
+      await base44.entities.User.update(user.id, {
+        opsbase_agreement_signed: false,
+        opsbase_agreement_signed_at: null,
+      });
+      await base44.entities.AdminAuditLog.create({
+        action: 'attempt_reset',
+        admin_id: currentUser?.id,
+        admin_name: currentUser?.full_name || currentUser?.email,
+        target_user_id: user.id,
+        target_user_name: user.full_name || user.display_name,
+        target_user_email: user.email,
+        details: 'Project onboarding agreement reset. Student will be shown the agreement screen again on next visit.',
+        timestamp: new Date().toISOString(),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['super-admin-users'] });
+      setOnboardingResetConfirmOpen(false);
+      setOnboardingResetTarget(null);
     },
   });
 
@@ -465,6 +492,9 @@ export default function SuperAdminDashboard() {
             </TabsTrigger>
             <TabsTrigger value="examoverrides" className="flex items-center gap-2">
               <GraduationCap className="w-4 h-4" /> Exam Overrides
+            </TabsTrigger>
+            <TabsTrigger value="projectonboarding" className="flex items-center gap-2">
+              <FolderOpen className="w-4 h-4" /> Project Onboarding
             </TabsTrigger>
             <TabsTrigger value="systemcheck" className="flex items-center gap-2">
               <Activity className="w-4 h-4" /> System Check
@@ -825,6 +855,80 @@ export default function SuperAdminDashboard() {
             <SuperAdminAnalytics />
           </TabsContent>
 
+          {/* Project Onboarding Tab */}
+          <TabsContent value="projectonboarding" className="space-y-4 mt-4">
+            <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 flex items-start gap-3">
+              <FolderOpen className="w-5 h-5 text-teal-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-teal-800">Project Onboarding Controls</p>
+                <p className="text-sm text-teal-700 mt-0.5">Reset the project onboarding agreement for any student. This will require them to re-read and re-sign the Opsbase participation agreement on their next visit. All actions are logged.</p>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                <input
+                  className="w-full border border-slate-200 rounded-lg pl-10 pr-4 py-2 text-sm outline-none focus:ring-2 focus:ring-teal-300"
+                  placeholder="Search students..."
+                  value={onboardingSearchTerm}
+                  onChange={e => setOnboardingSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200">
+                    <th className="text-left p-4 font-semibold text-slate-700">Student</th>
+                    <th className="text-left p-4 font-semibold text-slate-700">Agreement Status</th>
+                    <th className="text-left p-4 font-semibold text-slate-700">Signed At</th>
+                    <th className="text-left p-4 font-semibold text-slate-700">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users
+                    .filter(u => u.app_role === 'student')
+                    .filter(u => !onboardingSearchTerm || u.full_name?.toLowerCase().includes(onboardingSearchTerm.toLowerCase()) || u.email?.toLowerCase().includes(onboardingSearchTerm.toLowerCase()))
+                    .map(u => (
+                      <tr key={u.id} className="border-b border-slate-100 hover:bg-slate-50">
+                        <td className="p-4">
+                          <p className="font-medium text-slate-900">{u.display_name || u.full_name}</p>
+                          <p className="text-xs text-slate-500">{u.email}</p>
+                        </td>
+                        <td className="p-4">
+                          {u.opsbase_agreement_signed ? (
+                            <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200">
+                              <CheckCircle className="w-3 h-3" /> Signed
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full border border-slate-200">
+                              Not signed
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-4 text-sm text-slate-500">
+                          {u.opsbase_agreement_signed_at ? new Date(u.opsbase_agreement_signed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                        </td>
+                        <td className="p-4">
+                          {u.opsbase_agreement_signed && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-teal-300 text-teal-700 hover:bg-teal-50 gap-1"
+                              onClick={() => { setOnboardingResetTarget(u); setOnboardingResetConfirmOpen(true); }}
+                            >
+                              <RotateCcw className="w-3 h-3" /> Reset Onboarding
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  }
+                </tbody>
+              </table>
+            </div>
+          </TabsContent>
+
           {/* System Check Tab */}
           <TabsContent value="systemcheck" className="mt-4">
             <SystemCheckPanel />
@@ -1036,6 +1140,38 @@ export default function SuperAdminDashboard() {
                  onClick={() => examOverrideMutation.mutate(overrideTarget)}
                >
                  {examOverrideMutation.isPending ? 'Applying...' : overrideTarget?.type === 'reset' ? 'Reset Attempts' : 'Bypass Cooldown'}
+               </Button>
+             </div>
+           </div>
+         </DialogContent>
+       </Dialog>
+
+       {/* Project Onboarding Reset Confirmation Dialog */}
+       <Dialog open={onboardingResetConfirmOpen} onOpenChange={setOnboardingResetConfirmOpen}>
+         <DialogContent>
+           <DialogHeader>
+             <DialogTitle className="text-teal-700 flex items-center gap-2">
+               <RotateCcw className="w-5 h-5" />
+               Reset Project Onboarding
+             </DialogTitle>
+           </DialogHeader>
+           <div className="space-y-4 py-2">
+             <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-700 space-y-1">
+               <p><strong>Student:</strong> {onboardingResetTarget?.display_name || onboardingResetTarget?.full_name}</p>
+               <p><strong>Email:</strong> {onboardingResetTarget?.email}</p>
+             </div>
+             <p className="text-slate-700 text-sm">This will clear the student's signed agreement status. They will be shown the Opsbase participation agreement screen again on their next visit and must re-sign before accessing projects.</p>
+             <div className="bg-blue-50 border border-blue-200 rounded p-2 text-xs text-blue-700">
+               <p><strong>Action logged under:</strong> {currentUser?.full_name || currentUser?.email}</p>
+             </div>
+             <div className="flex gap-2">
+               <Button variant="outline" className="flex-1" onClick={() => setOnboardingResetConfirmOpen(false)}>Cancel</Button>
+               <Button
+                 className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
+                 disabled={onboardingResetMutation.isPending}
+                 onClick={() => onboardingResetMutation.mutate(onboardingResetTarget)}
+               >
+                 <RotateCcw className="w-4 h-4 mr-1" /> {onboardingResetMutation.isPending ? 'Resetting...' : 'Reset Onboarding'}
                </Button>
              </div>
            </div>
