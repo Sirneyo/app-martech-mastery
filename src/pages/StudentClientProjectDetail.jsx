@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
   import { motion } from 'framer-motion';
-  import { FolderKanban, Clock, AlertCircle, ChevronRight } from 'lucide-react';
+  import { FolderKanban, Clock, AlertCircle, ChevronLeft } from 'lucide-react';
 import KanbanBoard from '@/components/client-project/KanbanBoard';
 import TaskDetailPanel from '@/components/client-project/TaskDetailPanel';
 
@@ -173,10 +173,11 @@ export default function StudentClientProjectDetail() {
         >
           <button
             onClick={handleBackClick}
-            className="absolute top-4 right-4 w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-50 transition-colors flex-shrink-0 md:hidden"
+            className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors flex-shrink-0 mr-2 text-sm font-medium"
             title="Back to My Projects"
           >
-            <ChevronRight className="w-5 h-5 rotate-180" />
+            <ChevronLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Back</span>
           </button>
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center flex-shrink-0 shadow-sm">
             <FolderKanban className="w-6 h-6 text-white" />

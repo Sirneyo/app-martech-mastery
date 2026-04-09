@@ -101,7 +101,17 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
     const col = columns[status] ? status : 'not_started';
     columns[col].push(task);
   });
-  const sortedPhases = [...phases].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const PHASE_TITLE_ORDER = ['campaign', 'analytics', 'data management', 'operational'];
+  const sortedPhases = [...phases].sort((a, b) => {
+    const aTitle = a.title?.toLowerCase() || '';
+    const bTitle = b.title?.toLowerCase() || '';
+    const aIdx = PHASE_TITLE_ORDER.findIndex(k => aTitle.includes(k));
+    const bIdx = PHASE_TITLE_ORDER.findIndex(k => bTitle.includes(k));
+    const aOrder = aIdx === -1 ? 999 : aIdx;
+    const bOrder = bIdx === -1 ? 999 : bIdx;
+    if (aOrder !== bOrder) return aOrder - bOrder;
+    return (a.sort_order ?? 0) - (b.sort_order ?? 0);
+  });
   const phaseOrderMap = {};
   sortedPhases.forEach((p, i) => { phaseOrderMap[p.id] = p.sort_order ?? i; });
 

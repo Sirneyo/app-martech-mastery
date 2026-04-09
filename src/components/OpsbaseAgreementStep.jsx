@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, ArrowRight, RotateCcw, PenLine, Type, X, ExternalLink } from 'lucide-react';
+import { FileText, ArrowRight, RotateCcw, PenLine, Type, X, ExternalLink, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { jsPDF } from 'jspdf';
@@ -164,6 +164,7 @@ function SignaturePad({ onSignatureChange }) {
 
 export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
   const [showModal, setShowModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [studentName, setStudentName] = useState(user?.display_name || '');
   const [signatureDataUrl, setSignatureDataUrl] = useState(null);
   const [errors, setErrors] = useState({});
@@ -262,21 +263,29 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
     doc.text('MarTech Mastery is operated by OAD Solutions Ltd. This agreement forms part of the programme terms and conditions.', pageW / 2, y, { align: 'center' });
 
     const pdfBase64 = doc.output('datauristring').split(',')[1];
+    const pdfBlob = doc.output('blob');
 
-    await base44.functions.invoke('sendOpsbaseAgreementEmail', {
-      studentName,
-      studentEmail: user.email,
-      date: today,
-      cohortName: cohortName || 'N/A',
-      pdfBase64,
-    });
+    // Upload PDF for profile storage + send email (parallel)
+    const [uploadResult] = await Promise.all([
+      base44.integrations.Core.UploadFile({ file: pdfBlob }),
+      base44.functions.invoke('sendOpsbaseAgreementEmail', {
+        studentName,
+        studentEmail: user.email,
+        date: today,
+        cohortName: cohortName || 'N/A',
+        pdfBase64,
+      }),
+    ]);
 
+    const currentDocs = user.portfolio_documents || [];
     await base44.auth.updateMe({
       opsbase_agreement_signed: true,
       opsbase_agreement_signed_at: new Date().toISOString(),
+      opsbase_agreement_pdf_url: uploadResult.file_url,
+      portfolio_documents: [...currentDocs, uploadResult.file_url],
     });
 
-    onContinue();
+    setShowSuccessModal(true);
   };
 
   return (
@@ -322,6 +331,36 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
           </motion.div>
         </div>
       </div>
+
+      {/* Success Confirmation Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.2 }}
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+          >
+            <div className="px-8 py-8 text-center">
+              <div className="w-16 h-16 rounded-full bg-teal-50 border border-teal-100 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-teal-600" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900 mb-2">Agreement Signed Successfully</h2>
+              <p className="text-slate-500 text-sm leading-relaxed">
+                Your agreement has been signed successfully. A copy has been sent to your email address and saved to your profile documents.
+              </p>
+            </div>
+            <div className="px-8 pb-8">
+              <Button
+                className="w-full h-11 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl"
+                onClick={() => { setShowSuccessModal(false); onContinue(); }}
+              >
+                Got it — View My Projects
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Modal with full contract + signature fields */}
       {showModal && (

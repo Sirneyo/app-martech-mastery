@@ -30,50 +30,46 @@ function IntroStep({ projects, onContinue }) {
   const videoUrl = projects[0]?.intro_video_url;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <div className="flex-1 flex items-start justify-center px-6 py-12">
-        <div className="w-full max-w-3xl">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-            <div className="mb-8 text-center">
-              <div className="inline-flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-700 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest mb-4">
-                <PlayCircle className="w-3.5 h-3.5" />
-                Project Briefing
+    <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-6 overflow-hidden">
+        <div className="w-full max-w-3xl flex flex-col gap-4">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="text-center">
+            <div className="inline-flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-700 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest mb-3">
+              <PlayCircle className="w-3.5 h-3.5" />
+              Project Briefing
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900 mb-1">Welcome to Your Client Project</h1>
+            <p className="text-slate-500 text-sm max-w-xl mx-auto">
+              Watch the briefing video below to understand the project scope, expectations and deliverables before getting started.
+            </p>
+          </motion.div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+            {videoUrl ? (
+              <iframe src={videoUrl} className="w-full block" style={{ height: 'calc(100vh - 320px)', minHeight: '240px' }} allowFullScreen title="Project Introduction" />
+            ) : (
+              <div className="flex flex-col items-center justify-center bg-slate-50 border-b border-slate-100" style={{ height: 'calc(100vh - 320px)', minHeight: '200px' }}>
+                <div className="w-16 h-16 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-3">
+                  <PlayCircle className="w-8 h-8 text-teal-500" />
+                </div>
+                <p className="text-slate-400 text-sm font-medium">Briefing video coming soon</p>
+                <p className="text-slate-300 text-xs mt-1">Your coordinator will add this shortly</p>
               </div>
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">Welcome to Your Client Project</h1>
-              <p className="text-slate-500 text-base max-w-xl mx-auto">
-                Watch the briefing video below to understand the project scope, expectations and deliverables before getting started.
+            )}
+            <div className="px-6 py-3 bg-slate-50 border-t border-slate-100">
+              <p className="text-xs text-slate-400 text-center">
+                This video has been produced in partnership with <span className="font-semibold text-slate-600">Opsbase</span> and <span className="font-semibold text-slate-600">MarTech Mastery</span>
               </p>
             </div>
+          </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
-              {videoUrl ? (
-                <div className="aspect-video">
-                  <iframe src={videoUrl} className="w-full h-full" allowFullScreen title="Project Introduction" />
-                </div>
-              ) : (
-                <div className="aspect-video flex flex-col items-center justify-center bg-slate-50 border-b border-slate-100">
-                  <div className="w-16 h-16 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-3">
-                    <PlayCircle className="w-8 h-8 text-teal-500" />
-                  </div>
-                  <p className="text-slate-400 text-sm font-medium">Briefing video coming soon</p>
-                  <p className="text-slate-300 text-xs mt-1">Your coordinator will add this shortly</p>
-                </div>
-              )}
-              <div className="px-6 py-4 bg-slate-50 border-t border-slate-100">
-                <p className="text-xs text-slate-400 text-center">
-                  This video has been produced in partnership with <span className="font-semibold text-slate-600">Opsbase</span> and <span className="font-semibold text-slate-600">MarTech Mastery</span>
-                </p>
-              </div>
-            </div>
-
-            <Button
-              className="w-full h-12 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-sm"
-              onClick={onContinue}
-            >
-              Continue to Participation Agreement
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </motion.div>
+          <Button
+            className="w-full h-12 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-sm flex-shrink-0"
+            onClick={onContinue}
+          >
+            Continue to Participation Agreement
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
         </div>
       </div>
     </div>

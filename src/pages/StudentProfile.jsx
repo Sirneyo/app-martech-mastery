@@ -372,6 +372,19 @@ export default function StudentProfile() {
                   />
                 </div>
 
+                {/* Opsbase Agreement */}
+                {user?.opsbase_agreement_pdf_url && (
+                  <div className="mb-4">
+                    <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 flex items-center justify-between">
+                      <a href={user.opsbase_agreement_pdf_url} target="_blank" rel="noopener noreferrer" className="text-teal-700 hover:underline flex items-center gap-2 text-sm font-medium">
+                        <FileText className="w-4 h-4" />
+                        Project Agreement — Signed {user.opsbase_agreement_signed_at ? new Date(user.opsbase_agreement_signed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                      </a>
+                      <Badge className="bg-teal-100 text-teal-700 text-xs">Signed</Badge>
+                    </div>
+                  </div>
+                )}
+
                 {/* Portfolio Documents */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -393,9 +406,9 @@ export default function StudentProfile() {
                     />
                   </div>
 
-                  {user?.portfolio_documents && user.portfolio_documents.length > 0 ? (
+                  {user?.portfolio_documents && user.portfolio_documents.filter(d => d !== user.opsbase_agreement_pdf_url).length > 0 ? (
                     <div className="space-y-2">
-                      {user.portfolio_documents.map((doc, index) => (
+                      {user.portfolio_documents.filter(d => d !== user.opsbase_agreement_pdf_url).map((doc, index) => (
                         <div key={index} className="bg-slate-50 rounded-lg p-3 flex items-center justify-between">
                           <a href={doc} target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline flex items-center gap-2">
                             <FileText className="w-4 h-4" />
@@ -423,11 +436,11 @@ export default function StudentProfile() {
                     <li>• Updated versions can be uploaded anytime</li>
                   </ul>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+                </CardContent>
+                </Card>
+                </div>
+                </div>
+                </div>
+                </div>
+                );
+                }
