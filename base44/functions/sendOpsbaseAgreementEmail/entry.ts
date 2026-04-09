@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'MarTech Mastery <noreply@martech-mastery.com>',
+        from: 'MarTech Mastery <noreply@app.martech-mastery.com>',
         to: [studentEmail],
         subject: 'Your Opsbase Project Experience Agreement',
         html: `<p>Dear ${studentName},</p>
