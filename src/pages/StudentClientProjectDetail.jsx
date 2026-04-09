@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
   import { FolderKanban, Clock, AlertCircle, ChevronLeft } from 'lucide-react';
 import KanbanBoard from '@/components/client-project/KanbanBoard';
 import TaskDetailPanel from '@/components/client-project/TaskDetailPanel';
+import ProjectOnboardingTour from '@/components/client-project/ProjectOnboardingTour';
 
 export default function StudentClientProjectDetail() {
   const navigate = useNavigate();
@@ -167,6 +168,7 @@ export default function StudentClientProjectDetail() {
       )}
       <div className="p-4 md:p-6 max-w-[1400px] mx-auto">
         <motion.div
+          data-tour="project-header"
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6 flex flex-col md:flex-row items-start gap-4 relative"
@@ -189,7 +191,7 @@ export default function StudentClientProjectDetail() {
             <h1 className="text-lg md:text-xl font-bold text-slate-900">{project.title}</h1>
             {project.overview && <p className="text-slate-500 mt-0.5 text-sm">{project.overview}</p>}
           </div>
-          <div className="flex items-center gap-4 flex-shrink-0 w-full md:w-auto flex-wrap md:flex-nowrap">
+          <div data-tour="progress-area" className="flex items-center gap-4 flex-shrink-0 w-full md:w-auto flex-wrap md:flex-nowrap">
             {totalTasks > 0 && (
               <div className="text-right">
                 <p className="text-xs text-slate-400">Progress</p>
@@ -216,6 +218,7 @@ export default function StudentClientProjectDetail() {
             <p className="text-slate-500">Tasks are being set up. Check back soon.</p>
           </div>
         ) : (
+          <div data-tour="kanban-board">
           <KanbanBoard
             tasks={tasks}
             phases={phases}
@@ -226,6 +229,7 @@ export default function StudentClientProjectDetail() {
             onTaskClick={(task, submission) => setSelectedTask({ task, submission: submission || null })}
             onStartProject={() => updateEnrollment.mutate()}
           />
+          </div>
         )}
       </div>
 
@@ -239,6 +243,13 @@ export default function StudentClientProjectDetail() {
           projectId={projectId}
           onClose={() => setSelectedTask(null)}
           onEnrollmentChange={() => updateEnrollment.mutate()}
+        />
+      )}
+
+      {user?.id && (
+        <ProjectOnboardingTour
+          userId={user.id}
+          projectId={projectId}
         />
       )}
     </div>
