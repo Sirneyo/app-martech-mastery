@@ -30,9 +30,10 @@ function IntroStep({ projects, onContinue }) {
   const videoUrl = projects[0]?.intro_video_url;
 
   return (
-    <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-6 overflow-hidden">
+    <div className="bg-slate-50 flex flex-col" style={{ minHeight: '100%' }}>
+      <div className="flex flex-col items-center px-6 py-6">
         <div className="w-full max-w-3xl flex flex-col gap-4">
+
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="text-center">
             <div className="inline-flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-700 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest mb-3">
               <PlayCircle className="w-3.5 h-3.5" />
@@ -44,11 +45,13 @@ function IntroStep({ projects, onContinue }) {
             </p>
           </motion.div>
 
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             {videoUrl ? (
-              <iframe src={videoUrl} className="w-full block" style={{ height: 'calc(100vh - 320px)', minHeight: '240px' }} allowFullScreen title="Project Introduction" />
+              <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                <iframe src={videoUrl} className="absolute inset-0 w-full h-full" allowFullScreen title="Project Introduction" />
+              </div>
             ) : (
-              <div className="flex flex-col items-center justify-center bg-slate-50 border-b border-slate-100" style={{ height: 'calc(100vh - 320px)', minHeight: '200px' }}>
+              <div className="flex flex-col items-center justify-center bg-slate-50 border-b border-slate-100 py-16">
                 <div className="w-16 h-16 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-3">
                   <PlayCircle className="w-8 h-8 text-teal-500" />
                 </div>
@@ -64,7 +67,7 @@ function IntroStep({ projects, onContinue }) {
           </div>
 
           <Button
-            className="w-full h-12 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-sm flex-shrink-0"
+            className="w-full h-12 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-sm"
             onClick={onContinue}
           >
             Continue to Participation Agreement

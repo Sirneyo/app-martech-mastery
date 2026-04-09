@@ -53,6 +53,10 @@ export default function SuperAdminDashboard() {
   // Exam overrides state
   const [examSearchTerm, setExamSearchTerm] = useState('');
 
+  // Exam override confirmation state
+  const [overrideConfirmOpen, setOverrideConfirmOpen] = useState(false);
+  const [overrideTarget, setOverrideTarget] = useState(null);
+
   // Project onboarding state
   const [onboardingSearchTerm, setOnboardingSearchTerm] = useState('');
   const [onboardingResetConfirmOpen, setOnboardingResetConfirmOpen] = useState(false);

@@ -113,7 +113,7 @@ export default function KanbanBoard({ tasks, phases, submissions, enrollmentId, 
     return (a.sort_order ?? 0) - (b.sort_order ?? 0);
   });
   const phaseOrderMap = {};
-  sortedPhases.forEach((p, i) => { phaseOrderMap[p.id] = p.sort_order ?? i; });
+  sortedPhases.forEach((p, i) => { phaseOrderMap[p.id] = i; });
 
   Object.keys(columns).forEach(col => {
     columns[col].sort((a, b) => {
