@@ -420,7 +420,7 @@ export default function StudentDashboard() {
             </div>
             <div>
               <h3 className="font-bold text-slate-900 text-lg">Cohort Leaderboard</h3>
-              <p className="text-sm text-slate-500">Top 10 students by points</p>
+              <p className="text-sm text-slate-500">All students by points</p>
             </div>
           </div>
           <div className="space-y-2">

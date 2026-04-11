@@ -97,8 +97,7 @@ Deno.serve(async (req) => {
         isMe: student.id === user.id,
         profile_picture: student.profile_picture || null,
       }))
-      .sort((a, b) => b.points - a.points)
-      .slice(0, 10);
+      .sort((a, b) => b.points - a.points);
 
     // --- Stats: points ---
     const totalPoints = userLedger.reduce((sum, e) => sum + e.points, 0);
