@@ -164,7 +164,8 @@ function SignaturePad({ onSignatureChange }) {
 
 export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
   const [showModal, setShowModal] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
   const [studentName, setStudentName] = useState(user?.display_name || '');
   const [signatureDataUrl, setSignatureDataUrl] = useState(null);
   const [errors, setErrors] = useState({});
@@ -182,6 +183,7 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
   const handleSubmit = async () => {
     if (!validate()) return;
     setSubmitting(true);
+    setSubmitError(null);
 
     try {
       const doc = new jsPDF({ unit: 'pt', format: 'a4' });
@@ -283,18 +285,53 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
         pdfUrl: uploadResult.file_url,
       });
 
-      setShowSuccessModal(true);
+      // Close modal and show success
+      setShowModal(false);
+      setSuccess(true);
+
+      // Auto-proceed after 3 seconds
+      setTimeout(() => onContinue(), 3000);
+    } catch (err) {
+      setSubmitError('Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white rounded-2xl shadow-lg border border-slate-200 w-full max-w-md overflow-hidden text-center"
+        >
+          <div className="px-8 py-10">
+            <div className="w-16 h-16 rounded-full bg-teal-50 border border-teal-100 flex items-center justify-center mx-auto mb-5">
+              <CheckCircle className="w-8 h-8 text-teal-600" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Congratulations on signing your contract!</h2>
+            <p className="text-slate-500 text-sm leading-relaxed mb-6">
+              A confirmation email has been sent to your inbox. You'll be taken to your projects shortly.
+            </p>
+            <Button
+              className="w-full h-11 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl"
+              onClick={onContinue}
+            >
+              View My Projects <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <div className="flex-1 flex items-start justify-center px-6 py-12">
         <div className="w-full max-w-3xl">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-
             <div className="mb-8 text-center">
               <div className="inline-flex items-center gap-2 bg-slate-100 border border-slate-200 text-slate-600 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest mb-4">
                 <FileText className="w-3.5 h-3.5" />
@@ -306,7 +343,6 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
               </p>
             </div>
 
-            {/* Document card — click to open */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
               <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
                 <FileText className="w-4 h-4 text-slate-400" />
@@ -328,40 +364,9 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
                 </span>
               </button>
             </div>
-
           </motion.div>
         </div>
       </div>
-
-      {/* Success Confirmation Modal */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.2 }}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
-          >
-            <div className="px-8 py-8 text-center">
-              <div className="w-16 h-16 rounded-full bg-teal-50 border border-teal-100 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-teal-600" />
-              </div>
-              <h2 className="text-xl font-bold text-slate-900 mb-2">Agreement Signed Successfully</h2>
-              <p className="text-slate-500 text-sm leading-relaxed">
-                Your agreement has been signed successfully. A copy has been sent to your email address and saved to your profile documents.
-              </p>
-            </div>
-            <div className="px-8 pb-8">
-              <Button
-                className="w-full h-11 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl"
-                onClick={() => { setShowSuccessModal(false); onContinue(); }}
-              >
-                Got it — View My Projects
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      )}
 
       {/* Modal with full contract + signature fields */}
       {showModal && (
@@ -372,7 +377,6 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
             transition={{ duration: 0.2 }}
             className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
           >
-            {/* Modal header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-slate-400" />
@@ -383,15 +387,12 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
               </button>
             </div>
 
-            {/* Scrollable content */}
             <div className="flex-1 overflow-y-auto">
-              {/* Agreement heading */}
               <div className="px-8 py-6 border-b border-slate-100 text-center">
                 <h2 className="text-lg font-bold text-slate-900 uppercase tracking-wide">Opsbase Project Experience Agreement</h2>
                 <p className="text-sm font-semibold mt-1" style={{ color: '#F05A22' }}>MarTech Mastery by OAD Solutions Ltd</p>
               </div>
 
-              {/* Agreement body */}
               <div className="px-8 py-6 space-y-5 border-b border-slate-100">
                 {AGREEMENT_SECTIONS.map((section, i) => (
                   <div key={i}>
@@ -403,7 +404,6 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
                 ))}
               </div>
 
-              {/* Signature fields */}
               <div className="px-8 py-6 space-y-5 bg-slate-50">
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200 pb-3">Sign Below</p>
 
@@ -445,8 +445,10 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
               </div>
             </div>
 
-            {/* Submit footer */}
-            <div className="px-6 py-4 border-t border-slate-100 flex-shrink-0">
+            <div className="px-6 py-4 border-t border-slate-100 flex-shrink-0 space-y-2">
+              {submitError && (
+                <p className="text-red-500 text-xs text-center">{submitError}</p>
+              )}
               <Button
                 className="w-full h-11 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl disabled:opacity-60"
                 onClick={handleSubmit}

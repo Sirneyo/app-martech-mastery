@@ -3,11 +3,11 @@ import OpsbaseAgreementStep from '@/components/OpsbaseAgreementStep';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
-  import { Button } from '@/components/ui/button';
-  import { Lock, FolderKanban, ChevronRight, PlayCircle, FileText, ArrowRight, Briefcase, Send } from 'lucide-react';
-  import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Lock, FolderKanban, ChevronRight, PlayCircle, FileText, ArrowRight, Briefcase, Send } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const OPSBASE_LOGO = 'https://media.base44.com/images/public/693261f4a46b591b7d38e623/6610419bc_5e2c44538_OpsbaseLogo500x100px.png';
 
@@ -173,6 +173,7 @@ function NotAssignedScreen() {
 export default function StudentClientProjects() {
   const [step, setStep] = useState('intro');
   const [pushingOrder, setPushingOrder] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({ queryKey: ['current-user'], queryFn: () => base44.auth.me() });
 
@@ -231,7 +232,13 @@ export default function StudentClientProjects() {
 
   const agreementSigned = user?.opsbase_agreement_signed;
 
+  const handleAgreementComplete = async () => {
+    // Refetch user so opsbase_agreement_signed is fresh
+    await queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    setStep('list');
+  };
+
   if (step === 'intro') return <IntroStep projects={myProjects} onContinue={() => setStep(agreementSigned ? 'list' : 'agreement')} />;
-  if (step === 'agreement') return <OpsbaseAgreementStep user={user} cohortName={cohort?.name} onContinue={() => setStep('list')} />;
+  if (step === 'agreement') return <OpsbaseAgreementStep user={user} cohortName={cohort?.name} onContinue={handleAgreementComplete} />;
   return <ProjectListStep projects={myProjects} enrollments={enrollments} onPushOrder={handlePushOrder} isPushing={pushingOrder} userRole={user?.app_role} />;
 }
