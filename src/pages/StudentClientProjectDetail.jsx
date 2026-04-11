@@ -181,9 +181,7 @@ export default function StudentClientProjectDetail() {
             <ChevronLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Back</span>
           </button>
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center flex-shrink-0 shadow-sm">
-            <FolderKanban className="w-6 h-6 text-white" />
-          </div>
+
           <div className="flex-1 min-w-0">
             {project.company_name && (
               <p className="text-xs text-teal-600 font-semibold uppercase tracking-wider mb-0.5">{project.company_name}</p>
