@@ -217,7 +217,9 @@ export default function StudentClientProjects() {
     );
   }
 
-  const myProjects = allActiveProjects.filter(p => enrolledProjectIds.includes(p.id));
+  const myProjects = allActiveProjects
+    .filter(p => enrolledProjectIds.includes(p.id))
+    .sort((a, b) => (a.sort_order ?? 999) - (b.sort_order ?? 999));
 
   if (enrollments.length === 0 || myProjects.length === 0) {
     return <NotAssignedScreen />;
