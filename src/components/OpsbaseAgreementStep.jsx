@@ -183,109 +183,110 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
     if (!validate()) return;
     setSubmitting(true);
 
-    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-    const pageW = doc.internal.pageSize.getWidth();
-    const margin = 60;
-    const contentW = pageW - margin * 2;
-    let y = 60;
+    try {
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      const pageW = doc.internal.pageSize.getWidth();
+      const margin = 60;
+      const contentW = pageW - margin * 2;
+      let y = 60;
 
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(27, 43, 94);
-    doc.text('OPSBASE PROJECT EXPERIENCE AGREEMENT', pageW / 2, y, { align: 'center' });
-    y += 20;
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(240, 90, 34);
-    doc.text('MarTech Mastery by OAD Solutions Ltd', pageW / 2, y, { align: 'center' });
-    y += 24;
-    doc.setDrawColor(200, 200, 200);
-    doc.line(margin, y, pageW - margin, y);
-    y += 20;
-
-    for (const section of AGREEMENT_SECTIONS) {
-      if (section.heading) {
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(240, 90, 34);
-        doc.text(section.heading, margin, y);
-        y += 16;
-      }
-      doc.setFontSize(10);
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(27, 43, 94);
+      doc.text('OPSBASE PROJECT EXPERIENCE AGREEMENT', pageW / 2, y, { align: 'center' });
+      y += 20;
+      doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(60, 60, 60);
-      const lines = doc.splitTextToSize(section.body, contentW);
-      if (y + lines.length * 14 > 780) { doc.addPage(); y = 60; }
-      doc.text(lines, margin, y);
-      y += lines.length * 14 + 12;
-    }
+      doc.setTextColor(240, 90, 34);
+      doc.text('MarTech Mastery by OAD Solutions Ltd', pageW / 2, y, { align: 'center' });
+      y += 24;
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, y, pageW - margin, y);
+      y += 20;
 
-    y += 10;
-    doc.setDrawColor(200, 200, 200);
-    doc.line(margin, y, pageW - margin, y);
-    y += 20;
+      for (const section of AGREEMENT_SECTIONS) {
+        if (section.heading) {
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(240, 90, 34);
+          doc.text(section.heading, margin, y);
+          y += 16;
+        }
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(60, 60, 60);
+        const lines = doc.splitTextToSize(section.body, contentW);
+        if (y + lines.length * 14 > 780) { doc.addPage(); y = 60; }
+        doc.text(lines, margin, y);
+        y += lines.length * 14 + 12;
+      }
 
-    const fields = [
-      { label: 'Student Name', value: studentName },
-      { label: 'Date', value: today },
-      { label: 'Programme Cohort', value: cohortName || 'N/A' },
-    ];
-    for (const f of fields) {
-      if (y > 750) { doc.addPage(); y = 60; }
+      y += 10;
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, y, pageW - margin, y);
+      y += 20;
+
+      const fields = [
+        { label: 'Student Name', value: studentName },
+        { label: 'Date', value: today },
+        { label: 'Programme Cohort', value: cohortName || 'N/A' },
+      ];
+      for (const f of fields) {
+        if (y > 750) { doc.addPage(); y = 60; }
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(100, 100, 100);
+        doc.text(f.label, margin, y);
+        y += 14;
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(30, 30, 30);
+        doc.text(f.value, margin, y);
+        y += 8;
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, y, pageW - margin, y);
+        y += 18;
+      }
+
+      if (y > 700) { doc.addPage(); y = 60; }
       doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(100, 100, 100);
-      doc.text(f.label, margin, y);
-      y += 14;
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(30, 30, 30);
-      doc.text(f.value, margin, y);
-      y += 8;
+      doc.text('Signature', margin, y);
+      y += 10;
+      doc.addImage(signatureDataUrl, 'PNG', margin, y, 200, 50);
+      y += 60;
       doc.setDrawColor(200, 200, 200);
       doc.line(margin, y, pageW - margin, y);
-      y += 18;
+      y += 20;
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text('MarTech Mastery is operated by OAD Solutions Ltd. This agreement forms part of the programme terms and conditions.', pageW / 2, y, { align: 'center' });
+
+      const pdfBase64 = doc.output('datauristring').split(',')[1];
+      const pdfBlob = doc.output('blob');
+
+      // Upload PDF and send email in parallel
+      const [uploadResult] = await Promise.all([
+        base44.integrations.Core.UploadFile({ file: pdfBlob }),
+        base44.functions.invoke('sendOpsbaseAgreementEmail', {
+          studentName,
+          studentEmail: user.email,
+          date: today,
+          cohortName: cohortName || 'N/A',
+          pdfBase64,
+        }),
+      ]);
+
+      // Save agreement status via backend (service role)
+      await base44.functions.invoke('saveOpsbaseAgreement', {
+        pdfUrl: uploadResult.file_url,
+      });
+
+      setShowSuccessModal(true);
+    } finally {
+      setSubmitting(false);
     }
-
-    if (y > 700) { doc.addPage(); y = 60; }
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(100, 100, 100);
-    doc.text('Signature', margin, y);
-    y += 10;
-    doc.addImage(signatureDataUrl, 'PNG', margin, y, 200, 50);
-    y += 60;
-    doc.setDrawColor(200, 200, 200);
-    doc.line(margin, y, pageW - margin, y);
-    y += 20;
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text('MarTech Mastery is operated by OAD Solutions Ltd. This agreement forms part of the programme terms and conditions.', pageW / 2, y, { align: 'center' });
-
-    const pdfBase64 = doc.output('datauristring').split(',')[1];
-    const pdfBlob = doc.output('blob');
-
-    // Upload PDF for profile storage + send email (parallel)
-    const [uploadResult] = await Promise.all([
-      base44.integrations.Core.UploadFile({ file: pdfBlob }),
-      base44.functions.invoke('sendOpsbaseAgreementEmail', {
-        studentName,
-        studentEmail: user.email,
-        date: today,
-        cohortName: cohortName || 'N/A',
-        pdfBase64,
-      }),
-    ]);
-
-    const currentDocs = user.portfolio_documents || [];
-    await base44.auth.updateMe({
-      opsbase_agreement_signed: true,
-      opsbase_agreement_signed_at: new Date().toISOString(),
-      opsbase_agreement_pdf_url: uploadResult.file_url,
-      portfolio_documents: [...currentDocs, uploadResult.file_url],
-    });
-
-    setShowSuccessModal(true);
   };
 
   return (
