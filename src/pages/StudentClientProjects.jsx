@@ -7,7 +7,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Lock, FolderKanban, ChevronRight, PlayCircle, FileText, ArrowRight, Send, BookOpen } from 'lucide-react';
+import { Lock, FolderKanban, ChevronRight, PlayCircle, ArrowRight, BookOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const OPSBASE_LOGO = 'https://media.base44.com/images/public/693261f4a46b591b7d38e623/6610419bc_5e2c44538_OpsbaseLogo500x100px.png';
@@ -138,18 +138,11 @@ function ProjectListStep({ projects, enrollments, userRole, introVideoUrl, dashb
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-5xl mx-auto px-4 md:px-8 py-6 md:py-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="max-w-5xl mx-auto px-4 md:px-8 py-6 md:py-8">
           <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
             <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-1">My Projects</h1>
             <p className="text-slate-500 text-sm">Your assigned client projects — delivered in partnership with Opsbase</p>
           </motion.div>
-          <button
-            onClick={() => setRewatchOpen(true)}
-            className="flex items-center gap-2 text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 transition-colors rounded-xl px-4 py-2.5"
-          >
-            <BookOpen className="w-4 h-4" />
-            Rewatch Onboarding
-          </button>
         </div>
       </div>
 
@@ -180,9 +173,7 @@ function ProjectListStep({ projects, enrollments, userRole, introVideoUrl, dashb
                     <Badge className={`text-xs ${STATUS_STYLES[status] || 'bg-slate-100 text-slate-500'}`}>
                       {STATUS_LABELS[status] || status}
                     </Badge>
-                    <div className="flex items-center gap-1 text-xs text-slate-400">
-                      <img src={OPSBASE_LOGO} alt="Opsbase" className="h-3.5 w-auto opacity-60" />
-                    </div>
+                    <img src={OPSBASE_LOGO} alt="Opsbase" className="h-3.5 w-auto opacity-60" />
                   </div>
                 </div>
                 <div className="flex-shrink-0">
@@ -195,6 +186,14 @@ function ProjectListStep({ projects, enrollments, userRole, introVideoUrl, dashb
           );
         })}
       </div>
+
+      <button
+        onClick={() => setRewatchOpen(true)}
+        className="fixed bottom-6 left-6 z-50 flex items-center gap-2 bg-white border border-slate-200 shadow-md text-slate-600 hover:text-teal-700 hover:border-teal-300 text-xs font-semibold px-3 py-2 rounded-full transition-colors"
+      >
+        <BookOpen className="w-3.5 h-3.5" />
+        Rewatch Onboarding
+      </button>
 
       <OnboardingRewatchModal
         isOpen={rewatchOpen}
