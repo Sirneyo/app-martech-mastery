@@ -254,20 +254,7 @@ export default function SuperAdminDashboard() {
 
   const onboardingResetMutation = useMutation({
     mutationFn: async (user) => {
-      await base44.entities.User.update(user.id, {
-        opsbase_agreement_signed: false,
-        opsbase_agreement_signed_at: null,
-      });
-      await base44.entities.AdminAuditLog.create({
-        action: 'attempt_reset',
-        admin_id: currentUser?.id,
-        admin_name: currentUser?.full_name || currentUser?.email,
-        target_user_id: user.id,
-        target_user_name: user.full_name || user.display_name,
-        target_user_email: user.email,
-        details: 'Project onboarding agreement reset. Student will be shown the agreement screen again on next visit.',
-        timestamp: new Date().toISOString(),
-      });
+      await base44.functions.invoke('resetProjectOnboarding', { userId: user.id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['super-admin-users'] });
