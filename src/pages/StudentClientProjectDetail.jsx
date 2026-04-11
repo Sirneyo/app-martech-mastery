@@ -250,8 +250,6 @@ export default function StudentClientProjectDetail() {
         <ProjectOnboardingTour
           userId={user.id}
           projectId={projectId}
-          introVideoUrl={project?.intro_video_url}
-          dashboardVideoUrl={project?.dashboard_video_url}
         />
       )}
     </div>
