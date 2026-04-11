@@ -276,8 +276,8 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
         pdfBase64,
       });
 
-      // Save agreement status via backend (service role)
-      await base44.functions.invoke('saveOpsbaseAgreement', {});
+      // Save agreement status + upload PDF via backend (service role)
+      await base44.functions.invoke('saveOpsbaseAgreement', { pdfBase64 });
 
       // Close modal and show success
       setShowModal(false);
