@@ -913,7 +913,7 @@ export default function SuperAdminDashboard() {
                           {u.opsbase_agreement_signed_at ? new Date(u.opsbase_agreement_signed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                         </td>
                         <td className="p-4">
-                          {u.opsbase_agreement_signed && (
+                          {(u.opsbase_agreement_signed || u.opsbase_onboarding_complete) && (
                             <Button
                               size="sm"
                               variant="outline"
@@ -924,9 +924,9 @@ export default function SuperAdminDashboard() {
                             </Button>
                           )}
                         </td>
-                      </tr>
-                    ))
-                  }
+                        </tr>
+                        ))
+                        }
                 </tbody>
               </table>
             </div>
