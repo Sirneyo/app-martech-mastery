@@ -19,6 +19,7 @@ Deno.serve(async (req) => {
     await base44.asServiceRole.entities.User.update(userId, {
       opsbase_agreement_signed: false,
       opsbase_agreement_signed_at: null,
+      opsbase_onboarding_complete: false,
     });
 
     await base44.asServiceRole.entities.AdminAuditLog.create({

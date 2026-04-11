@@ -869,11 +869,12 @@ export default function SuperAdminDashboard() {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-200">
-                    <th className="text-left p-4 font-semibold text-slate-700">Student</th>
-                    <th className="text-left p-4 font-semibold text-slate-700">Agreement Status</th>
-                    <th className="text-left p-4 font-semibold text-slate-700">Signed At</th>
-                    <th className="text-left p-4 font-semibold text-slate-700">Actions</th>
+                   <tr className="border-b border-slate-200">
+                     <th className="text-left p-4 font-semibold text-slate-700">Student</th>
+                     <th className="text-left p-4 font-semibold text-slate-700">Agreement</th>
+                     <th className="text-left p-4 font-semibold text-slate-700">Full Onboarding</th>
+                     <th className="text-left p-4 font-semibold text-slate-700">Signed At</th>
+                     <th className="text-left p-4 font-semibold text-slate-700">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -894,6 +895,17 @@ export default function SuperAdminDashboard() {
                           ) : (
                             <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full border border-slate-200">
                               Not signed
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-4">
+                          {u.opsbase_onboarding_complete ? (
+                            <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-teal-100 text-teal-700 px-2.5 py-1 rounded-full border border-teal-200">
+                              <CheckCircle className="w-3 h-3" /> Complete
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full border border-slate-200">
+                              Incomplete
                             </span>
                           )}
                         </td>
