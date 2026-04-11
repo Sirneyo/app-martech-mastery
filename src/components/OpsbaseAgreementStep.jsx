@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, ArrowRight, RotateCcw, PenLine, Type, X, ExternalLink, CheckCircle } from 'lucide-react';
+import { FileText, ArrowRight, ArrowLeft, RotateCcw, PenLine, Type, X, ExternalLink, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { jsPDF } from 'jspdf';
@@ -162,7 +162,7 @@ function SignaturePad({ onSignatureChange }) {
   );
 }
 
-export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
+export default function OpsbaseAgreementStep({ user, cohortName, onContinue, onBack }) {
   const [showModal, setShowModal] = useState(false);
   const [success, setSuccess] = useState(false);
   const [submitError, setSubmitError] = useState(null);
@@ -326,6 +326,11 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
       <div className="flex-1 flex items-start justify-center px-6 py-12">
         <div className="w-full max-w-3xl">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+            {onBack && (
+              <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 text-sm font-medium mb-6 transition-colors">
+                <ArrowLeft className="w-4 h-4" /> Back
+              </button>
+            )}
             <div className="mb-8 text-center">
               <div className="inline-flex items-center gap-2 bg-slate-100 border border-slate-200 text-slate-600 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest mb-4">
                 <FileText className="w-3.5 h-3.5" />
