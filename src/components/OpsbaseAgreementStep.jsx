@@ -266,24 +266,18 @@ export default function OpsbaseAgreementStep({ user, cohortName, onContinue }) {
       doc.text('MarTech Mastery is operated by OAD Solutions Ltd. This agreement forms part of the programme terms and conditions.', pageW / 2, y, { align: 'center' });
 
       const pdfBase64 = doc.output('datauristring').split(',')[1];
-      const pdfBlob = doc.output('blob');
 
-      // Upload PDF and send email in parallel
-      const [uploadResult] = await Promise.all([
-        base44.integrations.Core.UploadFile({ file: pdfBlob }),
-        base44.functions.invoke('sendOpsbaseAgreementEmail', {
-          studentName,
-          studentEmail: user.email,
-          date: today,
-          cohortName: cohortName || 'N/A',
-          pdfBase64,
-        }),
-      ]);
+      // Send email with PDF
+      await base44.functions.invoke('sendOpsbaseAgreementEmail', {
+        studentName,
+        studentEmail: user.email,
+        date: today,
+        cohortName: cohortName || 'N/A',
+        pdfBase64,
+      });
 
       // Save agreement status via backend (service role)
-      await base44.functions.invoke('saveOpsbaseAgreement', {
-        pdfUrl: uploadResult.file_url,
-      });
+      await base44.functions.invoke('saveOpsbaseAgreement', {});
 
       // Close modal and show success
       setShowModal(false);
