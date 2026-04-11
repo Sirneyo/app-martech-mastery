@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import OpsbaseAgreementStep from '@/components/OpsbaseAgreementStep';
+import OnboardingRewatchModal from '@/components/client-project/OnboardingRewatchModal';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Lock, FolderKanban, ChevronRight, PlayCircle, FileText, ArrowRight, Briefcase, Send } from 'lucide-react';
+import { Lock, FolderKanban, ChevronRight, PlayCircle, FileText, ArrowRight, Send, BookOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const OPSBASE_LOGO = 'https://media.base44.com/images/public/693261f4a46b591b7d38e623/6610419bc_5e2c44538_OpsbaseLogo500x100px.png';
@@ -26,18 +27,16 @@ const STATUS_LABELS = {
 };
 
 // Step 1: Intro Video
-function IntroStep({ projects, onContinue }) {
+function IntroVideoStep({ projects, onContinue }) {
   const videoUrl = projects[0]?.intro_video_url;
-
   return (
     <div className="bg-slate-50 flex flex-col" style={{ minHeight: '100%' }}>
       <div className="flex flex-col items-center px-6 py-6">
         <div className="w-full max-w-3xl flex flex-col gap-4">
-
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="text-center">
             <div className="inline-flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-700 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest mb-3">
               <PlayCircle className="w-3.5 h-3.5" />
-              Project Briefing
+              Step 1 of 3 — Project Briefing
             </div>
             <h1 className="text-2xl font-bold text-slate-900 mb-1">Welcome to Your Client Project</h1>
             <p className="text-slate-500 text-sm max-w-xl mx-auto">
@@ -79,8 +78,61 @@ function IntroStep({ projects, onContinue }) {
   );
 }
 
-// Step 3: Project List
-function ProjectListStep({ projects, enrollments, onPushOrder, isPushing, userRole }) {
+// Step 3: Dashboard Tutorial Video
+function DashboardVideoStep({ projects, onContinue }) {
+  const videoUrl = projects[0]?.dashboard_video_url;
+  return (
+    <div className="bg-slate-50 flex flex-col" style={{ minHeight: '100%' }}>
+      <div className="flex flex-col items-center px-6 py-6">
+        <div className="w-full max-w-3xl flex flex-col gap-4">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="text-center">
+            <div className="inline-flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-700 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-widest mb-3">
+              <PlayCircle className="w-3.5 h-3.5" />
+              Step 3 of 3 — Dashboard Tutorial
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900 mb-1">How to Navigate Your Workspace</h1>
+            <p className="text-slate-500 text-sm max-w-xl mx-auto">
+              Watch this short tutorial to understand how to use your project dashboard and track your progress.
+            </p>
+          </motion.div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            {videoUrl ? (
+              <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                <iframe src={videoUrl} className="absolute inset-0 w-full h-full" allowFullScreen title="Dashboard Tutorial" />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center bg-slate-50 border-b border-slate-100 py-16">
+                <div className="w-16 h-16 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-3">
+                  <PlayCircle className="w-8 h-8 text-teal-500" />
+                </div>
+                <p className="text-slate-400 text-sm font-medium">Dashboard tutorial coming soon</p>
+                <p className="text-slate-300 text-xs mt-1">Your coordinator will add this shortly</p>
+              </div>
+            )}
+            <div className="px-6 py-3 bg-slate-50 border-t border-slate-100">
+              <p className="text-xs text-slate-400 text-center">
+                Once you've watched, click below to enter your project workspace.
+              </p>
+            </div>
+          </div>
+
+          <Button
+            className="w-full h-12 text-sm font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-xl shadow-sm"
+            onClick={onContinue}
+          >
+            Enter My Projects
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Step 4: Project List
+function ProjectListStep({ projects, enrollments, userRole, introVideoUrl, dashboardVideoUrl }) {
+  const [rewatchOpen, setRewatchOpen] = useState(false);
   const getEnrollment = (projectId) => enrollments.find(e => e.project_id === projectId);
 
   return (
@@ -91,11 +143,13 @@ function ProjectListStep({ projects, enrollments, onPushOrder, isPushing, userRo
             <h1 className="text-xl md:text-2xl font-bold text-slate-900 mb-1">My Projects</h1>
             <p className="text-slate-500 text-sm">Your assigned client projects — delivered in partnership with Opsbase</p>
           </motion.div>
-          {userRole === 'admin' && (
-            <Button onClick={onPushOrder} disabled={isPushing} className="gap-2 h-9" variant="outline">
-              <Send className="w-4 h-4" /> Sync Order
-            </Button>
-          )}
+          <button
+            onClick={() => setRewatchOpen(true)}
+            className="flex items-center gap-2 text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 transition-colors rounded-xl px-4 py-2.5"
+          >
+            <BookOpen className="w-4 h-4" />
+            Rewatch Onboarding
+          </button>
         </div>
       </div>
 
@@ -114,7 +168,6 @@ function ProjectListStep({ projects, enrollments, onPushOrder, isPushing, userRo
                 to={createPageUrl(`StudentClientProjectDetail?id=${project.id}`)}
                 className="group flex flex-col md:flex-row md:items-center gap-4 md:gap-6 bg-white rounded-2xl p-4 md:p-6 border border-slate-200 shadow-sm hover:shadow-md hover:border-teal-200 transition-all duration-200"
               >
-
                 <div className="flex-1 min-w-0">
                   {project.company_name && (
                     <p className="text-xs font-semibold text-teal-600 uppercase tracking-wider mb-1">{project.company_name}</p>
@@ -132,7 +185,6 @@ function ProjectListStep({ projects, enrollments, onPushOrder, isPushing, userRo
                     </div>
                   </div>
                 </div>
-
                 <div className="flex-shrink-0">
                   <div className="w-9 h-9 rounded-xl border border-slate-200 group-hover:border-teal-200 group-hover:bg-teal-50 flex items-center justify-center transition-all">
                     <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-600 group-hover:translate-x-0.5 transition-all" />
@@ -143,6 +195,13 @@ function ProjectListStep({ projects, enrollments, onPushOrder, isPushing, userRo
           );
         })}
       </div>
+
+      <OnboardingRewatchModal
+        isOpen={rewatchOpen}
+        onClose={() => setRewatchOpen(false)}
+        introVideoUrl={introVideoUrl}
+        dashboardVideoUrl={dashboardVideoUrl}
+      />
     </div>
   );
 }
@@ -170,12 +229,28 @@ function NotAssignedScreen() {
   );
 }
 
+// Determine the correct starting step based on user's onboarding state
+function getInitialStep(user) {
+  if (!user) return 'video1';
+  if (user.opsbase_onboarding_complete) return 'list';
+  if (user.opsbase_agreement_signed) return 'video2';
+  return 'video1';
+}
+
 export default function StudentClientProjects() {
-  const [step, setStep] = useState('intro');
-  const [pushingOrder, setPushingOrder] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({ queryKey: ['current-user'], queryFn: () => base44.auth.me() });
+
+  const [step, setStep] = useState(() => getInitialStep(user));
+
+  // Update step if user data loads and they've already completed onboarding
+  useEffect(() => {
+    if (user && step === 'video1') {
+      const correctStep = getInitialStep(user);
+      if (correctStep !== 'video1') setStep(correctStep);
+    }
+  }, [user]);
 
   const { data: membership } = useQuery({
     queryKey: ['my-cohort-membership', user?.id],
@@ -225,22 +300,31 @@ export default function StudentClientProjects() {
     return <NotAssignedScreen />;
   }
 
-  const handlePushOrder = async () => {
-    setPushingOrder(true);
-    const adminProjects = await base44.entities.Project.list();
-    const sorted = adminProjects.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-    setPushingOrder(false);
-  };
-
-  const agreementSigned = user?.opsbase_agreement_signed;
+  const introVideoUrl = myProjects[0]?.intro_video_url;
+  const dashboardVideoUrl = myProjects[0]?.dashboard_video_url;
 
   const handleAgreementComplete = async () => {
-    // Refetch user so opsbase_agreement_signed is fresh
+    await queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    setStep('video2');
+  };
+
+  const handleVideo2Complete = async () => {
+    await base44.functions.invoke('completeOpsbaseOnboarding', {});
     await queryClient.invalidateQueries({ queryKey: ['current-user'] });
     setStep('list');
   };
 
-  if (step === 'intro') return <IntroStep projects={myProjects} onContinue={() => setStep(agreementSigned ? 'list' : 'agreement')} />;
+  if (step === 'video1') return <IntroVideoStep projects={myProjects} onContinue={() => setStep('agreement')} />;
   if (step === 'agreement') return <OpsbaseAgreementStep user={user} cohortName={cohort?.name} onContinue={handleAgreementComplete} />;
-  return <ProjectListStep projects={myProjects} enrollments={enrollments} onPushOrder={handlePushOrder} isPushing={pushingOrder} userRole={user?.app_role} />;
+  if (step === 'video2') return <DashboardVideoStep projects={myProjects} onContinue={handleVideo2Complete} />;
+
+  return (
+    <ProjectListStep
+      projects={myProjects}
+      enrollments={enrollments}
+      userRole={user?.app_role}
+      introVideoUrl={introVideoUrl}
+      dashboardVideoUrl={dashboardVideoUrl}
+    />
+  );
 }

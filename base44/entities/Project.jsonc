@@ -16,7 +16,11 @@
     },
     "intro_video_url": {
       "type": "string",
-      "description": "URL to the intro briefing video"
+      "description": "URL to the intro briefing video (Video 1 of onboarding)"
+    },
+    "dashboard_video_url": {
+      "type": "string",
+      "description": "URL to the dashboard tutorial video (Video 2 of onboarding)"
     },
     "agreement_doc_url": {
       "type": "string",

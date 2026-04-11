@@ -63,6 +63,11 @@
       "type": "string",
       "format": "date-time",
       "description": "When the student signed the Opsbase agreement"
+    },
+    "opsbase_onboarding_complete": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the student has completed the full Opsbase onboarding (both videos + agreement)"
     }
   },
   "required": []
