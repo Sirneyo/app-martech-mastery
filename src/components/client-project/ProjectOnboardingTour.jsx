@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowRight, MapPin } from 'lucide-react';
+import OnboardingRewatchModal from '@/components/client-project/OnboardingRewatchModal';
 
 const TOUR_STEPS = [
   {
@@ -229,11 +230,12 @@ function TourCard({ step, stepIndex, totalSteps, onNext, onSkip, rect }) {
   );
 }
 
-export default function ProjectOnboardingTour({ userId, projectId, onDone }) {
+export default function ProjectOnboardingTour({ userId, projectId, onDone, introVideoUrl, dashboardVideoUrl }) {
   const storageKey = `tour_done_project_${userId}`;
   const [active, setActive] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [rect, setRect] = useState(null);
+  const [rewatchOpen, setRewatchOpen] = useState(false);
 
   useEffect(() => {
     const done = localStorage.getItem(storageKey);
@@ -281,14 +283,31 @@ export default function ProjectOnboardingTour({ userId, projectId, onDone }) {
 
   if (!active) {
     return (
-      <button
-        onClick={restart}
-        title="Replay onboarding tour"
-        className="fixed bottom-6 left-6 z-50 flex items-center gap-2 bg-white border border-slate-200 shadow-md text-slate-600 hover:text-teal-700 hover:border-teal-300 text-xs font-semibold px-3 py-2 rounded-full transition-colors"
-      >
-        <MapPin className="w-3.5 h-3.5" />
-        Take the Tour
-      </button>
+      <>
+        <div className="fixed bottom-6 left-6 z-50 flex flex-col gap-2 items-start">
+          <button
+            onClick={() => setRewatchOpen(true)}
+            className="flex items-center gap-2 bg-white border border-slate-200 shadow-md text-slate-600 hover:text-teal-700 hover:border-teal-300 text-xs font-semibold px-3 py-2 rounded-full transition-colors"
+          >
+            <span className="text-base leading-none">🎬</span>
+            Rewatch Onboarding
+          </button>
+          <button
+            onClick={restart}
+            title="Replay onboarding tour"
+            className="flex items-center gap-2 bg-white border border-slate-200 shadow-md text-slate-600 hover:text-teal-700 hover:border-teal-300 text-xs font-semibold px-3 py-2 rounded-full transition-colors"
+          >
+            <MapPin className="w-3.5 h-3.5" />
+            Take the Tour
+          </button>
+        </div>
+        <OnboardingRewatchModal
+          isOpen={rewatchOpen}
+          onClose={() => setRewatchOpen(false)}
+          introVideoUrl={introVideoUrl}
+          dashboardVideoUrl={dashboardVideoUrl}
+        />
+      </>
     );
   }
 
