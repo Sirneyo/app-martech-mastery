@@ -22,14 +22,12 @@ export default function AcceptInvitation() {
   const [verificationStep, setVerificationStep] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
 
-  // Block access if no token in URL
-  const urlParams = new URLSearchParams(window.location.search);
-  if (!urlParams.get('token')) {
-    base44.auth.redirectToLogin();
-    return null;
-  }
-
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.get('token')) {
+      base44.auth.redirectToLogin();
+      return;
+    }
     checkInvitation();
   }, []);
 
