@@ -15,15 +15,6 @@ export default function AcceptInvitation() {
   const [invitation, setInvitation] = useState(null);
   const [userExists, setUserExists] = useState(false);
   const [error, setError] = useState('');
-
-  // Block access if no token in URL
-  const urlParams = new URLSearchParams(window.location.search);
-  if (!urlParams.get('token')) {
-    base44.auth.redirectToLogin();
-    return null;
-  }
-  
-  // Form state
   const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -31,6 +22,12 @@ export default function AcceptInvitation() {
   const [verificationStep, setVerificationStep] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
 
+  // Block access if no token in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  if (!urlParams.get('token')) {
+    base44.auth.redirectToLogin();
+    return null;
+  }
 
   useEffect(() => {
     checkInvitation();
