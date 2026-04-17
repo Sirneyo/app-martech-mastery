@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Coins, Trash2, CheckCircle, XCircle, Search, Plus, Minus, Users, AlertTriangle, Eye, Activity, UserCheck, Wifi, BarChart2, RotateCcw, Clock, RefreshCw, GraduationCap, FolderOpen } from 'lucide-react';
+import { Shield, Coins, Trash2, CheckCircle, XCircle, Search, Plus, Minus, Users, AlertTriangle, Eye, Activity, UserCheck, Wifi, BarChart2, RotateCcw, Clock, RefreshCw, GraduationCap, FolderOpen, BookOpen, ChevronRight } from 'lucide-react';
 import SystemCheckPanel from '@/components/SystemCheckPanel';
 import SuperAdminAnalytics from '@/components/SuperAdminAnalytics';
 import { useNavigate } from 'react-router-dom';
@@ -61,6 +61,12 @@ export default function SuperAdminDashboard() {
   const [onboardingSearchTerm, setOnboardingSearchTerm] = useState('');
   const [onboardingResetConfirmOpen, setOnboardingResetConfirmOpen] = useState(false);
   const [onboardingResetTarget, setOnboardingResetTarget] = useState(null);
+
+  // Assignment reset state
+  const [assignmentSearchTerm, setAssignmentSearchTerm] = useState('');
+  const [selectedAssignmentUser, setSelectedAssignmentUser] = useState(null);
+  const [assignmentResetConfirmOpen, setAssignmentResetConfirmOpen] = useState(false);
+  const [assignmentResetTarget, setAssignmentResetTarget] = useState(null);
 
   const [activeTab, setActiveTab] = useState('points');
 
@@ -249,6 +255,26 @@ export default function SuperAdminDashboard() {
       queryClient.invalidateQueries({ queryKey: ['all-exam-attempts-admin'] });
       setOverrideConfirmOpen(false);
       setOverrideTarget(null);
+    },
+  });
+
+  const { data: allSubmissions = [], isLoading: loadingSubmissions, refetch: refetchSubmissions } = useQuery({
+    queryKey: ['all-submissions-admin', selectedAssignmentUser?.id],
+    queryFn: () => base44.entities.Submission.filter({ user_id: selectedAssignmentUser.id }),
+    enabled: !!selectedAssignmentUser?.id,
+  });
+
+  const { data: assignmentTemplates = [] } = useQuery({
+    queryKey: ['assignment-templates-admin'],
+    queryFn: () => base44.entities.AssignmentTemplate.list('week_number', 200),
+  });
+
+  const assignmentResetMutation = useMutation({
+    mutationFn: (submissionId) => base44.functions.invoke('resetAssignmentSubmission', { submissionId }),
+    onSuccess: () => {
+      refetchSubmissions();
+      setAssignmentResetConfirmOpen(false);
+      setAssignmentResetTarget(null);
     },
   });
 
@@ -486,6 +512,9 @@ export default function SuperAdminDashboard() {
             </TabsTrigger>
             <TabsTrigger value="projectonboarding" className="flex items-center gap-2">
               <FolderOpen className="w-4 h-4" /> Project Onboarding
+            </TabsTrigger>
+            <TabsTrigger value="assignmentreset" className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4" /> Assignment Resets
             </TabsTrigger>
             <TabsTrigger value="systemcheck" className="flex items-center gap-2">
               <Activity className="w-4 h-4" /> System Check
@@ -932,6 +961,122 @@ export default function SuperAdminDashboard() {
             </div>
           </TabsContent>
 
+          {/* Assignment Reset Tab */}
+          <TabsContent value="assignmentreset" className="space-y-4 mt-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
+              <BookOpen className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-blue-800">Assignment Reset Controls</p>
+                <p className="text-sm text-blue-700 mt-0.5">Search for a student, then select any submitted assignment to reset its status back to draft. The student can then resubmit.</p>
+              </div>
+            </div>
+
+            {/* Student search */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Step 1 — Select a student</p>
+              <div className="relative">
+                <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                <input
+                  className="w-full border border-slate-200 rounded-lg pl-10 pr-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-300"
+                  placeholder="Search students by name or email..."
+                  value={assignmentSearchTerm}
+                  onChange={e => setAssignmentSearchTerm(e.target.value)}
+                />
+              </div>
+              {assignmentSearchTerm && (
+                <div className="mt-2 border border-slate-200 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                  {users
+                    .filter(u => u.app_role === 'student')
+                    .filter(u => u.full_name?.toLowerCase().includes(assignmentSearchTerm.toLowerCase()) || u.email?.toLowerCase().includes(assignmentSearchTerm.toLowerCase()))
+                    .slice(0, 8)
+                    .map(u => (
+                      <button
+                        key={u.id}
+                        className={`w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0 ${selectedAssignmentUser?.id === u.id ? 'bg-blue-50' : ''}`}
+                        onClick={() => { setSelectedAssignmentUser(u); setAssignmentSearchTerm(''); }}
+                      >
+                        <div>
+                          <p className="text-sm font-medium text-slate-800">{u.display_name || u.full_name}</p>
+                          <p className="text-xs text-slate-500">{u.email}</p>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                      </button>
+                    ))}
+                </div>
+              )}
+            </div>
+
+            {/* Submissions for selected student */}
+            {selectedAssignmentUser && (
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Step 2 — Select submission to reset</p>
+                    <p className="text-sm font-semibold text-slate-800 mt-0.5">{selectedAssignmentUser.display_name || selectedAssignmentUser.full_name} <span className="text-slate-400 font-normal text-xs">({selectedAssignmentUser.email})</span></p>
+                  </div>
+                  <button onClick={() => setSelectedAssignmentUser(null)} className="text-xs text-slate-400 hover:text-slate-600">Clear</button>
+                </div>
+                {loadingSubmissions ? (
+                  <div className="p-8 text-center text-slate-400 text-sm">Loading submissions…</div>
+                ) : allSubmissions.filter(s => s.submission_kind === 'assignment').length === 0 ? (
+                  <div className="p-8 text-center text-slate-400 text-sm">No assignment submissions found for this student.</div>
+                ) : (
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50">
+                        <th className="text-left p-3 text-xs font-semibold text-slate-600">Assignment</th>
+                        <th className="text-left p-3 text-xs font-semibold text-slate-600">Status</th>
+                        <th className="text-left p-3 text-xs font-semibold text-slate-600">Submitted</th>
+                        <th className="text-left p-3 text-xs font-semibold text-slate-600">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {allSubmissions
+                        .filter(s => s.submission_kind === 'assignment')
+                        .sort((a, b) => new Date(b.submitted_date || b.created_date) - new Date(a.submitted_date || a.created_date))
+                        .map(s => {
+                          const template = assignmentTemplates.find(t => t.id === s.assignment_template_id);
+                          return (
+                            <tr key={s.id} className="border-b border-slate-100 hover:bg-slate-50">
+                              <td className="p-3">
+                                <p className="text-sm font-medium text-slate-800">{template?.title || 'Assignment'}</p>
+                                {template?.week_number && <p className="text-xs text-slate-400">Week {template.week_number}</p>}
+                              </td>
+                              <td className="p-3">
+                                <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border ${
+                                  s.status === 'graded' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                                  s.status === 'submitted' || s.status === 'in_review' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                  s.status === 'needs_revision' ? 'bg-amber-100 text-amber-700 border-amber-200' :
+                                  'bg-slate-100 text-slate-500 border-slate-200'
+                                }`}>
+                                  {s.status}
+                                </span>
+                              </td>
+                              <td className="p-3 text-xs text-slate-500">
+                                {s.submitted_date ? new Date(s.submitted_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                              </td>
+                              <td className="p-3">
+                                {s.status !== 'draft' && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="border-blue-300 text-blue-700 hover:bg-blue-50 gap-1"
+                                    onClick={() => { setAssignmentResetTarget(s); setAssignmentResetConfirmOpen(true); }}
+                                  >
+                                    <RotateCcw className="w-3 h-3" /> Reset to Draft
+                                  </Button>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+          </TabsContent>
+
           {/* System Check Tab */}
           <TabsContent value="systemcheck" className="mt-4">
             <SystemCheckPanel />
@@ -1175,6 +1320,35 @@ export default function SuperAdminDashboard() {
                  onClick={() => onboardingResetMutation.mutate(onboardingResetTarget)}
                >
                  <RotateCcw className="w-4 h-4 mr-1" /> {onboardingResetMutation.isPending ? 'Resetting...' : 'Reset Onboarding'}
+               </Button>
+             </div>
+           </div>
+         </DialogContent>
+       </Dialog>
+
+       {/* Assignment Reset Confirmation Dialog */}
+       <Dialog open={assignmentResetConfirmOpen} onOpenChange={setAssignmentResetConfirmOpen}>
+         <DialogContent>
+           <DialogHeader>
+             <DialogTitle className="text-blue-700 flex items-center gap-2">
+               <RotateCcw className="w-5 h-5" />
+               Reset Submission to Draft
+             </DialogTitle>
+           </DialogHeader>
+           <div className="space-y-4 py-2">
+             <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-700 space-y-1">
+               <p><strong>Student:</strong> {selectedAssignmentUser?.display_name || selectedAssignmentUser?.full_name}</p>
+               <p><strong>Current status:</strong> {assignmentResetTarget?.status}</p>
+             </div>
+             <p className="text-slate-700 text-sm">This will change the submission status back to <strong>draft</strong> and clear the submitted date. The student can then edit and resubmit.</p>
+             <div className="flex gap-2">
+               <Button variant="outline" className="flex-1" onClick={() => setAssignmentResetConfirmOpen(false)}>Cancel</Button>
+               <Button
+                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                 disabled={assignmentResetMutation.isPending}
+                 onClick={() => assignmentResetMutation.mutate(assignmentResetTarget?.id)}
+               >
+                 <RotateCcw className="w-4 h-4 mr-1" /> {assignmentResetMutation.isPending ? 'Resetting…' : 'Reset to Draft'}
                </Button>
              </div>
            </div>
