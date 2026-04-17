@@ -38,6 +38,8 @@ export default function AdminUsers() {
   const [deletionDialogOpen, setDeletionDialogOpen] = useState(false);
   const [deletionReason, setDeletionReason] = useState('');
   const [deletionTarget, setDeletionTarget] = useState(null);
+  const [cohortChangeWarningOpen, setCohortChangeWarningOpen] = useState(false);
+  const [pendingCohortChange, setPendingCohortChange] = useState(null); // { userId, newCohortId, membershipId, isTutor }
 
   const queryClient = useQueryClient();
 
@@ -145,6 +147,22 @@ export default function AdminUsers() {
     mutationFn: (id) => base44.entities.Invitation.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invitations'] });
+    },
+  });
+
+  const changeCohortWithResetMutation = useMutation({
+    mutationFn: ({ student_user_id, new_cohort_id }) =>
+      base44.functions.invoke('changeCohortWithReset', { student_user_id, new_cohort_id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['memberships'] });
+      queryClient.invalidateQueries({ queryKey: ['tutor-assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['cohort-users'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      setCohortChangeWarningOpen(false);
+      setPendingCohortChange(null);
+    },
+    onError: (error) => {
+      alert('Failed to change cohort: ' + (error.message || 'Unknown error'));
     },
   });
 
@@ -693,38 +711,35 @@ export default function AdminUsers() {
                 <Select 
                   value={getUserCohort(selectedUser?.id) ? cohorts.find(c => c.name === getUserCohort(selectedUser?.id))?.id : ''} 
                   onValueChange={(value) => {
-                    // Find existing membership/assignment for this user
-                    const studentMembership = memberships.find(m => m.user_id === selectedUser?.id);
-                    const tutorAssignment = tutorAssignments.find(ta => ta.tutor_id === selectedUser?.id);
-                    
-                    if (value) {
+                    if (!value) return;
+                    const currentCohortId = cohorts.find(c => c.name === getUserCohort(selectedUser?.id))?.id;
+                    if (value === currentCohortId) return;
+
+                    const isTutor = selectedUser?.app_role === 'tutor';
+
+                    if (isTutor) {
+                      // Tutors: just update directly, no reset needed
+                      const tutorAssignment = tutorAssignments.find(ta => ta.tutor_id === selectedUser?.id);
                       const doUpdate = async () => {
-                        if (studentMembership) {
-                          await base44.entities.CohortMembership.update(studentMembership.id, { cohort_id: value });
-                        } else if (tutorAssignment) {
+                        if (tutorAssignment) {
                           await base44.entities.TutorCohortAssignment.update(tutorAssignment.id, { cohort_id: value });
                         } else {
-                          if (selectedUser?.app_role === 'tutor') {
-                            await base44.entities.TutorCohortAssignment.create({
-                              tutor_id: selectedUser.id,
-                              cohort_id: value,
-                              assigned_date: new Date().toISOString().split('T')[0],
-                            });
-                          } else {
-                            await base44.entities.CohortMembership.create({
-                              user_id: selectedUser.id,
-                              cohort_id: value,
-                              enrollment_date: new Date().toISOString().split('T')[0],
-                            });
-                          }
+                          await base44.entities.TutorCohortAssignment.create({
+                            tutor_id: selectedUser.id,
+                            cohort_id: value,
+                            assigned_date: new Date().toISOString().split('T')[0],
+                          });
                         }
                         queryClient.invalidateQueries({ queryKey: ['memberships'] });
                         queryClient.invalidateQueries({ queryKey: ['tutor-assignments'] });
-                        queryClient.invalidateQueries({ queryKey: ['tutor-cohort-assignments'] });
                         queryClient.invalidateQueries({ queryKey: ['cohort-users'] });
                         queryClient.invalidateQueries({ queryKey: ['users'] });
                       };
                       doUpdate();
+                    } else {
+                      // Students: show warning first
+                      setPendingCohortChange({ userId: selectedUser.id, newCohortId: value });
+                      setCohortChangeWarningOpen(true);
                     }
                   }}
                 >
@@ -747,6 +762,56 @@ export default function AdminUsers() {
             </div>
           </DialogContent>
         </Dialog>
+      {/* Cohort Change Warning Dialog */}
+      <Dialog open={cohortChangeWarningOpen} onOpenChange={setCohortChangeWarningOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-amber-700 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              Warning: This Will Reset All Student Data
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800 space-y-2">
+              <p className="font-semibold">Changing this student's cohort will permanently delete:</p>
+              <ul className="list-disc list-inside space-y-1 ml-1">
+                <li>All points and points history</li>
+                <li>All assignment submissions</li>
+                <li>All portfolio item submissions</li>
+                <li>All exam attempts and answers</li>
+              </ul>
+              <p className="mt-2 font-semibold text-amber-900">This action cannot be undone.</p>
+            </div>
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-700">
+              <strong>New cohort:</strong> {cohorts.find(c => c.id === pendingCohortChange?.newCohortId)?.name || '—'}
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => { setCohortChangeWarningOpen(false); setPendingCohortChange(null); }}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
+                disabled={changeCohortWithResetMutation.isPending}
+                onClick={() => {
+                  if (pendingCohortChange) {
+                    changeCohortWithResetMutation.mutate({
+                      student_user_id: pendingCohortChange.userId,
+                      new_cohort_id: pendingCohortChange.newCohortId,
+                    });
+                  }
+                }}
+              >
+                {changeCohortWithResetMutation.isPending ? 'Resetting & Moving...' : 'Yes, Reset & Change Cohort'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Deletion Request Dialog */}
       <Dialog open={deletionDialogOpen} onOpenChange={setDeletionDialogOpen}>
         <DialogContent>
